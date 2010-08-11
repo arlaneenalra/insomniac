@@ -4,13 +4,13 @@ TARGET=build
 
 echo 'Setting up an out of source build tree:'
 if [ ! -d $TARGET ] ; then 
-	echo "\tCreating Directory: $TARGET"
+	echo "	Creating Directory: $TARGET"
 	mkdir $TARGET
 fi
 
 cd $TARGET
 
-echo "\tRunning cmake"
+echo "	Running cmake"
 cmake ..
 
 echo 'Done.'

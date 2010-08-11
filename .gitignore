@@ -10,7 +10,7 @@
 *CMakeFiles
 *cmake
 CMakeCache.txt
-src/bootstrap
+src/insomniac
 src/libparser/lexer.c
 src/libparser/scheme.output
 src/libparser/lexer.h

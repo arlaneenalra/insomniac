@@ -1,12 +1,10 @@
-%option noyywrap reentrant 
-/* %option bison-bridge */ 
+%option noyywrap reentrant bison-bridge
 %option always-interactive
 %option yylineno
-/* %option outfile="lexer.c" header-file="lexer.h" */
 %option nounput noinput
 
 %{
-/* #include "scheme.h"*/
+#include "scheme.h"
 
 /* avoid a compiler warning */
 #define ECHO /* do nothing */

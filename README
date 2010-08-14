@@ -1,1 +1,2 @@
-Nothing to see here, move along . . .
+To setup an build environment, run setup.sh.  If all goes well, you will find a build tree configured in the directory build.
+

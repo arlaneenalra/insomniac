@@ -16,8 +16,9 @@ ADD_FLEX_BISON_DEPENDENCY(LEXER PARSER)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_library(libinsomnia_parser
-	${FLEX_LEXER_OUTPUTS}
-	${BISON_PARSER_OUTPUTS})
+add_library(libinsomniac_parser
+  builder.c
+  ${FLEX_LEXER_OUTPUTS}
+  ${BISON_PARSER_OUTPUTS})
 
 include(${PROJECT_SOURCE_DIR}/CMakeIncludes.txt)

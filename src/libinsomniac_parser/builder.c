@@ -9,7 +9,7 @@
 
 /* Setup an instance of our parser and allocate all global 
    objects */
-parser_core_type *create_parser() {
+parser_core_type *parser_create() {
     parser_core_type *parser=0;
     
     parser=(parser_core_type *)malloc(sizeof(parser_core_type));
@@ -22,7 +22,7 @@ parser_core_type *create_parser() {
 }
 
 
-void cleanup_parser(parser_core_type *parser) {
+void parser_destroy(parser_core_type *parser) {
     
     if(parser) {
 	free(parser);

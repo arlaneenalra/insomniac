@@ -1,65 +1,7 @@
-#ifndef _AST_
-#define _AST_
+#ifndef _PARSER_
+#define _PARSER_
 
-#include <inttypes.h>
-
-typedef int8_t bool;
-struct parser_core;
-
-/* The types of cells that we can represent */
-typedef enum {
-    FIXNUM,
-    FLOATNUM,
-    IMAG,
-    BOOL,
-    CHAR,
-    STRING,
-    VECTOR,
-    TUPLE,
-    SYM,
-    PORT,
-    
-    CHAIN /* internal type */
-} object_type_enum;
-
-struct object;
-
-typedef	struct tuple {
-    struct object *car;
-    struct object *cdr;
-} tuple_type;
-
-typedef struct vector {
-    uint64_t length;
-    struct object **vector;
-} vector_type;
-
-typedef struct imaginary {
-    long double real;
-    long double imaginary;
-} imaginary_type;
-
-/* Define a structure to represent a memory cell */
-typedef struct object {
-    object_type_enum type;
-
-    union {
-	int64_t int_val;
-	long double float_val; /* There should be a better way to do this */
-	imaginary_type imaginary;
-
-	char char_val; 
-	char *string_val;
-
-	vector_type vector;
-
-	bool bool_val;
-
-	tuple_type tuple;
-    } value;
-
-    struct object *next;
-} object_type;
+#include <object.h>
 
 typedef struct bool_global {
     object_type *true;
@@ -109,10 +51,11 @@ typedef struct parser_core {
 
     /* an instance of the parser/lexer */
     scanner_stack_type *scanner;     
+
 } parser_core_type;
 
 
-extern parser_core_type *create_parser();
-extern void cleanup_parser(parser_core_type *parser);
+extern parser_core_type *parser_create();
+extern void parser_destroy(parser_core_type *parser);
 
 #endif

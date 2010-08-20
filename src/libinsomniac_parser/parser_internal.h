@@ -2,7 +2,8 @@
 #define _PARSER_INTERNAL_
 
 #include <util.h>
-#include <ast.h>
+#include <parser.h>
+#include <gc.h>
 
 /* Used to tell add object that we are setting a car or cdr */
 typedef enum {

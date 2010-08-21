@@ -63,10 +63,12 @@ typedef struct parser_core {
 #define false(parser) parser->boolean.false
 #define true(parser) parser->boolean.true
 
-extern parser_core_type *parser_create(gc_core_type *gc);
-extern void parser_destroy(parser_core_type *parser);
+parser_core_type *parser_create(gc_core_type *gc);
+void parser_destroy(parser_core_type *parser);
 
-extern void output(parser_core_type *parser, object_type *obj);
-extern void output_stream(parser_core_type *parser, object_type *obj, FILE *fout);
+object_type *parse(parser_core_type *parser, FILE *in);
+
+void output(parser_core_type *parser, object_type *obj);
+void output_stream(parser_core_type *parser, object_type *obj, FILE *fout);
 
 #endif

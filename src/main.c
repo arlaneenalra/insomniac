@@ -6,16 +6,22 @@
 
 
 /* A simple REPL */
-void repl() {
+void repl(parser_core_type *parser) {
 
-    char buf[2048];
+    object_type *obj=0;
+
+    printf("Simple Bootstrapper\n");
+    printf("sizeof(object_type) %" PRIi64 "\n", (uint64_t)sizeof(object_type));
     
     while(1) {
+
 	printf(">");
-	scanf("%s",buf);
 	
-	/* echo the input */
-	TRACE(buf);
+	obj=parse(parser, stdin);
+	
+	printf("\n");
+
+	output(parser, obj);
     }
 
 }
@@ -25,8 +31,6 @@ int main(int argc, char**argv) {
     object_type *obj=0;
     object_type *obj_walk=0;
 
-    printf("Insomniac Scheme\n");
-
     /* setup our garbage collector and parser */
     gc=gc_create();
     parser_core_type *parser=parser_create(gc);
@@ -34,6 +38,8 @@ int main(int argc, char**argv) {
     gc_stats(gc);
     gc_sweep(gc);
     gc_stats(gc);
+
+    repl(parser);
 
     /* gc_register_root(gc, &obj); */
 

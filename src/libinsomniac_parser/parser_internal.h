@@ -51,4 +51,6 @@ void end_of_file(parser_core_type *interp);
 
 char *get_text(void * scanner); /* return text from the lexer */
 
+int parse_internal(parser_core_type *parser, void *scanner);
+
 #endif

@@ -9,20 +9,24 @@
 void repl(parser_core_type *parser) {
 
     object_type *obj=0;
-    int i=2;
+    bool running=1;
 
     printf("Simple Bootstrapper\n");
     printf("sizeof(object_type) %" PRIi64 "\n", (uint64_t)sizeof(object_type));
     
-    while(i--) {
+    while(running) {
 
 	printf(">");
 	
 	obj=parse(parser, stdin);
 	
-	printf("\n");
+	if(obj) {
+	    output(parser, obj);
+	} else {
+	    running=0;
+	}
 
-	output(parser, obj);
+	printf("\n");
     }
 
 }

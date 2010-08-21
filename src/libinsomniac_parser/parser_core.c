@@ -12,6 +12,7 @@ object_type *safe_cons(parser_core_type *parser) {
     object_type *obj=0;
 
     obj=gc_alloc_object_type(parser->gc, TUPLE);
+    cdr(obj)=parser->empty_list;
     
     car(obj)=parser->tuple.car;
     parser->tuple.car=0;
@@ -156,6 +157,7 @@ void push_state(parser_core_type *parser) {
     parser->state_stack=safe_cons(parser);;
     
     parser->current=gc_alloc_object_type(parser->gc, TUPLE);
+    cdr(parser->current)=parser->empty_list;
 
 }
 

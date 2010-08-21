@@ -96,7 +96,7 @@ void output_stream(parser_core_type *parser, object_type *obj, FILE *fout) {
 	    output_stream(parser, car, fout);
 
 	    if(!is_empty_list(parser, cdr)) {
-		if(cdr->type==TUPLE) {
+		if(cdr && cdr->type==TUPLE) {
 
 		    while(!is_empty_list(parser, cdr) && is_tuple(parser, cdr)) {
 			fprintf(fout," ");

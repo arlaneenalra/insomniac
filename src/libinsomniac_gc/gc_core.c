@@ -89,13 +89,11 @@ void gc_sweep(gc_core_type *gc) {
        referenced objects.  Mark the reachable objects with 
        the new mark. */
 
-    TRACE("\nSWEEP");
     for(i=0;i<gc->root_number;i++) {
 	obj=*(gc->roots[i]); /* get the object pointed to by this root */
 
 	/* tree down and mark all reachable objects */
 	internal_mark(gc->mark,obj);
-	TRACE("\n");
     }
 
     /* now move all objects unmarked objects to the top of the dead list */
@@ -119,9 +117,7 @@ void gc_sweep(gc_core_type *gc) {
 	/* move on to the next object */
 	obj=obj_next;
     }
-
-    gc_stats(gc);
-    TRACE("\n");
+    /* gc_stats(gc);*/
 }
 
 /* Output some useful statistics about the garbage collector */
@@ -144,7 +140,6 @@ object_type *gc_alloc_object(gc_core_type *gc) {
 
     /* Are there any dead objects out there? */
     if(gc->dead_list) {
-	TRACE("Gcp");
 
 	/* pop an object off the top of the dead list */
 	obj=gc->dead_list;
@@ -154,7 +149,6 @@ object_type *gc_alloc_object(gc_core_type *gc) {
 	memset(obj, 0, sizeof(object_type));
 
     } else {
-	TRACE("Gca");
 	internal_alloc_block(gc); /* allocate a block of objects for next time */
 	obj=(object_type *)calloc(1, sizeof(object_type));	
     }
@@ -234,7 +228,6 @@ void internal_set_next_mark(gc_core_type * gc) {
 
 /* tree through objects and mark them */
 void internal_mark(gc_mark_type mark, object_type *obj) {
-    TRACE("Gcm");
     
     /* walk until we run out of obects or see one that is
        already marked. */
@@ -244,9 +237,7 @@ void internal_mark(gc_mark_type mark, object_type *obj) {
 	switch (obj->type) {
 	case TUPLE:
 	case CHAIN:
-	    TRACE("D");
 	    internal_mark(mark, cdr(obj)); /* walk the other branch */	    
-	    TRACE("A");
 	    obj=car(obj);
 	    break;
 

@@ -37,6 +37,8 @@ typedef struct parser_core {
     object_type *quote;
     object_type *eof_object;
 
+    /* used by safe_cons */
+    tuple_type tuple;
 
     /* Object to be attached to the object graph */
     object_type *added;

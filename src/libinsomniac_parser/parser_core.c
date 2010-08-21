@@ -6,6 +6,22 @@
 #include "scheme.h"
 #include "lexer.h"
 
+/* a cons that should not cause issues with the garbage collector */
+/* TODO: Possible GC snafu */
+object_type *safe_cons(parser_core_type *parser) {
+    object_type *obj=0;
+
+    obj=gc_alloc_object_type(parser->gc, TUPLE);
+    
+    car(obj)=parser->tuple.car;
+    parser->tuple.car=0;
+
+    cdr(obj)=parser->tuple.cdr;
+    parser->tuple.cdr=0;
+
+    return obj;
+}
+
 void push_parse_state(parser_core_type *parser, FILE *fin) {
     
     scanner_stack_type *scanner=alloc_scanner(parser);
@@ -120,17 +136,112 @@ void add_float(parser_core_type *parser, char *str) {
     add_object(parser, obj);
 }
 
-void add_string(parser_core_type *interp, char *str) {}
 void add_quote(parser_core_type *interp) {}
+
+void add_string(parser_core_type *interp, char *str) {}
 void add_vector(parser_core_type *interp) {}
 void add_empty_vector(parser_core_type *interp) {}
 void add_symbol(parser_core_type *interp, char *str) {}
 
-void chain_state(parser_core_type *interp) {}
-void push_state(parser_core_type *interp) {}
-void pop_state(parser_core_type *interp) {}
+/* Save the current list off so that we can get back to it */
+void push_state(parser_core_type *parser) {
+    /*object_type *new_state=alloc_object(interp, TUPLE); */
+
+    TRACE("Pu");
+
+    /* push the current state onto the state stack */
+    parser->tuple.car=parser->current;
+    parser->tuple.cdr=parser->state_stack;
+
+    parser->state_stack=safe_cons(parser);;
+    
+    parser->current=gc_alloc_object_type(parser->gc, TUPLE);
+
+}
+
+/* Add a new state to the current chain of states without
+   pushing it onto the state stack */
+void chain_state(parser_core_type *parser) {
+    
+    TRACE("C")
+
+    /* handle the first list entry correctly */
+      if(car(parser->current)==0) {
+	/* we don't need to do anythin else here */
+	set(parser, CAR);
+	return;
+    } 
+
+    /* Before throwing current, we 
+       need to make sure that it has been added */
+
+    push_state(parser);
+    parser->state_stack->type=CHAIN;
+    
+    set(parser, CAR);
+}
+
+/* Pop a previously saved list */
+void pop_state(parser_core_type *parser) {
+    object_type *state=0;
+
+    TRACE("Po")
+    
+    if(parser->state_stack==0) {
+	fail("Attempt to pop non-existent state");
+    }
+
+    state=parser->state_stack;
+    
+    parser->added=parser->current;
+    parser->current=car(state);
+    parser->state_stack=cdr(state);
+
+    /* we are in the depths of a chain, pop until 
+       we're out of it */
+    if(state->type==CHAIN) {
+	set(parser, CDR);
+	pop_state(parser);
+    }
+}
+
 
 void end_of_file(parser_core_type *interp) {}
 
-void set(parser_core_type *interp, setting_type_enum setting) {}
+/* Attach an added object to our graph of objects */
+void set(parser_core_type *parser, setting_type_enum setting) {
+    object_type *current=0;
+    object_type *obj=0;
+    
+    
+    obj=parser->added;
+    current=parser->current;
+
+    if(current !=0 && current->type!=TUPLE) {
+	fail("Attempting to set on none tuple.");
+    }
+
+    switch(setting) {
+    case CAR:
+	TRACE("Sa");
+	if(current==0) {
+	    fail("Attempt to set car on null pointer");
+	}
+
+	car(current)=obj;
+	break;
+
+    case CDR:
+	TRACE("Sd");
+	if(current==0) {
+	    fail("Attempt to set cdr on null pointer");
+	}
+
+	cdr(current)=obj;
+	break;
+
+    default:
+	fail("Invalide setting state!");
+    }
+}
 

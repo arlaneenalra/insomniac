@@ -62,8 +62,15 @@ void internal_register_roots(parser_core_type *parser) {
     gc_register_root(gc, &(false(parser)));
     gc_register_root(gc, &(parser->empty_list));
     gc_register_root(gc, &(parser->quote));
-    gc_register_root(gc, &(parser->eof_object));		     
+    gc_register_root(gc, &(parser->eof_object));
+		     
     gc_register_root(gc, &(parser->added));
     gc_register_root(gc, &(parser->current));
+    gc_register_root(gc, &(parser->state_stack));
+
+    gc_register_root(gc, &(parser->tuple.car));
+    gc_register_root(gc, &(parser->tuple.cdr));
+
+
 }
 

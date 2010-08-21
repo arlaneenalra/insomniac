@@ -7,7 +7,7 @@
 #include "parser_internal.h"
 
 void internal_register_roots(parser_core_type *parser);
-void create_booleans(parser_core_type *parser);
+
 
 /* Setup an instance of our parser and allocate all global 
    objects */
@@ -25,31 +25,25 @@ parser_core_type *parser_create(gc_core_type *gc) {
 
     /* Register roots */
     internal_register_roots(parser);
+
+    /* create global one time objects */
+    create_booleans(parser);
+    create_empty_list(parser);
+    create_eof_object(parser);
     
+
+    /* create a new instance of the scanner */
     
     return parser;
 }
 
 
+/* cleanup non-garbage collected memory */
 void parser_destroy(parser_core_type *parser) {
     
     if(parser) {
 	free(parser);
     }
-
-}
-
-/* Create instances of the global boolean values */
-void create_booleans(parser_core_type *parser) {
-
-    /* true and false are defined by macros to be 
-       members of parser->boolean */
-    true(parser)=gc_alloc_object_type(parser->gc,BOOL);
-    true(parser)->value.bool_val=1;
-
-    
-    false(parser)=gc_alloc_object_type(parser->gc,BOOL);
-    false(parser)->value.bool_val=0;
 
 }
 

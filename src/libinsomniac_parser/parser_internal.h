@@ -11,6 +11,18 @@ typedef enum {
     CDR
 } setting_type_enum;
 
+#define peek_scanner(parser) parser->scanner->scanner
+
+/* allocators */
+scanner_stack_type *alloc_scanner(parser_core_type *parser);
+
+void create_booleans(parser_core_type *parser);
+void create_empty_list(parser_core_type *parser);
+void create_eof_object(parser_core_type *parser);
+
+void create_scanner(parser_core_type *parser);
+
+
 /* Function definitions */
 void set(parser_core_type *interp, setting_type_enum setting);
 int list_length(parser_core_type * interp, object_type *args); /* Find the length of a passed in list */

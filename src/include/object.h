@@ -13,10 +13,12 @@ typedef enum {
     IMAG,
     BOOL,
     CHAR,
+
     STRING,
-    VECTOR,
-    TUPLE,
     SYM,
+    VECTOR,
+
+    TUPLE,
     
     CHAIN /* internal type */
 } object_type_enum;

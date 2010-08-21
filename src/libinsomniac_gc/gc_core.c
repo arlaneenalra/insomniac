@@ -189,10 +189,26 @@ object_type *gc_alloc_object_type(gc_core_type *gc, object_type_enum type) {
 
 /* free all objects in a list */
 void internal_free_all(object_type *list) {
-    object_type*next=list;
+    object_type *next=list;
 
     while(list) {
 	next=list->next;
+
+	/* handle any internal objects */
+	switch(list->type) {
+	case STRING:
+	case SYM:
+	    free(list->value.string_val);
+	    break;
+	    
+	case VECTOR:
+	    fail("Unimplemented");
+	    break;
+
+	default:
+	    break;
+	}
+
 	free(list);
 	list=next;
     }
@@ -232,6 +248,10 @@ void internal_mark(gc_mark_type mark, object_type *obj) {
 	    internal_mark(mark, cdr(obj)); /* walk the other branch */	    
 	    TRACE("A");
 	    obj=car(obj);
+	    break;
+
+	case VECTOR:
+	    fail("Unimplemented");
 	    break;
 
 	default:

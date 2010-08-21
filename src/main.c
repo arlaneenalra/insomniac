@@ -26,27 +26,30 @@ int main(int argc, char**argv) {
     object_type *obj_walk=0;
 
     printf("Insomniac Scheme\n");
-    
+
+    /* setup our garbage collector and parser */
     gc=gc_create();
     parser_core_type *parser=parser_create(gc);
 
     gc_stats(gc);
-
-    gc_register_root(gc, &obj);
-
+    gc_sweep(gc);
     gc_stats(gc);
 
-    obj_walk=obj=gc_alloc_object(gc);
-    obj->type=TUPLE;
+    /* gc_register_root(gc, &obj); */
 
-    for(int i=100; i>0 ; i-- ) {
-	cdr(obj_walk)=gc_alloc_object(gc);
-	cdr(obj_walk)->type=TUPLE;
-	obj_walk=cdr(obj_walk);
-    }
+    /* gc_stats(gc); */
+
+    /* obj_walk=obj=gc_alloc_object(gc); */
+    /* obj->type=TUPLE; */
+
+    /* for(int i=100; i>0 ; i-- ) { */
+    /* 	cdr(obj_walk)=gc_alloc_object(gc); */
+    /* 	cdr(obj_walk)->type=TUPLE; */
+    /* 	obj_walk=cdr(obj_walk); */
+    /* } */
 
 
-    gc_stats(gc);
+    /* gc_stats(gc); */
 
     /*    printf("Frist\n");
     gc_sweep(gc);
@@ -61,25 +64,25 @@ int main(int argc, char**argv) {
     gc_stats(gc);*/
 
 
-    printf("CAR\n");
+    /* printf("CAR\n"); */
 
-    obj_walk=obj=gc_alloc_object(gc);
-    obj->type=TUPLE;
+    /* obj_walk=obj=gc_alloc_object(gc); */
+    /* obj->type=TUPLE; */
 
-    for(int i=100; i>0 ; i-- ) {
-	car(obj_walk)=gc_alloc_object(gc);
-	car(obj_walk)->type=TUPLE;
-	obj_walk=car(obj_walk);
-    }
+    /* for(int i=100; i>0 ; i-- ) { */
+    /* 	car(obj_walk)=gc_alloc_object(gc); */
+    /* 	car(obj_walk)->type=TUPLE; */
+    /* 	obj_walk=car(obj_walk); */
+    /* } */
 
-    obj=gc_alloc_object(gc);
-    obj->type=TUPLE;
-    cdr(obj)=gc_alloc_object(gc);
-    cdr(obj)->type=TUPLE;
-    cddr(obj)=gc_alloc_object(gc);
-    cddr(obj)->type=TUPLE;
+    /* obj=gc_alloc_object(gc); */
+    /* obj->type=TUPLE; */
+    /* cdr(obj)=gc_alloc_object(gc); */
+    /* cdr(obj)->type=TUPLE; */
+    /* cddr(obj)=gc_alloc_object(gc); */
+    /* cddr(obj)->type=TUPLE; */
 
-    gc_stats(gc);
+    /* gc_stats(gc); */
 
     /*    printf("Frist\n");
     gc_sweep(gc);
@@ -97,8 +100,8 @@ int main(int argc, char**argv) {
     
     /*     repl(); */
 
+    /* clean up the garbage collector and parser */
     parser_destroy(parser);
-
     gc_destroy(gc);
 
     return 0;

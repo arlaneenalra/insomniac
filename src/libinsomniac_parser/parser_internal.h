@@ -12,6 +12,7 @@ typedef enum {
 } setting_type_enum;
 
 #define peek_scanner(parser) parser->scanner->scanner
+#define peek_previous(parser) parser->scanner->previous
 
 /* allocators */
 scanner_stack_type *alloc_scanner(parser_core_type *parser);
@@ -19,9 +20,10 @@ scanner_stack_type *alloc_scanner(parser_core_type *parser);
 void create_booleans(parser_core_type *parser);
 void create_empty_list(parser_core_type *parser);
 void create_eof_object(parser_core_type *parser);
-
 void create_scanner(parser_core_type *parser);
 
+void push_parse_state(parser_core_type *parser, FILE *fin);
+void pop_parse_state(parser_core_type *parser);
 
 /* Function definitions */
 void set(parser_core_type *interp, setting_type_enum setting);

@@ -33,6 +33,7 @@ parser_core_type *parser_create(gc_core_type *gc) {
     
 
     /* create a new instance of the scanner */
+    create_scanner(parser);
     
     return parser;
 }
@@ -42,6 +43,12 @@ parser_core_type *parser_create(gc_core_type *gc) {
 void parser_destroy(parser_core_type *parser) {
     
     if(parser) {
+	
+	/* clean up all scanner instances */
+	while(parser->scanner) {
+	    pop_parse_state(parser);
+	}
+
 	free(parser);
     }
 

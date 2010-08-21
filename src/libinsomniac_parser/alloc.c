@@ -10,7 +10,7 @@
 scanner_stack_type *alloc_scanner(parser_core_type *parser) {
     
     scanner_stack_type *scanner=
-	(scanner_stack_type *)malloc(sizeof(scanner_stack_type));
+	(scanner_stack_type *)calloc(1, sizeof(scanner_stack_type));
 
     return scanner;
 }

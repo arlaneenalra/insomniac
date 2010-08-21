@@ -20,6 +20,7 @@ add_library(libinsomniac_parser
   builder.c
   output.c
   alloc.c
+  parser_core.c
   ${FLEX_LEXER_OUTPUTS}
   ${BISON_PARSER_OUTPUTS})
 

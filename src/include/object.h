@@ -17,7 +17,6 @@ typedef enum {
     VECTOR,
     TUPLE,
     SYM,
-    PORT,
     
     CHAIN /* internal type */
 } object_type_enum;
@@ -87,6 +86,5 @@ typedef struct object {
 #define cdadr(obj) cdr(car(cdr(obj)))
 #define cddar(obj) cdr(cdr(car(obj)))
 #define cdddr(obj) cdr(cdr(cdr(obj)))
-
 
 #endif

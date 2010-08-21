@@ -6,10 +6,12 @@
 #include <string.h>
 #include "parser_internal.h"
 
+void internal_register_roots(parser_core_type *parser);
+void create_booleans(parser_core_type *parser);
 
 /* Setup an instance of our parser and allocate all global 
    objects */
-parser_core_type *parser_create() {
+parser_core_type *parser_create(gc_core_type *gc) {
     parser_core_type *parser=0;
     
     parser=(parser_core_type *)malloc(sizeof(parser_core_type));
@@ -17,6 +19,13 @@ parser_core_type *parser_create() {
     if(parser) {
 	bzero(parser, sizeof(parser_core_type));
     }
+
+    /* attach the gc to this parser */
+    parser->gc=gc;
+
+    /* Register roots */
+    internal_register_roots(parser);
+    
     
     return parser;
 }
@@ -29,3 +38,31 @@ void parser_destroy(parser_core_type *parser) {
     }
 
 }
+
+/* Create instances of the global boolean values */
+void create_booleans(parser_core_type *parser) {
+
+    /* true and false are defined by macros to be 
+       members of parser->boolean */
+    true(parser)=gc_alloc_object_type(parser->gc,BOOL);
+    true(parser)->value.bool_val=1;
+
+    
+    false(parser)=gc_alloc_object_type(parser->gc,BOOL);
+    false(parser)->value.bool_val=0;
+
+}
+
+/* Register root pointers with the GC */
+void internal_register_roots(parser_core_type *parser) {
+    gc_core_type *gc=parser->gc;
+
+    gc_register_root(gc, &(true(parser)));
+    gc_register_root(gc, &(false(parser)));
+    gc_register_root(gc, &(parser->empty_list));
+    gc_register_root(gc, &(parser->quote));
+    gc_register_root(gc, &(parser->eof_object));		     
+    gc_register_root(gc, &(parser->added));
+    gc_register_root(gc, &(parser->current));
+}
+

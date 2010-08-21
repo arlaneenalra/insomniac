@@ -7,7 +7,9 @@ link_directories(
   ${libinsomniac_parser_BIN_DIR}/libinsomniac_parser
   ${libinsomniac_gc_BIN_DIR}/libinsomniac_gc)
 
-add_executable(insomniac main.c)
+add_executable(insomniac 
+  main.c
+  util.c)
 
 target_link_libraries(insomniac libinsomniac_parser libinsomniac_gc)
 

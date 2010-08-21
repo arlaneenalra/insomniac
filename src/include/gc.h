@@ -31,6 +31,7 @@ void gc_destroy(gc_core_type *gc); /* shutdown the garbage collector instance */
 void gc_sweep(gc_core_type *gc); /* force run a garbage collection cycle */
 
 object_type *gc_alloc_object(gc_core_type *gc); /* allocate an object */
+object_type *gc_alloc_object_type(gc_core_type *gc, object_type_enum type); /* allocate an object */
 
 void gc_register_root(gc_core_type *gc, object_type **root_ptr); /* register a root pointer with the gc */
 

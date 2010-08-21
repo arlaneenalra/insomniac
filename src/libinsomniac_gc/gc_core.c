@@ -173,6 +173,19 @@ object_type *gc_alloc_object(gc_core_type *gc) {
     return obj;
 }
 
+/* return an object with the type preset */
+object_type *gc_alloc_object_type(gc_core_type *gc, object_type_enum type) {
+    object_type *obj=0;
+    
+    obj=gc_alloc_object(gc);
+    
+    if(obj) {
+	obj->type=type;
+    }
+
+    return obj;
+}
+
 
 /* free all objects in a list */
 void internal_free_all(object_type *list) {

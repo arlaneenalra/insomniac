@@ -27,9 +27,8 @@ int main(int argc, char**argv) {
 
     printf("Insomniac Scheme\n");
     
-    /*    parser_core_type *parser=parser_create(); */
-
     gc=gc_create();
+    parser_core_type *parser=parser_create(gc);
 
     gc_stats(gc);
 
@@ -96,9 +95,9 @@ int main(int argc, char**argv) {
     
     
     
-    /*     repl();
+    /*     repl(); */
 
-	   parser_destroy(parser); */
+    parser_destroy(parser);
 
     gc_destroy(gc);
 

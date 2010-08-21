@@ -1,7 +1,9 @@
 #ifndef _PARSER_
 #define _PARSER_
 
+#include <stdio.h>
 #include <object.h>
+#include <gc.h>
 
 typedef struct bool_global {
     object_type *true;
@@ -50,12 +52,21 @@ typedef struct parser_core {
     symbol_table_type symbols;
 
     /* an instance of the parser/lexer */
-    scanner_stack_type *scanner;     
+    scanner_stack_type *scanner;
+
+    /* pointer to the gc attached to this parser */
+    gc_core_type *gc;
 
 } parser_core_type;
 
+/* Some useful macros */
+#define false(parser) parser->boolean.false
+#define true(parser) parser->boolean.true
 
-extern parser_core_type *parser_create();
+extern parser_core_type *parser_create(gc_core_type *gc);
 extern void parser_destroy(parser_core_type *parser);
+
+extern void output(parser_core_type *parser, object_type *obj);
+extern void output_stream(parser_core_type *parser, object_type *obj, FILE *fout);
 
 #endif

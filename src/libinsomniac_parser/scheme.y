@@ -13,7 +13,7 @@ void yyerror(void *parser, void *scanner, char *s);
 
 /* Hack to get things to compile for now */
 /* %parse-param {parser_core_type *parser} */
-%parse-param {void*parser}
+%parse-param {parser_core_type *parser}
 
 %parse-param {void *scanner}
 %lex-param {void *scanner}
@@ -62,7 +62,7 @@ vector:
 list_end:
     list_next
     CLOSE_PAREN    { pop_state(parser); }
-  | CLOSE_PAREN    { pop_state(parser); /*add_object(parser, parser->empty_list); */}
+  | CLOSE_PAREN    { pop_state(parser); add_object(parser, parser->empty_list); }
 
 list:
     OPEN_PAREN     { push_state(parser); }
@@ -81,8 +81,8 @@ quoted_list:
     object         { add_quote(parser); }
     
 boolean:
-    TRUE_OBJ        { /* add_object(parser, parser->boolean.true); */ }
-  | FALSE_OBJ       { /* add_object(parser, parser->boolean.false); */ }
+    TRUE_OBJ        {  add_object(parser, parser->boolean.true); }
+  | FALSE_OBJ       {  add_object(parser, parser->boolean.false);  }
 
 number:
     FIXED_NUMBER    { add_number(parser, get_text(scanner)); }

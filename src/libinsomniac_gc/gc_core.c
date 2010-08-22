@@ -6,13 +6,13 @@
 #include <gc.h>
 
 
-void internal_free_all(object_type *list);
-void internal_set_next_mark(gc_core_type * gc);
-void internal_mark(gc_mark_type mark, object_type *obj);
+void free_all(object_type *list);
+void set_next_mark_objects(gc_core_type * gc);
+void mark_objects(gc_mark_type mark, object_type *obj);
 
-void internal_alloc_block(gc_core_type *gc);
+void alloc_block(gc_core_type *gc);
 
-uint64_t internal_count_list(object_type *list);
+uint64_t count_list(object_type *list);
 
 /* Create a new garbage collector instance */
 gc_core_type *gc_create() {
@@ -28,7 +28,8 @@ gc_core_type *gc_create() {
     /* set default mark */
     gc->mark=RED;
 
-    internal_alloc_block(gc);
+    /* Allocate a starting block of Cells */
+    alloc_block(gc);
 
     return gc;
 }
@@ -42,8 +43,8 @@ void gc_destroy(gc_core_type *gc) {
     }
 
     /* free our lists of objects */
-    internal_free_all(gc->active_list);
-    internal_free_all(gc->dead_list);
+    free_all(gc->active_list);
+    free_all(gc->dead_list);
 
     /* free our array of root pointers */
     free(gc->roots);
@@ -83,7 +84,7 @@ void gc_sweep(gc_core_type *gc) {
     object_type *obj_next=0;
     
     /* setup the next mark */
-    internal_set_next_mark(gc);
+    set_next_mark_objects(gc);
 
     /* Walk all of our root pointers and tree through their 
        referenced objects.  Mark the reachable objects with 
@@ -93,7 +94,7 @@ void gc_sweep(gc_core_type *gc) {
 	obj=*(gc->roots[i]); /* get the object pointed to by this root */
 
 	/* tree down and mark all reachable objects */
-	internal_mark(gc->mark,obj);
+	mark_objects(gc->mark,obj);
     }
 
     /* now move all objects unmarked objects to the top of the dead list */
@@ -122,9 +123,11 @@ void gc_sweep(gc_core_type *gc) {
 
 /* Output some useful statistics about the garbage collector */
 void gc_stats(gc_core_type * gc) {
-    printf("\nGC:Active: %" PRIi64 ", Dead: %" PRIi64 ", Roots: %" PRIi64 "\n", 
-	   internal_count_list(gc->active_list),
-	   internal_count_list(gc->dead_list),
+    printf("\nGC:Active: %" PRIi64 ", Dead: %" PRIi64 ", Protected: %" PRIi64 ", "
+	   "Roots: %i\n", 
+	   count_list(gc->active_list),
+	   count_list(gc->dead_list),
+	   count_list(gc->protected_list),
 	   gc->root_number);    
 }
 
@@ -149,7 +152,7 @@ object_type *gc_alloc_object(gc_core_type *gc) {
 	memset(obj, 0, sizeof(object_type));
 
     } else {
-	internal_alloc_block(gc); /* allocate a block of objects for next time */
+	alloc_block(gc); /* allocate a block of objects for next time */
 	obj=(object_type *)calloc(1, sizeof(object_type));	
     }
 
@@ -161,8 +164,13 @@ object_type *gc_alloc_object(gc_core_type *gc) {
     obj->mark=gc->mark;
 
     /* Attach to garbage collector */
-    obj->next=gc->active_list;
-    gc->active_list=obj;
+    if(gc->protect_count==0) {
+	obj->next=gc->active_list;
+	gc->active_list=obj;
+    } else {
+	obj->next=gc->protected_list;
+	gc->protected_list=obj;
+    }
 
     return obj;
 }
@@ -180,9 +188,50 @@ object_type *gc_alloc_object_type(gc_core_type *gc, object_type_enum type) {
     return obj;
 }
 
+/* Turn allocated object protection on */
+void gc_protect(gc_core_type *gc) {
+    gc->protect_count++;
+}
+
+/* Turn off allocated object protection */
+void gc_unprotect(gc_core_type *gc) {
+    object_type *obj=0;
+    
+    gc->protect_count--;
+    
+    /* Something went wrong with protection counting */
+    if(gc->protect_count<0) {
+	fail("Too many unprotects!");
+    }
+
+    /* we can safely run the gc */
+    if(gc->protect_count==0) {
+	
+	/* move protected objects into the active_list */
+	obj=gc->protected_list;
+	
+	while(obj) {
+	    gc->protected_list=obj->next;
+	    obj->next=gc->active_list;
+	    
+	    /* we need to remark them since there could have
+	       been a gc since protection was turned on */
+	    obj->mark=gc->mark;
+	    
+	    /* attach and move to the next object */
+	    gc->active_list=obj;
+	    obj=gc->protected_list;
+	}
+
+	/* if there are no dead objects, let's do a collections */
+	if(!gc->dead_list) {
+	    gc_sweep(gc);
+	}
+    }
+}
 
 /* free all objects in a list */
-void internal_free_all(object_type *list) {
+void free_all(object_type *list) {
     object_type *next=list;
 
     while(list) {
@@ -209,7 +258,7 @@ void internal_free_all(object_type *list) {
 }
 
 /* return the number of objects in a list of objects */
-uint64_t internal_count_list(object_type *list) {
+uint64_t count_list(object_type *list) {
     uint64_t count=0;
     
     while(list) {
@@ -220,14 +269,14 @@ uint64_t internal_count_list(object_type *list) {
 }
 
 /* figure out what the next mark is going to be */
-void internal_set_next_mark(gc_core_type * gc) {
+void set_next_mark_objects(gc_core_type * gc) {
     
     /* we only have two marks */
     gc->mark=gc->mark==RED ? BLACK : RED;
 }
 
 /* tree through objects and mark them */
-void internal_mark(gc_mark_type mark, object_type *obj) {
+void mark_objects(gc_mark_type mark, object_type *obj) {
     
     /* walk until we run out of obects or see one that is
        already marked. */
@@ -237,7 +286,7 @@ void internal_mark(gc_mark_type mark, object_type *obj) {
 	switch (obj->type) {
 	case TUPLE:
 	case CHAIN:
-	    internal_mark(mark, cdr(obj)); /* walk the other branch */	    
+	    mark_objects(mark, cdr(obj)); /* walk the other branch */	    
 	    obj=car(obj);
 	    break;
 
@@ -253,7 +302,7 @@ void internal_mark(gc_mark_type mark, object_type *obj) {
 
 
 /* allocate a block of objects that can be used for gc_alloc_object */
-void internal_alloc_block(gc_core_type *gc) {
+void alloc_block(gc_core_type *gc) {
     object_type * obj=0;
     
     for(int i=10; i>0; i--) {

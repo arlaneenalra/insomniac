@@ -23,6 +23,7 @@ typedef enum {
     CHAIN /* internal type */
 } object_type_enum;
 
+/* Used by the mark/sweep GC */
 typedef enum {
     RED,
     BLACK

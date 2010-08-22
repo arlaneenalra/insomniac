@@ -112,6 +112,13 @@ void gc_sweep(gc_core_type *gc) {
 	if(obj->mark == gc->mark) {
 	    obj->next=gc->active_list;
 	    gc->active_list=obj;
+
+	} else if(obj->mark == PERM) {
+	    /* move object out the list of active objects and
+	       into our permenant object list. */
+	    obj->next=gc->perm_list;
+	    gc->perm_list=obj;
+
 	} else {
 	    /* otherwise, add it to the dead list */
 	    obj->next=gc->dead_list;
@@ -128,10 +135,11 @@ void gc_sweep(gc_core_type *gc) {
 /* Output some useful statistics about the garbage collector */
 void gc_stats(gc_core_type * gc) {
     printf("\nGC:Active: %" PRIi64 ", Dead: %" PRIi64 ", Protected: %" PRIi64 ", "
-	   "Roots: %i, Depth: %" PRIi64 "\n", 
+	   "Permenant: %" PRIi64 ", Roots: %i, Depth: %" PRIi64 "\n", 
 	   count_list(gc->active_list),
 	   count_list(gc->dead_list),
 	   count_list(gc->protected_list),
+	   count_list(gc->perm_list),
 	   gc->root_number,
 	   gc->protect_count);    
 }
@@ -235,6 +243,11 @@ void gc_unprotect(gc_core_type *gc) {
     }
 }
 
+/* mark an object as permenant */
+void gc_mark_perm(gc_core_type *gc, object_type *obj) {
+    obj->mark=PERM;
+}
+
 /* free all objects in a list */
 void free_all(object_type *list) {
     object_type *next=list;
@@ -283,9 +296,10 @@ void set_next_mark_objects(gc_core_type * gc) {
 /* tree through objects and mark them */
 void mark_objects(gc_mark_type mark, object_type *obj) {
     
-    /* walk until we run out of obects or see one that is
-       already marked. */
-    while(obj && obj->mark !=mark) {
+    /* Walk until we run out of obects or see one that is
+       already marked. Objects marked permenant are treated 
+       as marked. */
+    while(obj && obj->mark != mark && obj->mark != PERM) {
 	obj->mark=mark;
 
 	switch (obj->type) {

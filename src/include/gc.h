@@ -20,6 +20,10 @@ typedef struct gc_core {
     uint64_t protect_count;
     object_type *protected_list;
 
+    /* list of objects that have been swept and marked 
+       permenant */
+    object_type *perm_list;
+
     /* used to keep track of all our root pointers */
     gc_root_count_type root_number;
     object_type ***roots;
@@ -41,6 +45,9 @@ object_type *gc_alloc_object_type(gc_core_type *gc, object_type_enum type); /* a
 /* used to protect portions of code from garbage collection */
 void gc_protect(gc_core_type *gc);
 void gc_unprotect(gc_core_type *gc);
+
+/* mark a single object as permanent */
+void gc_mark_perm(gc_core_type *gc, object_type *obj);
 
 void gc_register_root(gc_core_type *gc, object_type **root_ptr); /* register a root pointer with the gc */
 

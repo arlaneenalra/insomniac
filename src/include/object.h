@@ -26,7 +26,9 @@ typedef enum {
 /* Used by the mark/sweep GC */
 typedef enum {
     RED,
-    BLACK
+    BLACK,
+    
+    PERM /* Objects that will not be GCed */
 } gc_mark_type;
 
 struct object;

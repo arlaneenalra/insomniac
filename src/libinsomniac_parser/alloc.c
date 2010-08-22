@@ -30,18 +30,22 @@ void create_booleans(parser_core_type *parser) {
        members of parser->boolean */
     true(parser)=gc_alloc_object_type(parser->gc, BOOL);
     true(parser)->value.bool_val=1;
+    gc_mark_perm(parser->gc, true(parser));
 
     false(parser)=gc_alloc_object_type(parser->gc, BOOL);
     false(parser)->value.bool_val=0;
+    gc_mark_perm(parser->gc, false(parser));
 }
 
 /* Setup the global empty list object */
 void create_empty_list(parser_core_type *parser) {
     parser->empty_list=gc_alloc_object_type(parser->gc, TUPLE);
     car(parser->empty_list)=cdr(parser->empty_list)=0;
+    gc_mark_perm(parser->gc, parser->empty_list);
 }
 
 /* Setup a global end of file marker */
 void create_eof_object(parser_core_type *parser) {
     parser->eof_object=gc_alloc_object_type(parser->gc, CHAR);
+    gc_mark_perm(parser->gc, parser->eof_object);
 }

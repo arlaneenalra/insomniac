@@ -23,14 +23,13 @@ parser_core_type *parser_create(gc_core_type *gc) {
     /* attach the gc to this parser */
     parser->gc=gc;
 
-    /* Register roots */
-    internal_register_roots(parser);
-
     /* create global one time objects */
     create_booleans(parser);
     create_empty_list(parser);
     create_eof_object(parser);
-    
+
+    /* Register roots */
+    internal_register_roots(parser);    
 
     /* create a new instance of the scanner */
     create_scanner(parser);
@@ -58,12 +57,8 @@ void parser_destroy(parser_core_type *parser) {
 void internal_register_roots(parser_core_type *parser) {
     gc_core_type *gc=parser->gc;
 
-    gc_register_root(gc, &(true(parser)));
-    gc_register_root(gc, &(false(parser)));
-    gc_register_root(gc, &(parser->empty_list));
-    gc_register_root(gc, &(parser->quote));
-    gc_register_root(gc, &(parser->eof_object));
-		     
+    /* These locations should be checked for 
+       reachable objects */
     gc_register_root(gc, &(parser->added));
     gc_register_root(gc, &(parser->current));
     gc_register_root(gc, &(parser->state_stack));

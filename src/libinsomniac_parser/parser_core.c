@@ -6,6 +6,7 @@
 #include "scheme.h"
 #include "lexer.h"
 
+
 /* Create a new tuple object with a
    given car and cdr */
 object_type *cons(parser_core_type *parser, object_type *car,
@@ -147,11 +148,42 @@ void add_float(parser_core_type *parser, char *str) {
     gc_unprotect(parser->gc);
 }
 
-void add_quote(parser_core_type *interp) {}
 
+void add_empty_vector(parser_core_type *parser) {
+    object_type *obj=0;
+
+    obj=gc_alloc_vector(parser->gc, 0);
+    
+    parser->added=obj;
+}
+
+/* parse and add a vector */
+void add_vector(parser_core_type *parser) {
+    object_type *obj=0;
+    object_type *next=0;
+    uint64_t len=0;
+    uint64_t i=0;
+
+    /* figure out how long the list is */
+    len=list_length(parser, parser->added);
+
+    /* create a new vector */
+    obj=gc_alloc_vector(parser->gc, len);
+    
+    next=parser->added;
+    
+    while(next!=parser->empty_list) {
+	obj->value.vector.vector[i]=car(next);
+
+	next=cdr(next);
+	i++;
+    }
+    
+    parser->added=obj;
+}
+
+void add_quote(parser_core_type *interp) {}
 void add_string(parser_core_type *interp, char *str) {}
-void add_vector(parser_core_type *interp) {}
-void add_empty_vector(parser_core_type *interp) {}
 void add_symbol(parser_core_type *interp, char *str) {}
 
 /* Save the current list off so that we can get back to it */
@@ -257,3 +289,16 @@ void set(parser_core_type *parser, setting_type_enum setting) {
     }
 }
 
+
+
+/* Find the length of a passed in list */
+uint64_t list_length(parser_core_type* parser, object_type *list) {
+    int count=0;
+    
+    while(list!=parser->empty_list) {
+	count++;
+	list=cdr(list);
+    }
+
+    return count;
+}

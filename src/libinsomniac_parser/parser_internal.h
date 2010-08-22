@@ -27,7 +27,7 @@ void pop_parse_state(parser_core_type *parser);
 
 /* Function definitions */
 void set(parser_core_type *interp, setting_type_enum setting);
-int list_length(parser_core_type * interp, object_type *args); /* Find the length of a passed in list */
+uint64_t list_length(parser_core_type *parser, object_type *list); /* Find the length of a passed in list */
 
 void add_object(parser_core_type *interp, object_type *obj);
 void add_char(parser_core_type *interp, char *str);

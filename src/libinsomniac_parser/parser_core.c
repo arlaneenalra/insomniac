@@ -6,21 +6,21 @@
 #include "scheme.h"
 #include "lexer.h"
 
-/* a cons that should not cause issues with the garbage collector */
-/* TODO: Possible GC snafu */
-object_type *safe_cons(parser_core_type *parser) {
-    object_type *obj=0;
-
-    obj=gc_alloc_object_type(parser->gc, TUPLE);
-    cdr(obj)=parser->empty_list;
+/* Create a new tuple object with a
+   given car and cdr */
+object_type *cons(parser_core_type *parser, object_type *car,
+		  object_type *cdr) {
+    object_type *tuple=0;
     
-    car(obj)=parser->tuple.car;
-    parser->tuple.car=0;
+    gc_protect(parser->gc);
 
-    cdr(obj)=parser->tuple.cdr;
-    parser->tuple.cdr=0;
+    tuple=gc_alloc_object_type(parser->gc, TUPLE);
+    car(tuple)=car;
+    cdr(tuple)=cdr;
+    
+    gc_unprotect(parser->gc);
 
-    return obj;
+    return tuple;
 }
 
 void push_parse_state(parser_core_type *parser, FILE *fin) {
@@ -84,20 +84,28 @@ void add_char(parser_core_type *parser, char *str) {
 	c=0xff & val;
     }
     
-    /* TODO: Possible GC snafu here, looks safe right now */
+
+    gc_protect(parser->gc);
+
     obj=gc_alloc_object_type(parser->gc, CHAR);
     obj->value.char_val=c;
     add_object(parser, obj);
+    
+    gc_unprotect(parser->gc);
 }
 
 /* Create a number */
 void add_number(parser_core_type *parser, char *str) {
     object_type *obj=0;
 
+    gc_protect(parser->gc);
+
     obj=gc_alloc_object_type(parser->gc, FIXNUM);
     obj->value.int_val=strtoll(str, 0, 10);
     
     add_object(parser, obj);
+
+    gc_unprotect(parser->gc);
 }
 
 /* Create an instance of a floating point number */
@@ -110,8 +118,8 @@ void add_float(parser_core_type *parser, char *str) {
 	c++;
     }
 
-    /* TODO: Possible GC snafu */
-   
+    gc_protect(parser->gc);
+
     obj=gc_alloc_object_type(parser->gc, FLOATNUM);
 
     /* if we found a / then do the division 
@@ -135,6 +143,8 @@ void add_float(parser_core_type *parser, char *str) {
     }
 
     add_object(parser, obj);
+    
+    gc_unprotect(parser->gc);
 }
 
 void add_quote(parser_core_type *interp) {}
@@ -150,15 +160,15 @@ void push_state(parser_core_type *parser) {
 
     TRACE("Pu");
 
-    /* push the current state onto the state stack */
-    parser->tuple.car=parser->current;
-    parser->tuple.cdr=parser->state_stack;
+    gc_protect(parser->gc);
 
-    parser->state_stack=safe_cons(parser);;
+    /* push the current state onto the state stack */
+    parser->state_stack=cons(parser, parser->current, parser->state_stack);
     
     parser->current=gc_alloc_object_type(parser->gc, TUPLE);
     cdr(parser->current)=parser->empty_list;
 
+    gc_unprotect(parser->gc);
 }
 
 /* Add a new state to the current chain of states without

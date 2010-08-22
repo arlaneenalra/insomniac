@@ -82,6 +82,9 @@ void gc_sweep(gc_core_type *gc) {
 
     object_type *obj=0;
     object_type *obj_next=0;
+
+    printf("\nSweep:");
+    gc_stats(gc);
     
     /* setup the next mark */
     set_next_mark_objects(gc);
@@ -118,17 +121,19 @@ void gc_sweep(gc_core_type *gc) {
 	/* move on to the next object */
 	obj=obj_next;
     }
-    /* gc_stats(gc);*/
+    
+    gc_stats(gc);
 }
 
 /* Output some useful statistics about the garbage collector */
 void gc_stats(gc_core_type * gc) {
     printf("\nGC:Active: %" PRIi64 ", Dead: %" PRIi64 ", Protected: %" PRIi64 ", "
-	   "Roots: %i\n", 
+	   "Roots: %i, Depth: %" PRIi64 "\n", 
 	   count_list(gc->active_list),
 	   count_list(gc->dead_list),
 	   count_list(gc->protected_list),
-	   gc->root_number);    
+	   gc->root_number,
+	   gc->protect_count);    
 }
 
 /* Allocate a new blob within this gc */
@@ -137,7 +142,7 @@ object_type *gc_alloc_object(gc_core_type *gc) {
     object_type *obj=0;
 
     /* if there are no dead objects, do a sweep */
-    if(!gc->dead_list) {
+    if(!gc->dead_list && !gc->protect_count) {
 	gc_sweep(gc);
     }
 

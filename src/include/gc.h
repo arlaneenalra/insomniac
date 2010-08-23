@@ -42,6 +42,7 @@ void gc_sweep(gc_core_type *gc); /* force run a garbage collection cycle */
 object_type *gc_alloc_object(gc_core_type *gc); /* allocate an object */
 object_type *gc_alloc_object_type(gc_core_type *gc, object_type_enum type); /* allocate an object */
 object_type *gc_alloc_vector(gc_core_type *gc, uint64_t size); /* allocate a vector */
+object_type *gc_alloc_string(gc_core_type *gc, char *str); /* allocate a string */
 
 /* used to protect portions of code from garbage collection */
 void gc_protect(gc_core_type *gc);

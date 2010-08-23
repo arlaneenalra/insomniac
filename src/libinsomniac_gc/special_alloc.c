@@ -5,7 +5,7 @@
 #include <util.h>
 #include <gc.h>
 
-
+/* Allocate a vector */
 object_type *gc_alloc_vector(gc_core_type *gc, uint64_t size) {
     object_type *obj=0;
     
@@ -18,5 +18,27 @@ object_type *gc_alloc_vector(gc_core_type *gc, uint64_t size) {
 
     obj->value.vector.length=size;
     
+    return obj;
+}
+
+/* Allocate a string as a copy of the passed in string */
+object_type *gc_alloc_string(gc_core_type *gc, char *str) {
+    object_type *obj=0;
+    char *c=0;
+    size_t len=0;
+    
+    len=strlen(str);
+
+    c=(char *)malloc(len+1);
+    
+    if(!c) {
+	fail("Unable to allocate string storage!");
+    }
+
+    strcpy(c, str);
+
+    obj=gc_alloc_object_type(gc, STRING);
+    obj->value.string_val=c;
+	
     return obj;
 }

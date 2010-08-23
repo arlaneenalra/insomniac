@@ -182,8 +182,96 @@ void add_vector(parser_core_type *parser) {
     parser->added=obj;
 }
 
+/* create an instance of a string object */
+void add_string(parser_core_type *parser, char *str) {
+    object_type *obj=0;
+    char *c_write=0;
+    char *c_read=0;
+    char read=0;
+    uint64_t val=0;
+
+    c_write=c_read=str;
+    
+    /* In place character parserolation */
+    while(*c_read!=0) {
+	
+	read=*c_read;
+
+	/* look for \ character */
+	if(read=='\\') {
+	    c_read++;
+	    
+	    switch (*c_read) {
+	    case 'a': /* alarm */
+		read=0x07;
+		break;
+
+	    case 'b': /* backspace */
+		read=0x08;
+		break;
+
+	    case 't': /* character tab */
+		read=0x09;
+		break;
+		
+	    case 'n': /* linefeed */
+		read=0x0A;
+		break;
+
+	    case 'v': /* vertical tab */
+		read=0x0B;
+		break;
+
+	    case 'f': /* form feed */
+		read=0x0C;
+		break;
+
+	    case 'r': /* return */
+		read=0x0D;
+		break;
+
+	    case '"': /* double quote */
+		read='"';
+		break;
+		
+	    case '\\': /* backslash */
+		read='\\';
+		break;
+		
+	    case 'x': /* read a numeric character constant */
+		c_read++;
+		
+		/* TODO: this will need to be adapted to
+		   unicode */
+		val=strtoul(c_read, &c_read, 16);
+		read=0xff & val;
+		break;
+		
+	    default:
+		read='!';
+		parser->error=1;
+		break;
+	    }
+	    
+	}
+	
+	/* store the read character and move
+	to next location */
+	*c_write=read;
+	c_write++;
+	c_read++;
+    }
+
+    /* add null terminator */
+    if(c_write!=c_read) {
+	*c_write=0;
+    }
+
+    obj=gc_alloc_string(parser->gc, str);
+    add_object(parser,obj);
+}
+
 void add_quote(parser_core_type *interp) {}
-void add_string(parser_core_type *interp, char *str) {}
 void add_symbol(parser_core_type *interp, char *str) {}
 
 /* Save the current list off so that we can get back to it */

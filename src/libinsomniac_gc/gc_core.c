@@ -45,6 +45,7 @@ void gc_destroy(gc_core_type *gc) {
     /* free our lists of objects */
     free_all(gc->active_list);
     free_all(gc->dead_list);
+    free_all(gc->perm_list);
 
     /* free our array of root pointers */
     free(gc->roots);
@@ -263,7 +264,9 @@ void free_all(object_type *list) {
 	    break;
 	    
 	case VECTOR:
-	    fail("Unimplemented");
+	    if(list->value.vector.vector) {
+		free(list->value.vector.vector);
+	    }
 	    break;
 
 	default:
@@ -310,7 +313,12 @@ void mark_objects(gc_mark_type mark, object_type *obj) {
 	    break;
 
 	case VECTOR:
-	    fail("Unimplemented");
+	    /* walk all elements of the vector */
+	    for(int i=0; i<obj->value.vector.length;i++) {
+		mark_objects(mark, obj->value.vector.vector[i]);
+	    }
+	    obj=0;
+
 	    break;
 
 	default:

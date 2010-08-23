@@ -20,11 +20,10 @@ void repl(parser_core_type *parser) {
 	
 	obj=parse(parser, stdin);
 	
-	if(obj) {
-	    output(parser, obj);
-	} else {
+	if(obj==parser->empty_list) {
 	    running=0;
 	}
+	output(parser, obj);
 
 	printf("\n");
     }

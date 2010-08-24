@@ -31,22 +31,6 @@ void pop_parse_state(parser_core_type *parser) {
     parser->scanner=previous;
 }
 
-
-/* Parse a file */
-object_type *parse(parser_core_type *parser, FILE *in) {
-    /* reset(interp);*/
-    
-    yyset_in(in, peek_scanner(parser));
-    
-    if(parse_internal(parser, peek_scanner(parser))) {
-	return 0;
-    }
-
-    TRACE("\n")
-    
-    return parser->added;
-}
-
 /* Put the passed in object into the added buffer */
 void add_object(parser_core_type *parser, object_type *obj) {
     parser->added=obj;

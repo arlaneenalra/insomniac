@@ -89,10 +89,10 @@ void gc_sweep(gc_core_type *gc) {
     gc_stats(gc);
 
     /* if we are under protection, don't sweep */
-    if(gc->protect_count>0) {
+    /* if(gc->protect_count>0) {
 	printf("Protected\n");
 	return;
-    }
+	}*/
     
     /* setup the next mark */
     set_next_mark_objects(gc);

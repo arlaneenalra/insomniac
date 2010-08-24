@@ -142,14 +142,16 @@ void gc_sweep(gc_core_type *gc) {
 
 /* Output some useful statistics about the garbage collector */
 void gc_stats(gc_core_type * gc) {
-    printf("\nGC:Active: %" PRIi64 ", Dead: %" PRIi64 ", Protected: %" PRIi64 ", "
-	   "Permenant: %" PRIi64 ", Roots: %i, Depth: %" PRIi64 "\n", 
-	   count_list(gc->active_list),
-	   count_list(gc->dead_list),
-	   count_list(gc->protected_list),
-	   count_list(gc->perm_list),
-	   gc->root_number,
-	   gc->protect_count);    
+    uint64_t active=count_list(gc->active_list);
+    uint64_t dead=count_list(gc->dead_list);
+    uint64_t protected=count_list(gc->protected_list);
+    uint64_t perm=count_list(gc->perm_list);
+    uint64_t total=active+dead+protected+perm;
+    
+
+    printf("GC:Active: %" PRIi64 ", Dead: %" PRIi64 ", Protected: %" PRIi64 ", "
+	   "Permenant: %" PRIi64 ", Total Objects: %" PRIi64  ", Roots: %i, Depth: %" PRIi64 "\n", 
+	   active, dead, protected, perm, total, gc->root_number, gc->protect_count);
 }
 
 /* Allocate a new blob within this gc */
@@ -256,7 +258,6 @@ void gc_unprotect(gc_core_type *gc) {
 /* mark an object as permenant */
 void gc_mark_perm(gc_core_type *gc, object_type *obj) {
     obj->mark=PERM;
-    gc_sweep(gc);
 }
 
 /* free all objects in a list */

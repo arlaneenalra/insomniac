@@ -37,7 +37,6 @@ object_type *symbol_sid_obj(parser_core_type *parser, char *sym) {
 	obj=cdr(obj);
     }
     
-    printf("New Symbol\n");
     /* ok, we didn't find the symbol, let's add a new one */
     gc_protect(parser->gc);
 
@@ -61,10 +60,6 @@ object_type *symbol_sid_obj(parser_core_type *parser, char *sym) {
     parser->symbols.list=obj;
 
     gc_unprotect(parser->gc);
-    printf("Done\n");
-
-    printf("Current Symbols:");
-    output(parser, parser->symbols.list);
 
     return car(obj);
 }

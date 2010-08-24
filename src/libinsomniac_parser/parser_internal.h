@@ -22,32 +22,32 @@ void create_empty_list(parser_core_type *parser);
 void create_eof_object(parser_core_type *parser);
 void create_scanner(parser_core_type *parser);
 
+object_type *cons(parser_core_type *parser, object_type *car, object_type *cdr);
+
 void push_parse_state(parser_core_type *parser, FILE *fin);
 void pop_parse_state(parser_core_type *parser);
 
 /* Function definitions */
-void set(parser_core_type *interp, setting_type_enum setting);
+void set(parser_core_type *parser, setting_type_enum setting);
 uint64_t list_length(parser_core_type *parser, object_type *list); /* Find the length of a passed in list */
 
-void add_object(parser_core_type *interp, object_type *obj);
-void add_char(parser_core_type *interp, char *str);
-void add_number(parser_core_type *interp, char *str);
-void add_float(parser_core_type *interp, char *str);
-void add_string(parser_core_type *interp, char *str);
-void add_quote(parser_core_type *interp);
-void add_vector(parser_core_type *interp);
-void add_empty_vector(parser_core_type *interp);
-void add_symbol(parser_core_type *interp, char *str);
+object_type *symbol_sid(parser_core_type *parser, char *sym);
 
+void add_object(parser_core_type *parser, object_type *obj);
+void add_char(parser_core_type *parser, char *str);
+void add_number(parser_core_type *parser, char *str);
+void add_float(parser_core_type *parser, char *str);
+void add_string(parser_core_type *parser, char *str);
+void add_quote(parser_core_type *parser);
+void add_vector(parser_core_type *parser);
+void add_empty_vector(parser_core_type *parser);
+void add_symbol(parser_core_type *parser, char *str);
 
-object_type *create_string(parser_core_type *interp, char *str);
-object_type *create_symbol(parser_core_type *interp, char *str);
+void chain_state(parser_core_type *parser);
+void push_state(parser_core_type *parser);
+void pop_state(parser_core_type *parser);
 
-void chain_state(parser_core_type *interp);
-void push_state(parser_core_type *interp);
-void pop_state(parser_core_type *interp);
-
-void end_of_file(parser_core_type *interp);
+void end_of_file(parser_core_type *parser);
 
 char *get_text(void * scanner); /* return text from the lexer */
 

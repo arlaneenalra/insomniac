@@ -49,3 +49,20 @@ void create_eof_object(parser_core_type *parser) {
     parser->eof_object=gc_alloc_object_type(parser->gc, CHAR);
     gc_mark_perm(parser->gc, parser->eof_object);
 }
+
+/* Create a new tuple object with a
+   given car and cdr */
+object_type *cons(parser_core_type *parser, object_type *car,
+		  object_type *cdr) {
+    object_type *tuple=0;
+    
+    gc_protect(parser->gc);
+
+    tuple=gc_alloc_object_type(parser->gc, TUPLE);
+    car(tuple)=car;
+    cdr(tuple)=cdr;
+    
+    gc_unprotect(parser->gc);
+
+    return tuple;
+}

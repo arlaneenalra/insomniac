@@ -7,23 +7,6 @@
 #include "lexer.h"
 
 
-/* Create a new tuple object with a
-   given car and cdr */
-object_type *cons(parser_core_type *parser, object_type *car,
-		  object_type *cdr) {
-    object_type *tuple=0;
-    
-    gc_protect(parser->gc);
-
-    tuple=gc_alloc_object_type(parser->gc, TUPLE);
-    car(tuple)=car;
-    cdr(tuple)=cdr;
-    
-    gc_unprotect(parser->gc);
-
-    return tuple;
-}
-
 void push_parse_state(parser_core_type *parser, FILE *fin) {
     
     scanner_stack_type *scanner=alloc_scanner(parser);
@@ -271,8 +254,21 @@ void add_string(parser_core_type *parser, char *str) {
     add_object(parser,obj);
 }
 
-void add_quote(parser_core_type *interp) {}
-void add_symbol(parser_core_type *interp, char *str) {}
+void add_quote(parser_core_type *parser) {}
+
+/* Add a symbol */
+void add_symbol(parser_core_type *parser, char *str) {
+    object_type *obj=0;
+
+    obj=symbol_sid(parser, str);
+    
+    add_object(parser, obj);
+}
+
+/* Used to flag end of file */
+void end_of_file(parser_core_type *parser) {
+    /*  parser->running=0;*/
+}
 
 /* Save the current list off so that we can get back to it */
 void push_state(parser_core_type *parser) {
@@ -336,9 +332,6 @@ void pop_state(parser_core_type *parser) {
 	pop_state(parser);
     }
 }
-
-
-void end_of_file(parser_core_type *interp) {}
 
 /* Attach an added object to our graph of objects */
 void set(parser_core_type *parser, setting_type_enum setting) {

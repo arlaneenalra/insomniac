@@ -254,7 +254,16 @@ void add_string(parser_core_type *parser, char *str) {
     add_object(parser,obj);
 }
 
-void add_quote(parser_core_type *parser) {}
+/* Quote things objects that have been added */
+void add_quote(parser_core_type *parser) {
+    object_type *obj=0;
+ 
+    TRACE("Qu");
+
+    obj=quote(parser, parser->added);
+    add_object(parser,obj);
+}
+
 
 /* Add a symbol */
 void add_symbol(parser_core_type *parser, char *str) {

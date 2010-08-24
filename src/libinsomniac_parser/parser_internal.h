@@ -20,9 +20,12 @@ scanner_stack_type *alloc_scanner(parser_core_type *parser);
 void create_booleans(parser_core_type *parser);
 void create_empty_list(parser_core_type *parser);
 void create_eof_object(parser_core_type *parser);
+void create_quote(parser_core_type *parser);
+
 void create_scanner(parser_core_type *parser);
 
 object_type *cons(parser_core_type *parser, object_type *car, object_type *cdr);
+object_type *quote(parser_core_type *parser, object_type *obj);
 
 void push_parse_state(parser_core_type *parser, FILE *fin);
 void pop_parse_state(parser_core_type *parser);

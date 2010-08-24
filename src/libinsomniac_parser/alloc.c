@@ -50,6 +50,12 @@ void create_eof_object(parser_core_type *parser) {
     gc_mark_perm(parser->gc, parser->eof_object);
 }
 
+/* Create the quote symbol */
+void create_quote(parser_core_type *parser) {
+    parser->quote=symbol_obj(parser, "quote");
+}
+
+
 /* Create a new tuple object with a
    given car and cdr */
 object_type *cons(parser_core_type *parser, object_type *car,
@@ -65,4 +71,21 @@ object_type *cons(parser_core_type *parser, object_type *car,
     gc_unprotect(parser->gc);
 
     return tuple;
+}
+
+/* Applies the quote symbol to an object */
+object_type *quote(parser_core_type *parser, object_type *obj) {
+
+    object_type *ret_val=0;
+    
+    /* Create a (quote ...) list */
+    /* and now (quote ( ... )) */
+    gc_protect(parser->gc);
+
+    ret_val=cons(parser, parser->quote,
+		 cons(parser, obj, parser->empty_list));
+
+    gc_unprotect(parser->gc);
+    
+    return ret_val;
 }

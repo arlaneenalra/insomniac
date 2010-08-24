@@ -14,7 +14,7 @@ typedef struct bool_global {
 
 /* Stores symbols for look up latter. */
 typedef struct symbol_table {
-    int64_t sid; /* id for the next symbol */
+    uint64_t sid; /* id for the next symbol */
     object_type *list; /* list of all defined symbols */
 } symbol_table_type;
 

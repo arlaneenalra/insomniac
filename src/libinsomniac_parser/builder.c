@@ -27,6 +27,7 @@ parser_core_type *parser_create(gc_core_type *gc) {
     create_booleans(parser);
     create_empty_list(parser);
     create_eof_object(parser);
+    create_quote(parser);
 
     /* Register roots */
     internal_register_roots(parser);    

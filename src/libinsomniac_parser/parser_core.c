@@ -260,7 +260,7 @@ void add_quote(parser_core_type *parser) {}
 void add_symbol(parser_core_type *parser, char *str) {
     object_type *obj=0;
 
-    obj=symbol_sid(parser, str);
+    obj=symbol_obj(parser, str);
     
     add_object(parser, obj);
 }

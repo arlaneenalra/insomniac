@@ -19,7 +19,7 @@
 
 /* Return a tuple that contains a pairing between a symbol and it's id 
    or creates a new symbol. */
-object_type *symbol_sid(parser_core_type *parser, char *sym) {
+object_type *symbol_sid_obj(parser_core_type *parser, char *sym) {
     object_type *obj=0;
     object_type *sid=0;
 
@@ -37,6 +37,7 @@ object_type *symbol_sid(parser_core_type *parser, char *sym) {
 	obj=cdr(obj);
     }
     
+    printf("New Symbol\n");
     /* ok, we didn't find the symbol, let's add a new one */
     gc_protect(parser->gc);
 
@@ -60,6 +61,21 @@ object_type *symbol_sid(parser_core_type *parser, char *sym) {
     parser->symbols.list=obj;
 
     gc_unprotect(parser->gc);
+    printf("Done\n");
+
+    printf("Current Symbols:");
+    output(parser, parser->symbols.list);
 
     return car(obj);
+}
+
+/* return an instance of the object representing a symbol */
+object_type *symbol_obj(parser_core_type *parser, char *sym) {
+    
+    return cdr(symbol_sid_obj(parser, sym));
+}
+
+object_type *symbol_sid(parser_core_type *parser, char *sym) {
+    
+    return car(symbol_sid_obj(parser, sym));
 }

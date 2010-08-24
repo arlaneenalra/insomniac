@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include <util.h>
+#include <parser.h>
 #include <gc.h>
 
 
@@ -83,9 +84,15 @@ void gc_sweep(gc_core_type *gc) {
 
     object_type *obj=0;
     object_type *obj_next=0;
-
+    
     printf("\nSweep:");
     gc_stats(gc);
+
+    /* if we are under protection, don't sweep */
+    if(gc->protect_count>0) {
+	printf("Protected\n");
+	return;
+    }
     
     /* setup the next mark */
     set_next_mark_objects(gc);
@@ -119,7 +126,7 @@ void gc_sweep(gc_core_type *gc) {
 	       into our permenant object list. */
 	    obj->next=gc->perm_list;
 	    gc->perm_list=obj;
-
+	    
 	} else {
 	    /* otherwise, add it to the dead list */
 	    obj->next=gc->dead_list;
@@ -151,7 +158,7 @@ object_type *gc_alloc_object(gc_core_type *gc) {
     object_type *obj=0;
 
     /* if there are no dead objects, do a sweep */
-    if(!gc->dead_list && !gc->protect_count) {
+    if(!gc->dead_list) {
 	gc_sweep(gc);
     }
 
@@ -230,7 +237,9 @@ void gc_unprotect(gc_core_type *gc) {
 	    
 	    /* we need to remark them since there could have
 	       been a gc since protection was turned on */
-	    obj->mark=gc->mark;
+	    if(obj->mark!=PERM) {
+		obj->mark=gc->mark;
+	    }
 	    
 	    /* attach and move to the next object */
 	    gc->active_list=obj;
@@ -247,6 +256,7 @@ void gc_unprotect(gc_core_type *gc) {
 /* mark an object as permenant */
 void gc_mark_perm(gc_core_type *gc, object_type *obj) {
     obj->mark=PERM;
+    gc_sweep(gc);
 }
 
 /* free all objects in a list */

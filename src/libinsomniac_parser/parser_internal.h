@@ -31,6 +31,8 @@ void pop_parse_state(parser_core_type *parser);
 void set(parser_core_type *parser, setting_type_enum setting);
 uint64_t list_length(parser_core_type *parser, object_type *list); /* Find the length of a passed in list */
 
+object_type *symbol_sid_obj(parser_core_type *parser, char *sym);
+object_type *symbol_obj(parser_core_type *parser, char *sym);
 object_type *symbol_sid(parser_core_type *parser, char *sym);
 
 void add_object(parser_core_type *parser, object_type *obj);

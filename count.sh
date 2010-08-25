@@ -1,5 +1,5 @@
 #!/bin/sh
-echo "Cleanning . . ."
+echo "Cleaning . . ."
 make clean
 echo
 

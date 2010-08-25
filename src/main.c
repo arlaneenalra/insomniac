@@ -11,7 +11,7 @@ void repl(parser_core_type *parser) {
     object_type *obj=0;
     bool running=1;
 
-    printf("Simple Bootstrapper\n");
+    printf("Insomniac Scheme\n");
     printf("sizeof(object_type) %" PRIi64 "\n", (uint64_t)sizeof(object_type));
     
     while(running) {

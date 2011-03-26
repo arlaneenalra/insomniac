@@ -5,10 +5,32 @@
 
 typedef int64_t vm_int;
 
-/* define a cell */
-typedef union cell {
-    vm_int int_val;
+typedef struct object object_type;
+
+/* specifies what kind of data is in the current object */
+typedef enum cell {
+    INT,
+    PAIR
 } cell_type;
+
+/* a pair of objects */
+typedef struct pair {
+    object_type *car;
+    object_type *cdr;
+} pair_type;
+
+
+/* define a memory object */
+struct object {
+    cell_type type;
+    
+    /* what is actually stored in this
+       memory location */
+    union {
+        vm_int int_val;
+        pair_type pair_val;
+    } value;
+};
 
 
 #endif

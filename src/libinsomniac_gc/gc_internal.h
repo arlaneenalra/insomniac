@@ -11,16 +11,13 @@ typedef struct meta_obj meta_obj_type;
 
 struct meta_obj {
     object_type *obj; /* contained object */
-    
     meta_obj_type *next; /* next object in our list */
 };
 
 /* the internal type used by the GC to keep track of things */
 typedef struct gc_ms {
-
     meta_obj_type *active_list; /* list of reachable objects */
     meta_obj_type *dead_list; /* list of unreachable objects */
-
 } gc_ms_type;
 
 /* deal with these as a macro incase I need to change them latter */

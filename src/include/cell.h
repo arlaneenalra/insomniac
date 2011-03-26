@@ -5,11 +5,18 @@
 
 typedef int64_t vm_int;
 
+typedef enum mark {
+    RED,
+    BLACK,
+    
+    PERM
+} mark_type;
+
 typedef struct object object_type;
 
 /* specifies what kind of data is in the current object */
 typedef enum cell {
-    INT,
+    FIXNUM,
     PAIR
 } cell_type;
 
@@ -27,9 +34,11 @@ struct object {
     /* what is actually stored in this
        memory location */
     union {
-        vm_int int_val;
-        pair_type pair_val;
+        vm_int integer;
+        pair_type pair;
     } value;
+
+    mark_type mark;
 };
 
 

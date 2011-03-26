@@ -10,7 +10,17 @@ typedef void gc_type;
 gc_type *gc_create();
 void gc_destroy(gc_type *gc);
 
+/* sweep active objects */
+void gc_sweep(gc_type *gc);
+
+/* display statistics about GC */
+void gc_stats(gc_type *gc);
+
+void gc_protect(gc_type *gc);
+void gc_unprotect(gc_type *gc);
+
 /* allocate a new object */
 object_type *gc_alloc(gc_type *gc, cell_type type);
+object_type *gc_perm_alloc(gc_type *gc, cell_type type);
 
 #endif

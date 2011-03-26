@@ -1,8 +1,13 @@
 #include "gc_internal.h"
 
+#include "stdio.h" /* for gc_stats */
+
 /* construct a new instance of our GC */
 gc_type *gc_create() {
     gc_ms_type *gc = MALLOC(gc_ms_type);
+    
+    gc->current_mark = RED;
+    gc->protect_count = 0;
 
     return (gc_type *)gc;
 }
@@ -15,64 +20,76 @@ void gc_destroy(gc_type *gc_void) {
 
         destroy_list(&(gc->active_list));
         destroy_list(&(gc->dead_list));
+        destroy_list(&(gc->perm_list));
 
         FREE(gc);
+    }
+}
+
+
+/* increment the protect counter */
+void gc_protect(gc_type *gc_void) {
+    gc_ms_type *gc = (gc_ms_type *)gc_void;
+    gc->protect_count++;
+}
+
+/* increment the protect counter */
+void gc_unprotect(gc_type *gc_void) {
+    gc_ms_type *gc = (gc_ms_type *)gc_void;
+    gc->protect_count--;
+
+    if(!gc->protect_count && !gc->dead_list) {
+        sweep(gc);
     }
 }
 
 /* allocate an object and attach it to the gc */
 object_type *gc_alloc(gc_type *gc_void, cell_type type) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
-    object_type *obj = internal_alloc(type);
-    meta_obj_type *meta = MALLOC(meta_obj_type);
-
-    /* make sure we have an object */
-    assert(obj);
-    assert(meta);
+    meta_obj_type *meta = internal_alloc(gc, type);
 
     /* attach the new object to our gc */
-    meta->obj=obj;
-    meta->next=gc->active_list;
-    gc->active_list=meta;
+    meta->next = gc->active_list;
+    gc->active_list = meta;
 
-    return obj;
+    return meta->obj; 
 }
 
+/* allocate a permenant object, one that does not get GCd */
+object_type *gc_perm_alloc(gc_type *gc_void, cell_type type) {
+    gc_ms_type *gc = (gc_ms_type *)gc_void;
+    meta_obj_type *meta = internal_alloc(gc, type);
 
+    meta->obj->mark = PERM;
 
-/* walk a list and free every element in it */
-void destroy_list(meta_obj_type **list) {
-    meta_obj_type *meta=0;
+    /* attach the new object to our gc */
+    meta->next = gc->perm_list;
+    gc->perm_list = meta;
 
-    /* make sure there is a list to destroy */
-    if(!list) {
-        return;
-    }
-
-    /* retrieve the first list value */
-    meta=*list;
-
-    while(meta) {
-        meta_obj_type *next=meta->next;
-
-        /* free the object we are holding onto and
-           the gc object */
-        FREE(meta->obj);
-        FREE(meta);
-
-        /* move to the next object */
-        meta=next;
-    }
-
-    /* null out this pointer */
-    *list=0;
+    return meta->obj;
 }
 
-/* allocate an object */
-object_type *internal_alloc(cell_type type) {
-    object_type *obj=MALLOC(object_type);
-    obj->type=type;
-    return obj;
+/* output some useful statistics about the GC */
+void gc_stats(gc_type *gc_void) {
+    gc_ms_type *gc = (gc_ms_type *)gc_void;
+    vm_int active = 0;
+    vm_int dead = 0; 
+    vm_int perm = 0;
+
+    assert(gc);
+
+    active=count_list(&(gc->active_list));
+    dead=count_list(&(gc->dead_list));
+    perm=count_list(&(gc->perm_list));
+
+    printf("GC statistics active:%" PRIi64 " dead:%" PRIi64 " perm:%" PRIi64 "\n",
+           active, dead, perm);
 }
 
+/* initiate a sweep of objects in the active list */
+void gc_sweep(gc_type *gc_void) {
+    gc_ms_type *gc = (gc_ms_type *)gc_void;
+
+    sweep(gc);
+}
 

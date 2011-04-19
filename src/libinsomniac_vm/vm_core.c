@@ -10,9 +10,7 @@ vm_type *vm_create(gc_type *gc) {
    
     /* setup the stack */
     gc_register_root(gc, &(vm->stack_root));
-    vm->stack_root = cons(gc,
-                        gc_alloc(gc, EMPTY),
-                        gc_alloc(gc, EMPTY));
+    vm->stack_root = gc_alloc(gc, EMPTY);
 
     gc_unprotect(gc);
 
@@ -32,3 +30,31 @@ void vm_destroy(vm_type *vm_raw) {
 }
 
 
+
+/* push and item onto the vm stack */
+void vm_push(vm_type *vm_void, object_type *obj) {
+    vm_internal_type *vm = (vm_internal_type *)vm_void;
+
+    gc_protect(vm->gc);
+    
+    /* push an item onto the stack */
+    vm->stack_root = cons(vm->gc, obj, vm->stack_root);
+
+    gc_unprotect(vm->gc);
+}
+
+object_type *vm_pop(vm_type *vm_void) {
+    vm_internal_type *vm = (vm_internal_type *)vm_void;
+    object_type *obj = 0;
+
+    /* return empty if we are empty */
+    if(vm->stack_root->type == EMPTY) {
+        return vm->stack_root;
+    }
+
+    /* pop the value off */
+    obj = vm->stack_root->value.pair.car;
+    vm->stack_root=vm->stack_root->value.pair.cdr;
+
+    return obj;
+}

@@ -6,7 +6,8 @@
 #include <vm.h>
 
 typedef struct vm_internal {
-    object_type * stack_root;
+ 
+    object_type *stack_root;
     gc_type *gc;
 } vm_internal_type;
 

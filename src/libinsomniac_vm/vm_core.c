@@ -9,6 +9,7 @@ vm_type *vm_create(gc_type *gc) {
     gc_protect(gc);
    
     /* setup the stack */
+    gc_register_root(gc, &(vm->stack_root));
     vm->stack_root = cons(gc,
                         gc_alloc(gc, EMPTY),
                         gc_alloc(gc, EMPTY));

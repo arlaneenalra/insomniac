@@ -49,12 +49,24 @@ void mark_graph(object_type *obj, mark_type mark) {
 }
 
 /* walk every object in a list and mark them */
-void mark_list(meta_obj_type **list, mark_type mark) {
+void mark_list(meta_obj_type *list, mark_type mark) {
     meta_obj_type *meta = 0;
 
-    meta = *list;
+    meta = list;
     while(meta) {
         mark_graph(meta->obj, mark);
+
+        meta=meta->next;
+    }
+}
+
+/* walk every object in a list and mark them */
+void mark_root(meta_root_type *list, mark_type mark) {
+    meta_root_type *meta = 0;
+
+    meta = list;
+    while(meta) {
+        mark_graph(*(meta->root), mark);
 
         meta=meta->next;
     }
@@ -110,7 +122,13 @@ void sweep(gc_ms_type *gc) {
     mark = set_next_mark(gc);
 
     /* mark all reachable objects */
-    mark_list(&(gc->perm_list), mark);
+    mark_list(gc->perm_list, mark);
+    
+    /* mark all objects reachable from our defined root 
+       pointers */
+    if(gc->root_list) {
+        mark_root(gc->root_list, mark);
+    }
 
     /* iterate through the list of active nodes and 
        move the unmarked ones to dead */

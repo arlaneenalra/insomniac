@@ -27,6 +27,10 @@ object_type *gc_perm_alloc(gc_type *gc, cell_type type);
 /* explicitly make a cell not permenant */
 void gc_de_perm(gc_type *gc, object_type *cell);
 
+/* handling for root pointers */
+void gc_register_root(gc_type *gc_void, object_type **root);
+void gc_unregister_root(gc_type *gc_void, object_type **root);
+
 /* deal with these as a macro incase I need to change them latter */
 #define MALLOC(type) (type *)calloc(1, sizeof(type))
 #define FREE(ptr) free(ptr)

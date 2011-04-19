@@ -38,9 +38,29 @@ void gc_unprotect(gc_type *gc_void) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
     gc->protect_count--;
 
+    /* make sure we have paired protects */
+    assert(gc->protect_count >= 0);
+
     if(!gc->protect_count && !gc->dead_list) {
         sweep(gc);
     }
+}
+
+/* register a root pointer */
+void gc_register_root(gc_type *gc_void, object_type **root) {
+    gc_ms_type *gc = (gc_ms_type *)gc_void;
+    meta_root_type *meta = MALLOC(meta_root_type);
+
+    meta->root = root;
+    meta->next = gc->root_list;
+
+    gc->root_list = meta;
+}
+
+/* unregister a root point */
+/* TODO: This is going to be very inefficient */
+void gc_unregister_root(gc_type *gc_void, object_type **root) {
+    
 }
 
 /* allocate an object and attach it to the gc */

@@ -25,7 +25,7 @@ void vm_destroy(vm_type *vm_raw) {
     if(vm_raw) {
         vm_internal_type *vm = (vm_internal_type *)vm_raw;
 
-        gc_de_perm(vm->gc, vm->stack_root);
+        gc_unregister_root(vm->gc, &(vm->stack_root));
 
         FREE(vm);
     }

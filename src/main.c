@@ -69,6 +69,11 @@ int main(int argc, char**argv) {
     gc_stats(gc);
 
     vm_destroy(vm);
+
+    printf("Sweeping\n");
+    gc_sweep(gc);
+    gc_stats(gc);
+
     gc_destroy(gc);
 
     return 0;

@@ -60,7 +60,26 @@ void gc_register_root(gc_type *gc_void, object_type **root) {
 /* unregister a root point */
 /* TODO: This is going to be very inefficient */
 void gc_unregister_root(gc_type *gc_void, object_type **root) {
-    
+    gc_ms_type *gc=(gc_ms_type *)gc_void;
+    meta_root_type *meta = gc->root_list;
+    meta_root_type *prev = 0;
+
+
+    /* search until we find an object that matches our root pointer */
+    while(meta->next && meta->root != root) {
+        prev = meta;
+        meta = meta->next;
+    }
+
+    /* we are not the first element in the list */
+    if(prev) {
+        prev->next = meta->next;
+    } else { /* it was the first item on the list */
+        gc->root_list = meta->next;
+    }
+
+    /* this is really inefficient */
+    FREE(meta);    
 }
 
 /* allocate an object and attach it to the gc */

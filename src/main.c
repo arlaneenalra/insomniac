@@ -3,22 +3,6 @@
 #include <insomniac.h>
 
 
-/* create a list of pairs */
-object_type *cons(gc_type *gc, object_type *car, object_type *cdr) {
-    object_type *new_pair = 0;
-    
-    gc_protect(gc);
-
-    new_pair = gc_alloc(gc, PAIR);
-    
-    new_pair->value.pair.car = car;
-    new_pair->value.pair.cdr = cdr;
-
-    gc_unprotect(gc);
-    
-    return new_pair;
-}
-
 void alloc_obj(gc_type *gc, object_type *root, int count) {
     object_type *obj = 0;
 
@@ -39,14 +23,18 @@ void alloc_obj(gc_type *gc, object_type *root, int count) {
 
 int main(int argc, char**argv) {
     object_type *root=0;
+    object_type *root_two=0;
     
     printf("Insomniac VM\n");
 
     gc_type *gc = gc_create();
+    vm_type *vm = vm_create(gc);
 
+    
     root = gc_perm_alloc(gc, PAIR);
+    root_two = gc_perm_alloc(gc, PAIR);
 
-    alloc_obj(gc, root, 1500);
+    alloc_obj(gc, root_two, 1500);
     
     printf("Sweeping\n");
     gc_sweep(gc);
@@ -56,7 +44,6 @@ int main(int argc, char**argv) {
     /* make root a permenant object */
 
     alloc_obj(gc, root, 1000);
-
 
     gc_sweep(gc);
 
@@ -69,7 +56,19 @@ int main(int argc, char**argv) {
     gc_sweep(gc);
     gc_stats(gc);
 
+    gc_de_perm(gc, root);
 
+    printf("Sweeping\n");
+    gc_sweep(gc);
+    gc_stats(gc);
+
+    gc_de_perm(gc, root_two);
+
+    printf("Sweeping\n");
+    gc_sweep(gc);
+    gc_stats(gc);
+
+    vm_destroy(vm);
     gc_destroy(gc);
 
     return 0;

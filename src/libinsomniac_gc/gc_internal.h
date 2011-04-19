@@ -29,11 +29,6 @@ typedef struct gc_ms {
     mark_type current_mark;
 } gc_ms_type;
 
-/* deal with these as a macro incase I need to change them latter */
-#define MALLOC(type) (type *)calloc(1, sizeof(type));
-#define FREE(ptr) free(ptr);
-
-
 /* do the actual object allocation */
 meta_obj_type *internal_alloc(gc_ms_type *gc, cell_type type);
 void pre_alloc(gc_ms_type *gc);

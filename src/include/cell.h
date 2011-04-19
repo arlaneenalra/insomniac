@@ -17,7 +17,9 @@ typedef struct object object_type;
 /* specifies what kind of data is in the current object */
 typedef enum cell {
     FIXNUM,
-    PAIR
+    PAIR,
+    
+    EMPTY
 } cell_type;
 
 /* a pair of objects */

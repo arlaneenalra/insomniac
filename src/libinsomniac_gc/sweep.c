@@ -40,6 +40,9 @@ void mark_graph(object_type *obj, mark_type mark) {
         
         break;
 
+    case EMPTY: /* nothing to do with this one */
+        break;
+
     default:
         assert(0);
     }

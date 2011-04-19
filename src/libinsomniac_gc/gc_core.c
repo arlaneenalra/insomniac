@@ -69,6 +69,39 @@ object_type *gc_perm_alloc(gc_type *gc_void, cell_type type) {
     return meta->obj;
 }
 
+
+/* remove permenant status from a given cell */
+void gc_de_perm(gc_type *gc_void, object_type *obj) {
+    gc_ms_type *gc=(gc_ms_type *)gc_void;
+    meta_obj_type *meta = gc->perm_list;
+    meta_obj_type *prev = 0;
+
+    /* nothing to unmark */
+    if(obj->mark != PERM) {
+        return;
+    }
+
+    /* mark the object as though we just created it */
+    obj->mark = gc->current_mark;
+
+    /* search for our object in the perm list */
+    while(meta->next && meta->obj != obj) {
+        prev = meta;
+        meta = meta->next;
+    }
+
+    /* we are not the first element in the list */
+    if(prev) {
+        prev->next = meta->next;
+    } else { /* it was the first item on the list */
+        gc->perm_list = meta->next;
+    }
+
+    /* attach our object to the top of the active list */
+    meta->next = gc->active_list;
+    gc->active_list = meta;
+}
+
 /* output some useful statistics about the GC */
 void gc_stats(gc_type *gc_void) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;

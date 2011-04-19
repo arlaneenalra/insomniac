@@ -2,6 +2,7 @@
 #define _GC_
 
 #include "cell.h" /* type definitions */
+#include <stdlib.h> /* for the malloc lines */
 
 /* structure that contains the core of our GC implementation */
 typedef void gc_type;
@@ -22,5 +23,13 @@ void gc_unprotect(gc_type *gc);
 /* allocate a new object */
 object_type *gc_alloc(gc_type *gc, cell_type type);
 object_type *gc_perm_alloc(gc_type *gc, cell_type type);
+
+/* explicitly make a cell not permenant */
+void gc_de_perm(gc_type *gc, object_type *cell);
+
+/* deal with these as a macro incase I need to change them latter */
+#define MALLOC(type) (type *)calloc(1, sizeof(type))
+#define FREE(ptr) free(ptr)
+
 
 #endif

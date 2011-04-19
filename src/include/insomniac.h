@@ -5,5 +5,7 @@
 
 #include "gc.h" /* internal GC api */
 
+#include "vm.h" /* internal vm api */
+
 
 #endif

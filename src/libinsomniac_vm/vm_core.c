@@ -10,8 +10,9 @@ vm_type *vm_create(gc_type *gc) {
    
     /* setup the stack */
     gc_register_root(gc, (void **)&(vm->stack_root));
-    vm->stack_root = gc_alloc(gc, 0, sizeof(object_type));
-    vm->stack_root->type=EMPTY;
+    /* vm->stack_root = gc_alloc(gc, 0, sizeof(object_type)); */
+    /* vm->stack_root->type=EMPTY; */
+    vm->stack_root = vm_alloc(vm, EMPTY);
 
     gc_unprotect(gc);
 
@@ -54,6 +55,17 @@ object_type *vm_pop(vm_type *vm_void) {
     /* pop the value off */
     obj = vm->stack_root->value.pair.car;
     vm->stack_root=vm->stack_root->value.pair.cdr;
+
+    return obj;
+}
+
+
+/* Deal with cell alloction */
+object_type *vm_alloc(vm_type *vm_void, cell_type type) {
+    vm_internal_type *vm = (vm_internal_type *)vm_void;
+    object_type *obj=gc_alloc(vm->gc, 0, sizeof(object_type));
+    
+    obj->type=type;
 
     return obj;
 }

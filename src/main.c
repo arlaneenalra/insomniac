@@ -3,7 +3,7 @@
 #include <insomniac.h>
 
 
-void alloc_obj(gc_type *gc, object_type *root, int count) {
+void alloc_obj(gc_type *gc, vm_type* vm, object_type *root, int count) {
     object_type *obj = 0;
     object_type *num = 0;
 
@@ -13,8 +13,10 @@ void alloc_obj(gc_type *gc, object_type *root, int count) {
     for(int i = 0; i < count; i++) {
         gc_protect(gc);
 
-        num=gc_alloc(gc, 0, sizeof(object_type));
-        num->type=FIXNUM;
+        /* num=gc_alloc(gc, 0, sizeof(object_type)); */
+        /* num->type=FIXNUM; */
+
+        num = vm_alloc(vm, FIXNUM);
 
         obj = cons(gc, num, obj);
         root->value.pair.car=obj;  
@@ -35,8 +37,9 @@ void big_stack(gc_type *gc, vm_type *vm, int count) {
     for(int i = 0; i < count; i++) {
         gc_protect(gc);
         
-        num=gc_alloc(gc, 0, sizeof(object_type));
-        num->type=FIXNUM;
+        /* num=gc_alloc(gc, 0, sizeof(object_type)); */
+        /* num->type=FIXNUM; */
+        num = vm_alloc(vm, FIXNUM);
 
         vm_push(vm, num);
         

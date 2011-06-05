@@ -29,8 +29,6 @@ gc_type_def gc_register_type(gc_type *gc_void, size_t size) {
     gc->type_defs[new_type].root_list = 0;
     gc->type_defs[new_type].size = size;
 
-    printf("Registered %i\n", new_type);
-
     return new_type;
 }
 

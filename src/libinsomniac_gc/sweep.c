@@ -110,9 +110,6 @@ void sweep_list(gc_ms_type * gc, mark_type mark) {
                 dead=active;
             } else {
 
-                printf("Miss matched size: %zu != %zu\n",
-                       active->size, gc->cell_size);
-                
                 /* Free things that are not cell sized */
                 FREE(active);
             }

@@ -7,12 +7,14 @@ vm_type *vm_create(gc_type *gc) {
     vm->gc = gc;
     
     gc_protect(gc);
+
+    /* setup types for allocations */
+    create_types(vm);
    
     /* setup the stack */
     gc_register_root(gc, (void **)&(vm->stack_root));
     vm->stack_root = vm_alloc(vm, EMPTY);
 
-    create_types(vm);
 
     gc_unprotect(gc);
 
@@ -63,7 +65,10 @@ object_type *vm_pop(vm_type *vm_void) {
 /* Deal with cell alloction */
 object_type *vm_alloc(vm_type *vm_void, cell_type type) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
-    object_type *obj=gc_alloc(vm->gc, 0, sizeof(object_type));
+    /* object_type *obj=gc_alloc(vm->gc, 0, sizeof(object_type)); */
+
+    /* Allocate an object using the GC type system */
+    object_type *obj=gc_alloc_type(vm->gc, 0, vm->types[type]);
     
     obj->type=type;
 

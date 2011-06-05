@@ -26,3 +26,15 @@ void create_types(vm_internal_type *vm) {
     vm->types[PAIR] = register_pair(gc);
     vm->types[EMPTY] = register_basic(gc);
 }
+
+
+/* create/registers the default vm internal type */
+gc_type_def create_vm_type(gc_type *gc) {
+    gc_type_def vm_type_def = 0;
+
+    vm_type_def = gc_register_type(gc, sizeof(vm_internal_type));
+    gc_register_pointer(gc, vm_type_def, 
+                        offsetof(vm_internal_type, stack_root));
+
+    return vm_type_def;
+}

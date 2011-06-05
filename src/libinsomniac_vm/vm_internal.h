@@ -16,5 +16,6 @@ typedef struct vm_internal {
 } vm_internal_type;
 
 void create_types(vm_internal_type *vm);
+gc_type_def create_vm_type(gc_type *gc);
 
 #endif

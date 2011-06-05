@@ -1,8 +1,12 @@
 #include "vm_internal.h"
 
 vm_type *vm_create(gc_type *gc) {
-    vm_internal_type *vm = (vm_internal_type *)MALLOC_TYPE(vm_internal_type);
+    gc_type_def vm_type_def = 0;
+    /* vm_internal_type *vm = (vm_internal_type *)MALLOC_TYPE(vm_internal_type); */
+    vm_internal_type *vm = 0;
     
+    vm_type_def = create_vm_type(gc);
+    vm = gc_alloc_type(gc, 1, vm_type_def);
     
     vm->gc = gc;
     
@@ -12,7 +16,7 @@ vm_type *vm_create(gc_type *gc) {
     create_types(vm);
    
     /* setup the stack */
-    gc_register_root(gc, (void **)&(vm->stack_root));
+    /* gc_register_root(gc, (void **)&(vm->stack_root)); */
     vm->stack_root = vm_alloc(vm, EMPTY);
 
 
@@ -27,9 +31,11 @@ void vm_destroy(vm_type *vm_raw) {
     if(vm_raw) {
         vm_internal_type *vm = (vm_internal_type *)vm_raw;
 
-        gc_unregister_root(vm->gc, (void **)&(vm->stack_root));
+        gc_de_perm(vm->gc, vm);
 
-        FREE(vm);
+        /* gc_unregister_root(vm->gc, (void **)&(vm->stack_root)); */
+
+        /* FREE(vm); */
     }
 }
 
@@ -65,7 +71,6 @@ object_type *vm_pop(vm_type *vm_void) {
 /* Deal with cell alloction */
 object_type *vm_alloc(vm_type *vm_void, cell_type type) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
-    /* object_type *obj=gc_alloc(vm->gc, 0, sizeof(object_type)); */
 
     /* Allocate an object using the GC type system */
     object_type *obj=gc_alloc_type(vm->gc, 0, vm->types[type]);

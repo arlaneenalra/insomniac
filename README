@@ -1,2 +1,6 @@
 To setup an build environment, run setup.sh.  If all goes well, you will find a build tree configured in the directory build.
 
+* GC
+
+For the moment, I'm playing around with the idea of a mark/sweep garbage collector for use with the final product.   I'm working on means of decoupling the structure of a cell from the GC code.  That's going to require a method of specifying the structure and size of a cell without the GC knowing about the core type.  Array's are going to be the really tricky part here.
+

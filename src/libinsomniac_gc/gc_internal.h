@@ -26,12 +26,12 @@ struct meta_obj {
     meta_obj_type *next; /* next object in our list */
     mark_type mark;
 
-    /* uint8_t obj[]; /\* contained object *\/ */
-    object_type obj;
+    uint8_t obj[]; /* contained object */
+    /* object_type obj; */
 };
 
 struct meta_root {
-    object_type **root;
+    void **root;
     meta_root_type *next;
 };
 
@@ -75,14 +75,10 @@ void sweep_list(gc_ms_type *gc, mark_type mark);
 void sweep(gc_ms_type *gc);
 
 /* used to convert between objects and meta objects */
-meta_obj_type *meta_from_obj(object_type *obj);
-object_type *obj_from_meta(meta_obj_type *meta);
+meta_obj_type *meta_from_obj(void *obj);
+void *obj_from_meta(meta_obj_type *meta);
 
 /* offeset into a meta object for the actual object */
 #define OBJECT_OFFSET offsetof(meta_obj_type, obj)
-
-/* /\* Some useful macros for working with meta object *\/ */
-/* #define meta_from_obj(x) (void *)(((uint8_t *)x)-offsetof(meta_obj_type, obj)) */
-/* #define obj_from_meta(x) (void *)(((uint8_t *)x)+offsetof(meta_obj_type, obj)) */
 
 #endif

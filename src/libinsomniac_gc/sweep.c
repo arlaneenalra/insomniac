@@ -29,14 +29,17 @@ void mark_graph(meta_obj_type *meta, mark_type mark) {
     /* mark this object */
     mark_object(meta, mark);
 
-    switch(meta->obj.type) {
+    /* TODO: Fix this */
+    object_type *obj=obj_from_meta(meta);
+
+    switch(obj->type) {
     case FIXNUM:
         break;
 
     case PAIR: /* need to iterate through child objects */
         /* TODO: I need to find a way to iterate over these */
-        mark_graph(meta_from_obj(meta->obj.value.pair.car), mark);
-        mark_graph(meta_from_obj(meta->obj.value.pair.cdr), mark);
+        mark_graph(meta_from_obj(obj->value.pair.car), mark);
+        mark_graph(meta_from_obj(obj->value.pair.cdr), mark);
         
         break;
 

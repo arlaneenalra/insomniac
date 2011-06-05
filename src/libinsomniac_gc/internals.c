@@ -37,7 +37,7 @@ void destroy_list(meta_obj_type **list) {
 
 /* allocate an object */
 meta_obj_type *internal_alloc(gc_ms_type *gc, cell_type type) {
-    object_type *obj = 0; 
+    void *obj = 0; 
     meta_obj_type *meta = 0;
 
     /* if there are no available objects, sweep */
@@ -55,14 +55,16 @@ meta_obj_type *internal_alloc(gc_ms_type *gc, cell_type type) {
     } else {
         /* create a new obect */
 
-        meta = MALLOC(meta_obj_type);
+        /* TODO: fix this */
+        meta = MALLOC(sizeof(meta_obj_type)+sizeof(object_type));
         obj = obj_from_meta(meta);
     }
 
     /* make sure we have an object */
     assert(meta);
 
-    obj->type = type;
+    /* TODO: Fix this */
+    ((object_type *)obj)->type = type;
     meta->mark = gc->current_mark;
 
     return meta;
@@ -95,7 +97,7 @@ void pre_alloc(gc_ms_type *gc) {
 
 
 /* return a pointer to the meta object for a given object */
-meta_obj_type *meta_from_obj(object_type *obj) {
+meta_obj_type *meta_from_obj(void *obj) {
     /* make sure a null stays a null */
     if(!obj) {
         return 0;
@@ -105,7 +107,7 @@ meta_obj_type *meta_from_obj(object_type *obj) {
 }
 
 /* return a pointer to the given object for a given meta object */
-object_type *obj_from_meta(meta_obj_type *meta) {
+void *obj_from_meta(meta_obj_type *meta) {
     if(!meta) {
         return 0;
     }

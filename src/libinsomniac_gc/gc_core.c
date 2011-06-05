@@ -4,7 +4,7 @@
 
 /* construct a new instance of our GC */
 gc_type *gc_create() {
-    gc_ms_type *gc = MALLOC(gc_ms_type);
+    gc_ms_type *gc = MALLOC_TYPE(gc_ms_type);
     
     gc->current_mark = RED;
     gc->protect_count = 0;
@@ -47,9 +47,9 @@ void gc_unprotect(gc_type *gc_void) {
 }
 
 /* register a root pointer */
-void gc_register_root(gc_type *gc_void, object_type **root) {
+void gc_register_root(gc_type *gc_void, void **root) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
-    meta_root_type *meta = MALLOC(meta_root_type);
+    meta_root_type *meta = MALLOC_TYPE(meta_root_type);
 
     meta->root = root;
     meta->next = gc->root_list;
@@ -59,7 +59,7 @@ void gc_register_root(gc_type *gc_void, object_type **root) {
 
 /* unregister a root point */
 /* TODO: This is going to be very inefficient */
-void gc_unregister_root(gc_type *gc_void, object_type **root) {
+void gc_unregister_root(gc_type *gc_void, void **root) {
     gc_ms_type *gc=(gc_ms_type *)gc_void;
     meta_root_type *meta = gc->root_list;
     meta_root_type *prev = 0;
@@ -83,7 +83,7 @@ void gc_unregister_root(gc_type *gc_void, object_type **root) {
 }
 
 /* allocate an object and attach it to the gc */
-object_type *gc_alloc(gc_type *gc_void, cell_type type) {
+void *gc_alloc(gc_type *gc_void, cell_type type) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
     meta_obj_type *meta = internal_alloc(gc, type);
 
@@ -95,7 +95,7 @@ object_type *gc_alloc(gc_type *gc_void, cell_type type) {
 }
 
 /* allocate a permenant object, one that does not get GCd */
-object_type *gc_perm_alloc(gc_type *gc_void, cell_type type) {
+void *gc_perm_alloc(gc_type *gc_void, cell_type type) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
     meta_obj_type *meta = internal_alloc(gc, type);
 
@@ -110,7 +110,7 @@ object_type *gc_perm_alloc(gc_type *gc_void, cell_type type) {
 
 
 /* remove permenant status from a given cell */
-void gc_de_perm(gc_type *gc_void, object_type *obj_in) {
+void gc_de_perm(gc_type *gc_void, void *obj_in) {
     gc_ms_type *gc=(gc_ms_type *)gc_void;
     meta_obj_type *meta = gc->perm_list;
     meta_obj_type *prev = 0;

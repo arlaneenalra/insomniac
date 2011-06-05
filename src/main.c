@@ -34,7 +34,6 @@ void big_stack(gc_type *gc, vm_type *vm, int count) {
 
     gc_stats(gc);
     
-    gc_protect(gc);
     for(int i = 0; i < count; i++) {
         gc_protect(gc);
         
@@ -46,12 +45,11 @@ void big_stack(gc_type *gc, vm_type *vm, int count) {
         
         gc_unprotect(gc);
     }
-    gc_unprotect(gc);
     gc_stats(gc);
 }
 
 void clear_stack(gc_type *gc, vm_type *vm) {
-    printf("Poping\n");
+    printf("Popping\n");
 
     gc_stats(gc);
     while(vm_pop(vm)->type != EMPTY) {}
@@ -68,12 +66,12 @@ int main(int argc, char**argv) {
     gc_type *gc = gc_create(sizeof(object_type));
     vm_type *vm = vm_create(gc);
 
-    for(int i=0; i< 10000; i++) {
-        big_stack(gc, vm, 10000);
+    for(int i=0; i< 10; i++) {
+        big_stack(gc, vm, 100);
         clear_stack(gc, vm);
-        big_stack(gc, vm, 10000);
-        big_stack(gc, vm, 10000);
-        big_stack(gc, vm, 100000);
+        big_stack(gc, vm, 100);
+        big_stack(gc, vm, 33);
+        big_stack(gc, vm, 893);
         clear_stack(gc, vm);
     }
 

@@ -8,7 +8,7 @@
 typedef void gc_type;
 
 /* setup and destroy functions */
-gc_type *gc_create();
+gc_type *gc_create(size_t cell_size);
 void gc_destroy(gc_type *gc);
 
 /* sweep active objects */
@@ -20,9 +20,8 @@ void gc_stats(gc_type *gc);
 void gc_protect(gc_type *gc);
 void gc_unprotect(gc_type *gc);
 
-/* allocate a new object */
-void *gc_alloc(gc_type *gc, cell_type type);
-void *gc_perm_alloc(gc_type *gc, cell_type type);
+/* allocate a new block */
+void *gc_alloc(gc_type *gc, uint8_t perm, size_t size);
 
 /* explicitly make a cell not permenant */
 void gc_de_perm(gc_type *gc, void *cell);

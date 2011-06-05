@@ -10,7 +10,8 @@ vm_type *vm_create(gc_type *gc) {
    
     /* setup the stack */
     gc_register_root(gc, (void **)&(vm->stack_root));
-    vm->stack_root = gc_alloc(gc, EMPTY);
+    vm->stack_root = gc_alloc(gc, 0, sizeof(object_type));
+    vm->stack_root->type=EMPTY;
 
     gc_unprotect(gc);
 
@@ -28,8 +29,6 @@ void vm_destroy(vm_type *vm_raw) {
         FREE(vm);
     }
 }
-
-
 
 /* push and item onto the vm stack */
 void vm_push(vm_type *vm_void, object_type *obj) {

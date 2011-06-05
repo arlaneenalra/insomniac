@@ -5,6 +5,7 @@
 
 void alloc_obj(gc_type *gc, object_type *root, int count) {
     object_type *obj = 0;
+    object_type *num = 0;
 
     printf("Allocating\n");    
     gc_stats(gc);
@@ -12,7 +13,10 @@ void alloc_obj(gc_type *gc, object_type *root, int count) {
     for(int i = 0; i < count; i++) {
         gc_protect(gc);
 
-        obj = cons(gc, gc_alloc(gc, FIXNUM), obj);
+        num=gc_alloc(gc, 0, sizeof(object_type));
+        num->type=FIXNUM;
+
+        obj = cons(gc, num, obj);
         root->value.pair.car=obj;  
 
         gc_unprotect(gc);
@@ -22,14 +26,19 @@ void alloc_obj(gc_type *gc, object_type *root, int count) {
 }
 
 void big_stack(gc_type *gc, vm_type *vm, int count) {
+    object_type *num=0;
+
     printf("Pushing\n");
 
     gc_stats(gc);
     
     for(int i = 0; i < count; i++) {
         gc_protect(gc);
+        
+        num=gc_alloc(gc, 0, sizeof(object_type));
+        num->type=FIXNUM;
 
-        vm_push(vm, gc_alloc(gc, FIXNUM));
+        vm_push(vm, num);
         
         gc_unprotect(gc);
     }
@@ -51,7 +60,7 @@ int main(int argc, char**argv) {
         
     printf("Insomniac VM\n");
 
-    gc_type *gc = gc_create();
+    gc_type *gc = gc_create(sizeof(object_type));
     vm_type *vm = vm_create(gc);
 
     for(int i=0; i< 1000; i++) {

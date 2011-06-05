@@ -25,6 +25,7 @@ typedef enum mark {
 struct meta_obj {
     meta_obj_type *next; /* next object in our list */
     mark_type mark;
+    size_t size;
 
     uint8_t obj[]; /* contained object */
     /* object_type obj; */
@@ -44,7 +45,7 @@ typedef struct gc_ms {
 
     meta_root_type *root_list; /* list of root pointers */
 
-    size_t cell_size;
+    size_t cell_size; /* size of a normal cell */
 
     vm_int protect_count;
 

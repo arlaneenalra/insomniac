@@ -38,24 +38,41 @@ void destroy_list(meta_obj_type **list) {
 /* allocate an object */
 meta_obj_type *internal_alloc(gc_ms_type *gc, uint8_t perm, size_t size) {
     meta_obj_type *meta = 0;
+    size_t real_size=0;
+    
+    /* adjust the requested size with 
+       the size of our meta object */
+    real_size=sizeof(meta_obj_type)+size;
 
-    /* if there are no available objects, sweep */
-    if(!gc->dead_list) {
-        sweep(gc);
+    /* only attempt reuse on cell sized objects */
+    if(size == gc->cell_size) {
+
+        /* if there are no available objects, sweep */
+        if(!gc->dead_list) {
+            sweep(gc);
+        }
+
+        /* only attempt reallocation for cell sized things */
+        if(gc->dead_list) {
+            /* reuse an object */
+            meta = gc->dead_list;
+            gc->dead_list = meta->next;
+
+            bzero(meta, real_size); /* zero out our object */
+        }
     }
 
-    if(gc->dead_list) {
-        /* reuse an object */
-        meta = gc->dead_list;
-        gc->dead_list = meta->next;
+    /* If we didn't find an object,
+       create one. */
 
-        bzero(meta, size); /* zero out our object */
-    } else {
+    if(!meta) {
         /* create a new obect */
 
-        /* TODO: fix this */
-        meta = MALLOC(size);
+        meta = MALLOC(real_size);
     }
+
+    /* reset the allocation size */
+    meta->size=size;
 
     /* make sure we have an object */
     assert(meta);
@@ -86,23 +103,17 @@ mark_type set_next_mark(gc_ms_type *gc) {
     return gc->current_mark = mark;
 }
 
-/* preallocate a chunk of memory, only use with an empty 
+/* preallocate a chunk of memory, only use with an empty
    dead list */
 void pre_alloc(gc_ms_type *gc) {
-    /* meta_obj_type *meta = 0; */
-    /* meta_obj_type *new_dead = 0; */
     void *obj=0;
 
     gc_protect(gc);
     
     for(int i = 0; i < 500; i++) {
-        /* meta = internal_alloc(gc, 0, gc->cell_size); */
-        /* meta->next = new_dead; */
-        /* new_dead = meta; */
-        obj=gc_alloc(gc, FIXNUM);
+        obj=gc_alloc(gc, 0, gc->cell_size);
     }
     
-    /* gc->dead_list = new_dead; */
     gc_unprotect(gc);
     gc_sweep(gc); /* sweep the garbage collector */
 }

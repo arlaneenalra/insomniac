@@ -3,12 +3,12 @@
 #include "stdio.h" /* for gc_stats */
 
 /* construct a new instance of our GC */
-gc_type *gc_create() {
+gc_type *gc_create(size_t cell_size) {
     gc_ms_type *gc = MALLOC_TYPE(gc_ms_type);
     
     gc->current_mark = RED;
     gc->protect_count = 0;
-    gc->cell_size=sizeof(meta_obj_type)+sizeof(object_type);
+    gc->cell_size = cell_size;
 
     return (gc_type *)gc;
 }
@@ -84,27 +84,11 @@ void gc_unregister_root(gc_type *gc_void, void **root) {
 }
 
 /* allocate an object and attach it to the gc */
-void *gc_alloc(gc_type *gc_void, cell_type type) {
+void *gc_alloc(gc_type *gc_void, uint8_t perm, size_t size) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
-    meta_obj_type *meta = internal_alloc(gc, 0, gc->cell_size);
-    object_type *obj=0;
+    meta_obj_type *meta = internal_alloc(gc, perm, size);
 
-    obj=obj_from_meta(meta);
-    obj->type=type;
-
-    return obj; 
-}
-
-/* allocate a permenant object, one that does not get GCd */
-void *gc_perm_alloc(gc_type *gc_void, cell_type type) {
-    gc_ms_type *gc = (gc_ms_type *)gc_void;
-    meta_obj_type *meta = internal_alloc(gc, 1, gc->cell_size);
-    object_type *obj=0;
-    
-    obj=obj_from_meta(meta);
-    obj->type=type;
-
-    return obj;
+    return obj_from_meta(meta); 
 }
 
 

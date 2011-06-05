@@ -93,14 +93,27 @@ void sweep_list(gc_ms_type * gc, mark_type mark) {
         /* do we have a dead object */
         if(active->mark == mark) {
             /* move our object to the head
-               of the dead list */
+               of the active list */
             active->next=new_active;
             new_active=active;
+            
         } else {
-            /* move our object to the head 
-               of the new active list */
-            active->next=dead;
-            dead=active;
+            
+            /* Do we have a cell sized object or
+               something else? */
+            if(active->size == gc->cell_size) {
+                /* move our object to the head 
+                   of the new dead list */
+                active->next=dead;
+                dead=active;
+            } else {
+
+                printf("Miss matched size: %zu != %zu\n",
+                       active->size, gc->cell_size);
+                
+                /* Free things that are not cell sized */
+                FREE(active);
+            }
         }
 
         active=next;

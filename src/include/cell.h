@@ -12,7 +12,9 @@ typedef enum cell {
     FIXNUM,
     PAIR,
     
-    EMPTY
+    EMPTY,
+
+    CELL_MAX /* Hack to get last enum value */
 } cell_type;
 
 /* a pair of objects */

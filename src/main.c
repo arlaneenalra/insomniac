@@ -66,14 +66,14 @@ int main(int argc, char**argv) {
     gc_type *gc = gc_create(sizeof(object_type));
     vm_type *vm = vm_create(gc);
 
-    for(int i=0; i< 1000; i++) {
-        big_stack(gc, vm, 1000);
-        clear_stack(gc, vm);
-        big_stack(gc, vm, 1000);
-        big_stack(gc, vm, 1000);
-        big_stack(gc, vm, 1000);
-        clear_stack(gc, vm);
-    }
+    /* for(int i=0; i< 10; i++) { */
+    /*     big_stack(gc, vm, 1000); */
+    /*     clear_stack(gc, vm); */
+    /*     big_stack(gc, vm, 1000); */
+    /*     big_stack(gc, vm, 1000); */
+    /*     big_stack(gc, vm, 1000); */
+    /*     clear_stack(gc, vm); */
+    /* } */
 
     /* root = gc_perm_alloc(gc, PAIR); */
     /* root_two = gc_perm_alloc(gc, PAIR); */

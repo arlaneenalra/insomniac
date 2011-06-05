@@ -10,6 +10,10 @@ gc_type *gc_create(size_t cell_size) {
     gc->protect_count = 0;
     gc->cell_size = cell_size;
 
+    /* used to keep track of type definitions */
+    gc->type_defs = 0;
+    gc->num_types = 0;
+
     return (gc_type *)gc;
 }
 
@@ -23,10 +27,11 @@ void gc_destroy(gc_type *gc_void) {
         destroy_list(&(gc->dead_list));
         destroy_list(&(gc->perm_list));
 
+        destroy_types(gc->type_defs, gc->num_types);
+
         FREE(gc);
     }
 }
-
 
 /* increment the protect counter */
 void gc_protect(gc_type *gc_void) {

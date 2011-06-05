@@ -6,6 +6,7 @@
 
 /* structure that contains the core of our GC implementation */
 typedef void gc_type;
+typedef uint32_t gc_type_def;
 
 /* setup and destroy functions */
 gc_type *gc_create(size_t cell_size);
@@ -29,6 +30,10 @@ void gc_de_perm(gc_type *gc, void *cell);
 /* handling for root pointers */
 void gc_register_root(gc_type *gc_void, void **root);
 void gc_unregister_root(gc_type *gc_void, void **root);
+
+/* handling for type definitions */
+gc_type_def gc_register_type(gc_type *gc_void, size_t size);
+void gc_register_pointer(gc_type *gc_void, gc_type_def type, size_t offset);
 
 /* deal with these as a macro incase I need to change them latter */
 #define MALLOC(size) calloc(1, size)

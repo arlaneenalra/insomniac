@@ -10,9 +10,9 @@ vm_type *vm_create(gc_type *gc) {
    
     /* setup the stack */
     gc_register_root(gc, (void **)&(vm->stack_root));
-    /* vm->stack_root = gc_alloc(gc, 0, sizeof(object_type)); */
-    /* vm->stack_root->type=EMPTY; */
     vm->stack_root = vm_alloc(vm, EMPTY);
+
+    create_types(vm);
 
     gc_unprotect(gc);
 
@@ -67,5 +67,5 @@ object_type *vm_alloc(vm_type *vm_void, cell_type type) {
     
     obj->type=type;
 
-    return obj;
+    return obj; 
 }

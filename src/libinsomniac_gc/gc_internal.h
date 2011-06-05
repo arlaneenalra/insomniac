@@ -14,6 +14,9 @@
 typedef struct meta_obj meta_obj_type;
 typedef struct meta_root meta_root_type;
 
+/* this will need a different type at a latter point */
+typedef struct meta_obj_def meta_obj_def_type;
+
 /* used by the GC to mark cells */
 typedef enum mark {
     RED,
@@ -22,18 +25,27 @@ typedef enum mark {
     PERM
 } mark_type;
 
+/* meta object wrapper */
 struct meta_obj {
     meta_obj_type *next; /* next object in our list */
     mark_type mark;
     size_t size;
+    meta_root_type *root_list; /* list of roots for this object */
 
     uint8_t obj[]; /* contained object */
     /* object_type obj; */
 };
 
+/* root pointers that need to be searched */
 struct meta_root {
     void **root;
     meta_root_type *next;
+};
+
+/* used to store offsets to pointers in objects */
+struct meta_obj_def {
+    size_t offset;
+    meta_obj_def_type *next;
 };
 
 /* the internal type used by the GC to keep track of things */
@@ -44,6 +56,9 @@ typedef struct gc_ms {
     meta_obj_type *perm_list; /* list of objects we treat as permenant */
 
     meta_root_type *root_list; /* list of root pointers */
+
+    meta_obj_def_type **type_defs; /* definitions of various types */
+    uint32_t num_types; /* number of types */
 
     size_t cell_size; /* size of a normal cell */
 
@@ -58,6 +73,7 @@ void pre_alloc(gc_ms_type *gc);
 
 /* clean up an allocated list of objects */
 void destroy_list(meta_obj_type **list);
+void destroy_types(meta_obj_def_type **type_list, uint32_t num_types);
 
 /* count how many objects are in a given list */
 vm_int count_list(meta_obj_type **list);

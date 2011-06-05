@@ -66,11 +66,11 @@ int main(int argc, char**argv) {
     gc_type *gc = gc_create(sizeof(object_type));
     vm_type *vm = vm_create(gc);
 
-    for(int i=0; i< 10; i++) {
-        big_stack(gc, vm, 1000);
+    for(int i=0; i< 10000; i++) {
+        big_stack(gc, vm, 10000);
         clear_stack(gc, vm);
         big_stack(gc, vm, 1000);
-        big_stack(gc, vm, 1000);
+        big_stack(gc, vm, 10000);
         big_stack(gc, vm, 1000);
         clear_stack(gc, vm);
     }

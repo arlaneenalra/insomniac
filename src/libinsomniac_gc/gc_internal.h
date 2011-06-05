@@ -52,7 +52,7 @@ typedef struct gc_ms {
 } gc_ms_type;
 
 /* do the actual object allocation */
-meta_obj_type *internal_alloc(gc_ms_type *gc, size_t size);
+meta_obj_type *internal_alloc(gc_ms_type *gc, uint8_t perm, size_t size);
 void pre_alloc(gc_ms_type *gc);
 
 /* clean up an allocated list of objects */

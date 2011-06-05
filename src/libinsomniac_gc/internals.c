@@ -36,7 +36,7 @@ void destroy_list(meta_obj_type **list) {
 }
 
 /* allocate an object */
-meta_obj_type *internal_alloc(gc_ms_type *gc, size_t size) {
+meta_obj_type *internal_alloc(gc_ms_type *gc, uint8_t perm, size_t size) {
     meta_obj_type *meta = 0;
 
     /* if there are no available objects, sweep */
@@ -60,7 +60,21 @@ meta_obj_type *internal_alloc(gc_ms_type *gc, size_t size) {
     /* make sure we have an object */
     assert(meta);
 
-    meta->mark = gc->current_mark;
+    /* Attach a permenant object to
+       the list of perm objects */
+    if(perm) {
+        meta->mark = PERM;
+
+        /* attach the new object to our gc */
+        meta->next = gc->perm_list;
+        gc->perm_list = meta;
+
+    } else {
+        meta->mark = gc->current_mark;
+        /* attach the new object to our gc */
+        meta->next = gc->active_list;
+        gc->active_list = meta;
+    }
 
     return meta;
 }
@@ -75,18 +89,21 @@ mark_type set_next_mark(gc_ms_type *gc) {
 /* preallocate a chunk of memory, only use with an empty 
    dead list */
 void pre_alloc(gc_ms_type *gc) {
-    meta_obj_type *meta = 0;
-    meta_obj_type *new_dead = 0;
+    /* meta_obj_type *meta = 0; */
+    /* meta_obj_type *new_dead = 0; */
+    void *obj=0;
 
     gc_protect(gc);
     
     for(int i = 0; i < 500; i++) {
-        meta = internal_alloc(gc, gc->cell_size);
-        meta->next = new_dead;
-        new_dead = meta;
+        /* meta = internal_alloc(gc, 0, gc->cell_size); */
+        /* meta->next = new_dead; */
+        /* new_dead = meta; */
+        obj=gc_alloc(gc, FIXNUM);
     }
     
-    gc->dead_list = new_dead;
+    /* gc->dead_list = new_dead; */
     gc_unprotect(gc);
+    gc_sweep(gc); /* sweep the garbage collector */
 }
 

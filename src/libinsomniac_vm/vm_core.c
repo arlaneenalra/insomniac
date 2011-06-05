@@ -40,7 +40,7 @@ void vm_push(vm_type *vm_void, object_type *obj) {
     gc_protect(vm->gc);
     
     /* push an item onto the stack */
-    vm->stack_root = cons(vm->gc, obj, vm->stack_root);
+    vm->stack_root = cons(vm, obj, vm->stack_root);
 
     gc_unprotect(vm->gc);
 }

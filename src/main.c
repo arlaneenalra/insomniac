@@ -18,7 +18,7 @@ void alloc_obj(gc_type *gc, vm_type* vm, object_type *root, int count) {
 
         num = vm_alloc(vm, FIXNUM);
 
-        obj = cons(gc, num, obj);
+        obj = cons(vm, num, obj);
         root->value.pair.car=obj;  
 
         gc_unprotect(gc);

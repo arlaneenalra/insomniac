@@ -90,8 +90,8 @@ vm_int count_list(meta_obj_type **list);
 mark_type set_next_mark(gc_ms_type *gc);
 
 /* mark a list of root objects */
-void mark_list(meta_obj_type *list, mark_type mark);
-void mark_root(meta_root_type *list, mark_type mark);
+void mark_list(gc_ms_type *gc, meta_obj_type *list, mark_type mark);
+void mark_root(gc_ms_type *gc, meta_root_type *list, mark_type mark);
 void sweep_list(gc_ms_type *gc, mark_type mark);
 void sweep(gc_ms_type *gc);
 

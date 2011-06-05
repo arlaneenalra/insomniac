@@ -5,9 +5,9 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(libinsomniac_gc 
   gc_core.c
-  internals.c
-  sweep.c
-  offset.c
-  types.c
+  gc_internals.c
+  gc_sweep.c
+  gc_offset.c
+  gc_types.c
   )
 

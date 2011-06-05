@@ -8,6 +8,7 @@ gc_type *gc_create() {
     
     gc->current_mark = RED;
     gc->protect_count = 0;
+    gc->cell_size=sizeof(meta_obj_type)+sizeof(object_type);
 
     return (gc_type *)gc;
 }
@@ -85,27 +86,32 @@ void gc_unregister_root(gc_type *gc_void, void **root) {
 /* allocate an object and attach it to the gc */
 void *gc_alloc(gc_type *gc_void, cell_type type) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
-    meta_obj_type *meta = internal_alloc(gc, type);
+    meta_obj_type *meta = internal_alloc(gc, gc->cell_size);
+    object_type *obj=0;
 
     /* attach the new object to our gc */
     meta->next = gc->active_list;
     gc->active_list = meta;
+    obj=obj_from_meta(meta);
+    obj->type=type;
 
-    return obj_from_meta(meta); 
+    return obj; 
 }
 
 /* allocate a permenant object, one that does not get GCd */
 void *gc_perm_alloc(gc_type *gc_void, cell_type type) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
-    meta_obj_type *meta = internal_alloc(gc, type);
+    meta_obj_type *meta = internal_alloc(gc, gc->cell_size);
+    object_type *obj=0;
 
     meta->mark = PERM;
 
     /* attach the new object to our gc */
     meta->next = gc->perm_list;
     gc->perm_list = meta;
+    obj=obj_from_meta(meta);
 
-    return obj_from_meta(meta);
+    return obj;
 }
 
 

@@ -36,8 +36,7 @@ void destroy_list(meta_obj_type **list) {
 }
 
 /* allocate an object */
-meta_obj_type *internal_alloc(gc_ms_type *gc, cell_type type) {
-    void *obj = 0; 
+meta_obj_type *internal_alloc(gc_ms_type *gc, size_t size) {
     meta_obj_type *meta = 0;
 
     /* if there are no available objects, sweep */
@@ -49,22 +48,18 @@ meta_obj_type *internal_alloc(gc_ms_type *gc, cell_type type) {
         /* reuse an object */
         meta = gc->dead_list;
         gc->dead_list = meta->next;
-        obj = obj_from_meta(meta);
 
-        bzero(obj, sizeof(object_type)); /* zero out our object */
+        bzero(meta, size); /* zero out our object */
     } else {
         /* create a new obect */
 
         /* TODO: fix this */
-        meta = MALLOC(sizeof(meta_obj_type)+sizeof(object_type));
-        obj = obj_from_meta(meta);
+        meta = MALLOC(size);
     }
 
     /* make sure we have an object */
     assert(meta);
 
-    /* TODO: Fix this */
-    ((object_type *)obj)->type = type;
     meta->mark = gc->current_mark;
 
     return meta;
@@ -86,7 +81,7 @@ void pre_alloc(gc_ms_type *gc) {
     gc_protect(gc);
     
     for(int i = 0; i < 500; i++) {
-        meta = internal_alloc(gc, FIXNUM);
+        meta = internal_alloc(gc, gc->cell_size);
         meta->next = new_dead;
         new_dead = meta;
     }

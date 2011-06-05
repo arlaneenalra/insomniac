@@ -44,18 +44,15 @@ typedef struct gc_ms {
 
     meta_root_type *root_list; /* list of root pointers */
 
+    size_t cell_size;
+
     vm_int protect_count;
 
     mark_type current_mark;
 } gc_ms_type;
 
-
-/* used to find the meta object from an object pointer */
-#define GET_META(x) (x)
-
-
 /* do the actual object allocation */
-meta_obj_type *internal_alloc(gc_ms_type *gc, cell_type type);
+meta_obj_type *internal_alloc(gc_ms_type *gc, size_t size);
 void pre_alloc(gc_ms_type *gc);
 
 /* clean up an allocated list of objects */

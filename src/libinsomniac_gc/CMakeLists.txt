@@ -4,6 +4,7 @@ add_library(libinsomniac_gc
   gc_core.c
   internals.c
   sweep.c
+  offset.c
   )
 
 include(${PROJECT_SOURCE_DIR}/CMakeIncludes.txt)

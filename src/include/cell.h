@@ -5,13 +5,6 @@
 
 typedef int64_t vm_int;
 
-typedef enum mark {
-    RED,
-    BLACK,
-    
-    PERM
-} mark_type;
-
 typedef struct object object_type;
 
 /* specifies what kind of data is in the current object */
@@ -40,7 +33,6 @@ struct object {
         pair_type pair;
     } value;
 
-    mark_type mark;
 };
 
 

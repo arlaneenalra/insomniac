@@ -47,7 +47,8 @@ void clear_stack(gc_type *gc, vm_type *vm) {
 int main(int argc, char**argv) {
     object_type *root=0;
     object_type *root_two=0;
-    
+
+        
     printf("Insomniac VM\n");
 
     gc_type *gc = gc_create();

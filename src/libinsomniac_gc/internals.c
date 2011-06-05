@@ -25,7 +25,6 @@ void destroy_list(meta_obj_type **list) {
 
         /* free the object we are holding onto and
            the gc object */
-        FREE(meta->obj);
         FREE(meta);
 
         /* move to the next object */
@@ -50,22 +49,21 @@ meta_obj_type *internal_alloc(gc_ms_type *gc, cell_type type) {
         /* reuse an object */
         meta = gc->dead_list;
         gc->dead_list = meta->next;
-        obj = meta->obj;
+        obj = obj_from_meta(meta);
 
         bzero(obj, sizeof(object_type)); /* zero out our object */
     } else {
         /* create a new obect */
-        obj = MALLOC(object_type);
+
         meta = MALLOC(meta_obj_type);
-        meta->obj = obj;
+        obj = obj_from_meta(meta);
     }
 
     /* make sure we have an object */
-    assert(obj);
     assert(meta);
 
     obj->type = type;
-    obj->mark = gc->current_mark;
+    meta->mark = gc->current_mark;
 
     return meta;
 }
@@ -93,4 +91,24 @@ void pre_alloc(gc_ms_type *gc) {
     
     gc->dead_list = new_dead;
     gc_unprotect(gc);
+}
+
+
+/* return a pointer to the meta object for a given object */
+meta_obj_type *meta_from_obj(object_type *obj) {
+    /* make sure a null stays a null */
+    if(!obj) {
+        return 0;
+    }
+
+    return (meta_obj_type *)(((uint8_t *)obj)-offsetof(meta_obj_type, obj));
+}
+
+/* return a pointer to the given object for a given meta object */
+object_type *obj_from_meta(meta_obj_type *meta) {
+    if(!meta) {
+        return 0;
+    }
+
+    return &(meta->obj);
 }

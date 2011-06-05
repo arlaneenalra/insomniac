@@ -2,41 +2,41 @@
 
 
 /* walk every object in an object graph and mark it */
-void mark_object(object_type *obj, mark_type mark) {
+void mark_object(meta_obj_type *meta, mark_type mark) {
 
     /* don't change the mark on perm objects */
-    if(obj->mark == PERM) {
+    if(meta->mark == PERM) {
         return;
     } else {
-        obj->mark = mark;
+        meta->mark = mark;
     }
 }
 
 
 /* walk a graph of objects and mark them */
-void mark_graph(object_type *obj, mark_type mark) {
+void mark_graph(meta_obj_type *meta, mark_type mark) {
     
     /* return if we don't have an object */
-    if(!obj) {
+    if(!meta) {
         return;
     }
 
     /* we have already marked this object */
-    if(obj->mark == mark) {
+    if(meta->mark == mark) {
         return;
     }
 
     /* mark this object */
-    mark_object(obj, mark);
+    mark_object(meta, mark);
 
-    switch(obj->type) {
+    switch(meta->obj.type) {
     case FIXNUM:
         break;
 
     case PAIR: /* need to iterate through child objects */
         /* TODO: I need to find a way to iterate over these */
-        mark_graph(obj->value.pair.car, mark);
-        mark_graph(obj->value.pair.cdr, mark);
+        mark_graph(meta_from_obj(meta->obj.value.pair.car), mark);
+        mark_graph(meta_from_obj(meta->obj.value.pair.cdr), mark);
         
         break;
 
@@ -54,7 +54,7 @@ void mark_list(meta_obj_type *list, mark_type mark) {
 
     meta = list;
     while(meta) {
-        mark_graph(meta->obj, mark);
+        mark_graph(meta, mark);
 
         meta=meta->next;
     }
@@ -66,7 +66,7 @@ void mark_root(meta_root_type *list, mark_type mark) {
 
     meta = list;
     while(meta) {
-        mark_graph(*(meta->root), mark);
+        mark_graph(meta_from_obj(*(meta->root)), mark);
 
         meta=meta->next;
     }
@@ -88,7 +88,7 @@ void sweep_list(gc_ms_type * gc, mark_type mark) {
         meta_obj_type *next=active->next;
         
         /* do we have a dead object */
-        if(active->obj->mark == mark) {
+        if(active->mark == mark) {
             /* move our object to the head
                of the dead list */
             active->next=new_active;

@@ -6,16 +6,28 @@
 #include <strings.h>
 #include <assert.h>
 
+#include <stddef.h> /* for offsetof */
+
 #include <gc.h>
 
 /* An internal GC structure to represent an allocated object */
 typedef struct meta_obj meta_obj_type;
 typedef struct meta_root meta_root_type;
 
-struct meta_obj {
-    object_type *obj; /* contained object */
-    meta_obj_type *next; /* next object in our list */
+/* used by the GC to mark cells */
+typedef enum mark {
+    RED,
+    BLACK,
+    
+    PERM
+} mark_type;
 
+struct meta_obj {
+    meta_obj_type *next; /* next object in our list */
+    mark_type mark;
+
+    /* uint8_t obj[]; /\* contained object *\/ */
+    object_type obj;
 };
 
 struct meta_root {
@@ -37,6 +49,11 @@ typedef struct gc_ms {
     mark_type current_mark;
 } gc_ms_type;
 
+
+/* used to find the meta object from an object pointer */
+#define GET_META(x) (x)
+
+
 /* do the actual object allocation */
 meta_obj_type *internal_alloc(gc_ms_type *gc, cell_type type);
 void pre_alloc(gc_ms_type *gc);
@@ -56,5 +73,16 @@ void mark_list(meta_obj_type *list, mark_type mark);
 void mark_root(meta_root_type *list, mark_type mark);
 void sweep_list(gc_ms_type *gc, mark_type mark);
 void sweep(gc_ms_type *gc);
+
+/* used to convert between objects and meta objects */
+meta_obj_type *meta_from_obj(object_type *obj);
+object_type *obj_from_meta(meta_obj_type *meta);
+
+/* offeset into a meta object for the actual object */
+#define OBJECT_OFFSET offsetof(meta_obj_type, obj)
+
+/* /\* Some useful macros for working with meta object *\/ */
+/* #define meta_from_obj(x) (void *)(((uint8_t *)x)-offsetof(meta_obj_type, obj)) */
+/* #define obj_from_meta(x) (void *)(((uint8_t *)x)+offsetof(meta_obj_type, obj)) */
 
 #endif

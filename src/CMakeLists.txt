@@ -1,5 +1,7 @@
 
 
+include(${PROJECT_SOURCE_DIR}/CMakeIncludes.txt)
+
 add_subdirectory(libinsomniac_vm)
 add_subdirectory(libinsomniac_gc)
 
@@ -17,5 +19,4 @@ target_link_libraries(insomniac
   libinsomniac_gc
   )
 
-include(${PROJECT_SOURCE_DIR}/CMakeIncludes.txt)
 

@@ -32,7 +32,6 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
     /* mark this object */
     mark_object(meta, mark);
 
-    /* printf("Found type %i with size %zu\n", meta->type_def, meta->size); */
 
     /* make sure this is a typed object */
     if(meta->type_def >= 0) {
@@ -42,12 +41,9 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
            this object */
         while(root_list) {
             
-            /* calculate pointer offset */
+            /* calculate offset to pointer in objects */
             obj = obj_from_meta(meta);
-
-            /* printf("Pointer from base %p at offset %zu\n", obj, root_list->offset); */
             next_obj = (void **)((uint8_t *)obj + root_list->offset);
-            /* printf("Pointer value %p\n", *next_obj); */
             
             /* mark any pointed to objects */
             mark_graph(gc, meta_from_obj(*next_obj), mark);
@@ -55,27 +51,6 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
             root_list = root_list->next;
         }
     }
-
-    /* /\* TODO: Fix this *\/ */
-    /* object_type *obj=obj_from_meta(meta); */
-
-    /* switch(obj->type) { */
-    /* case FIXNUM: */
-    /*     break; */
-
-    /* case PAIR: /\* need to iterate through child objects *\/ */
-    /*     /\* TODO: I need to find a way to iterate over these *\/ */
-    /*     mark_graph(meta_from_obj(obj->value.pair.car), mark); */
-    /*     mark_graph(meta_from_obj(obj->value.pair.cdr), mark); */
-        
-    /*     break; */
-
-    /* case EMPTY: /\* nothing to do with this one *\/ */
-    /*     break; */
-
-    /* default: */
-    /*     assert(0); */
-    /* } */
 }
 
 /* walk every object in a list and mark them */
@@ -185,3 +160,4 @@ void sweep(gc_ms_type *gc) {
     printf("Swept");
     gc_stats(gc);
 }
+

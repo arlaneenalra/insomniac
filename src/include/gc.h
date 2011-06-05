@@ -6,7 +6,7 @@
 
 /* structure that contains the core of our GC implementation */
 typedef void gc_type;
-typedef uint32_t gc_type_def;
+typedef int32_t gc_type_def;
 
 /* setup and destroy functions */
 gc_type *gc_create(size_t cell_size);
@@ -23,6 +23,7 @@ void gc_unprotect(gc_type *gc);
 
 /* allocate a new block */
 void *gc_alloc(gc_type *gc, uint8_t perm, size_t size);
+void *gc_alloc_type(gc_type *gc_void, uint8_t perm, gc_type_def);
 
 /* explicitly make a cell not permenant */
 void gc_de_perm(gc_type *gc, void *cell);

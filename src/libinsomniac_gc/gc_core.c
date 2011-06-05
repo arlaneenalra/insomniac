@@ -88,13 +88,28 @@ void gc_unregister_root(gc_type *gc_void, void **root) {
     FREE(meta);    
 }
 
-/* allocate an object and attach it to the gc */
+/* allocate a blob and attach it to the gc */
 void *gc_alloc(gc_type *gc_void, uint8_t perm, size_t size) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
     meta_obj_type *meta = internal_alloc(gc, perm, size);
 
+    /* mark as being untyped */
+    meta->type_def = -1;
+
     return obj_from_meta(meta); 
 }
+
+/* allocate a blob and attach it to the gc */
+void *gc_alloc_type(gc_type *gc_void, uint8_t perm, gc_type_def type) {
+    gc_ms_type *gc = (gc_ms_type *)gc_void;
+    meta_obj_def_type *type_ptr = &(gc->type_defs[type]);
+    meta_obj_type *meta = internal_alloc(gc, perm, type_ptr->size);
+
+    meta->type_def = type;
+
+    return obj_from_meta(meta); 
+}
+
 
 
 /* remove permenant status from a given cell */

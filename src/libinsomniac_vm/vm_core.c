@@ -10,15 +10,20 @@ vm_type *vm_create(gc_type *gc) {
     vm = gc_alloc_type(gc, 1, vm_type_def);
     
     vm->gc = gc;
+
+    /* attach instructions to the vm */
+    setup_instructions(vm);
     
     gc_protect(gc);
 
     /* setup types for allocations */
     create_types(vm);
    
-    /* setup the stack */
-    vm->stack_root = vm_alloc(vm, EMPTY);
+    /* setup unique objects */
+    vm->empty = vm_alloc(vm, EMPTY);
 
+    /* setup the stack */
+    vm->stack_root = vm->empty;
 
     gc_unprotect(gc);
 

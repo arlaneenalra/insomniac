@@ -15,6 +15,6 @@ object_type *vm_alloc(vm_type *vm, cell_type type);
 void vm_push(vm_type *vm_void, object_type *obj);
 object_type *vm_pop(vm_type *vm_void);
 
-object_type *vm_eval(vm_type *vm_void, uint8_t *code_ref);
+object_type *vm_eval(vm_type *vm_void, size_t size, uint8_t *code_ref);
 
 #endif

@@ -8,4 +8,5 @@ add_library(libinsomniac_vm
   vm_util.c
   vm_types.c
   vm_eval.c
+  vm_ops.c
   )

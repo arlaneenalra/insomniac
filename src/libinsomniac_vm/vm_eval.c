@@ -2,23 +2,35 @@
 
 
 /* Evaluate the given object using the provided vm instance */
-object_type *vm_eval(vm_type *vm_void, uint8_t *code_ref) {
+object_type *vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
-    object_type *obj =0;
-    object_type *obj1 =0;
+    uint8_t op_code = 0; /* op code for instructions */
+    fn_type op_call = 0; /* function actually called */
 
-    gc_protect(vm->gc);
+    /* setup the ip */
+    vm->ip = 0;
+    vm->code_ref = code_ref;
 
-    for(int i=0; i< 10; i++) {
-        obj = vm_alloc(vm, FIXNUM);
-        obj->value.integer = i;
+    /* iterate over instrcutions */
+    while(vm->ip < length) {
+        /* load instrcutions */
+        op_code = code_ref[vm->ip];
+        op_call = vm->ops[op_code];
 
-        obj1 = vm_alloc(vm, FIXNUM);
-        obj1->value.integer = i*10;
         
-        vm_push(vm, cons(vm, obj, obj1));
+        /* incerement ip so it points to 
+           any arguments or the next instructions */
+        vm->ip++;
+
+        /* call instruction */
+        if(op_call) {
+            (*op_call)(vm);
+        } else {
+            /* Found undefined instruction */
+            printf("Undefined instruction! %zu:%i\n", vm->ip - 1, op_code);
+        }
+
     }
-    
-    gc_unprotect(vm->gc);
+
     return vm->stack_root;
 }

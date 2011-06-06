@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include <insomniac.h>
+#include <ops.h>
 
 void output_object(object_type *obj);
 
@@ -24,7 +25,7 @@ void output_pair(object_type *pair) {
         /* output the car */
         output_object(car);
 
-        flag=1;
+        flag = 1;
 
     } while(pair && pair->type == PAIR);
 
@@ -70,7 +71,23 @@ int main(int argc, char**argv) {
     gc_type *gc = gc_create(sizeof(object_type));
     vm_type *vm = vm_create(gc);
 
-    output_object(vm_eval(vm, 0));
+    size_t length=0;
+    uint8_t code_ref[]={
+        EMIT_LIT_FIXNUM(1),    /* 9 bytes */
+        EMIT_LIT_FIXNUM(2),    /* 9 bytes */
+        EMIT_LIT_FIXNUM(3),    /* 9 bytes */
+        EMIT_LIT_FIXNUM(5000), /* 9 bytes */
+        EMIT_LIT_EMPTY,        /* 1 byte */
+        EMIT_CONS,             /* 1 byte */
+        EMIT_CONS,             /* 1 byte */
+        EMIT_CONS,             /* 1 byte */
+        EMIT_CONS              /* 1 byte */
+    };
+
+    length=41;
+
+
+    output_object(vm_eval(vm, length, code_ref));
 
     vm_destroy(vm);
     gc_destroy(gc);

@@ -15,6 +15,9 @@ typedef struct vm_internal {
     gc_type_def types[CELL_MAX]; /* mapping between cell types and gc types */
 } vm_internal_type;
 
+/* construct a new pair */
+object_type *cons(vm_type *gc, object_type *car, object_type *cdr);
+
 void create_types(vm_internal_type *vm);
 gc_type_def create_vm_type(gc_type *gc);
 

@@ -2,58 +2,77 @@
 
 #include <insomniac.h>
 
+void output_object(object_type *obj);
 
-void big_stack(gc_type *gc, vm_type *vm, int count) {
-    object_type *num=0;
+void output_pair(object_type *pair) {
+    int flag = 0;
+    object_type *car = 0;
 
-    printf("Pushing\n");
+    printf("(");
     
-    for(int i = 0; i < count; i++) {
-        gc_protect(gc);
-        
-        /* num=gc_alloc(gc, 0, sizeof(object_type)); */
-        /* num->type=FIXNUM; */
-        num = vm_alloc(vm, FIXNUM);
+    do {
+        /* print a space only if we are not on 
+           the first pair */
+        if(flag) {
+            printf(" ");
+        }
 
-        vm_push(vm, num);
+        /* extract the car and cdr */
+        car = pair->value.pair.car;
+        pair = pair->value.pair.cdr;
         
-        gc_unprotect(gc);
+        /* output the car */
+        output_object(car);
+
+        flag=1;
+
+    } while(pair && pair->type == PAIR);
+
+    /* print a . if need one */
+    if(pair && pair->type != EMPTY) {
+        printf(" . ");
+        output_object(pair);
     }
+    
+    printf(")");
 }
 
-void clear_stack(gc_type *gc, vm_type *vm) {
-    printf("Popping\n");
+/* display a given object to stdout */
+void output_object(object_type *obj) {
+    
+    /* make sure we have an object */
+    if(!obj) {
+        printf("<nil>");
+        return;
+    }
 
-    while(vm_pop(vm)->type != EMPTY) {}
+    switch(obj->type) {
+
+    case FIXNUM: /* deal with a standard fixnum */
+        printf("%" PRIi64, obj->value.integer);
+        break;
+
+    case EMPTY: /* The object is an empty pair */
+        printf("()"); 
+        break;
+        
+    case PAIR:
+        output_pair(obj);
+        break;
+        
+    default:
+        printf("<Unkown Object>");
+        break;
+    }
 }
 
 int main(int argc, char**argv) {
-    object_type *root=0;
-    object_type *root_two=0;
-
-        
-    printf("Insomniac VM\n");
-
     gc_type *gc = gc_create(sizeof(object_type));
     vm_type *vm = vm_create(gc);
 
-    for(int i=0; i< 10000; i++) {
-        big_stack(gc, vm, 100);
-        clear_stack(gc, vm);
-        big_stack(gc, vm, 100);
-        big_stack(gc, vm, 33);
-        big_stack(gc, vm, 893);
-        clear_stack(gc, vm);
-    }
-
-    
+    output_object(vm_eval(vm, 0));
 
     vm_destroy(vm);
-
-    printf("Sweeping\n");
-    gc_sweep(gc);
-    gc_stats(gc);
-
     gc_destroy(gc);
 
     return 0;

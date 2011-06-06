@@ -130,6 +130,7 @@ void sweep(gc_ms_type *gc) {
 
     assert(gc);
 
+    /* Check protection status before sweeping */
     if(gc->protect_count) {
         return;
     }

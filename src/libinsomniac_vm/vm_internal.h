@@ -21,6 +21,9 @@ struct vm_internal {
     /* some objects that we only need one instance of */
     object_type *empty; /* The empty object */
 
+    object_type *true; /* True and False objects */
+    object_type *false;
+
     gc_type_def types[CELL_MAX]; /* mapping between cell types and gc types */
     
     fn_type ops[256]; /* bindings for each op code */

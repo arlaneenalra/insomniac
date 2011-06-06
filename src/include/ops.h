@@ -13,6 +13,9 @@ typedef enum op {
     OP_LIT_EMPTY, /* Literal empty pair */
     OP_LIT_FIXNUM, /* 64bit Integer Literal */
 
+    OP_LIT_TRUE, /* literals for true and false */
+    OP_LIT_FALSE,
+
     OP_CONS /* Cons instruction */
 } op_type;
 
@@ -26,7 +29,12 @@ typedef enum op {
         BYTE(i,4), BYTE(i,5), BYTE(i,6), BYTE(i,7)
 
 #define EMIT_LIT_EMPTY OP_LIT_EMPTY
+
+#define EMIT_LIT_TRUE OP_LIT_TRUE
+#define EMIT_LIT_FALSE OP_LIT_FALSE
+
 #define EMIT_CONS OP_CONS
 #define EMIT_NOP OP_NOP
+
 
 #endif

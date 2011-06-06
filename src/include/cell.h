@@ -4,12 +4,15 @@
 #include <inttypes.h>
 
 typedef int64_t vm_int;
+typedef uint8_t vm_bool;
 
 typedef struct object object_type;
 
 /* specifies what kind of data is in the current object */
 typedef enum cell {
     FIXNUM,
+    BOOL,
+
     PAIR,
     
     EMPTY,
@@ -33,6 +36,7 @@ struct object {
     union {
         vm_int integer;
         pair_type pair;
+        vm_bool bool;
     } value;
 
 };

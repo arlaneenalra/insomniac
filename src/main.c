@@ -60,6 +60,14 @@ void output_object(object_type *obj) {
     case PAIR:
         output_pair(obj);
         break;
+
+    case BOOL:
+        if(obj->value.bool) {
+            printf("#t");
+        } else {
+            printf("#f");
+        }
+        break;
         
     default:
         printf("<Unkown Object>");
@@ -77,7 +85,7 @@ int main(int argc, char**argv) {
         EMIT_LIT_FIXNUM(1),    /* 9 bytes */
         EMIT_LIT_FIXNUM(2),    /* 9 bytes */
         EMIT_LIT_FIXNUM(3),    /* 9 bytes */
-        EMIT_LIT_FIXNUM(5000), /* 9 bytes */
+        EMIT_LIT_FIXNUM(-5000), /* 9 bytes */
         EMIT_LIT_EMPTY,        /* 1 byte */
         EMIT_CONS,             /* 1 byte */
         EMIT_CONS,             /* 1 byte */
@@ -95,16 +103,19 @@ int main(int argc, char**argv) {
     vm_reset(vm);
 
     uint8_t code_ref2[] = {
-        EMIT_LIT_FIXNUM(1),
-        EMIT_LIT_FIXNUM(2),
-        EMIT_CONS,
-        EMIT_LIT_FIXNUM(1),
-        EMIT_LIT_FIXNUM(2),
-        EMIT_CONS,
-        EMIT_CONS
+        EMIT_LIT_FIXNUM(1), /* 9 bytes */
+        EMIT_LIT_FIXNUM(2), /* 9 bytes */
+        EMIT_CONS,          /* 1 byte */
+        EMIT_LIT_FIXNUM(1), /* 9 bytes */
+        EMIT_LIT_FIXNUM(2), /* 9 bytes */
+        EMIT_CONS,          /* 1 byte */
+        EMIT_CONS,          /* 1 byte */
+        EMIT_LIT_FALSE,      /* 1 byte */
+        EMIT_LIT_FALSE,      /* 1 byte */
+        EMIT_LIT_TRUE      /* 1 byte */
     };
     
-    length = 39;
+    length = 42;
 
     output_object(vm_eval(vm, length, code_ref2));
     printf("\n");

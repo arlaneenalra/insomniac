@@ -27,11 +27,21 @@ void op_lit_64bit(vm_internal_type *vm) {
     gc_unprotect(vm->gc);
 }
 
-/* push the empty object onto our stack */
+/* push the empty object onto the stack */
 void op_lit_empty(vm_internal_type *vm) {
     vm_push(vm, vm->empty);
 }
 
+/* push a true object onto the stack */
+void op_lit_true(vm_internal_type *vm) {
+    vm_push(vm, vm->true);
+}
+
+/* push a true object onto the stack */
+void op_lit_false(vm_internal_type *vm) {
+    vm_push(vm, vm->false);
+}
+ 
 
 /* cons the top two objects on the stack */
 void op_cons(vm_internal_type *vm) {
@@ -57,6 +67,9 @@ void setup_instructions(vm_internal_type *vm) {
 
     vm->ops[OP_LIT_FIXNUM] = &op_lit_64bit;
     vm->ops[OP_LIT_EMPTY] = &op_lit_empty;
+
+    vm->ops[OP_LIT_TRUE] = &op_lit_true;
+    vm->ops[OP_LIT_FALSE] = &op_lit_false;
 
     vm->ops[OP_CONS] = &op_cons;
 }

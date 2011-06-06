@@ -24,6 +24,8 @@ void create_types(vm_internal_type *vm) {
 
     vm->types[FIXNUM] = register_basic(gc);
     vm->types[PAIR] = register_pair(gc);
+    vm->types[BOOL] = register_basic(gc);
+
     vm->types[EMPTY] = register_basic(gc);
 }
 
@@ -35,6 +37,13 @@ gc_type_def create_vm_type(gc_type *gc) {
     vm_type_def = gc_register_type(gc, sizeof(vm_internal_type));
     gc_register_pointer(gc, vm_type_def, 
                         offsetof(vm_internal_type, stack_root));
+
+    gc_register_pointer(gc, vm_type_def, 
+                        offsetof(vm_internal_type, empty));
+    gc_register_pointer(gc, vm_type_def, 
+                        offsetof(vm_internal_type, true));
+    gc_register_pointer(gc, vm_type_def, 
+                        offsetof(vm_internal_type, false));
 
     return vm_type_def;
 }

@@ -22,6 +22,12 @@ vm_type *vm_create(gc_type *gc) {
     /* setup unique objects */
     vm->empty = vm_alloc(vm, EMPTY);
 
+    vm->true = vm_alloc(vm, BOOL);
+    vm->true->value.bool = 1;
+    
+    vm->false = vm_alloc(vm, BOOL);
+    vm->false->value.bool = 0;
+
     /* setup the stack */
     vm->stack_root = vm->empty;
 

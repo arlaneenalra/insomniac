@@ -150,11 +150,10 @@ void sweep(gc_ms_type *gc) {
     
     sweep_list(gc, mark);
 
+    /* allocate some cell sized objects to make
+       things easier */
     if(!gc->dead_list) {
         pre_alloc(gc);
     }
-
-    printf("Swept");
-    gc_stats(gc);
 }
 

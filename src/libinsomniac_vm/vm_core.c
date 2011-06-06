@@ -2,10 +2,11 @@
 
 vm_type *vm_create(gc_type *gc) {
     gc_type_def vm_type_def = 0;
-    /* vm_internal_type *vm = (vm_internal_type *)MALLOC_TYPE(vm_internal_type); */
     vm_internal_type *vm = 0;
     
     vm_type_def = create_vm_type(gc);
+
+    /* create a permanent vm object */
     vm = gc_alloc_type(gc, 1, vm_type_def);
     
     vm->gc = gc;
@@ -16,7 +17,6 @@ vm_type *vm_create(gc_type *gc) {
     create_types(vm);
    
     /* setup the stack */
-    /* gc_register_root(gc, (void **)&(vm->stack_root)); */
     vm->stack_root = vm_alloc(vm, EMPTY);
 
 
@@ -31,11 +31,8 @@ void vm_destroy(vm_type *vm_raw) {
     if(vm_raw) {
         vm_internal_type *vm = (vm_internal_type *)vm_raw;
 
+        /* mark this object as collectible */
         gc_de_perm(vm->gc, vm);
-
-        /* gc_unregister_root(vm->gc, (void **)&(vm->stack_root)); */
-
-        /* FREE(vm); */
     }
 }
 

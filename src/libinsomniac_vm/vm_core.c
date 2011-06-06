@@ -81,3 +81,12 @@ object_type *vm_alloc(vm_type *vm_void, cell_type type) {
 
     return obj; 
 }
+
+/* reset a vm instance into a clean state */
+void vm_reset(vm_type *vm_void) {
+    vm_internal_type *vm = (vm_internal_type *)vm_void;
+
+    vm->ip=0;
+    vm->stack_root = vm->empty;
+
+}

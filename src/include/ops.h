@@ -7,13 +7,14 @@
 /* Simple stack machine definition */
 
 /* Single byte instructions */
-#define OP_NOP 0x00 /* does nothing */
+typedef enum op {
+    OP_NOP, /* does nothing */
 
-#define OP_LIT_EMPTY 0x01 /* Literal empty pair */
+    OP_LIT_EMPTY, /* Literal empty pair */
+    OP_LIT_FIXNUM, /* 64bit Integer Literal */
 
-#define OP_LIT_FIXNUM 0x02 /* 64bit Integer Literal */
-
-#define OP_CONS 0xFF /* Cons instruction */
+    OP_CONS /* Cons instruction */
+} op_type;
 
 
 

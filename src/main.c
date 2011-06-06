@@ -73,6 +73,7 @@ int main(int argc, char**argv) {
 
     size_t length=0;
     uint8_t code_ref[]={
+        EMIT_LIT_FIXNUM(5001), /* 9 bytes */
         EMIT_LIT_FIXNUM(1),    /* 9 bytes */
         EMIT_LIT_FIXNUM(2),    /* 9 bytes */
         EMIT_LIT_FIXNUM(3),    /* 9 bytes */
@@ -81,13 +82,32 @@ int main(int argc, char**argv) {
         EMIT_CONS,             /* 1 byte */
         EMIT_CONS,             /* 1 byte */
         EMIT_CONS,             /* 1 byte */
+        EMIT_CONS,             /* 1 byte */
         EMIT_CONS              /* 1 byte */
     };
 
-    length=41;
+    length = 51;
 
 
     output_object(vm_eval(vm, length, code_ref));
+    printf("\n");
+
+    vm_reset(vm);
+
+    uint8_t code_ref2[] = {
+        EMIT_LIT_FIXNUM(1),
+        EMIT_LIT_FIXNUM(2),
+        EMIT_CONS,
+        EMIT_LIT_FIXNUM(1),
+        EMIT_LIT_FIXNUM(2),
+        EMIT_CONS,
+        EMIT_CONS
+    };
+    
+    length = 39;
+
+    output_object(vm_eval(vm, length, code_ref2));
+    printf("\n");
 
     vm_destroy(vm);
     gc_destroy(gc);

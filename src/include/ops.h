@@ -16,6 +16,8 @@ typedef enum op {
     OP_LIT_TRUE, /* literals for true and false */
     OP_LIT_FALSE,
 
+    OP_LIT_STRING, /* Define a string literal */
+
     OP_CONS /* Cons instruction */
 } op_type;
 
@@ -35,6 +37,5 @@ typedef enum op {
 
 #define EMIT_CONS OP_CONS
 #define EMIT_NOP OP_NOP
-
 
 #endif

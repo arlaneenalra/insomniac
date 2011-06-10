@@ -51,8 +51,8 @@ void op_cons(vm_internal_type *vm) {
 
     gc_protect(vm->gc);
 
-    cdr = vm_pop(vm);
     car = vm_pop(vm);
+    cdr = vm_pop(vm);
 
     pair = cons(vm, car, cdr);
 

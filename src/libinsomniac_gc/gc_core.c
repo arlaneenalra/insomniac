@@ -167,6 +167,8 @@ void gc_stats(gc_type *gc_void) {
 void gc_sweep(gc_type *gc_void) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
 
+    gc_stats(gc);
     sweep(gc);
+    gc_stats(gc);
 }
 

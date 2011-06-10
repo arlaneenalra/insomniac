@@ -1,6 +1,8 @@
 #include "buffer_internal.h"
 #include <string.h>
 
+#include <stdio.h>
+
 gc_type_def create_buffer_type(gc_type *gc) {
     gc_type_def type = 0;
 
@@ -25,74 +27,130 @@ buffer_type *buffer_create(gc_type *gc) {
 
     buffer_internal_type * buf = 0;
 
+    gc_protect(gc);
+
     /* make sure types are registered */
     if(!init) {
         buffer_gc_type = create_buffer_type(gc);
         block_gc_type = create_block_type(gc);
     }
 
+
     /* allocate a new buffer object */
-    buf = gc_alloc_type(gc, 0, buffer_gc_type);
+    buf = gc_alloc_type(gc, 1, buffer_gc_type);
     
     buf->block_gc_type = block_gc_type;
     buf->gc = gc;
+
+    /* allocate our first block */
+    buf->head = buf->tail = gc_alloc_type(buf->gc, 0, buf->block_gc_type);
+
+    gc_unprotect(gc);
 
     return buf;
 }
 
 /* allocate a new buffer block and place it at the head of the list */
 void buffer_push(buffer_internal_type *buf) {
-    block_type *old_head = 0;
+    block_type *new_tail = 0;
     
-    old_head = buf->head;
-    buf->head = gc_alloc_type(buf->gc, 0, buf->block_gc_type);
-    buf->head->next = old_head;
+    gc_protect(buf->gc);
+
+    printf("PUSH!\n");
+    new_tail = gc_alloc_type(buf->gc, 0, buf->block_gc_type);
     
-    buf->used = 0;
+    buf->tail->next = new_tail;
+    buf->tail=new_tail;
+    
+    gc_unprotect(buf->gc);
 }
 
 /* write data into the given buffer */
 void buffer_write(buffer_type *buf_void, uint8_t *bytes, size_t length) {
     buffer_internal_type *buf=(buffer_internal_type *)buf_void;
-    int remaining = BLOCK_SIZE; /* our buffers should never be big enough 
-                                   for the size of int to matter */
+    size_t write_offset = (buf->used % BLOCK_SIZE);
+    int block_remaining = BLOCK_SIZE - write_offset;
+    size_t offset = 0;
+
 
     /* make sure that we have a block allocated */
-    if(!buf->head) {
+    if(!block_remaining) {
         buffer_push(buf);
     }
 
-    /* check to see if we need a new block due to data used */
-    remaining = remaining - buf->used;
+    /* deal with data of less than block size */
+    if(length < block_remaining) {
+        block_remaining = length;
+    }
     
-    if(remaining - length >=0) {
-        
-        /* we still have room in this block, 
-           so memcopy and add the length */
-        memcpy(&(buf->head->block[buf->used]),
-               bytes,length);
-        buf->used+=length;
-    } else {
-        /* we need to split the data we were given 
-           first, copy what we can into the current block
-         */
-        memcpy(&(buf->head->block[buf->used]),
-               bytes,remaining);
+    /* add sized to buffer used */
+    /* buf->used += length; */
 
-        /* adjust what remains and pointer */
-        length-=remaining; 
-        bytes+=remaining;
-        
-        buffer_push(buf);
-        memcpy(&(buf->head->block[buf->used]),
-               bytes,length);
+    /* Copy data into individual blocks */
+    while(length > 0) {
+
+        memcpy(&(buf->tail->block[write_offset]), &(bytes[offset]),
+               block_remaining);
+
+        /* update write location and count down
+           length */
+        offset += block_remaining;
+        length -= block_remaining;
+        buf->used += block_remaining;
+        write_offset = 0;
+
+        /* Do we need another block? */
+        if(!(buf->used % BLOCK_SIZE)) {
+            buffer_push(buf);
+        }
+
+        /* do we have more than a block left ? */
+        if(length >= BLOCK_SIZE) {
+            block_remaining = BLOCK_SIZE;
+        } else {
+            block_remaining = length;
+        }
     }
+
+    printf("Done.\n");
 }
 
 /* read data out of the given buffer */
-size_t buffer_read(buffer_type *buf_void, uint8_t **dest, size_t length) {
+size_t buffer_read(buffer_type *buf_void, uint8_t **dest_ptr, size_t length) {
     buffer_internal_type *buf=(buffer_internal_type *)buf_void;
-    /* TODO! */
-    return 0;
+    uint8_t *dest = *dest_ptr;
+    block_type *block = 0;
+    size_t offset = 0;
+    size_t copy_amount = 0;
+    
+    block = buf->head;
+
+    /* walk all blocks and copy them into the destination buffer */
+    while((block != 0) && (offset <= length)) {
+
+        /* do we have a whole block or a partial one */
+        if(length >= BLOCK_SIZE) {
+            copy_amount = BLOCK_SIZE;
+        } else {
+            copy_amount = length;
+        }
+
+        /* copy data from block to destination */
+        memcpy(&(dest[offset]), &(block->block[0]), copy_amount);
+
+        offset+=copy_amount;
+
+        /* move to next block */
+        block = block->next;
+    }
+
+    return offset;
 }
+
+/* return the size of the buffer */
+size_t buffer_size(buffer_type *buf_void) {
+    buffer_internal_type *buf=(buffer_internal_type *)buf_void;
+    return buf->used;
+}
+
 

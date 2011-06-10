@@ -21,8 +21,9 @@ typedef struct buffer {
 
     /* pointers to head and tail of buffer linked list */
     block_type *head;
+    block_type *tail;
 
-    /* amount of space remaining in the current block */
+    /* amount of space used in the current block */
     size_t used;
 
     /* Hack to make sure we have access to block type */

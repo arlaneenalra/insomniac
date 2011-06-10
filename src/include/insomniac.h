@@ -9,5 +9,7 @@
 
 #include "vm.h" /* internal vm api */
 
+#include "emit.h" /* used by assembler */
+
 
 #endif

@@ -37,7 +37,7 @@ buffer_type *buffer_create(gc_type *gc) {
 
 
     /* allocate a new buffer object */
-    buf = gc_alloc_type(gc, 1, buffer_gc_type);
+    buf = gc_alloc_type(gc, 0, buffer_gc_type);
     
     buf->block_gc_type = block_gc_type;
     buf->gc = gc;
@@ -85,6 +85,7 @@ void buffer_write(buffer_type *buf_void, uint8_t *bytes, size_t length) {
     /* Copy data into individual blocks */
     while(length > 0) {
 
+        /* copy data to from our passed in value array to the buffer */
         memcpy(&(buf->tail->block[write_offset]), &(bytes[offset]),
                block_remaining);
 
@@ -93,6 +94,7 @@ void buffer_write(buffer_type *buf_void, uint8_t *bytes, size_t length) {
         offset += block_remaining;
         buf->used += block_remaining;
 
+        
         length -= block_remaining;
 
         /* Do we need another block? */

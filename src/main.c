@@ -93,25 +93,24 @@ int main(int argc, char**argv) {
     EMIT_LIT_EMPTY(buf);
 
     /* create a fix num */
-    for(int i=0; i<70;i++) {
-        /* { */
-        /*     uint8_t code_ref[]={ EMIT_LIT_FIXNUM(i) }; */
-        /*     buffer_write(buf, code_ref , 9); */
-        /* } */
-        /* { */
-        /*     uint8_t code_ref[]={ EMIT_LIT_TRUE }; */
-        /*     buffer_write(buf, code_ref , 1); */
-        /* } */
-        /* { */
-        /*     uint8_t code_ref[]={ EMIT_CONS }; */
-        /*     buffer_write(buf, code_ref , 1); */
-        /* } */
-
+    for(int i=0; i<10;i++) {
         EMIT_LIT_FIXNUM(buf, i);
         EMIT_CONS(buf);
         EMIT_LIT_TRUE(buf);
         EMIT_CONS(buf);
     }
+
+    EMIT_LIT_EMPTY(buf);
+
+    /* create a fix num */
+    for(int i=0; i<10;i++) {
+        EMIT_LIT_FIXNUM(buf, i);
+        EMIT_CONS(buf);
+        EMIT_LIT_TRUE(buf);
+        EMIT_CONS(buf);
+    }
+
+    EMIT_CONS(buf);
 
     length = buffer_size(buf);
     printf("Size %zu\n", length);

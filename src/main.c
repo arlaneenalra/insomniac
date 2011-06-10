@@ -75,21 +75,7 @@ void output_object(object_type *obj) {
     }
 }
 
-int main(int argc, char**argv) {
-    gc_type *gc = gc_create(sizeof(object_type));
-    vm_type *vm = vm_create(gc);
-
-    size_t length=0;
-    size_t written=0;
-    buffer_type *buf = 0;
-    uint8_t *code_ref = 0;
-
-    /* make this a root to the garbage collector */
-    gc_register_root(gc, &buf);
-    gc_register_root(gc, (void **)&code_ref); 
-
-    buf = buffer_create(gc);
-
+void assemble_work(buffer_type *buf) {
     EMIT_LIT_EMPTY(buf);
 
     /* create a fix num */
@@ -112,68 +98,62 @@ int main(int argc, char**argv) {
 
     EMIT_CONS(buf);
 
+}
+
+int main(int argc, char**argv) {
+    gc_type *gc = gc_create(sizeof(object_type));
+    vm_type *vm = vm_create(gc);
+
+    size_t length=0;
+    size_t written=0;
+    buffer_type *buf = 0;
+    uint8_t *code_ref = 0;
+
+    /* make this a root to the garbage collector */
+    gc_register_root(gc, &buf);
+    gc_register_root(gc, (void **)&code_ref); 
+
+    buf = buffer_create(gc);
+    buf = buffer_create(gc);
+    buf = buffer_create(gc);
+
+    assemble_work(buf);
+
     length = buffer_size(buf);
     printf("Size %zu\n", length);
     gc_stats(gc);
-
 
     /* create a code ref */
     code_ref = gc_alloc(gc, 0, length);
     written = buffer_read(buf, &code_ref, length);
 
-    /* printf("Bytes:"); */
-    /* for(int i=0; i<length; i++) { */
-    /*     printf("%2x", code_ref[i]); */
-    /* } */
-    /* printf("\n"); */
+    output_object(vm_eval(vm, length, code_ref));
+    printf("\n");
+
+    vm_reset(vm);
+
+    gc_stats(gc);
+    buf = buffer_create(gc);
+    gc_sweep(gc);
+    gc_stats(gc);
+
+    assemble_work(buf);
+
+    length = buffer_size(buf);
+    printf("Size %zu\n", length);
+    gc_stats(gc);
+
+    /* create a code ref */
+    code_ref = gc_alloc(gc, 0, length);
+    written = buffer_read(buf, &code_ref, length);
+    gc_stats(gc);
+
 
     output_object(vm_eval(vm, length, code_ref));
     printf("\n");
 
     gc_unregister_root(gc, (void **)&code_ref);
     gc_unregister_root(gc, &buf);
-
-
-
-    /* uint8_t code_ref[]={ */
-    /*     EMIT_LIT_FIXNUM(5001), /\* 9 bytes *\/ */
-    /*     EMIT_LIT_FIXNUM(1),    /\* 9 bytes *\/ */
-    /*     EMIT_LIT_FIXNUM(2),    /\* 9 bytes *\/ */
-    /*     EMIT_LIT_FIXNUM(3),    /\* 9 bytes *\/ */
-    /*     EMIT_LIT_FIXNUM(-5000), /\* 9 bytes *\/ */
-    /*     EMIT_LIT_EMPTY,        /\* 1 byte *\/ */
-    /*     EMIT_CONS,             /\* 1 byte *\/ */
-    /*     EMIT_CONS,             /\* 1 byte *\/ */
-    /*     EMIT_CONS,             /\* 1 byte *\/ */
-    /*     EMIT_CONS,             /\* 1 byte *\/ */
-    /*     EMIT_CONS              /\* 1 byte *\/ */
-    /* }; */
-
-    /* length = 51; */
-
-
-    /* output_object(vm_eval(vm, length, code_ref)); */
-    /* printf("\n"); */
-
-    /* vm_reset(vm); */
-
-    /* uint8_t code_ref2[] = { */
-    /*     EMIT_LIT_FIXNUM(1), /\* 9 bytes *\/ */
-    /*     EMIT_LIT_FIXNUM(2), /\* 9 bytes *\/ */
-    /*     EMIT_CONS,          /\* 1 byte *\/ */
-    /*     EMIT_LIT_FIXNUM(1), /\* 9 bytes *\/ */
-    /*     EMIT_LIT_FIXNUM(2), /\* 9 bytes *\/ */
-    /*     EMIT_CONS,          /\* 1 byte *\/ */
-    /*     EMIT_CONS,          /\* 1 byte *\/ */
-    /*     EMIT_LIT_FALSE,      /\* 1 byte *\/ */
-    /*     EMIT_LIT_FALSE,      /\* 1 byte *\/ */
-    /*     EMIT_LIT_TRUE      /\* 1 byte *\/ */
-    /* }; */
-    
-    /* length = 42; */
-
-    /* output_object(vm_eval(vm, length, code_ref2)); */
-    /* printf("\n"); */
 
     vm_destroy(vm);
     gc_destroy(gc);

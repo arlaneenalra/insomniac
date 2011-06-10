@@ -56,7 +56,6 @@ void buffer_push(buffer_internal_type *buf) {
     
     gc_protect(buf->gc);
 
-    printf("PUSH!\n");
     new_tail = gc_alloc_type(buf->gc, 0, buf->block_gc_type);
     
     buf->tail->next = new_tail;
@@ -83,9 +82,6 @@ void buffer_write(buffer_type *buf_void, uint8_t *bytes, size_t length) {
         block_remaining = length;
     }
     
-    /* add sized to buffer used */
-    /* buf->used += length; */
-
     /* Copy data into individual blocks */
     while(length > 0) {
 
@@ -95,12 +91,13 @@ void buffer_write(buffer_type *buf_void, uint8_t *bytes, size_t length) {
         /* update write location and count down
            length */
         offset += block_remaining;
-        length -= block_remaining;
         buf->used += block_remaining;
-        write_offset = 0;
+
+        length -= block_remaining;
 
         /* Do we need another block? */
         if(!(buf->used % BLOCK_SIZE)) {
+            write_offset = 0;
             buffer_push(buf);
         }
 
@@ -111,8 +108,6 @@ void buffer_write(buffer_type *buf_void, uint8_t *bytes, size_t length) {
             block_remaining = length;
         }
     }
-
-    printf("Done.\n");
 }
 
 /* read data out of the given buffer */
@@ -126,14 +121,15 @@ size_t buffer_read(buffer_type *buf_void, uint8_t **dest_ptr, size_t length) {
     block = buf->head;
 
     /* walk all blocks and copy them into the destination buffer */
-    while((block != 0) && (offset <= length)) {
+    while((block != 0) && (offset < length)) {
 
         /* do we have a whole block or a partial one */
-        if(length >= BLOCK_SIZE) {
+        copy_amount = length - offset;
+
+        /* only copy a block at a time */
+        if(copy_amount >= BLOCK_SIZE) {
             copy_amount = BLOCK_SIZE;
-        } else {
-            copy_amount = length;
-        }
+        } 
 
         /* copy data from block to destination */
         memcpy(&(dest[offset]), &(block->block[0]), copy_amount);

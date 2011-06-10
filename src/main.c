@@ -100,24 +100,33 @@ int main(int argc, char**argv) {
             uint8_t code_ref[]={ EMIT_LIT_TRUE };
             buffer_write(buf, code_ref , 1);
         }
+        {
+            uint8_t code_ref[]={ EMIT_CONS };
+            buffer_write(buf, code_ref , 1);
+        }
 
-        length = buffer_size(buf);
-        printf("Size %zu\n", length);
-        gc_stats(gc);
     }
+
+    length = buffer_size(buf);
+    printf("Size %zu\n", length);
+    gc_stats(gc);
+
 
     /* create a code ref */
     code_ref = gc_alloc(gc, 0, length);
     written = buffer_read(buf, &code_ref, length);
 
-    printf("Bytes:");
-    for(int i=0; i<length; i++) {
-        printf("%2x", code_ref[i]);
-    }
-    printf("\n");
+    /* printf("Bytes:"); */
+    /* for(int i=0; i<length; i++) { */
+    /*     printf("%2x", code_ref[i]); */
+    /* } */
+    /* printf("\n"); */
 
     output_object(vm_eval(vm, length, code_ref));
     printf("\n");
+
+    gc_unregister_root(gc, (void **)&code_ref);
+    gc_unregister_root(gc, &buf);
 
 
 

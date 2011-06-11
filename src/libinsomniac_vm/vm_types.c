@@ -18,14 +18,27 @@ gc_type_def register_pair(gc_type *gc) {
     return pair;
 }
 
+/* register a string container type */
+gc_type_def register_string(gc_type *gc) {
+    gc_type_def str = 0;
+    
+    str = gc_register_type(gc, sizeof(object_type));
+    gc_register_pointer(gc, str, offsetof(object_type, value.string.bytes));
+    
+    return str;
+}
+
 /* setup gc type definitions */
 void create_types(vm_internal_type *vm) {
     gc_type *gc=vm->gc;
 
     vm->types[FIXNUM] = register_basic(gc);
     vm->types[PAIR] = register_pair(gc);
+
     vm->types[BOOL] = register_basic(gc);
     vm->types[CHAR] = register_basic(gc);
+
+    vm->types[STRING] = register_string(gc);
 
     vm->types[EMPTY] = register_basic(gc);
 }

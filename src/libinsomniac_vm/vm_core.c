@@ -63,9 +63,10 @@ object_type *vm_pop(vm_type *vm_void) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
     object_type *obj = 0;
 
-    /* return empty if we are empty */
+    /* return 0 if the stack is empty */
     if(vm->stack_root->type == EMPTY) {
-        return vm->stack_root;
+        return 0;
+        /* return vm->stack_root; */
     }
 
     /* pop the value off */

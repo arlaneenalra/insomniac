@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <gc.h>
 #include <ops.h>
@@ -34,7 +35,7 @@ struct vm_internal {
 };
 
 /* construct a new pair */
-object_type *cons(vm_type *gc, object_type *car, object_type *cdr);
+object_type *cons(vm_type *vm, object_type *car, object_type *cdr);
 
 void create_types(vm_internal_type *vm);
 gc_type_def create_vm_type(gc_type *gc);

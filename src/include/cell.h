@@ -15,8 +15,9 @@ typedef enum cell {
     BOOL,
     CHAR,
 
+    STRING,
+
     PAIR,
-    
     EMPTY,
 
     CELL_MAX /* Hack to get last enum value */
@@ -27,6 +28,12 @@ typedef struct pair {
     object_type *car;
     object_type *cdr;
 } pair_type;
+
+/* type used to store a string */
+typedef struct string {
+    vm_int length;
+    char *bytes;
+} string_type;
 
 
 /* define a memory object */
@@ -40,6 +47,7 @@ struct object {
         pair_type pair;
         vm_bool bool;
         vm_char character;
+        string_type string;
     } value;
 
 };

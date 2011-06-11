@@ -24,12 +24,14 @@ void output_pair(FILE *fout, object_type *pair) {
 
     } while(pair && pair->type == PAIR);
 
+
     /* print a . if need one */
-    if(pair && pair->type != EMPTY) {
+    if(!pair || pair->type != EMPTY) {
         fprintf(fout, " . ");
         output_object(fout, pair);
-    }
-    
+    } 
+
+        
     fprintf(fout,")");
 }
 
@@ -70,6 +72,10 @@ void output_object(FILE *fout, object_type *obj) {
 
     case CHAR:
         output_char(fout, obj);
+        break;
+
+    case STRING:
+        fprintf(fout, "\"%s\"", obj->value.string.bytes);
         break;
 
     case BOOL:

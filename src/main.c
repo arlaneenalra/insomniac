@@ -17,7 +17,7 @@ void assemble_work(buffer_type *buf) {
         EMIT_CONS(buf);
     }
 
-    EMIT_LIT_EMPTY(buf);
+    EMIT_LIT_STRING(buf, "END");
 
     /* create a fix num */
     for(int i=0; i<10;i++) {
@@ -26,13 +26,15 @@ void assemble_work(buffer_type *buf) {
         EMIT_LIT_CHAR(buf, 0x03BB);
         EMIT_CONS(buf);
         EMIT_LIT_CHAR(buf, 0x30CA);
+        EMIT_CONS(buf);
         EMIT_LIT_CHAR(buf, 0x01D5);
+        EMIT_CONS(buf);
         EMIT_LIT_CHAR(buf, 0x1D2C);
-
+        EMIT_CONS(buf);
+        EMIT_LIT_STRING(buf, "Hi there!");
     }
 
     EMIT_CONS(buf);
-
 }
 
 int main(int argc, char**argv) {
@@ -53,8 +55,6 @@ int main(int argc, char**argv) {
     gc_register_root(gc, &buf);
     gc_register_root(gc, (void **)&code_ref); 
 
-    buf = buffer_create(gc);
-    buf = buffer_create(gc);
     buf = buffer_create(gc);
 
     assemble_work(buf);

@@ -1,11 +1,10 @@
 #include "vm_internal.h"
 
-/* decode an integer literal and push it onto the stack */
-void op_lit_64bit(vm_internal_type *vm) {
-    object_type *obj = 0;
+/* parse an integer in byte code form */
+vm_int parse_int(vm_internal_type *vm) {
     vm_int num = 0;
     uint8_t byte = 0;
-
+    
     /* ip should be pointed at the instructions argument */
     for(int i=7; i>=0; i--) {
         byte = vm->code_ref[vm->ip + i];
@@ -16,6 +15,16 @@ void op_lit_64bit(vm_internal_type *vm) {
 
     /* increment the ip field */
     vm->ip += 8;
+    return num;
+}
+
+
+/* decode an integer literal and push it onto the stack */
+void op_lit_64bit(vm_internal_type *vm) {
+    object_type *obj = 0;
+    vm_int num = 0;
+
+    num = parse_int(vm);
 
     gc_protect(vm->gc);
     
@@ -88,6 +97,28 @@ void op_cons(vm_internal_type *vm) {
     gc_unprotect(vm->gc);
 }
 
+/* load a string litteral and push it onto the stack*/
+void op_lit_string(vm_internal_type *vm) {
+    object_type *obj = 0;
+    vm_int length = 0;
+    char *str_start = 0;
+    
+    /* retrieve the length value */
+    length = parse_int(vm);
+
+    gc_protect(vm->gc);
+
+    /* pull in the actuall string bytes */
+    str_start = (char *)&(vm->code_ref[vm->ip]);
+    obj = vm_make_string(vm, str_start, length);
+
+    vm_push(vm, obj);
+
+    gc_unprotect(vm->gc);
+    
+    vm->ip += length;
+}
+
 
 /* setup of instructions in given vm instance */
 void setup_instructions(vm_internal_type *vm) {
@@ -95,6 +126,7 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_LIT_FIXNUM] = &op_lit_64bit;
     vm->ops[OP_LIT_EMPTY] = &op_lit_empty;
     vm->ops[OP_LIT_CHAR] = &op_lit_char;
+    vm->ops[OP_LIT_STRING] = &op_lit_string;
 
     vm->ops[OP_LIT_TRUE] = &op_lit_true;
     vm->ops[OP_LIT_FALSE] = &op_lit_false;

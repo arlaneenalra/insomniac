@@ -19,6 +19,8 @@ void vm_reset(vm_type *vm_void);
 
 void vm_output_object(FILE *fout, object_type *obj);
 
+object_type *vm_make_string(vm_type *vm_void, char *buf, vm_int length);
+
 #include "utf8.h"
 
 #endif

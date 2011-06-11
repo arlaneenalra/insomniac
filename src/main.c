@@ -41,6 +41,18 @@ void output_pair(object_type *pair) {
     printf(")");
 }
 
+/* characters are stored in UTF-32 internally while
+   strings and io should be in UTF-8 */
+void output_char(object_type *character) {
+    /* 7 byte output buffer (UTF-8 maxes out at 6 */
+    char char_buf[] = {0,0,0, 0,0,0, 0};
+    
+    /* encode the string in utf8 */
+    utf8_encode_char(char_buf, character->value.character);
+
+    printf("#\\%s", char_buf);
+}
+
 /* display a given object to stdout */
 void output_object(object_type *obj) {
     
@@ -65,7 +77,8 @@ void output_object(object_type *obj) {
         break;
 
     case CHAR:
-        printf("#\\%lc", obj->value.character);
+        /* printf("#\\%lc", obj->value.character); */
+        output_char(obj);
         break;
 
     case BOOL:
@@ -101,6 +114,10 @@ void assemble_work(buffer_type *buf) {
         EMIT_CONS(buf);
         EMIT_LIT_CHAR(buf, 0x03BB);
         EMIT_CONS(buf);
+        EMIT_LIT_CHAR(buf, 0x30CA);
+        EMIT_LIT_CHAR(buf, 0x01D5);
+        EMIT_LIT_CHAR(buf, 0x1D2C);
+
     }
 
     EMIT_CONS(buf);

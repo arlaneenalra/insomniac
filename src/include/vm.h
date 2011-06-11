@@ -17,4 +17,6 @@ object_type *vm_pop(vm_type *vm_void);
 object_type *vm_eval(vm_type *vm_void, size_t size, uint8_t *code_ref);
 void vm_reset(vm_type *vm_void);
 
+#include "utf8.h"
+
 #endif

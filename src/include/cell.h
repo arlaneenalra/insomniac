@@ -44,5 +44,4 @@ struct object {
 
 };
 
-
 #endif

@@ -17,6 +17,8 @@ object_type *vm_pop(vm_type *vm_void);
 object_type *vm_eval(vm_type *vm_void, size_t size, uint8_t *code_ref);
 void vm_reset(vm_type *vm_void);
 
+void vm_output_object(FILE *fout, object_type *obj);
+
 #include "utf8.h"
 
 #endif

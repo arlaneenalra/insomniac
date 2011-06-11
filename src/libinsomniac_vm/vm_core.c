@@ -96,3 +96,7 @@ void vm_reset(vm_type *vm_void) {
     vm->stack_root = vm->empty;
 
 }
+
+void vm_output_object(FILE *fout, object_type *obj) {
+    output_object(fout, obj);
+}

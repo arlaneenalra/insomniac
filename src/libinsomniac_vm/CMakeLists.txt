@@ -10,4 +10,5 @@ add_library(libinsomniac_vm
   vm_eval.c
   vm_ops.c
   vm_utf8.c
+  vm_output.c
   )

@@ -41,4 +41,7 @@ gc_type_def create_vm_type(gc_type *gc);
 
 void setup_instructions(vm_internal_type *vm);
 
+/* output funcitons */
+void output_object(FILE *fout, object_type *obj);
+
 #endif

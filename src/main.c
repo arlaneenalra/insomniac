@@ -4,96 +4,7 @@
 #include <ops.h>
 
 #include <locale.h>
-#include <wchar.h>
 
-void output_object(object_type *obj);
-
-void output_pair(object_type *pair) {
-    int flag = 0;
-    object_type *car = 0;
-
-    printf("(");
-    
-    do {
-        /* print a space only if we are not on 
-           the first pair */
-        if(flag) {
-            printf(" ");
-        }
-
-        /* extract the car and cdr */
-        car = pair->value.pair.car;
-        pair = pair->value.pair.cdr;
-        
-        /* output the car */
-        output_object(car);
-
-        flag = 1;
-
-    } while(pair && pair->type == PAIR);
-
-    /* print a . if need one */
-    if(pair && pair->type != EMPTY) {
-        printf(" . ");
-        output_object(pair);
-    }
-    
-    printf(")");
-}
-
-/* characters are stored in UTF-32 internally while
-   strings and io should be in UTF-8 */
-void output_char(object_type *character) {
-    /* 7 byte output buffer (UTF-8 maxes out at 6 */
-    char char_buf[] = {0,0,0, 0,0,0, 0};
-    
-    /* encode the string in utf8 */
-    utf8_encode_char(char_buf, character->value.character);
-
-    printf("#\\%s", char_buf);
-}
-
-/* display a given object to stdout */
-void output_object(object_type *obj) {
-    
-    /* make sure we have an object */
-    if(!obj) {
-        printf("<nil>");
-        return;
-    }
-
-    switch(obj->type) {
-
-    case FIXNUM: /* deal with a standard fixnum */
-        printf("%" PRIi64, obj->value.integer);
-        break;
-
-    case EMPTY: /* The object is an empty pair */
-        printf("()"); 
-        break;
-        
-    case PAIR:
-        output_pair(obj);
-        break;
-
-    case CHAR:
-        /* printf("#\\%lc", obj->value.character); */
-        output_char(obj);
-        break;
-
-    case BOOL:
-        if(obj->value.bool) {
-            printf("#t");
-        } else {
-            printf("#f");
-        }
-        break;
-        
-    default:
-        printf("<Unkown Object>");
-        break;
-    }
-}
 
 void assemble_work(buffer_type *buf) {
     EMIT_LIT_EMPTY(buf);
@@ -161,7 +72,7 @@ int main(int argc, char**argv) {
 
     printf("Evaluating\n");
 
-    output_object(vm_eval(vm, length, code_ref));
+    vm_output_object(stdout, vm_eval(vm, length, code_ref));
     printf("\n");
 
     vm_reset(vm);
@@ -171,7 +82,7 @@ int main(int argc, char**argv) {
     gc_stats(gc);
     printf("Evaluating\n");
 
-    output_object(vm_eval(vm, length, code_ref));
+    vm_output_object(stdout, vm_eval(vm, length, code_ref));
     printf("\n");
 
     vm_reset(vm);

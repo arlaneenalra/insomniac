@@ -20,7 +20,7 @@ void assemble_work(buffer_type *buf) {
     EMIT_LIT_STRING(buf, "END");
 
     /* create a fix num */
-    for(int i=0; i<10;i++) {
+    for(int i=0; i<100;i++) {
         EMIT_LIT_FIXNUM(buf, i);
         EMIT_CONS(buf);
         EMIT_LIT_CHAR(buf, 0x03BB);

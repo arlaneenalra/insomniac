@@ -26,6 +26,12 @@ typedef enum mark {
     PERM
 } mark_type;
 
+/* are we looking at a pointer or an array */
+typedef enum meta_ptr {
+    PTR,
+    ARRAY
+} meta_ptr_type;
+
 /* meta object wrapper */
 struct meta_obj {
     meta_obj_type *next; /* next object in our list */
@@ -49,8 +55,11 @@ struct meta_obj_def {
     meta_obj_ptr_def_type *root_list;
 };
 
+/* offset to a pointer in the object */
 struct meta_obj_ptr_def {
+    meta_ptr_type type;
     size_t offset;
+    size_t offset_to_size;
     meta_obj_ptr_def_type *next;
 };
 

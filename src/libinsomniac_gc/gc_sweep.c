@@ -16,6 +16,8 @@ void mark_object(meta_obj_type *meta, mark_type mark) {
 /* walk a graph of objects and mark them */
 void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
     meta_obj_ptr_def_type *root_list = 0;
+    int64_t size = 0;
+    int64_t *size_max = 0;
     void *obj=0;
     void **next_obj=0;
     
@@ -35,19 +37,37 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
 
     /* make sure this is a typed object */
     if(meta->type_def >= 0) {
+        /* Load the definition for this type of object */
         root_list = gc->type_defs[meta->type_def].root_list;
         
         /* walk the list of poitners internal to 
            this object */
         while(root_list) {
-            
-            /* calculate offset to pointer in objects */
             obj = obj_from_meta(meta);
-            next_obj = (void **)((uint8_t *)obj + root_list->offset);
+             next_obj = (void **)((uint8_t *)obj + root_list->offset);
             
-            /* mark any pointed to objects */
-            mark_graph(gc, meta_from_obj(*next_obj), mark);
-            
+            switch(root_list->type) {
+            case PTR:
+                /* mark any pointed to objects */
+                mark_graph(gc, meta_from_obj(*next_obj), mark);                
+                break;
+
+            case ARRAY:
+                /* extract size of this array */
+                size_max = (int64_t *)((uint8_t *)obj + root_list->offset_to_size);
+
+                /* mark all objects in array */
+                for(size = 0; size < *size_max; size++) {
+                    mark_graph(gc, meta_from_obj(next_obj[size]), mark);
+                }
+                
+                break;
+
+            default:
+                assert(0);
+                break;
+            }
+                        
             root_list = root_list->next;
         }
     }

@@ -14,7 +14,7 @@ vm_type *vm_create(gc_type *gc) {
     /* attach instructions to the vm */
     setup_instructions(vm);
     
-    gc_protect(gc);
+    gc_register_root(gc, (void **)vm);
 
     /* setup types for allocations */
     create_types(vm);
@@ -31,7 +31,7 @@ vm_type *vm_create(gc_type *gc) {
     /* setup the stack */
     vm->stack_root = vm->empty;
 
-    gc_unprotect(gc);
+    gc_unregister_root(gc, (void**)&vm);
 
     return (vm_type *)vm;
 }

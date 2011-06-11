@@ -47,6 +47,24 @@ void output_char(FILE *fout, object_type *character) {
     fprintf(fout, "#\\%s", char_buf);
 }
 
+void output_vector(FILE *fout, object_type *vector) {
+    vm_int index = 0;
+
+    /* walk all the objects in this vector and
+       output them */
+    fprintf(fout, "#(");
+
+    for(index = 0; index < vector->value.vector.length; index++) {
+        if(index >1) {
+            fprintf(fout, " ");
+        }
+        output_object(fout, 
+                      vector->value.vector.vector[index]);
+    }
+
+    fprintf(fout, ")");
+}
+
 /* display a given object to stdout */
 void output_object(FILE *fout, object_type *obj) {
     
@@ -76,6 +94,10 @@ void output_object(FILE *fout, object_type *obj) {
 
     case STRING:
         fprintf(fout, "\"%s\"", obj->value.string.bytes);
+        break;
+        
+    case VECTOR:
+        output_vector(fout, obj);
         break;
 
     case BOOL:

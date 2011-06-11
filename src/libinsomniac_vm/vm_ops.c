@@ -119,6 +119,27 @@ void op_lit_string(vm_internal_type *vm) {
     vm->ip += length;
 }
 
+/* allocate a new vector */
+void op_make_vector(vm_internal_type *vm) {
+    object_type *obj = 0;
+    vm_int length = 0;
+    
+    gc_protect(vm->gc);
+    
+    obj = vm_pop(vm);
+
+    /* make sure we have a number */
+    assert(obj && obj->type == FIXNUM);
+
+    length = obj->value.integer;
+
+    obj = vm_make_vector(vm, length);
+
+    vm_push(vm, obj);
+
+    gc_unprotect(vm->gc);
+}
+
 
 /* setup of instructions in given vm instance */
 void setup_instructions(vm_internal_type *vm) {
@@ -127,6 +148,8 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_LIT_EMPTY] = &op_lit_empty;
     vm->ops[OP_LIT_CHAR] = &op_lit_char;
     vm->ops[OP_LIT_STRING] = &op_lit_string;
+
+    vm->ops[OP_MAKE_VECTOR] = &op_make_vector;
 
     vm->ops[OP_LIT_TRUE] = &op_lit_true;
     vm->ops[OP_LIT_FALSE] = &op_lit_false;

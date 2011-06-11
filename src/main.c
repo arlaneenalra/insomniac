@@ -32,6 +32,9 @@ void assemble_work(buffer_type *buf) {
         EMIT_LIT_CHAR(buf, 0x1D2C);
         EMIT_CONS(buf);
         EMIT_LIT_STRING(buf, "Hi there!");
+        
+        EMIT_LIT_FIXNUM(buf, 10);
+        EMIT_MAKE_VECTOR(buf);
     }
 
     EMIT_CONS(buf);

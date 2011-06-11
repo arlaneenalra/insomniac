@@ -15,7 +15,9 @@ typedef enum op {
     OP_LIT_FALSE,
 
     OP_LIT_STRING, /* Define a string literal */
-    OP_CONS /* Cons instruction */
+    OP_CONS, /* Cons instruction */
+
+    OP_MAKE_VECTOR /* create an empty vector */
 } op_type;
 
 

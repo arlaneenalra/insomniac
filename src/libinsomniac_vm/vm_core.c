@@ -77,18 +77,6 @@ object_type *vm_pop(vm_type *vm_void) {
 }
 
 
-/* Deal with cell alloction */
-object_type *vm_alloc(vm_type *vm_void, cell_type type) {
-    vm_internal_type *vm = (vm_internal_type *)vm_void;
-
-    /* Allocate an object using the GC type system */
-    object_type *obj=gc_alloc_type(vm->gc, 0, vm->types[type]);
-    
-    obj->type=type;
-
-    return obj; 
-}
-
 /* reset a vm instance into a clean state */
 void vm_reset(vm_type *vm_void) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;

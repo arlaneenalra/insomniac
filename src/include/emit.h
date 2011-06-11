@@ -39,6 +39,7 @@
 #define EMIT_LIT_FALSE(buf) EMIT(buf, OP_LIT_FALSE, 1)
 
 #define EMIT_CONS(buf) EMIT(buf, OP_CONS, 1)
+#define EMIT_MAKE_VECTOR(buf) EMIT(buf, OP_MAKE_VECTOR, 1)
 #define EMIT_NOP(buf) EMIT(buf, OP_NOP, 1)
 
 

@@ -11,5 +11,5 @@ add_library(libinsomniac_vm
   vm_ops.c
   vm_utf8.c
   vm_output.c
-  vm_string.c
+  vm_alloc.c
   )

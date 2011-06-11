@@ -115,13 +115,11 @@ int main(int argc, char**argv) {
     size_t written=0;
     buffer_type *buf = 0;
     uint8_t *code_ref = 0;
-    vm_char wref[] = {0x03BB, 0x2660, 0x0000};
 
     /* needed to setup locale aware printf . . . 
        I need to do a great deal more research here */
     setlocale(LC_ALL, "");
     printf("'%lc' lambda\n", 0x03BB);
-    printf("'%ls' lambda\n", wref);
 
     /* make this a root to the garbage collector */
     gc_register_root(gc, &buf);

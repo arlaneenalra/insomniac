@@ -1,9 +1,9 @@
 #include "vm_internal.h"
 
-/* decode a literal and push it onto the stack */
+/* decode an integer literal and push it onto the stack */
 void op_lit_64bit(vm_internal_type *vm) {
     object_type *obj = 0;
-    uint64_t num = 0;
+    vm_int num = 0;
     uint8_t byte = 0;
 
     /* ip should be pointed at the instructions argument */
@@ -21,6 +21,33 @@ void op_lit_64bit(vm_internal_type *vm) {
     
     obj = vm_alloc(vm, FIXNUM);
     obj->value.integer = num;
+
+    vm_push(vm, obj);
+
+    gc_unprotect(vm->gc);
+}
+
+/* decode a character literal and push it onto the stack */
+void op_lit_char(vm_internal_type *vm) {
+    object_type *obj = 0;
+    vm_char character = 0;
+    uint8_t byte = 0;
+
+    /* ip should be pointed at the instructions argument */
+    for(int i=4; i>=0; i--) {
+        byte = vm->code_ref[vm->ip + i];
+        
+        character = character << 8;
+        character = character | byte;
+    }
+
+    /* increment the ip field */
+    vm->ip += 4;
+
+    gc_protect(vm->gc);
+    
+    obj = vm_alloc(vm, CHAR);
+    obj->value.character = character;
 
     vm_push(vm, obj);
 
@@ -67,6 +94,7 @@ void setup_instructions(vm_internal_type *vm) {
 
     vm->ops[OP_LIT_FIXNUM] = &op_lit_64bit;
     vm->ops[OP_LIT_EMPTY] = &op_lit_empty;
+    vm->ops[OP_LIT_CHAR] = &op_lit_char;
 
     vm->ops[OP_LIT_TRUE] = &op_lit_true;
     vm->ops[OP_LIT_FALSE] = &op_lit_false;

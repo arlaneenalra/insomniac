@@ -3,7 +3,6 @@
 
 #include "gc.h"
 
-
 typedef void vm_type;
 
 vm_type *vm_create(gc_type *gc);

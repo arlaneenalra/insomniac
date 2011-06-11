@@ -9,6 +9,7 @@ typedef enum op {
 
     OP_LIT_EMPTY, /* Literal empty pair */
     OP_LIT_FIXNUM, /* 64bit Integer Literal */
+    OP_LIT_CHAR, /* 32 bit character Literal */
 
     OP_LIT_TRUE, /* literals for true and false */
     OP_LIT_FALSE,

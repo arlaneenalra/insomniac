@@ -25,6 +25,7 @@ void create_types(vm_internal_type *vm) {
     vm->types[FIXNUM] = register_basic(gc);
     vm->types[PAIR] = register_pair(gc);
     vm->types[BOOL] = register_basic(gc);
+    vm->types[CHAR] = register_basic(gc);
 
     vm->types[EMPTY] = register_basic(gc);
 }

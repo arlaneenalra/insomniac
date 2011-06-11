@@ -5,6 +5,7 @@
 
 typedef int64_t vm_int;
 typedef uint8_t vm_bool;
+typedef uint32_t vm_char;
 
 typedef struct object object_type;
 
@@ -12,6 +13,7 @@ typedef struct object object_type;
 typedef enum cell {
     FIXNUM,
     BOOL,
+    CHAR,
 
     PAIR,
     
@@ -37,6 +39,7 @@ struct object {
         vm_int integer;
         pair_type pair;
         vm_bool bool;
+        vm_char character;
     } value;
 
 };

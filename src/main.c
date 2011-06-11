@@ -3,6 +3,9 @@
 #include <insomniac.h>
 #include <ops.h>
 
+#include <locale.h>
+#include <wchar.h>
+
 void output_object(object_type *obj);
 
 void output_pair(object_type *pair) {
@@ -61,6 +64,10 @@ void output_object(object_type *obj) {
         output_pair(obj);
         break;
 
+    case CHAR:
+        printf("#\\%lc", obj->value.character);
+        break;
+
     case BOOL:
         if(obj->value.bool) {
             printf("#t");
@@ -92,7 +99,7 @@ void assemble_work(buffer_type *buf) {
     for(int i=0; i<10;i++) {
         EMIT_LIT_FIXNUM(buf, i);
         EMIT_CONS(buf);
-        EMIT_LIT_TRUE(buf);
+        EMIT_LIT_CHAR(buf, 0x03BB);
         EMIT_CONS(buf);
     }
 
@@ -108,6 +115,13 @@ int main(int argc, char**argv) {
     size_t written=0;
     buffer_type *buf = 0;
     uint8_t *code_ref = 0;
+    vm_char wref[] = {0x03BB, 0x2660, 0x0000};
+
+    /* needed to setup locale aware printf . . . 
+       I need to do a great deal more research here */
+    setlocale(LC_ALL, "");
+    printf("'%lc' lambda\n", 0x03BB);
+    printf("'%ls' lambda\n", wref);
 
     /* make this a root to the garbage collector */
     gc_register_root(gc, &buf);
@@ -126,6 +140,11 @@ int main(int argc, char**argv) {
     /* create a code ref */
     code_ref = gc_alloc(gc, 0, length);
     written = buffer_read(buf, &code_ref, length);
+    gc_stats(gc);
+    gc_sweep(gc);
+    gc_stats(gc);
+
+    printf("Evaluating\n");
 
     output_object(vm_eval(vm, length, code_ref));
     printf("\n");
@@ -133,25 +152,19 @@ int main(int argc, char**argv) {
     vm_reset(vm);
 
     gc_stats(gc);
-    buf = buffer_create(gc);
     gc_sweep(gc);
     gc_stats(gc);
-
-    assemble_work(buf);
-
-    length = buffer_size(buf);
-    printf("Size %zu\n", length);
-    gc_stats(gc);
-
-    /* create a code ref */
-    code_ref = gc_alloc(gc, 0, length);
-    written = buffer_read(buf, &code_ref, length);
-    gc_stats(gc);
-
+    printf("Evaluating\n");
 
     output_object(vm_eval(vm, length, code_ref));
     printf("\n");
 
+    vm_reset(vm);
+
+    gc_stats(gc);
+    gc_sweep(gc);
+    gc_stats(gc);
+    
     gc_unregister_root(gc, (void **)&code_ref);
     gc_unregister_root(gc, &buf);
 

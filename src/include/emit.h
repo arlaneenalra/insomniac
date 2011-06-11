@@ -12,10 +12,13 @@
     }
 
 /* 64bit Literal value */
-#define FIXNUM(i) OP_LIT_FIXNUM, BYTE(i,0), BYTE(i,1), BYTE(i,2), BYTE(i,3), \
+#define LIT_FIXNUM(i) OP_LIT_FIXNUM, BYTE(i,0), BYTE(i,1), BYTE(i,2), BYTE(i,3), \
         BYTE(i,4), BYTE(i,5), BYTE(i,6), BYTE(i,7)
 
-#define EMIT_LIT_FIXNUM(buf, i) EMIT(buf, FIXNUM(i), 9)
+#define LIT_CHAR(i) OP_LIT_CHAR, BYTE(i,0), BYTE(i,1), BYTE(i,2), BYTE(i,3)
+
+#define EMIT_LIT_FIXNUM(buf, i) EMIT(buf, LIT_FIXNUM(i), 9)
+#define EMIT_LIT_CHAR(buf, i) EMIT(buf, LIT_CHAR(i), 5)
 
 #define EMIT_LIT_EMPTY(buf) EMIT(buf, OP_LIT_EMPTY, 1)
 

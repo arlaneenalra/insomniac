@@ -56,6 +56,9 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
                 /* extract size of this array */
                 size_max = (int64_t *)((uint8_t *)obj + root_list->offset_to_size);
 
+                /* mark the array allocation itself */
+                mark_object(meta_from_obj(next_obj), mark);
+
                 /* mark all objects in array */
                 for(size = 0; size < *size_max; size++) {
                     mark_graph(gc, meta_from_obj(next_obj[size]), mark);

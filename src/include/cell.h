@@ -16,6 +16,7 @@ typedef enum cell {
     CHAR,
 
     STRING,
+    VECTOR,
 
     PAIR,
     EMPTY,
@@ -35,6 +36,12 @@ typedef struct string {
     char *bytes;
 } string_type;
 
+/* type to store a vector */
+typedef struct vector {
+    vm_int length;
+    object_type **vector;
+} vector_type;
+
 
 /* define a memory object */
 struct object {
@@ -48,6 +55,7 @@ struct object {
         vm_bool bool;
         vm_char character;
         string_type string;
+        vector_type vector;
     } value;
 
 };

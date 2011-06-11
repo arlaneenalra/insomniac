@@ -28,6 +28,17 @@ gc_type_def register_string(gc_type *gc) {
     return str;
 }
 
+/* register a vector type */
+gc_type_def register_vector(gc_type *gc) {
+    gc_type_def vector = 0;
+    
+    vector = gc_register_type(gc, sizeof(object_type));
+    gc_register_array(gc, vector,
+                      offsetof(object_type, value.vector.vector),
+                      offsetof(object_type, value.vector.length));
+    return vector;
+}
+
 /* setup gc type definitions */
 void create_types(vm_internal_type *vm) {
     gc_type *gc=vm->gc;
@@ -39,6 +50,7 @@ void create_types(vm_internal_type *vm) {
     vm->types[CHAR] = register_basic(gc);
 
     vm->types[STRING] = register_string(gc);
+    vm->types[VECTOR] = register_vector(gc);
 
     vm->types[EMPTY] = register_basic(gc);
 }

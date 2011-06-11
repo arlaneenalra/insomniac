@@ -5,6 +5,8 @@
 #include <gc.h>
 #include <buffer.h>
 
+#define BLOCK_SIZE 4096
+
 typedef struct block block_type;
 
 /* a single block in our buffer definition */

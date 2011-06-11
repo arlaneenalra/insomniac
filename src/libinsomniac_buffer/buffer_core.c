@@ -1,7 +1,6 @@
 #include "buffer_internal.h"
 #include <string.h>
 
-#include <stdio.h>
 
 gc_type_def create_buffer_type(gc_type *gc) {
     gc_type_def type = 0;

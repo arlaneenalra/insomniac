@@ -31,6 +31,11 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
         return;
     }
 
+    if(meta->mark == DEAD) {
+        printf("Active object in dead list!\n");
+        assert(0);
+    }
+
     /* mark this object */
     mark_object(meta, mark);
 
@@ -57,7 +62,12 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
                 size_max = (int64_t *)((uint8_t *)obj + root_list->offset_to_size);
 
                 /* mark the array allocation itself */
-                mark_object(meta_from_obj(next_obj), mark);
+                mark_object(meta_from_obj(*next_obj), mark);
+
+                /* walk into the object and find our array,
+                   we really have a *** here not a **
+                 */
+                next_obj = (void **)*next_obj;
 
                 /* mark all objects in array */
                 for(size = 0; size < *size_max; size++) {
@@ -129,7 +139,8 @@ void sweep_list(gc_ms_type * gc, mark_type mark) {
             if(active->size == gc->cell_size) {
                 /* move our object to the head 
                    of the new dead list */
-                active->next=dead;
+                active->next = dead;
+                active->mark = DEAD; /* mark as dead */
                 dead=active;
             } else {
 

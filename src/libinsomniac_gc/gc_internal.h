@@ -23,7 +23,8 @@ typedef enum mark {
     RED,
     BLACK,
     
-    PERM
+    PERM,
+    DEAD
 } mark_type;
 
 /* are we looking at a pointer or an array */

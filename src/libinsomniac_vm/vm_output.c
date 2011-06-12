@@ -55,7 +55,7 @@ void output_vector(FILE *fout, object_type *vector) {
     fprintf(fout, "#(");
 
     for(index = 0; index < vector->value.vector.length; index++) {
-        if(index >1) {
+        if(index > 0) {
             fprintf(fout, " ");
         }
         output_object(fout, 

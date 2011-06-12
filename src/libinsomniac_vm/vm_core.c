@@ -66,7 +66,6 @@ object_type *vm_pop(vm_type *vm_void) {
     /* return 0 if the stack is empty */
     if(vm->stack_root->type == EMPTY) {
         return 0;
-        /* return vm->stack_root; */
     }
 
     /* pop the value off */
@@ -83,7 +82,6 @@ void vm_reset(vm_type *vm_void) {
 
     vm->ip=0;
     vm->stack_root = vm->empty;
-
 }
 
 void vm_output_object(FILE *fout, object_type *obj) {

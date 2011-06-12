@@ -32,6 +32,7 @@
     EMIT(buf, str, length);       \
 }
 
+#define EMIT_MAKE_SYMBOL(buf) EMIT(buf, OP_MAKE_SYMBOL, 1)
 
 #define EMIT_LIT_EMPTY(buf) EMIT(buf, OP_LIT_EMPTY, 1)
 

@@ -6,6 +6,7 @@
 #include <string.h>
 #include <assert.h>
 
+
 #include <gc.h>
 #include <ops.h>
 #include <vm.h>
@@ -18,6 +19,9 @@ typedef void (*fn_type)(vm_internal_type *vm);
 struct vm_internal {
  
     object_type *stack_root;
+
+    object_type *symbols; /* a linked list of symols */
+
     gc_type *gc;
 
     /* some objects that we only need one instance of */

@@ -39,6 +39,7 @@ void assemble_work(buffer_type *buf) {
             EMIT_DUP_REF(buf);
             EMIT_LIT_FIXNUM(buf, y);
             EMIT_LIT_STRING(buf, "Hi");
+            EMIT_MAKE_SYMBOL(buf);
             EMIT_CONS(buf);
             EMIT_LIT_FIXNUM(buf, y);
             EMIT_VECTOR_SET(buf);

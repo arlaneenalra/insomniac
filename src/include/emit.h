@@ -46,6 +46,7 @@
 
 #define EMIT_NOP(buf) EMIT(buf, OP_NOP, 1)
 #define EMIT_SWAP(buf) EMIT(buf, OP_SWAP, 1)
+#define EMIT_DUP_REF(buf) EMIT(buf, OP_DUP_REF, 1)
 
 
 #endif

@@ -113,6 +113,19 @@ void op_swap(vm_internal_type *vm) {
     gc_unprotect(vm->gc);
 }
 
+/* duplicate the reference on top of the stack */
+void op_dup_ref(vm_internal_type *vm) {
+    object_type *obj = 0;
+
+    gc_protect(vm->gc);
+    obj = vm_pop(vm);
+
+    vm_push(vm, obj);
+    vm_push(vm, obj);
+
+    gc_unprotect(vm->gc);
+}
+
 /* load a string litteral and push it onto the stack*/
 void op_lit_string(vm_internal_type *vm) {
     object_type *obj = 0;
@@ -179,8 +192,6 @@ void op_vector_set(vm_internal_type *vm) {
     /* do the set */
     vector->value.vector.vector[index] = obj;
 
-    /* TODO, this does not really belong here */
-    vm_push(vm, vector);
     gc_unprotect(vm->gc);
 }
 
@@ -207,6 +218,7 @@ void op_vector_ref(vm_internal_type *vm) {
     obj = vector->value.vector.vector[index];
 
     vm_push(vm, obj);
+
     gc_unprotect(vm->gc);
 }
 
@@ -228,4 +240,5 @@ void setup_instructions(vm_internal_type *vm) {
 
     vm->ops[OP_CONS] = &op_cons;
     vm->ops[OP_SWAP] = &op_swap;
+    vm->ops[OP_DUP_REF] = &op_dup_ref;
 }

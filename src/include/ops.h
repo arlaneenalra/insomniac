@@ -23,6 +23,7 @@ typedef enum op {
 
 
     OP_SWAP, /* Swap the top two items on the stack */
+    OP_DUP_REF /* Duplicate the reference on the op of the stack */
 
 } op_type;
 

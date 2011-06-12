@@ -97,6 +97,22 @@ void op_cons(vm_internal_type *vm) {
     gc_unprotect(vm->gc);
 }
 
+/* swap the top two items on the stack */
+void op_swap(vm_internal_type *vm) {
+    object_type *obj = 0;
+    object_type *obj2 = 0;
+
+    gc_protect(vm->gc);
+    
+    obj = vm_pop(vm);
+    obj2 = vm_pop(vm);
+
+    vm_push(vm, obj);
+    vm_push(vm, obj2);
+
+    gc_unprotect(vm->gc);
+}
+
 /* load a string litteral and push it onto the stack*/
 void op_lit_string(vm_internal_type *vm) {
     object_type *obj = 0;
@@ -161,11 +177,36 @@ void op_vector_set(vm_internal_type *vm) {
            vector->value.vector.length >= index);
 
     /* do the set */
-    printf("Seeting %"PRIi64"\n", index);
     vector->value.vector.vector[index] = obj;
 
     /* TODO, this does not really belong here */
     vm_push(vm, vector);
+    gc_unprotect(vm->gc);
+}
+
+/* read an element from a vector */
+void op_vector_ref(vm_internal_type *vm) {
+    object_type *vector = 0;
+    object_type *obj_index = 0;
+    object_type *obj = 0;
+    vm_int index = 0;
+
+    gc_protect(vm->gc);
+
+    obj_index = vm_pop(vm);
+    vector = vm_pop(vm);
+
+    assert(obj_index && obj_index->type == FIXNUM);
+    
+    index = obj_index->value.integer;
+
+    assert(vector && vector->type == VECTOR &&
+           vector->value.vector.length >= index);
+
+    /* do the read */
+    obj = vector->value.vector.vector[index];
+
+    vm_push(vm, obj);
     gc_unprotect(vm->gc);
 }
 
@@ -180,9 +221,11 @@ void setup_instructions(vm_internal_type *vm) {
 
     vm->ops[OP_MAKE_VECTOR] = &op_make_vector;
     vm->ops[OP_VECTOR_SET] = &op_vector_set;
+    vm->ops[OP_VECTOR_REF] = &op_vector_ref;
 
     vm->ops[OP_LIT_TRUE] = &op_lit_true;
     vm->ops[OP_LIT_FALSE] = &op_lit_false;
 
     vm->ops[OP_CONS] = &op_cons;
+    vm->ops[OP_SWAP] = &op_swap;
 }

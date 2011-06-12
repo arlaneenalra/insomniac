@@ -18,7 +18,12 @@ typedef enum op {
     OP_CONS, /* Cons instruction */
 
     OP_MAKE_VECTOR, /* create an empty vector */
-    OP_VECTOR_SET /* set a column in a given vector */
+    OP_VECTOR_SET, /* set a column in a given vector */
+    OP_VECTOR_REF, /* read the index into a vector an put it on the stack */
+
+
+    OP_SWAP, /* Swap the top two items on the stack */
+
 } op_type;
 
 

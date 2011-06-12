@@ -42,8 +42,10 @@
 
 #define EMIT_MAKE_VECTOR(buf) EMIT(buf, OP_MAKE_VECTOR, 1)
 #define EMIT_VECTOR_SET(buf) EMIT(buf, OP_VECTOR_SET, 1)
+#define EMIT_VECTOR_REF(buf) EMIT(buf, OP_VECTOR_REF, 1)
 
 #define EMIT_NOP(buf) EMIT(buf, OP_NOP, 1)
+#define EMIT_SWAP(buf) EMIT(buf, OP_SWAP, 1)
 
 
 #endif

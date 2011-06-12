@@ -6,15 +6,18 @@ vm_type *vm_create(gc_type *gc) {
     
     vm_type_def = create_vm_type(gc);
 
+    gc_register_root(gc, (void**)&vm);
+    
+
     /* create a permanent vm object */
-    vm = gc_alloc_type(gc, 1, vm_type_def);
+    /* vm = gc_alloc_type(gc, 1, vm_type_def); */
+    vm = gc_alloc_type(gc, 0, vm_type_def);
     
     vm->gc = gc;
 
     /* attach instructions to the vm */
     setup_instructions(vm);
     
-    gc_register_root(gc, (void **)vm);
 
     /* setup types for allocations */
     create_types(vm);
@@ -39,12 +42,12 @@ vm_type *vm_create(gc_type *gc) {
 
 /* Deallocate the vm instance */
 void vm_destroy(vm_type *vm_raw) {
-    if(vm_raw) {
-        vm_internal_type *vm = (vm_internal_type *)vm_raw;
+    /* if(vm_raw) { */
+    /*     vm_internal_type *vm = (vm_internal_type *)vm_raw; */
 
-        /* mark this object as collectible */
-        gc_de_perm(vm->gc, vm);
-    }
+    /*     /\* mark this object as collectible *\/ */
+    /*     gc_de_perm(vm->gc, vm); */
+    /* } */
 }
 
 /* push and item onto the vm stack */

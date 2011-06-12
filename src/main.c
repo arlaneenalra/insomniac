@@ -53,7 +53,7 @@ void assemble_work(buffer_type *buf) {
 
 int main(int argc, char**argv) {
     gc_type *gc = gc_create(sizeof(object_type));
-    vm_type *vm = vm_create(gc);
+    vm_type *vm = 0; 
 
     size_t length=0;
     size_t written=0;
@@ -67,7 +67,10 @@ int main(int argc, char**argv) {
 
     /* make this a root to the garbage collector */
     gc_register_root(gc, &buf);
+    gc_register_root(gc, &vm);
     gc_register_root(gc, (void **)&code_ref); 
+
+    vm = vm_create(gc);
 
     buf = buffer_create(gc);
 
@@ -105,10 +108,12 @@ int main(int argc, char**argv) {
     gc_sweep(gc);
     gc_stats(gc);
     
+    vm_destroy(vm);
+
     gc_unregister_root(gc, (void **)&code_ref);
+    gc_unregister_root(gc, &vm);
     gc_unregister_root(gc, &buf);
 
-    vm_destroy(vm);
     gc_destroy(gc);
 
     return 0;

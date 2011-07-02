@@ -9,4 +9,6 @@ TODO:
 
 * Sweep is currently limited by stack size, this should be adjusted to work in an iterative manner, if possible.  This will take some work to get right and is not immediately necessary, thankfully.
 
+* VM code recreates gc types every time that a vm is instance is created.  This needs to be rectified.
+
 

@@ -33,8 +33,8 @@ gc_type_def register_vector(gc_type *gc) {
     gc_type_def vector = 0;
     
     vector = gc_register_type(gc, sizeof(object_type));
-    gc_register_array(gc, vector,
-                      offsetof(object_type, value.vector.vector));
+    gc_register_pointer(gc, vector,
+                        offsetof(object_type, value.vector.vector));
 
     return vector;
 }

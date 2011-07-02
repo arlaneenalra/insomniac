@@ -59,7 +59,7 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
 
             case ARRAY:
                 /* determine the size of the array based on size of the allocation */
-                size_max = (meta->size / sizeof(void *));
+                size_max = (meta->size / gc->type_defs[gc->array_type].size);
 
                 /* mark the array allocation itself */
                 mark_object(meta_from_obj(*next_obj), mark);

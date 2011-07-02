@@ -10,6 +10,7 @@
 
 #include <gc.h>
 
+
 /* An internal GC structure to represent an allocated object */
 typedef struct meta_obj meta_obj_type;
 typedef struct meta_root meta_root_type;
@@ -82,6 +83,8 @@ typedef struct gc_ms {
     vm_int protect_count;
 
     mark_type current_mark;
+
+    gc_type_def array_type; /* typedef for pointer arrays */
 } gc_ms_type;
 
 /* do the actual object allocation */

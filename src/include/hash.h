@@ -22,11 +22,17 @@ typedef cmp_type(*hash_cmp)(void *key1, size_t size1,
                           void *key2, size_t size2);
 
 /* construct a new hash table instance */
-hashtable_type hash_create(gc_type *gc, hash_fn fn, 
+hashtable_type *hash_create(gc_type *gc, hash_fn fn, 
                            hash_cmp cmp);
 
+/* bind a key and value in the given table */
 void hash_set(hashtable_type *hash, void *key, size_t size,
               void* value);
+
+/* remove a given key from the table */
+void hash_erase(hashtable_type *hash, void *key, 
+                size_t size);
+
 
 /* returns true on the key being found in the given
    hash table */

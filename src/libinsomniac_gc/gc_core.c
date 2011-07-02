@@ -14,6 +14,10 @@ gc_type *gc_create(size_t cell_size) {
     gc->type_defs = 0;
     gc->num_types = 0;
 
+
+    /* register the ARRAY type as type 0 */
+    gc->array_type = gc_register_type(gc, sizeof(void *));
+    
     return (gc_type *)gc;
 }
 
@@ -99,7 +103,7 @@ void *gc_alloc(gc_type *gc_void, uint8_t perm, size_t size) {
     return obj_from_meta(meta); 
 }
 
-/* allocate a blob and attach it to the gc */
+/* allocate a type and attach it to the gc */
 void *gc_alloc_type(gc_type *gc_void, uint8_t perm, gc_type_def type) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
     meta_obj_def_type *type_ptr = &(gc->type_defs[type]);
@@ -110,6 +114,18 @@ void *gc_alloc_type(gc_type *gc_void, uint8_t perm, gc_type_def type) {
     return obj_from_meta(meta); 
 }
 
+/* allocate an array and attach it to the gc */
+void *gc_alloc_pointer_array(gc_type *gc_void, uint8_t perm, size_t cells) {
+    gc_ms_type *gc = (gc_ms_type *)gc_void;
+    meta_obj_def_type *type_ptr = &(gc->type_defs[gc->array_type]);
+    meta_obj_type *meta = 0;
+
+    meta = internal_alloc(gc, perm, type_ptr->size * cells);
+
+    meta->type_def = gc->array_type;
+
+    return obj_from_meta(meta); 
+}
 
 
 /* remove permenant status from a given cell */

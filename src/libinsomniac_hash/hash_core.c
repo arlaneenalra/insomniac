@@ -1,5 +1,6 @@
 #include "hash_internal.h"
 #include <math.h>
+#include <stdio.h>
 
 
 /* create a hashtable using the given function and 
@@ -48,7 +49,7 @@ void hash_set(hashtable_type *void_table, void *key, size_t size,
     /* check to see if we need to resize hash */
     if(hash_load(table) > MAX_LOAD) {
         /* calculate new size */
-        new_size = floor(table->entries / TARGET_LOAD);
+        new_size = floor(table->entries / TARGET_LOAD) + 1;
         hash_resize(table, new_size);
     }
 }
@@ -152,10 +153,20 @@ float hash_load(hash_internal_type *table) {
     return (table->entries * 1.0) / table->size;
 }
 
-size_t hash_long_chain(hash_internal_type *table) {
+
+/* output some useful stats about a hash table */
+void hash_info(hashtable_type *void_table) {
+    hash_internal_type *table=(hash_internal_type *)void_table;
     key_value_type *kv = 0;
-    size_t max = 0;
-    size_t current = 0;
+
+    uint64_t max = 0;
+    uint64_t current = 0;
+
+    uint64_t active_chains = 0;
+
+
+    printf("Hash Info: Entries %lu Size %lu Load %f",
+           table->entries, table->size, hash_load(table));
 
     for(int i=0; i < table->size; i++) {
         kv = table->table[i];
@@ -167,19 +178,15 @@ size_t hash_long_chain(hash_internal_type *table) {
             current++;
             kv = kv->next;
         }
+        if(current > 0 ) {
+            active_chains++;
+        }
+
         if(current > max ) {
             max = current;
         }
     }
-
-    return max;
-}
-
-
-/* output some useful stats about a hash table */
-void hash_info(hashtable_type *void_table) {
-    hash_internal_type *table=(hash_internal_type *)void_table;
-
-    printf("Hash Info: Entries %i Size %i Load %f Longest Chain %i\n", 
-           table->entries, table->size, hash_load(table),hash_long_chain(table));
+    
+    printf(" Longest Chain %" PRIi64 " Active Chains %" PRIi64 " Average Chain %f\n",
+           max, active_chains, (table->entries * 1.0) / active_chains);
 }

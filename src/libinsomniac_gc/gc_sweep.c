@@ -58,9 +58,6 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
                 break;
 
             case ARRAY:
-                /* extract size of this array */
-                /* size_max = (int64_t *)((uint8_t *)obj + root_list->offset_to_size);*/
-
                 /* determine the size of the array based on size of the allocation */
                 size_max = (meta->size / sizeof(void *));
 

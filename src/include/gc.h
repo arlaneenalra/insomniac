@@ -40,8 +40,7 @@ void gc_register_pointer(gc_type *gc_void, gc_type_def type, size_t offset);
 
 /* register an array and a pointer to the size of the array.
  Size is assumed to be a 64bit integer */
-void gc_register_array(gc_type *gc_void, gc_type_def type, 
-                       size_t offset /*, size_t offset_to_size */);
+void gc_register_array(gc_type *gc_void, gc_type_def type, size_t offset);
 
 /* deal with these as a macro incase I need to change them latter */
 #define MALLOC(size) calloc(1, size)

@@ -2,10 +2,32 @@
 #include <assert.h>
 
 #include <insomniac.h>
+#include <test.h>
+
+gc_type *gc;
+hashtable_type *hash;
+
+int setup_hook() {
+    gc = gc_create(sizeof(object_type));
+
+    /* make this a root to the garbage collector */
+    gc_register_root(gc, &hash);
+    
+    /* create a hash table */
+    hash = hash_create(gc, 
+                       &hash_string,
+                       &hash_string_cmp);
+    return 0;
+}
+
+int tear_down_hook() {
+    gc_unregister_root(gc, &hash);
+    gc_destroy(gc);
+    return 0;
+}
 
 
-
-int test_hash(gc_type *gc, hash_type *hash) {
+int test_hash() {
     char *key1 = 0;
     char *value = 0;
     char *expected = 0;
@@ -65,30 +87,11 @@ int test_hash(gc_type *gc, hash_type *hash) {
     return 0;
 }
 
-int main(int argc, char**argv) {
-    gc_type *gc = gc_create(sizeof(object_type));
 
-    hashtable_type *hash = 0;
-
-    /* make this a root to the garbage collector */
-    gc_register_root(gc, &hash);
-
-    
-    /* create a hash table */
-    hash = hash_create(gc, 
-                       &hash_string,
-                       &hash_string_cmp);
-
-    /* exercise the hashtable */
-    if(test_hash(gc, hash)) {
-        /* something went wrong! */
-        return 1;
-    }
-    
-
-    gc_unregister_root(gc, &hash);
-
-    gc_destroy(gc);
-
-    return 0;
-}
+/* define the test cases */
+test_case_type cases[] = {
+    {&setup_hook, "Settingup"},
+    {&test_hash, "Excercising Hash"},
+    {&tear_down_hook, "Tearing Down"},
+    {0,0} /* end of list token */
+};

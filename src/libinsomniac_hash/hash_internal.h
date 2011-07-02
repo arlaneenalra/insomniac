@@ -11,6 +11,11 @@
 typedef struct hash_internal hash_internal_type;
 typedef struct key_value key_value_type;
 
+typedef enum {
+    READ,
+    DELETE,
+    CREATE
+} hash_action_type;
 
 struct key_value {
     void *key;
@@ -39,7 +44,7 @@ gc_type_def register_key_value(gc_type *gc);
 /* resize/allocate hashtable array */
 void hash_resize(hash_internal_type *table, size_t size);
 key_value_type *hash_find(hash_internal_type *table,
-                          void *key, size_t size, uint8_t create);
+                          void *key, size_t size, hash_action_type create);
 
 float hash_load(hash_internal_type *table);
 

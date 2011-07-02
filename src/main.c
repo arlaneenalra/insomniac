@@ -53,79 +53,6 @@ void assemble_work(buffer_type *buf) {
 
 }
 
-void test_hash(gc_type *gc, hash_type *hash) {
-    char *key1 = 0;
-    char *value = 0;
-
-    gc_register_root(gc, (void **)&key1);
-    gc_register_root(gc, (void **)&value);
-
-    for(int i=0; i <10; i++) {
-        printf("Setting %i\n", i);
-        /* an ineffcient means of doing this */
-        key1 = gc_alloc(gc, 0, 40);
-        value = gc_alloc(gc, 0, 40);
-
-        snprintf(key1, 40, "k%i", i);
-        snprintf(value, 40, "v%i", i);
-
-        hash_set(hash, (void*)key1, strlen(key1), (void*)value);
-    }
-
-
-    for(int i=0; i <12; i++) {
-        printf("Getting %i ->", i);
-        /* an ineffcient means of doing this */
-        key1 = gc_alloc(gc, 0, 40);
-
-        snprintf(key1, 40, "k%i", i);
-
-
-        /* look up a key, we've previously set */
-        if(hash_get(hash, (void*)key1, strlen(key1), (void **)&value)) {
-            printf("'%s'\n", value);
-        } else {
-            printf("NOT SET\n");
-        }
-    }
-
-    hash_info(hash);
-
-    for(int i=0; i <50; i++) {
-        printf("Setting %i\n", i);
-        /* an ineffcient means of doing this */
-        key1 = gc_alloc(gc, 0, 40);
-        value = gc_alloc(gc, 0, 40);
-
-        snprintf(key1, 40, "k%i", i);
-        snprintf(value, 40, "v%i", i+10);
-
-        hash_set(hash, (void*)key1, strlen(key1), (void*)value);
-    }
-
-
-    for(int i=0; i <60; i++) {
-        printf("Getting %i ->", i);
-        /* an ineffcient means of doing this */
-        key1 = gc_alloc(gc, 0, 40);
-
-        snprintf(key1, 40, "k%i", i);
-
-
-        /* look up a key, we've previously set */
-        if(hash_get(hash, (void*)key1, strlen(key1), (void **)&value)) {
-            printf("'%s'\n", value);
-        } else {
-            printf("NOT SET\n");
-        }
-    }
-
-    hash_info(hash);
-
-    gc_unregister_root(gc, (void **)&key1);
-    gc_unregister_root(gc, (void **)&value);
-}
-
 int main(int argc, char**argv) {
     gc_type *gc = gc_create(sizeof(object_type));
     vm_type *vm = 0; 
@@ -184,14 +111,6 @@ int main(int argc, char**argv) {
     gc_stats(gc);
     gc_sweep(gc);
     gc_stats(gc);
-    
-    /* create a hash table */
-    hash = hash_create(gc, 
-                       &hash_string,
-                       &hash_string_cmp);
-
-    /* exercise the hashtable */
-    test_hash(gc, hash);
     
     vm_destroy(vm);
 

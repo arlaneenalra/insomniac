@@ -1,5 +1,10 @@
 
 include(${PROJECT_SOURCE_DIR}/CMakeIncludes.txt)
+include(${PROJECT_SOURCE_DIR}/CMakeTestIncludes.txt)
+
+
+
+add_subdirectory(libtester)
 
 
 add_executable(test_hash
@@ -9,6 +14,7 @@ add_executable(test_hash
 target_link_libraries(test_hash
   libinsomniac_gc
   libinsomniac_hash
+  libtester
   )
 
 

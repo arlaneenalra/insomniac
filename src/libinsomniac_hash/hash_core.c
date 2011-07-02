@@ -57,7 +57,7 @@ void hash_set(hashtable_type *void_table, void *key, size_t size,
 /* remove a key from the tables */
 void hash_erase(hashtable_type *void_table, void *key, size_t size) {
     hash_internal_type *table=(hash_internal_type *)void_table;
-     hash_find(table, key, size, DELETE);
+    hash_find(table, key, size, DELETE);
 }
 
 /* retrieve the value bound to a key in the table */
@@ -83,14 +83,30 @@ key_value_type *hash_find(hash_internal_type *table,
     hash_type hash = (*table->calc_hash)(key, size);
     hash_type index = hash % table->size; /* calculate the search table index */
     key_value_type *kv = 0;
+    key_value_type *prev_kv = 0;
 
     /* is there anything at the given index? */
     if((kv = table->table[index])) {
         /* search through the list of key value pairs */
         while(kv) {
             if((*table->compare)(key, size, kv->key, kv->size) == EQ) {
+
+                /* do the delete if needed */
+                if(action == DELETE) {
+                    
+                    /* Do we have a chain? */
+                    if(prev_kv) {
+                        /* Remove node from chain */
+                        prev_kv->next = kv->next;
+                    } else {
+                        /* This node is either the head of a chain
+                           or there is no chain.  */
+                        table->table[index] = kv->next;
+                    }
+                }
                 return kv;
             }
+            prev_kv = kv;
             kv = kv->next;
         }
     }
@@ -123,7 +139,6 @@ void hash_resize(hash_internal_type *table, size_t size) {
     key_value_type *kv = 0;
     size_t old_size = 0;
 
-    hash_info(table);
     gc_register_root(table->gc, (void **)&old_table);
 
     old_table = table->table;
@@ -155,8 +170,6 @@ void hash_resize(hash_internal_type *table, size_t size) {
     }
     
     gc_unregister_root(table->gc, (void **)&old_table);
-    
-    hash_info(table);
 }
 
 /* calculate the load factor for a given table */

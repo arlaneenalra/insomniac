@@ -43,7 +43,6 @@ void build_hash() {
 
     /* push values into the hash */
     for(int i=0; i <10; i++) {
-        printf("Setting %i\n", i);
         /* an ineffcient means of doing this */
         key1 = gc_alloc(gc, 0, 40);
         value = gc_alloc(gc, 0, 40);
@@ -63,7 +62,6 @@ int test_read() {
     build_hash();
 
     for(int i=0; i <10; i++) {
-        printf("Getting %i ->", i);
         /* an ineffcient means of doing this */
         key1 = gc_alloc(gc, 0, 40);
         expected = gc_alloc(gc, 0, 40);
@@ -74,8 +72,8 @@ int test_read() {
         /* look up a key, we've previously set */
         if(hash_get(hash, (void*)key1, strlen(key1), (void **)&value)) {
             /* is the returned value what we expected? */
-                printf("'%s': '%s' == '%s'",key1, expected, value);
             if(strcmp(expected, value) !=0) {
+                printf("'%s': '%s' != '%s'\n",key1, expected, value);
                 return 1;
             }
             
@@ -83,13 +81,13 @@ int test_read() {
             return 1;
         }
 
-        printf("\n");
     }
 
     /* everything passed */
     return 0;
 }
 
+/* Test for a bad read */
 int test_bad_read() {
 
     build_hash();
@@ -102,11 +100,29 @@ int test_bad_read() {
     return 0;
 }
 
+/* Test that we can erase a key from the table */
+int test_erase() {
+
+    build_hash();
+
+    /* make sure that unset values actually fail */
+    hash_erase(hash, (void*)"v1", 2);
+
+    /* The key should no longer be found */
+    if(hash_get(hash, (void*)"v1", 2, (void**)&value)) {
+        return 0;
+    }
+
+    return 1;
+}
+
+
 
 /* define the test cases */
 test_case_type cases[] = {
     {&test_read, "Testing Set/Read Hash"},
     {&test_bad_read, "Testing Read for non-existent value Hash"},
+    {&test_erase, "Testing Erase Hash"},
     /* {&test_bad_read, "Testing Read for non-existent value Hash"},*/
     {0,0} /* end of list token */
 };

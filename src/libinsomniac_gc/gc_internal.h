@@ -60,7 +60,7 @@ struct meta_obj_def {
 struct meta_obj_ptr_def {
     meta_ptr_type type;
     size_t offset;
-    size_t offset_to_size;
+    /* size_t offset_to_size; */
     meta_obj_ptr_def_type *next;
 };
 

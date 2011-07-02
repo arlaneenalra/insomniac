@@ -34,8 +34,8 @@ gc_type_def register_vector(gc_type *gc) {
     
     vector = gc_register_type(gc, sizeof(object_type));
     gc_register_array(gc, vector,
-                      offsetof(object_type, value.vector.vector),
-                      offsetof(object_type, value.vector.length));
+                      offsetof(object_type, value.vector.vector));
+
     return vector;
 }
 

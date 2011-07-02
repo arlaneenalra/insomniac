@@ -17,7 +17,7 @@ void mark_object(meta_obj_type *meta, mark_type mark) {
 void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
     meta_obj_ptr_def_type *root_list = 0;
     int64_t size = 0;
-    int64_t *size_max = 0;
+    int64_t size_max = 0;
     void *obj=0;
     void **next_obj=0;
     
@@ -49,7 +49,7 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
            this object */
         while(root_list) {
             obj = obj_from_meta(meta);
-             next_obj = (void **)((uint8_t *)obj + root_list->offset);
+            next_obj = (void **)((uint8_t *)obj + root_list->offset);
             
             switch(root_list->type) {
             case PTR:
@@ -59,7 +59,10 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
 
             case ARRAY:
                 /* extract size of this array */
-                size_max = (int64_t *)((uint8_t *)obj + root_list->offset_to_size);
+                /* size_max = (int64_t *)((uint8_t *)obj + root_list->offset_to_size);*/
+
+                /* determine the size of the array based on size of the allocation */
+                size_max = (meta->size / sizeof(void *));
 
                 /* mark the array allocation itself */
                 mark_object(meta_from_obj(*next_obj), mark);
@@ -70,7 +73,7 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
                 next_obj = (void **)*next_obj;
 
                 /* mark all objects in array */
-                for(size = 0; size < *size_max; size++) {
+                for(size = 0; size < size_max; size++) {
                     mark_graph(gc, meta_from_obj(next_obj[size]), mark);
                 }
                 

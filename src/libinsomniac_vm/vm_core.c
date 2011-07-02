@@ -3,12 +3,11 @@
 vm_type *vm_create(gc_type *gc) {
     gc_type_def vm_type_def = 0;
     vm_internal_type *vm = 0;
-    
-    vm_type_def = create_vm_type(gc);
 
     gc_register_root(gc, (void**)&vm);
     
-
+    vm_type_def = create_vm_type(gc);
+    
     /* create a permanent vm object */
     /* vm = gc_alloc_type(gc, 1, vm_type_def); */
     vm = gc_alloc_type(gc, 0, vm_type_def);
@@ -34,6 +33,7 @@ vm_type *vm_create(gc_type *gc) {
     /* setup the stack */
     vm->stack_root = vm->empty;
 
+    /* FIXME: break in continuity, bad */
     gc_unregister_root(gc, (void**)&vm);
 
     return (vm_type *)vm;

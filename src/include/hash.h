@@ -25,6 +25,7 @@ typedef cmp_type(*hash_cmp)(void *key1, size_t size1,
 hashtable_type *hash_create(gc_type *gc, hash_fn fn, 
                            hash_cmp cmp);
 
+
 /* bind a key and value in the given table */
 void hash_set(hashtable_type *hash, void *key, size_t size,
               void* value);
@@ -38,6 +39,9 @@ void hash_erase(hashtable_type *hash, void *key,
    hash table */
 uint8_t hash_get(hashtable_type *hash, void *key, 
                  size_t size, void **value);
+
+
+void hash_info(hashtable_type *hash);
 
 /* functions for string keyed hashtables */
 hash_type hash_string(void *key, size_t size);

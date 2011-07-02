@@ -5,13 +5,14 @@
 #include <hash.h>
 
 #define HASH_SIZE 4
+#define MAX_LOAD 0.9
+#define TARGET_LOAD 0.6
 
 typedef struct hash_internal hash_internal_type;
 typedef struct key_value key_value_type;
 
 
 struct key_value {
-    hash_type hash;
     void *key;
     size_t size;
     void *value;
@@ -26,6 +27,7 @@ struct hash_internal {
 
     key_value_type **table;
     size_t size;
+    size_t entries;
 
     gc_type_def key_value;
 };
@@ -39,5 +41,6 @@ void hash_resize(hash_internal_type *table, size_t size);
 key_value_type *hash_find(hash_internal_type *table,
                           void *key, size_t size, uint8_t create);
 
+float hash_load(hash_internal_type *table);
 
 #endif

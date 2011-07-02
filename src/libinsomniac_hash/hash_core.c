@@ -1,4 +1,5 @@
 #include "hash_internal.h"
+#include <math.h>
 
 
 /* create a hashtable using the given function and 
@@ -39,8 +40,17 @@ void hash_set(hashtable_type *void_table, void *key, size_t size,
     key_value_type *kv = 0;
 
     hash_internal_type *table=(hash_internal_type *)void_table;
+    size_t new_size = 0;
+
     kv = hash_find(table, key, size, 1);
     kv->value = value;
+
+    /* check to see if we need to resize hash */
+    if(hash_load(table) > MAX_LOAD) {
+        /* calculate new size */
+        new_size = floor(table->entries / TARGET_LOAD);
+        hash_resize(table, new_size);
+    }
 }
 
 uint8_t hash_get(hashtable_type *void_table, void *key, size_t size, void ** value) {
@@ -81,12 +91,14 @@ key_value_type *hash_find(hash_internal_type *table,
     if(create) {
         kv = gc_alloc_type(table->gc, 0, table->key_value);
 
-        kv->hash = hash;
         kv->key = key;
         kv->size = size;
 
+        /* attach kv to table */
         kv->next = table->table[index];
         table->table[index] = kv;
+
+        table->entries++;
     }
 
     
@@ -95,20 +107,55 @@ key_value_type *hash_find(hash_internal_type *table,
 
 /* resize/allocagte hashtable array */
 void hash_resize(hash_internal_type *table, size_t size) {
-    key_value_type *new_table = 0;
+    key_value_type **old_table = 0;
+    key_value_type *kv = 0;
+    size_t old_size = 0;
 
-    /* do we have an existing table ? */
-    if(!table->table) {
-        table->table = gc_alloc_pointer_array(table->gc,
-                                              0,
-                                              size);
-        table->size = size;
-        return;
+    hash_info(table);
+    gc_register_root(table->gc, (void **)&old_table);
+
+    old_table = table->table;
+    old_size = table->size;
+
+    table->table = gc_alloc_pointer_array(table->gc,
+                                          0,
+                                          size);
+    table->size = size;
+    table->entries = 0;
+
+    /* do we need to copy old entries into 
+       the new table */
+    if(old_table) {
+        /* enumerate all old entries and add them to the
+           new table */
+
+        for(int i=0; i < old_size; i++) {
+            kv = old_table[i];
+            while(kv) {
+                /* save the previous value in the new
+                   table */
+                hash_find(table, kv->key, kv->size, 1)
+                    ->value = kv->value;
+
+                kv = kv->next;
+            }
+        }
     }
+    
+    gc_unregister_root(table->gc, (void **)&old_table);
+    
+    hash_info(table);
+}
 
-    gc_register_root(table->gc, (void **)&new_table);
+/* calculate the load factor for a given table */
+float hash_load(hash_internal_type *table) {
+    return (table->entries * 1.0) / table->size;
+}
 
-    /* TODO: Add in resizing code here */
 
-    gc_unregister_root(table->gc, (void **)&new_table);
+/* output some useful stats about a hash table */
+void hash_info(hashtable_type *void_table) {
+    hash_internal_type *table=(hash_internal_type *)void_table;
+
+    printf("Hash Info: Entries %ul Size %ul Load %f\n", table->entries, table->size, hash_load(table));
 }

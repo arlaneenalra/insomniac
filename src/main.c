@@ -89,6 +89,38 @@ void test_hash(gc_type *gc, hash_type *hash) {
         }
     }
 
+    hash_info(hash);
+
+    for(int i=0; i <50; i++) {
+        printf("Setting %i\n", i);
+        /* an ineffcient means of doing this */
+        key1 = gc_alloc(gc, 0, 40);
+        value = gc_alloc(gc, 0, 40);
+
+        snprintf(key1, 40, "k%i", i);
+        snprintf(value, 40, "v%i", i+10);
+
+        hash_set(hash, (void*)key1, strlen(key1), (void*)value);
+    }
+
+
+    for(int i=0; i <60; i++) {
+        printf("Getting %i ->", i);
+        /* an ineffcient means of doing this */
+        key1 = gc_alloc(gc, 0, 40);
+
+        snprintf(key1, 40, "k%i", i);
+
+
+        /* look up a key, we've previously set */
+        if(hash_get(hash, (void*)key1, strlen(key1), (void **)&value)) {
+            printf("'%s'\n", value);
+        } else {
+            printf("NOT SET\n");
+        }
+    }
+
+    hash_info(hash);
 
     gc_unregister_root(gc, (void **)&key1);
     gc_unregister_root(gc, (void **)&value);

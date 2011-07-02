@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <assert.h>
 
 #include <insomniac.h>
 #include <ops.h>
@@ -60,6 +61,7 @@ int main(int argc, char**argv) {
     size_t written=0;
     buffer_type *buf = 0;
     uint8_t *code_ref = 0;
+    hashtable_type *hash = 0;
 
     /* needed to setup locale aware printf . . . 
        I need to do a great deal more research here */
@@ -69,7 +71,8 @@ int main(int argc, char**argv) {
     /* make this a root to the garbage collector */
     gc_register_root(gc, &buf);
     gc_register_root(gc, &vm);
-    gc_register_root(gc, (void **)&code_ref); 
+    gc_register_root(gc, (void **)&code_ref);
+    gc_register_root(gc, &hash);
 
     vm = vm_create(gc);
 
@@ -139,11 +142,16 @@ int main(int argc, char**argv) {
                            c1, strlen(c1)),
            c2, c1);
 
+    
+    /* create a hash table */
+    hash = hash_create(gc, 
+                       &hash_string,
+                       &hash_string_cmp);
 
-           
 
     vm_destroy(vm);
 
+    gc_unregister_root(gc, &hash);
     gc_unregister_root(gc, (void **)&code_ref);
     gc_unregister_root(gc, &vm);
     gc_unregister_root(gc, &buf);

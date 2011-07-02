@@ -20,6 +20,7 @@ struct key_value {
 };
 
 struct hash_internal {
+    gc_type *gc;
     hash_fn calc_hash;
     hash_cmp compare;
 
@@ -31,5 +32,7 @@ struct hash_internal {
 gc_type_def register_hashtable(gc_type *gc);
 gc_type_def register_key_value(gc_type *gc);
 
+/* resize/allocate hashtable array */
+void hash_resize(hash_internal_type *table, size_t size);
 
 #endif

@@ -9,5 +9,9 @@ set(UPDATE_TYPE git)
 
 add_subdirectory(src)
 
+add_subdirectory(test)
+
+ENABLE_TESTING()
+
 
 

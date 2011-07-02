@@ -6,6 +6,7 @@
 typedef int64_t vm_int;
 typedef uint8_t vm_bool;
 typedef uint32_t vm_char;
+typedef uint64_t vm_symbol;
 
 typedef struct object object_type;
 
@@ -17,6 +18,7 @@ typedef enum cell {
 
     STRING,
     VECTOR,
+
     SYMBOL,
 
     PAIR,
@@ -57,6 +59,7 @@ struct object {
         vm_char character;
         string_type string;
         vector_type vector;
+        vm_symbol symbol;
     } value;
 
 };

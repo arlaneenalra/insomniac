@@ -107,7 +107,40 @@ int main(int argc, char**argv) {
     gc_stats(gc);
     gc_sweep(gc);
     gc_stats(gc);
+
+    printf("Hash of 'hithere': %u\n",
+           hash_string("hithere", 7));
     
+    printf("Hash of 'ithere': %u\n",
+           hash_string("ithere", 8));
+
+    char c1[]="Hi there";
+    char c2[]="Bye there";
+
+    printf("Comparison :%i %s cmp %s\n",
+           hash_string_cmp(c1, strlen(c1),
+                           c2, strlen(c2)),
+           c1, c2);
+
+    printf("Comparison :%i %s cmp %s\n",
+           hash_string_cmp(c2, strlen(c2),
+                           c2, strlen(c2)),
+           c2, c2);
+
+    printf("Comparison :%i %s cmp %s\n",
+           hash_string_cmp(c1, strlen(c1),
+                           c1, strlen(c1)),
+           c1, c1);
+
+
+    printf("Comparison :%i %s cmp %s\n",
+           hash_string_cmp(c2, strlen(c2),
+                           c1, strlen(c1)),
+           c2, c1);
+
+
+           
+
     vm_destroy(vm);
 
     gc_unregister_root(gc, (void **)&code_ref);

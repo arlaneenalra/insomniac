@@ -9,6 +9,7 @@
 
 #include <gc.h>
 #include <ops.h>
+#include <hash.h>
 #include <vm.h>
 
 typedef struct vm_internal vm_internal_type;

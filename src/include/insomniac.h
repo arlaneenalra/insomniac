@@ -7,6 +7,8 @@
 
 #include "buffer.h" /* elastic buffer api */
 
+#include "hash.h" /* hash table api */
+
 #include "vm.h" /* internal vm api */
 
 #include "emit.h" /* used by assembler */

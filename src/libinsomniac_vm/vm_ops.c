@@ -239,6 +239,9 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_LIT_FALSE] = &op_lit_false;
 
     vm->ops[OP_CONS] = &op_cons;
+
+
+    /* stack operations */
     vm->ops[OP_SWAP] = &op_swap;
     vm->ops[OP_DUP_REF] = &op_dup_ref;
 }

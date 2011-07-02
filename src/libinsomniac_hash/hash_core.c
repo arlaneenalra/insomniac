@@ -152,10 +152,34 @@ float hash_load(hash_internal_type *table) {
     return (table->entries * 1.0) / table->size;
 }
 
+size_t hash_long_chain(hash_internal_type *table) {
+    key_value_type *kv = 0;
+    size_t max = 0;
+    size_t current = 0;
+
+    for(int i=0; i < table->size; i++) {
+        kv = table->table[i];
+        current = 0;
+
+        while(kv) {
+            /* save the previous value in the new
+               table */
+            current++;
+            kv = kv->next;
+        }
+        if(current > max ) {
+            max = current;
+        }
+    }
+
+    return max;
+}
+
 
 /* output some useful stats about a hash table */
 void hash_info(hashtable_type *void_table) {
     hash_internal_type *table=(hash_internal_type *)void_table;
 
-    printf("Hash Info: Entries %ul Size %ul Load %f\n", table->entries, table->size, hash_load(table));
+    printf("Hash Info: Entries %i Size %i Load %f Longest Chain %i\n", 
+           table->entries, table->size, hash_load(table),hash_long_chain(table));
 }

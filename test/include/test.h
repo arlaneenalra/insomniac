@@ -8,5 +8,8 @@ typedef struct test_case {
 
 extern test_case_type cases[]; /* define with a list of test cases */
 
+/* setup and tear_down hooks */
+void setup_hook();
+void tear_down_hook();
 
 #endif

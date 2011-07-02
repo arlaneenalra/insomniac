@@ -7,33 +7,39 @@
 gc_type *gc;
 hashtable_type *hash;
 
-int setup_hook() {
+char *key1 = 0;
+char *value = 0;
+char *expected = 0;
+
+
+/* Global Setup and Tear Down hooks */
+void setup_hook() {
     gc = gc_create(sizeof(object_type));
 
     /* make this a root to the garbage collector */
     gc_register_root(gc, &hash);
+    gc_register_root(gc, (void **)&key1);
+    gc_register_root(gc, (void **)&value);
+
+
+}
+
+void tear_down_hook() {
+    gc_unregister_root(gc, (void **)&value);
+    gc_unregister_root(gc, (void **)&key1);
+    gc_unregister_root(gc, &hash);
     
+    /* Shutdown the GC */
+    gc_destroy(gc);
+}
+
+void build_hash() {
+
     /* create a hash table */
     hash = hash_create(gc, 
                        &hash_string,
                        &hash_string_cmp);
-    return 0;
-}
 
-int tear_down_hook() {
-    gc_unregister_root(gc, &hash);
-    gc_destroy(gc);
-    return 0;
-}
-
-
-int test_hash() {
-    char *key1 = 0;
-    char *value = 0;
-    char *expected = 0;
-
-    gc_register_root(gc, (void **)&key1);
-    gc_register_root(gc, (void **)&value);
 
     /* push values into the hash */
     for(int i=0; i <10; i++) {
@@ -48,6 +54,13 @@ int test_hash() {
         hash_set(hash, (void*)key1, strlen(key1), (void*)value);
     }
 
+}
+
+
+/* Test to see if we can retrieve data written to the hash */
+int test_read() {
+
+    build_hash();
 
     for(int i=0; i <10; i++) {
         printf("Getting %i ->", i);
@@ -61,7 +74,7 @@ int test_hash() {
         /* look up a key, we've previously set */
         if(hash_get(hash, (void*)key1, strlen(key1), (void **)&value)) {
             /* is the returned value what we expected? */
-                printf("'%s': '%s' == '%s'\n",key1, expected, value);
+                printf("'%s': '%s' == '%s'",key1, expected, value);
             if(strcmp(expected, value) !=0) {
                 return 1;
             }
@@ -69,29 +82,31 @@ int test_hash() {
         } else { /* test case failed */
             return 1;
         }
+
+        printf("\n");
     }
 
-    hash_info(hash);
+    /* everything passed */
+    return 0;
+}
+
+int test_bad_read() {
+
+    build_hash();
 
     /* make sure that unset values actually fail */
     if(hash_get(hash, (void*)"bad", 3, (void**)&value)) {
         return 1;
     }
 
-    gc_unregister_root(gc, (void **)&key1);
-    gc_unregister_root(gc, (void **)&value);
-
-    printf("\n");
-
-    /* everything passed */
     return 0;
 }
 
 
 /* define the test cases */
 test_case_type cases[] = {
-    {&setup_hook, "Settingup"},
-    {&test_hash, "Excercising Hash"},
-    {&tear_down_hook, "Tearing Down"},
+    {&test_read, "Testing Set/Read Hash"},
+    {&test_bad_read, "Testing Read for non-existent value Hash"},
+    /* {&test_bad_read, "Testing Read for non-existent value Hash"},*/
     {0,0} /* end of list token */
 };

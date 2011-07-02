@@ -7,9 +7,9 @@ typedef uint32_t hash_type;
 
 /* comparison type */
 typedef enum {
-    gt = 1,
-    eq = 0,
-    lt = -1
+    GT = 1,
+    EQ = 0,
+    LT = -1
 } cmp_type;
 
 /* definition of a simple hash table api */

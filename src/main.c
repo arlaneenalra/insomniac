@@ -53,6 +53,47 @@ void assemble_work(buffer_type *buf) {
 
 }
 
+void test_hash(gc_type *gc, hash_type *hash) {
+    char *key1 = 0;
+    char *value = 0;
+
+    gc_register_root(gc, (void **)&key1);
+    gc_register_root(gc, (void **)&value);
+
+    for(int i=0; i <10; i++) {
+        printf("Setting %i\n", i);
+        /* an ineffcient means of doing this */
+        key1 = gc_alloc(gc, 0, 40);
+        value = gc_alloc(gc, 0, 40);
+
+        snprintf(key1, 40, "k%i", i);
+        snprintf(value, 40, "v%i", i);
+
+        hash_set(hash, (void*)key1, strlen(key1), (void*)value);
+    }
+
+
+    for(int i=0; i <12; i++) {
+        printf("Getting %i ->", i);
+        /* an ineffcient means of doing this */
+        key1 = gc_alloc(gc, 0, 40);
+
+        snprintf(key1, 40, "k%i", i);
+
+
+        /* look up a key, we've previously set */
+        if(hash_get(hash, (void*)key1, strlen(key1), (void **)&value)) {
+            printf("'%s'\n", value);
+        } else {
+            printf("NOT SET\n");
+        }
+    }
+
+
+    gc_unregister_root(gc, (void **)&key1);
+    gc_unregister_root(gc, (void **)&value);
+}
+
 int main(int argc, char**argv) {
     gc_type *gc = gc_create(sizeof(object_type));
     vm_type *vm = 0; 
@@ -111,44 +152,15 @@ int main(int argc, char**argv) {
     gc_stats(gc);
     gc_sweep(gc);
     gc_stats(gc);
-
-    printf("Hash of 'hithere': %u\n",
-           hash_string("hithere", 7));
-    
-    printf("Hash of 'ithere': %u\n",
-           hash_string("ithere", 8));
-
-    char c1[]="Hi there";
-    char c2[]="Bye there";
-
-    printf("Comparison :%i %s cmp %s\n",
-           hash_string_cmp(c1, strlen(c1),
-                           c2, strlen(c2)),
-           c1, c2);
-
-    printf("Comparison :%i %s cmp %s\n",
-           hash_string_cmp(c2, strlen(c2),
-                           c2, strlen(c2)),
-           c2, c2);
-
-    printf("Comparison :%i %s cmp %s\n",
-           hash_string_cmp(c1, strlen(c1),
-                           c1, strlen(c1)),
-           c1, c1);
-
-
-    printf("Comparison :%i %s cmp %s\n",
-           hash_string_cmp(c2, strlen(c2),
-                           c1, strlen(c1)),
-           c2, c1);
-
     
     /* create a hash table */
     hash = hash_create(gc, 
                        &hash_string,
                        &hash_string_cmp);
 
-
+    /* exercise the hashtable */
+    test_hash(gc, hash);
+    
     vm_destroy(vm);
 
     gc_unregister_root(gc, &hash);

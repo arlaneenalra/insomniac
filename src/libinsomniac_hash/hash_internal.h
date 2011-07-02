@@ -24,8 +24,10 @@ struct hash_internal {
     hash_fn calc_hash;
     hash_cmp compare;
 
-    key_value_type *table;
+    key_value_type **table;
     size_t size;
+
+    gc_type_def key_value;
 };
 
 /* type registration functions */
@@ -34,5 +36,8 @@ gc_type_def register_key_value(gc_type *gc);
 
 /* resize/allocate hashtable array */
 void hash_resize(hash_internal_type *table, size_t size);
+key_value_type *hash_find(hash_internal_type *table,
+                          void *key, size_t size, uint8_t create);
+
 
 #endif

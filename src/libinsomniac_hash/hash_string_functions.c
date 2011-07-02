@@ -22,7 +22,7 @@ cmp_type hash_string_cmp(void *key1, size_t size1,
     
     /* if the sizes are not equal, return not equal */
     if(size1 != size2) {
-        return (size1 > size2) ? gt : lt;
+        return (size1 > size2) ? GT : LT;
     }
 
     /* both keys are of the same size */
@@ -30,8 +30,8 @@ cmp_type hash_string_cmp(void *key1, size_t size1,
 
     /* string are not equal */
     if(result != 0) {
-        return (result > 0) ? gt : lt;
+        return (result > 0) ? GT : LT;
     }
 
-    return eq;
+    return EQ;
 }

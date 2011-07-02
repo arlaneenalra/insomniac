@@ -61,14 +61,6 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
                 /* determine the size of the array based on size of the allocation */
                 size_max = (meta->size / gc->type_defs[gc->array_type].size);
 
-                /* mark the array allocation itself */
-                mark_object(meta_from_obj(*next_obj), mark);
-
-                /* walk into the object and find our array,
-                   we really have a *** here not a **
-                 */
-                next_obj = (void **)*next_obj;
-
                 /* mark all objects in array */
                 for(size = 0; size < size_max; size++) {
                     mark_graph(gc, meta_from_obj(next_obj[size]), mark);

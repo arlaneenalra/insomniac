@@ -45,18 +45,18 @@ void gc_register_pointer(gc_type *gc_void, gc_type_def type, size_t offset) {
 
 }
 
-/* /\* register a pointer offset with the GC *\/ */
-/* void gc_register_array(gc_type *gc_void, gc_type_def type, size_t offset) { */
-/*     gc_ms_type *gc = (gc_ms_type *)gc_void; */
-/*     meta_obj_ptr_def_type *meta_type = MALLOC_TYPE(meta_obj_ptr_def_type); */
+/* register a pointer offset with the GC */
+void gc_register_array(gc_type *gc_void, gc_type_def type, size_t offset) {
+    gc_ms_type *gc = (gc_ms_type *)gc_void;
+    meta_obj_ptr_def_type *meta_type = MALLOC_TYPE(meta_obj_ptr_def_type);
 
 
-/*     meta_type->next = gc->type_defs[type].root_list; */
-/*     meta_type->type = ARRAY; */
-/*     meta_type->offset = offset; */
-/*     gc->type_defs[type].root_list = meta_type; */
+    meta_type->next = gc->type_defs[type].root_list;
+    meta_type->type = ARRAY;
+    meta_type->offset = offset;
+    gc->type_defs[type].root_list = meta_type;
 
-/* } */
+}
 
 /* clean up when shutting down a GC instance */
 void destroy_types(meta_obj_def_type *type_list, uint32_t num_types) {

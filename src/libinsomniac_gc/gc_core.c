@@ -17,6 +17,7 @@ gc_type *gc_create(size_t cell_size) {
 
     /* register the ARRAY type as type 0 */
     gc->array_type = gc_register_type(gc, sizeof(void *));
+    gc_register_array(gc, gc->array_type, 0);
     
     return (gc_type *)gc;
 }

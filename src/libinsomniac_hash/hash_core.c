@@ -127,10 +127,12 @@ key_value_type *hash_find(hash_internal_type *table,
         table->entries++;
 
         gc_unregister_root(table->gc, (void**)&kv);
+
+        return kv;
     }
 
     
-    return kv;
+    return 0;
 }
 
 /* resize/allocagte hashtable array */

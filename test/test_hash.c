@@ -105,15 +105,25 @@ int test_erase() {
 
     build_hash();
 
-    /* make sure that unset values actually fail */
-    hash_erase(hash, (void*)"v1", 2);
-
     /* The key should no longer be found */
-    if(hash_get(hash, (void*)"v1", 2, (void**)&value)) {
-        return 0;
+    if(!hash_get(hash, (void*)"k1", 2, (void**)&value)) {
+        printf("Key k1 missing from initial hash.\n");
+        return 1;
     }
 
-    return 1;
+    /* make sure that unset values actually fail */
+    hash_erase(hash, (void*)"k1", 2);
+
+    value = "";
+
+    /* The key should no longer be found */
+    if(hash_get(hash, (void*)"k1", 2, (void**)&value)) {
+        printf("Found: '%s'\n", value);
+    
+        return 1;
+    }
+
+    return 0;
 }
 
 

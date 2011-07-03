@@ -185,7 +185,7 @@ void op_make_vector(vm_internal_type *vm) {
 
     /* make sure we have a number */
     assert(obj && obj->type == FIXNUM);
-\
+
     length = obj->value.integer;
 
     obj = vm_make_vector(vm, length);

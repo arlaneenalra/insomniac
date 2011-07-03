@@ -134,10 +134,20 @@ void op_make_symbol(vm_internal_type *vm) {
     gc_protect(vm->gc);
     
     string = vm_pop(vm);
+    
+    assert(string && string->type == STRING);
 
-    /* if(hash_get(vm->symbol_table, */
-                
+    if(!hash_get(vm->symbol_table,
+                string->value.string.bytes, (void **)&obj)) {
 
+        string->type = SYMBOL;
+        
+        hash_set(vm->symbol_table,
+                 string->value.string.bytes, string);
+        obj = string;
+    }
+    
+    vm_push(vm, obj);
 
     gc_unprotect(vm->gc);
 }
@@ -175,7 +185,7 @@ void op_make_vector(vm_internal_type *vm) {
 
     /* make sure we have a number */
     assert(obj && obj->type == FIXNUM);
-
+\
     length = obj->value.integer;
 
     obj = vm_make_vector(vm, length);

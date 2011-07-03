@@ -29,7 +29,7 @@
     vm_int length = strlen(str);  \
     EMIT(buf, OP_LIT_STRING, 1);  \
     EMIT(buf, INT_64(length), 8); \
-    EMIT(buf, str, length);       \
+    buffer_write(buf, (uint8_t *)str, length);  \
 }
 
 #define EMIT_MAKE_SYMBOL(buf) EMIT(buf, OP_MAKE_SYMBOL, 1)

@@ -55,6 +55,16 @@ void build_hash() {
 
 }
 
+int test_gc() {
+
+    build_hash();
+    gc_sweep(gc);
+    build_hash();
+    gc_sweep(gc);
+
+    return 0;
+}
+
 
 /* Test to see if we can retrieve data written to the hash */
 int test_read() {
@@ -133,6 +143,7 @@ test_case_type cases[] = {
     {&test_read, "Testing Set/Read Hash"},
     {&test_bad_read, "Testing Read for non-existent value Hash"},
     {&test_erase, "Testing Erase Hash"},
+    {&test_gc, "Testing GC of Hash Stored objects"},
     /* {&test_bad_read, "Testing Read for non-existent value Hash"},*/
     {0,0} /* end of list token */
 };

@@ -63,6 +63,7 @@ void hash_erase(hashtable_type *void_table, void *key) {
 uint8_t hash_get(hashtable_type *void_table, void *key, void ** value) {
     key_value_type *kv = 0;
     hash_internal_type *table=(hash_internal_type *)void_table;
+
     kv = hash_find(table, key, READ);
 
     /* does the given key exist in the table ?*/
@@ -83,6 +84,7 @@ key_value_type *hash_find(hash_internal_type *table,
     hash_type index = hash % table->size; /* calculate the search table index */
     key_value_type *kv = 0;
     key_value_type *prev_kv = 0;
+
 
     /* is there anything at the given index? */
     if((kv = table->table[index])) {

@@ -95,6 +95,10 @@ void output_object(FILE *fout, object_type *obj) {
     case STRING:
         fprintf(fout, "\"%s\"", obj->value.string.bytes);
         break;
+
+    case SYMBOL:
+        fprintf(fout, "%s", obj->value.string.bytes);
+        break;
         
     case VECTOR:
         output_vector(fout, obj);

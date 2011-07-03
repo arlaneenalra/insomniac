@@ -9,6 +9,8 @@
 
 void assemble_work(buffer_type *buf) {
     EMIT_LIT_EMPTY(buf);
+    char char_buf[100];
+
 
     /* create a fix num */
     for(int i=0; i<10;i++) {
@@ -39,7 +41,11 @@ void assemble_work(buffer_type *buf) {
         for(int y = 0; y < 10 ; y++) {
             EMIT_DUP_REF(buf);
             EMIT_LIT_FIXNUM(buf, y);
-            EMIT_LIT_STRING(buf, "Hi");
+
+            sprintf(char_buf, "Hi%i",y);
+
+            EMIT_LIT_STRING(buf, char_buf);
+
             EMIT_MAKE_SYMBOL(buf);
             EMIT_CONS(buf);
             EMIT_LIT_FIXNUM(buf, y);

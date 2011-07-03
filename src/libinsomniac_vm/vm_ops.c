@@ -248,6 +248,44 @@ void op_vector_ref(vm_internal_type *vm) {
     gc_unprotect(vm->gc);
 }
 
+/* a crude output operations */
+void op_output(vm_internal_type *vm) {
+    object_type *obj = 0;
+
+    gc_register_root(vm->gc, (void**)&obj);
+    
+    obj = vm_pop(vm);
+    vm_output_object(stdout, obj);
+    printf("\n");
+
+    gc_unregister_root(vm->gc, (void**)&obj);
+}
+
+/* straight jump */
+void op_jmp(vm_internal_type *vm) {
+    vm_int target = parse_int(vm);
+    
+    vm->ip += target;
+}
+
+/* jump if the top of stack is not false */
+void op_jnf(vm_internal_type *vm) {
+    object_type *obj =0 ;
+    vm_int target = parse_int(vm);
+    
+    gc_register_root(vm->gc, (void**)&obj);
+    
+    obj = vm_pop(vm);
+
+    if(!(obj && obj->type == BOOL &&
+         !obj->value.bool)) {
+        vm->ip += target;
+    }
+
+    gc_unregister_root(vm->gc, (void**)&obj);
+}
+
+
 
 /* setup of instructions in given vm instance */
 void setup_instructions(vm_internal_type *vm) {
@@ -271,4 +309,9 @@ void setup_instructions(vm_internal_type *vm) {
     /* stack operations */
     vm->ops[OP_SWAP] = &op_swap;
     vm->ops[OP_DUP_REF] = &op_dup_ref;
+    vm->ops[OP_OUTPUT] = &op_output;
+
+    /* jump operations */
+    vm->ops[OP_JMP] = &op_jmp;
+    vm->ops[OP_JNF] = &op_jnf;
 }

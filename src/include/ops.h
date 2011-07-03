@@ -22,10 +22,15 @@ typedef enum op {
     OP_VECTOR_SET, /* set a column in a given vector */
     OP_VECTOR_REF, /* read the index into a vector an put it on the stack */
 
+    /* jump operations Jumps are relative */
+    OP_JMP, /* just a jump */
+    OP_JNF, /* jump if not false */
+
 
     OP_SWAP, /* Swap the top two items on the stack */
-    OP_DUP_REF /* Duplicate the reference on the op of the stack */
+    OP_DUP_REF, /* Duplicate the reference on the op of the stack */
 
+    OP_OUTPUT /* Outputs what ever is currently on the top of the stack */
 } op_type;
 
 

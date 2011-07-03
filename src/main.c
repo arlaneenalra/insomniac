@@ -8,9 +8,10 @@
 
 
 void assemble_work(buffer_type *buf) {
-    EMIT_LIT_EMPTY(buf);
     char char_buf[100];
 
+    EMIT_LIT_FALSE(buf);
+    EMIT_LIT_EMPTY(buf);
 
     /* create a fix num */
     for(int i=0; i<10;i++) {
@@ -56,7 +57,19 @@ void assemble_work(buffer_type *buf) {
         EMIT_LIT_FIXNUM(buf, 1);
         EMIT_VECTOR_REF(buf);
     }
-
+    
+    /* output everything on the statck */
+    EMIT_DUP_REF(buf); /* 1 byte */
+    EMIT_OUTPUT(buf); /* 1 byte */
+    EMIT_JNF(buf, -11); /* 9 bytes total */
+    
+    EMIT_LIT_STRING(buf, "\nDone!\n");
+    EMIT_OUTPUT(buf);
+    
+    EMIT_LIT_STRING(buf, "Testing Second Jump.");
+    /* EMIT_JMP(buf, 1); /\* jump over this output *\/ */
+    EMIT_OUTPUT(buf);
+    
 }
 
 int main(int argc, char**argv) {
@@ -99,24 +112,26 @@ int main(int argc, char**argv) {
 
     printf("Evaluating\n");
 
-    vm_output_object(stdout, vm_eval(vm, length, code_ref));
+    /* vm_output_object(stdout, vm_eval(vm, length, code_ref)); */
+    vm_eval(vm, length, code_ref);
+ 
     printf("\n");
 
-    vm_reset(vm);
+    /* vm_reset(vm); */
 
-    gc_stats(gc);
-    gc_sweep(gc);
-    gc_stats(gc);
-    printf("Evaluating\n");
+    /* gc_stats(gc); */
+    /* gc_sweep(gc); */
+    /* gc_stats(gc); */
+    /* printf("Evaluating\n"); */
 
-    vm_output_object(stdout, vm_eval(vm, length, code_ref));
-    printf("\n");
+    /* vm_output_object(stdout, vm_eval(vm, length, code_ref)); */
+    /* printf("\n"); */
 
-    vm_reset(vm);
+    /* vm_reset(vm); */
 
-    gc_stats(gc);
-    gc_sweep(gc);
-    gc_stats(gc);
+    /* gc_stats(gc); */
+    /* gc_sweep(gc); */
+    /* gc_stats(gc); */
     
     vm_destroy(vm);
 

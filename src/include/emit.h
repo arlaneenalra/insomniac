@@ -48,6 +48,12 @@
 #define EMIT_NOP(buf) EMIT(buf, OP_NOP, 1)
 #define EMIT_SWAP(buf) EMIT(buf, OP_SWAP, 1)
 #define EMIT_DUP_REF(buf) EMIT(buf, OP_DUP_REF, 1)
+#define EMIT_OUTPUT(buf) EMIT(buf, OP_OUTPUT, 1)
 
+/* core of all jump operations */
+#define JMP(type, target) type, INT_64(target)
+
+#define EMIT_JMP(buf, target) EMIT(buf, JMP(OP_JMP, target), 9)
+#define EMIT_JNF(buf, target) EMIT(buf, JMP(OP_JNF, target), 9)
 
 #endif

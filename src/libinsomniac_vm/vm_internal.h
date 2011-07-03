@@ -14,8 +14,8 @@
 
 typedef struct vm_internal vm_internal_type;
 
+/* Function pointer for operations */
 typedef void (*fn_type)(vm_internal_type *vm);
-
 
 struct vm_internal {
  
@@ -34,6 +34,8 @@ struct vm_internal {
     gc_type_def types[CELL_MAX]; /* mapping between cell types and gc types */
     
     fn_type ops[256]; /* bindings for each op code */
+
+    hashtable_type *symbol_table; /* Symbol table */
     
     /* current execution state */
     uint8_t *code_ref;

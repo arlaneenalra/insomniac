@@ -50,7 +50,7 @@ void build_hash() {
         snprintf(key1, 40, "k%i", i);
         snprintf(value, 40, "v%i", i);
 
-        hash_set(hash, (void*)key1, strlen(key1), (void*)value);
+        hash_set(hash, (void*)key1, (void*)value);
     }
 
 }
@@ -70,7 +70,7 @@ int test_read() {
         snprintf(expected, 40, "v%i", i);
 
         /* look up a key, we've previously set */
-        if(hash_get(hash, (void*)key1, strlen(key1), (void **)&value)) {
+        if(hash_get(hash, (void*)key1, (void **)&value)) {
             /* is the returned value what we expected? */
             if(strcmp(expected, value) !=0) {
                 printf("'%s': '%s' != '%s'\n",key1, expected, value);
@@ -93,7 +93,7 @@ int test_bad_read() {
     build_hash();
 
     /* make sure that unset values actually fail */
-    if(hash_get(hash, (void*)"bad", 3, (void**)&value)) {
+    if(hash_get(hash, (void*)"bad", (void**)&value)) {
         return 1;
     }
 
@@ -106,18 +106,18 @@ int test_erase() {
     build_hash();
 
     /* The key should no longer be found */
-    if(!hash_get(hash, (void*)"k1", 2, (void**)&value)) {
+    if(!hash_get(hash, (void*)"k1", (void**)&value)) {
         printf("Key k1 missing from initial hash.\n");
         return 1;
     }
 
     /* make sure that unset values actually fail */
-    hash_erase(hash, (void*)"k1", 2);
+    hash_erase(hash, (void*)"k1");
 
     value = "";
 
     /* The key should no longer be found */
-    if(hash_get(hash, (void*)"k1", 2, (void**)&value)) {
+    if(hash_get(hash, (void*)"k1", (void**)&value)) {
         printf("Found: '%s'\n", value);
     
         return 1;

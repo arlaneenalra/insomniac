@@ -33,6 +33,9 @@ vm_type *vm_create(gc_type *gc) {
     /* setup the stack */
     vm->stack_root = vm->empty;
 
+    /* setup a symbol table */
+    vm->symbol_table = hash_create_string(gc);
+
     /* FIXME: break in continuity, bad */
     gc_unregister_root(gc, (void**)&vm);
 

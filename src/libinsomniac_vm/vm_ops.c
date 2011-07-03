@@ -126,6 +126,22 @@ void op_dup_ref(vm_internal_type *vm) {
     gc_unprotect(vm->gc);
 }
 
+/* Given a string, convert it into a symbol */
+void op_make_symbol(vm_internal_type *vm) {
+    object_type *obj = 0;
+    object_type *string = 0;
+
+    gc_protect(vm->gc);
+    
+    string = vm_pop(vm);
+
+    /* if(hash_get(vm->symbol_table, */
+                
+
+
+    gc_unprotect(vm->gc);
+}
+
 /* load a string litteral and push it onto the stack*/
 void op_lit_string(vm_internal_type *vm) {
     object_type *obj = 0;
@@ -230,6 +246,7 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_LIT_EMPTY] = &op_lit_empty;
     vm->ops[OP_LIT_CHAR] = &op_lit_char;
     vm->ops[OP_LIT_STRING] = &op_lit_string;
+    vm->ops[OP_MAKE_SYMBOL] = &op_make_symbol;
 
     vm->ops[OP_MAKE_VECTOR] = &op_make_vector;
     vm->ops[OP_VECTOR_SET] = &op_vector_set;

@@ -19,7 +19,6 @@ typedef enum {
 
 struct key_value {
     void *key;
-    size_t size;
     void *value;
 
     key_value_type *next;
@@ -44,7 +43,7 @@ gc_type_def register_key_value(gc_type *gc);
 /* resize/allocate hashtable array */
 void hash_resize(hash_internal_type *table, size_t size);
 key_value_type *hash_find(hash_internal_type *table,
-                          void *key, size_t size, hash_action_type create);
+                          void *key, hash_action_type create);
 
 float hash_load(hash_internal_type *table);
 

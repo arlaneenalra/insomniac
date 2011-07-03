@@ -3,6 +3,9 @@
 
 #include <insomniac.h>
 #include <ops.h>
+#include <emit.h>
+
+#include <asm.h>
 
 #include <locale.h>
 
@@ -67,7 +70,7 @@ void assemble_work(buffer_type *buf) {
     EMIT_OUTPUT(buf);
     
     EMIT_LIT_STRING(buf, "Testing Second Jump.");
-    /* EMIT_JMP(buf, 1); /\* jump over this output *\/ */
+    EMIT_JMP(buf, 1); /* jump over this output */
     EMIT_OUTPUT(buf);
     
 }
@@ -76,11 +79,10 @@ int main(int argc, char**argv) {
     gc_type *gc = gc_create(sizeof(object_type));
     vm_type *vm = 0; 
 
-    size_t length=0;
+    /* size_t length=0; */
     size_t written=0;
-    buffer_type *buf = 0;
+    /* buffer_type *buf = 0; */
     uint8_t *code_ref = 0;
-    hashtable_type *hash = 0;
 
     /* needed to setup locale aware printf . . . 
        I need to do a great deal more research here */
@@ -88,24 +90,28 @@ int main(int argc, char**argv) {
     printf("'%lc' lambda\n", 0x03BB);
 
     /* make this a root to the garbage collector */
-    gc_register_root(gc, &buf);
+    /* gc_register_root(gc, &buf); */
     gc_register_root(gc, &vm);
     gc_register_root(gc, (void **)&code_ref);
-    gc_register_root(gc, &hash);
 
     vm = vm_create(gc);
 
-    buf = buffer_create(gc);
+    /* buf = buffer_create(gc); */
 
-    assemble_work(buf);
+    /* assemble_work(buf); */
 
-    length = buffer_size(buf);
-    printf("Size %zu\n", length);
+    /* length = buffer_size(buf); */
+    /* printf("Size %zu\n", length); */
     gc_stats(gc);
 
-    /* create a code ref */
-    code_ref = gc_alloc(gc, 0, length);
-    written = buffer_read(buf, &code_ref, length);
+    /* /\* create a code ref *\/ */
+    /* code_ref = gc_alloc(gc, 0, length); */
+    /* written = buffer_read(buf, &code_ref, length); */
+
+    /* assemble a simple command */
+    written = asm_string(gc, "#f 12 12 13 jnf out jnf out jnf out jnf out", &code_ref);
+    printf("Bytes written: %zu\n", written);
+
     gc_stats(gc);
     gc_sweep(gc);
     gc_stats(gc);
@@ -113,7 +119,7 @@ int main(int argc, char**argv) {
     printf("Evaluating\n");
 
     /* vm_output_object(stdout, vm_eval(vm, length, code_ref)); */
-    vm_eval(vm, length, code_ref);
+    vm_eval(vm, written, code_ref);
  
     printf("\n");
 
@@ -135,10 +141,9 @@ int main(int argc, char**argv) {
     
     vm_destroy(vm);
 
-    gc_unregister_root(gc, &hash);
     gc_unregister_root(gc, (void **)&code_ref);
     gc_unregister_root(gc, &vm);
-    gc_unregister_root(gc, &buf);
+    /* gc_unregister_root(gc, &buf); */
 
     gc_destroy(gc);
 

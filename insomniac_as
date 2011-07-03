@@ -1,0 +1,31 @@
+()  ( -- () ) Puts an empty pair on the stack
+[0-9]+ ( -- num )  Puts a numeric literal on the stack
+#\<C>  ( -- c ) Puts a character literal on the stack
+#t #f  ( -- b ) Puts true or false on the stack
+
+"Hi"   ( -- s ) Puts a string literal on the stack
+
+out  ( obj -- ) Outputs the object on top of the stack to stdout
+nop ( -- ) Does nothing
+dup ( a -- a a)
+swap ( a b -- b a)
+sym    ( str -- sym ) Takes a string and makes it into a symbol
+cons   ( car cdr -- (car . cdr) ) Takes the top two stack entries and
+                                  makes them into a pair
+vector ( size -- vector ) Makes a vector of the given size
+vec@ ( index vector -- obj ) Takes an index and vector and
+                                retrieves the object at the given
+                                index
+vec! ( index obj vector -- ) Takes an index, object, and vector and
+                                stores the object at the given index
+jmp  ( -label- ) Jumps to given label
+jnf  ( obj -label- ) Jumps to the given label if obj is not false
+
+
+
+num: -?[0-9]+
+
+string: "[^"]" 
+
+symbol: ( Must start with a-z or A-Z)
+

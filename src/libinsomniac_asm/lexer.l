@@ -6,7 +6,7 @@
 %{
 
 #include "asm_internal.h"
-
+#define ECHO /* don't echo */
 
 %}
 
@@ -43,9 +43,10 @@ CHAR_VAL  (newline|space|[^{WS}]|x[0-9A-F]+)
 "jmp"                   { BEGIN(EXPECT_TARGET);
                           return OP_JMP; }
 
-<EXPECT_TARGET>{LABEL}  { return LABEL_TOKEN; }
+<EXPECT_TARGET>{LABEL}  { BEGIN(INITIAL);
+                          return LABEL_TOKEN; }
 
-{LABEL}/":"              { return LABEL_TOKEN; }
+{LABEL}/":"             { return LABEL_TOKEN; }
 
 #\\                     { BEGIN(EXPECT_CHAR); }
 
@@ -63,6 +64,10 @@ CHAR_VAL  (newline|space|[^{WS}]|x[0-9A-F]+)
 }
 
 <<EOF>>                 { return END_OF_FILE; }
+
+
+":"                     {/* Ignore end of label marker */}
+
 %%
 
 char * get_text(void * scanner) {

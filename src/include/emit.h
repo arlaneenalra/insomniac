@@ -52,8 +52,10 @@
 
 /* core of all jump operations */
 #define JMP(type, target) type, INT_64(target)
+#define EMIT_JMP_BODY(buf, type, target) \
+    EMIT(buf, JMP(type, target), 9)
 
-#define EMIT_JMP(buf, target) EMIT(buf, JMP(OP_JMP, target), 9)
-#define EMIT_JNF(buf, target) EMIT(buf, JMP(OP_JNF, target), 9)
+#define EMIT_JMP(buf, target) EMIT_JMP_BODY(buf, OP_JMP, target)
+#define EMIT_JNF(buf, target) EMIT_JMP_BODY(buf, OP_JMP, target)
 
 #endif

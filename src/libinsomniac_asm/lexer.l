@@ -15,11 +15,13 @@ EOL       \n|\r\n|\n\r|\r
 WS	  {EOL}|[[:blank:]]
 IDENT     [!$%&*+\-./<=>?@^_~[:alnum:]]
 SIGNS     [-+]
+LABEL     {IDENT}+
 
 CHAR_VAL  (newline|space|[^{WS}]|x[0-9A-F]+)
 
 %x EXPECT_CHAR
 %x EXPECT_STRING
+%x EXPECT_TARGET
 
 %%
 
@@ -36,9 +38,14 @@ CHAR_VAL  (newline|space|[^{WS}]|x[0-9A-F]+)
 "sym"                   { return OP_MAKE_SYMBOL; }
 
                        
+"jnf"                   { BEGIN(EXPECT_TARGET);
+                          return OP_JNF; }
+"jmp"                   { BEGIN(EXPECT_TARGET);
+                          return OP_JMP; }
 
-"jnf"                   { return OP_JNF; }
-"jmp"                   { return OP_JMP; }
+<EXPECT_TARGET>{LABEL}  { return LABEL_TOKEN; }
+
+{LABEL}/":"              { return LABEL_TOKEN; }
 
 #\\                     { BEGIN(EXPECT_CHAR); }
 

@@ -44,9 +44,11 @@ int main(int argc, char**argv) {
 
     gc_stats(gc);
 
-    eval_string(vm, gc, "#f out #\\n out 2 1 dup cons cons out #\\newline out");
+    eval_string(vm, gc, "#f out #\\n out 2 1 dup cons cons out");
 
     eval_string(vm, gc, " \"Hi\" out #\\space out \"\" out");
+
+    eval_string(vm, gc, "#f 1 2 3 4 5 6 7 8 label: dup out jnf label");
 
     vm_destroy(vm);
 

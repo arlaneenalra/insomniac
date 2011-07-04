@@ -36,6 +36,9 @@ vm_type *vm_create(gc_type *gc) {
     /* setup a symbol table */
     vm->symbol_table = hash_create_string(gc);
 
+    /* create the initial environment */
+    push_env(vm);
+
     /* FIXME: break in continuity, bad */
     gc_unregister_root(gc, (void**)&vm);
 
@@ -86,8 +89,9 @@ object_type *vm_pop(vm_type *vm_void) {
 void vm_reset(vm_type *vm_void) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
 
-    vm->ip=0;
     vm->stack_root = vm->empty;
+    vm->env = 0;
+    push_env(vm);
 }
 
 void vm_output_object(FILE *fout, object_type *obj) {

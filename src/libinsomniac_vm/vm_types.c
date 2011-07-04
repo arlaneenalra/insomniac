@@ -39,6 +39,22 @@ gc_type_def register_vector(gc_type *gc) {
     return vector;
 }
 
+/* type used to store the execution state */
+gc_type_def register_env(gc_type *gc) {
+    gc_type_def env = 0;
+    
+    env = gc_register_type(gc, sizeof(env_type));
+
+    gc_register_pointer(gc, env,
+                        offsetof(env_type, code_ref));
+    gc_register_pointer(gc, env,
+                        offsetof(env_type, bindings));
+    gc_register_pointer(gc, env,
+                        offsetof(env_type, parent));
+
+    return env;
+}
+
 /* setup gc type definitions */
 void create_types(vm_internal_type *vm) {
     gc_type *gc=vm->gc;
@@ -53,6 +69,8 @@ void create_types(vm_internal_type *vm) {
     vm->types[VECTOR] = register_vector(gc);
 
     vm->types[EMPTY] = register_basic(gc);
+
+    vm->env_type = register_env(gc);
 }
 
 
@@ -61,10 +79,10 @@ gc_type_def create_vm_type(gc_type *gc) {
     gc_type_def vm_type_def = 0;
 
     vm_type_def = gc_register_type(gc, sizeof(vm_internal_type));
-    gc_register_pointer(gc, vm_type_def, 
-                        offsetof(vm_internal_type, stack_root));
 
     gc_register_pointer(gc, vm_type_def, 
+                        offsetof(vm_internal_type, stack_root));
+    gc_register_pointer(gc, vm_type_def,
                         offsetof(vm_internal_type, empty));
     gc_register_pointer(gc, vm_type_def, 
                         offsetof(vm_internal_type, true));
@@ -72,6 +90,8 @@ gc_type_def create_vm_type(gc_type *gc) {
                         offsetof(vm_internal_type, false));
     gc_register_pointer(gc, vm_type_def, 
                         offsetof(vm_internal_type, symbol_table));
+    gc_register_pointer(gc, vm_type_def, 
+                        offsetof(vm_internal_type, env));
 
     return vm_type_def;
 }

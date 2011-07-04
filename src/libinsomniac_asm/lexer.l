@@ -6,7 +6,6 @@
 %{
 
 #include "asm_internal.h"
-#define ECHO /* don't echo */
 
 %}
 
@@ -17,11 +16,12 @@ IDENT     [!$%&*+\-./<=>?@^_~[:alnum:]]
 SIGNS     [-+]
 LABEL     {IDENT}+
 
-CHAR_VAL  (newline|space|[^{WS}]|x[0-9A-F]+)
+CHAR_VAL  (newline|space|[^{WS}]|x[:xdigit:]+)
 
 %x EXPECT_CHAR
 %x EXPECT_STRING
 %x EXPECT_TARGET
+%x EXPECT_LABEL
 
 %%
 
@@ -38,6 +38,10 @@ CHAR_VAL  (newline|space|[^{WS}]|x[0-9A-F]+)
 "cons"                  { return OP_CONS; }
 "sym"                   { return OP_MAKE_SYMBOL; }
 
+"bind"                  { return OP_BIND; }
+"!"                     { return OP_SET; }
+"@"                     { return OP_READ; }
+
                        
 "jnf"                   { BEGIN(EXPECT_TARGET);
                           return OP_JNF; }
@@ -47,7 +51,10 @@ CHAR_VAL  (newline|space|[^{WS}]|x[0-9A-F]+)
 <EXPECT_TARGET>{LABEL}  { BEGIN(INITIAL);
                           return LABEL_TOKEN; }
 
-{LABEL}/":"             { return LABEL_TOKEN; }
+{LABEL}/":"             { BEGIN(EXPECT_LABEL);
+                          return LABEL_TOKEN; }
+<EXPECT_LABEL>":"       {/* Ignore end of label marker */
+                          BEGIN(INITIAL); }
 
 #\\                     { BEGIN(EXPECT_CHAR); }
 
@@ -64,10 +71,11 @@ CHAR_VAL  (newline|space|[^{WS}]|x[0-9A-F]+)
                             return STRING_END_TOKEN; }
 }
 
+{WS}                    { /* Ignore white space */ }
+
+
 <<EOF>>                 { return END_OF_FILE; }
 
-
-":"                     {/* Ignore end of label marker */}
 
 %%
 

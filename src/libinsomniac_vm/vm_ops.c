@@ -7,14 +7,14 @@ vm_int parse_int(vm_internal_type *vm) {
     
     /* ip should be pointed at the instructions argument */
     for(int i=7; i>=0; i--) {
-        byte = vm->code_ref[vm->ip + i];
+        byte = vm->env->code_ref[vm->env->ip + i];
         
         num = num << 8;
         num = num | byte;
     }
 
     /* increment the ip field */
-    vm->ip += 8;
+    vm->env->ip += 8;
     return num;
 }
 
@@ -44,14 +44,14 @@ void op_lit_char(vm_internal_type *vm) {
 
     /* ip should be pointed at the instructions argument */
     for(int i=4; i>=0; i--) {
-        byte = vm->code_ref[vm->ip + i];
+        byte = vm->env->code_ref[vm->env->ip + i];
         
         character = character << 8;
         character = character | byte;
     }
 
     /* increment the ip field */
-    vm->ip += 4;
+    vm->env->ip += 4;
 
     gc_protect(vm->gc);
     
@@ -169,14 +169,14 @@ void op_lit_string(vm_internal_type *vm) {
     gc_protect(vm->gc);
 
     /* pull in the actuall string bytes */
-    str_start = (char *)&(vm->code_ref[vm->ip]);
+    str_start = (char *)&(vm->env->code_ref[vm->env->ip]);
     obj = vm_make_string(vm, str_start, length);
 
     vm_push(vm, obj);
 
     gc_unprotect(vm->gc);
     
-    vm->ip += length;
+    vm->env->ip += length;
 }
 
 /* allocate a new vector */
@@ -269,7 +269,7 @@ void op_output(vm_internal_type *vm) {
 void op_jmp(vm_internal_type *vm) {
     vm_int target = parse_int(vm);
     
-    vm->ip += target;
+    vm->env->ip += target;
 }
 
 /* jump if the top of stack is not false */
@@ -283,13 +283,77 @@ void op_jnf(vm_internal_type *vm) {
 
     if(!(obj && obj->type == BOOL &&
          !obj->value.bool)) {
-        vm->ip += target;
+        vm->env->ip += target;
     }
 
     gc_unregister_root(vm->gc, (void**)&obj);
 }
 
+/* bind a new location in the current environment */
+void op_bind(vm_internal_type *vm) {
+    object_type *key = 0;
+    object_type *value = 0;
+    
+    gc_register_root(vm->gc, (void **)&key);
+    gc_register_root(vm->gc, (void **)&value);
 
+    key = vm_pop(vm);
+    value = vm_pop(vm);
+
+    /* make sure the key is a symbol */
+    if(key && key->type == SYMBOL) {
+        /* do the actual bind */
+        hash_set(vm->env->bindings, 
+                 key->value.string.bytes,
+                 value);
+    } else {
+        printf("Attempt to bind with non-symbol\n");
+        output_object(stdout, key);
+        assert(0);
+    }
+
+    gc_register_root(vm->gc, (void **)&value);
+    gc_unregister_root(vm->gc, (void **)&key);
+}
+
+void op_read(vm_internal_type *vm) {
+    object_type *key = 0;
+    object_type *value = 0;
+    env_type *env = 0;
+
+    gc_register_root(vm->gc, (void **)&key);
+    gc_register_root(vm->gc, (void **)&value);
+
+    key = vm_pop(vm);
+
+    /* make sure the key is a symbol */
+    if(!key  || key->type != SYMBOL) {
+        printf("Attempt to read with non-symbol\n");
+        output_object(stdout, key);
+        assert(0);
+    }
+
+    /* search all environments and parents for
+       key */
+    env = vm->env;
+    while(env && !hash_get(env->bindings,
+                           key->value.string.bytes,
+                           (void**)&value)) {
+        env = env->parent;
+    }
+    
+    /* we didn't find anything */
+    if(!value) {
+        printf("Attempt to read undefined symbol\n");
+        output_object(stdout, key);
+        assert(0);
+    }
+
+    vm_push(vm, value);
+
+    gc_register_root(vm->gc, (void **)&value);
+    gc_unregister_root(vm->gc, (void **)&key);    
+}
 
 /* setup of instructions in given vm instance */
 void setup_instructions(vm_internal_type *vm) {
@@ -308,6 +372,9 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_LIT_FALSE] = &op_lit_false;
 
     vm->ops[OP_CONS] = &op_cons;
+
+    vm->ops[OP_BIND] = &op_bind;
+    vm->ops[OP_READ] = &op_read;
 
 
     /* stack operations */

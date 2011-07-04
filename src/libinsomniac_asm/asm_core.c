@@ -70,6 +70,9 @@ void asm_label(gc_type *gc, buffer_type *buf,
     vm_int *addr = 0;
     char *key = 0;
 
+    gc_register_root(gc, (void**)&key);
+    gc_register_root(gc, (void**)&addr);
+
     /* defensively copy the label name */
     key = gc_alloc(gc, 0, strlen(str)+1);
     strcpy(key, str);
@@ -79,6 +82,10 @@ void asm_label(gc_type *gc, buffer_type *buf,
     *addr = buffer_size(buf);
 
     hash_set(labels, key, addr);
+
+    gc_unregister_root(gc, (void**)&key);
+    gc_unregister_root(gc, (void**)&addr);
+
 }
 
 void asm_jump(gc_type *gc, buffer_type *buf,
@@ -229,6 +236,9 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
         case OP_SWAP:
         case OP_OUTPUT:
         case OP_DROP:
+        case OP_BIND:
+        case OP_SET:
+        case OP_READ:
             EMIT(buf, token, 1);
             break;
 

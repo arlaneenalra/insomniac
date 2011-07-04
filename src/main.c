@@ -43,12 +43,14 @@ int main(int argc, char**argv) {
     vm = vm_create(gc);
 
     gc_stats(gc);
+    
+    eval_string(vm, gc, "\"hi\" sym dup 1 swap bind dup jnf display jmp end display: @ out end:");
 
-    eval_string(vm, gc, "#f out #\\n out 2 1 dup cons cons out");
+    /* eval_string(vm, gc, "#f out #\\n out 2 1 dup cons cons out"); */
 
-    eval_string(vm, gc, " \"Hi\" out #\\space out \"\" out");
+    /* eval_string(vm, gc, " \"Hi\" out #\\space out \"\" out"); */
 
-    eval_string(vm, gc, "#f 1 2 3 4 5 6 7 8 () swap label: cons swap dup jnf label drop out jmp end \"Hi There\" out end: \"Done.\" out");
+    /* eval_string(vm, gc, "#f 1 2 3 4 5 6 7 8 () swap label: cons swap dup jnf label drop out jmp end \"Hi There\" out end: \"Done.\" out"); */
 
     vm_destroy(vm);
 

@@ -26,6 +26,9 @@ typedef enum op {
     OP_JMP, /* just a jump */
     OP_JNF, /* jump if not false */
 
+    OP_BIND, /* bind a value to a symbol */
+    OP_SET,  /* set the value of a symbol */
+    OP_READ, /* retrieve the value bound to a symbol */
 
     OP_SWAP, /* Swap the top two items on the stack */
     OP_DUP_REF, /* Duplicate the reference on the op of the stack */

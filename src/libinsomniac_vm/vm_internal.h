@@ -13,15 +13,30 @@
 #include <vm.h>
 
 typedef struct vm_internal vm_internal_type;
+typedef struct env env_type;
 
 /* Function pointer for operations */
 typedef void (*fn_type)(vm_internal_type *vm);
 
+
+/* An environment, "stack frame" in a language like
+   C */
+struct env {
+    /* current execution state */
+    uint8_t *code_ref;
+    size_t ip;
+
+    /* current variable bindings */
+    hashtable_type *bindings;
+
+    /* parent environment */
+    env_type *parent;
+};
+
+/* definition of the VM itself */
 struct vm_internal {
  
     object_type *stack_root;
-
-    object_type *symbols; /* a linked list of symols */
 
     gc_type *gc;
 
@@ -38,8 +53,8 @@ struct vm_internal {
     hashtable_type *symbol_table; /* Symbol table */
     
     /* current execution state */
-    uint8_t *code_ref;
-    size_t ip;
+    gc_type_def env_type;
+    env_type *env;
 };
 
 /* construct a new pair */
@@ -49,6 +64,10 @@ void create_types(vm_internal_type *vm);
 gc_type_def create_vm_type(gc_type *gc);
 
 void setup_instructions(vm_internal_type *vm);
+
+/* code for creating or removing new environments */
+void push_env(vm_internal_type *vm);
+void pop_env(vm_internal_type *vm);
 
 /* output funcitons */
 void output_object(FILE *fout, object_type *obj);

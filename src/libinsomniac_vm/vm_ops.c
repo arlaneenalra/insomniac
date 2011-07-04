@@ -355,6 +355,53 @@ void op_read(vm_internal_type *vm) {
     gc_unregister_root(vm->gc, (void **)&key);    
 }
 
+void op_set(vm_internal_type *vm) {
+    object_type *key = 0;
+    object_type *value = 0;
+    int done = 0;
+    env_type *env = 0;
+
+    gc_register_root(vm->gc, (void **)&key);
+    gc_register_root(vm->gc, (void **)&value);
+
+    key = vm_pop(vm);
+    value = vm_pop(vm);
+
+    /* make sure the key is a symbol */
+    if(!key  || key->type != SYMBOL) {
+        printf("Attempt to read with non-symbol\n");
+        output_object(stdout, key);
+        assert(0);
+    }
+
+    /* search all environments and parents for
+       key */
+    env = vm->env;
+    while(env && !done) {
+        /* did we find a binding for the symbol? */
+        if(hash_get(env->bindings,
+                    key->value.string.bytes, 0)) {
+            done = 1;
+
+            /* save the value */
+            hash_set(env->bindings,
+                     key->value.string.bytes,
+                     value);
+        }
+        env = env->parent;
+    }
+
+    /* don't allow writing of undefined symbols */
+    if(!done) {
+        printf("Attempt to set undefined symbol\n");
+        output_object(stdout, key);
+        assert(0);
+    }
+    
+    gc_register_root(vm->gc, (void **)&value);
+    gc_unregister_root(vm->gc, (void **)&key);    
+}
+
 /* setup of instructions in given vm instance */
 void setup_instructions(vm_internal_type *vm) {
 
@@ -374,6 +421,7 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_CONS] = &op_cons;
 
     vm->ops[OP_BIND] = &op_bind;
+    vm->ops[OP_SET] = &op_set;
     vm->ops[OP_READ] = &op_read;
 
 

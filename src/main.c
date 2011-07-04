@@ -44,7 +44,7 @@ int main(int argc, char**argv) {
 
     gc_stats(gc);
     
-    eval_string(vm, gc, "\"hi\" sym dup 1 swap bind dup jnf display jmp end display: @ out end:");
+    eval_string(vm, gc, "\"hi\" sym dup 1 swap bind dup @ out dup 3 swap ! @ out");
 
     /* eval_string(vm, gc, "#f out #\\n out 2 1 dup cons cons out"); */
 

@@ -71,8 +71,11 @@ uint8_t hash_get(hashtable_type *void_table, void *key, void ** value) {
         return 0;
     }
     
-    /* we found the value */
-    *(value) = kv->value;
+    /* we found the value, do we have 
+     somewhere to put it? */
+    if(value) {
+        *(value) = kv->value;
+    }
     return 1;
 }
 

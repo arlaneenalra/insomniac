@@ -231,6 +231,7 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
         case OP_DUP_REF:
         case OP_SWAP:
         case OP_OUTPUT:
+        case OP_DROP:
             EMIT(buf, token, 1);
             break;
 

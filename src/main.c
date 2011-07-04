@@ -48,7 +48,7 @@ int main(int argc, char**argv) {
 
     eval_string(vm, gc, " \"Hi\" out #\\space out \"\" out");
 
-    eval_string(vm, gc, "#f 1 2 3 4 5 6 7 8 label: dup out jnf label jmp end \"Hi There\" out end: \"Done.\" out ");
+    eval_string(vm, gc, "#f 1 2 3 4 5 6 7 8 () swap label: cons swap dup jnf label drop out jmp end \"Hi There\" out end: \"Done.\" out");
 
     vm_destroy(vm);
 

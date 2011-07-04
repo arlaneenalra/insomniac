@@ -126,6 +126,11 @@ void op_dup_ref(vm_internal_type *vm) {
     gc_unprotect(vm->gc);
 }
 
+/* drop the top item on the stack */
+void op_drop(vm_internal_type *vm) {
+    vm_pop(vm);
+}
+
 /* Given a string, convert it into a symbol */
 void op_make_symbol(vm_internal_type *vm) {
     object_type *obj = 0;
@@ -308,6 +313,7 @@ void setup_instructions(vm_internal_type *vm) {
     /* stack operations */
     vm->ops[OP_SWAP] = &op_swap;
     vm->ops[OP_DUP_REF] = &op_dup_ref;
+    vm->ops[OP_DROP] = &op_drop;
     vm->ops[OP_OUTPUT] = &op_output;
 
     /* jump operations */

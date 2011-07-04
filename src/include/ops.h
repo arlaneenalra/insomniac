@@ -29,6 +29,7 @@ typedef enum op {
 
     OP_SWAP, /* Swap the top two items on the stack */
     OP_DUP_REF, /* Duplicate the reference on the op of the stack */
+    OP_DROP, /* drop the top item on the stack */
 
     OP_OUTPUT /* Outputs what ever is currently on the top of the stack */
 } op_type;

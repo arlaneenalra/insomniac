@@ -33,6 +33,7 @@ CHAR_VAL  (newline|space|[^{WS}]|x[0-9A-F]+)
 "out"                   { return OP_OUTPUT; }
 "nop"                   { return OP_NOP; }
 "dup"                   { return OP_DUP_REF; }
+"drop"                  { return OP_DROP; }
 "swap"                  { return OP_SWAP; }
 "cons"                  { return OP_CONS; }
 "sym"                   { return OP_MAKE_SYMBOL; }

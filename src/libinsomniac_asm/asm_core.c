@@ -78,7 +78,6 @@ void asm_label(gc_type *gc, buffer_type *buf,
     addr = gc_alloc(gc, 0, sizeof(vm_int));
     *addr = buffer_size(buf);
 
-    printf("Saving Label '%s' @ %" PRIi64 "\n", key, *addr);
     hash_set(labels, key, addr);
 }
 
@@ -150,8 +149,6 @@ void rewrite_jumps(uint8_t *code_ref, jump_type *jump_list,
         target -= 8; /* adjust for addr field */
 
 
-        printf("Found jump to '%s' @ %" PRIi64 " to %" PRIi64 "\n", jump_list->label, jump_list->addr, target);
-
         /* get bytes, there should be 8 */
         uint8_t addr[] = { INT_64(target)};
         
@@ -192,7 +189,7 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
 
     /* match until there is nothing left to match */
     while((token = yylex(scanner)) != END_OF_FILE) {
-        printf("Found token %i:'%s'\n", token, get_text(scanner));
+
         /* Handle individual tokens */
         switch(token) {
         case OP_NOP:

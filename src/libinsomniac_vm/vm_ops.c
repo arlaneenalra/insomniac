@@ -256,7 +256,6 @@ void op_output(vm_internal_type *vm) {
     
     obj = vm_pop(vm);
     vm_output_object(stdout, obj);
-    printf("\n");
 
     gc_unregister_root(vm->gc, (void**)&obj);
 }

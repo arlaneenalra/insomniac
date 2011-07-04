@@ -6,28 +6,12 @@
 #include <emit.h>
 #include <asm.h>
 
-typedef enum {
-    NUM_TOKEN,
-    LABEL_TOKEN,
+/* custom tokens required by asm that are not ops */
+#define END_OF_FILE 256
+#define LABEL_TOKEN 257
 
-    FALSE_TOKEN,
-    TRUE_TOKEN,
-
-    OUT_TOKEN,
-    NOP_TOKEN,
-    DUP_TOKEN,
-    SWAP_TOKEN,
-    CONS_TOKEN,
-    SYM_TOKEN,
-
-    JNF_TOKEN,
-    JMP_TOKEN,
-
-    BAD_TOKEN,
-
-    END_OF_FILE /* indicate an end of file */
-} token_type;
-
+#define STRING_START_TOKEN 258
+#define STRING_END_TOKEN 259
 
 /* return text of the matched string */
 char * get_text(void *scanner);

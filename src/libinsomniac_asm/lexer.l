@@ -18,25 +18,42 @@ SIGNS     [-+]
 
 CHAR_VAL  (newline|space|[^{WS}]|x[0-9A-F]+)
 
+%x EXPECT_CHAR
+%x EXPECT_STRING
+
 %%
 
-{SIGNS}?"0x"?{DIGITS}        { return NUM_TOKEN; }
-"#t"                    { return TRUE_TOKEN; }
-"#f"                    { return FALSE_TOKEN;} 
+{SIGNS}?"0x"?{DIGITS}        { return OP_LIT_FIXNUM; }
+"#t"                    { return OP_LIT_TRUE; }
+"#f"                    { return OP_LIT_FALSE;} 
+"()"                    { return OP_LIT_EMPTY; }
 
-"out"                   { return OUT_TOKEN; }
-"nop"                   { return NOP_TOKEN; }
-"dup"                   { return DUP_TOKEN; }
-"swap"                  { return SWAP_TOKEN; }
-"cons"                  { return CONS_TOKEN; }
-"sym"                   { return SYM_TOKEN; }
+"out"                   { return OP_OUTPUT; }
+"nop"                   { return OP_NOP; }
+"dup"                   { return OP_DUP_REF; }
+"swap"                  { return OP_SWAP; }
+"cons"                  { return OP_CONS; }
+"sym"                   { return OP_MAKE_SYMBOL; }
 
                        
 
-"jnf"                   { return JNF_TOKEN; }
-"jmp"                   { return JMP_TOKEN; }                       
-                    
-{IDENT}+':'             { return LABEL_TOKEN; }
+"jnf"                   { return OP_JNF; }
+"jmp"                   { return OP_JMP; }
+
+#\\                     { BEGIN(EXPECT_CHAR); }
+
+<EXPECT_CHAR>{CHAR_VAL} { BEGIN(INITIAL);
+			  return OP_LIT_CHAR; }
+
+\"                      { BEGIN(EXPECT_STRING);
+                          return STRING_START_TOKEN; }
+
+<EXPECT_STRING>{
+
+	([^\"]|\\\")*     { return OP_LIT_STRING; }
+        \"                { BEGIN(INITIAL); 
+                            return STRING_END_TOKEN; }
+}
 
 <<EOF>>                 { return END_OF_FILE; }
 %%

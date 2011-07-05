@@ -312,7 +312,7 @@ void op_bind(vm_internal_type *vm) {
         assert(0);
     }
 
-    gc_register_root(vm->gc, (void **)&value);
+    gc_unregister_root(vm->gc, (void **)&value);
     gc_unregister_root(vm->gc, (void **)&key);
 }
 
@@ -351,7 +351,7 @@ void op_read(vm_internal_type *vm) {
 
     vm_push(vm, value);
 
-    gc_register_root(vm->gc, (void **)&value);
+    gc_unregister_root(vm->gc, (void **)&value);
     gc_unregister_root(vm->gc, (void **)&key);    
 }
 
@@ -398,7 +398,7 @@ void op_set(vm_internal_type *vm) {
         assert(0);
     }
     
-    gc_register_root(vm->gc, (void **)&value);
+    gc_unregister_root(vm->gc, (void **)&value);
     gc_unregister_root(vm->gc, (void **)&key);    
 }
 

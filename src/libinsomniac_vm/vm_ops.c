@@ -280,6 +280,22 @@ void op_output(vm_internal_type *vm) {
     gc_unregister_root(vm->gc, (void**)&obj);
 }
 
+/* read a single character */
+void op_getc(vm_internal_type *vm) {
+    object_type *obj = 0;
+
+    gc_register_root(vm->gc, (void**)&obj);
+    
+    obj = vm_alloc(vm, CHAR);
+
+    /* TODO: make this utf8 compliant */
+    obj->value.character = getchar();
+    vm_push(vm, obj);
+
+    gc_unregister_root(vm->gc, (void**)&obj);
+    
+}
+
 /* straight jump */
 void op_jmp(vm_internal_type *vm) {
     vm_int target = parse_int(vm);
@@ -603,7 +619,9 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_DUP_REF] = &op_dup_ref;
     vm->ops[OP_DROP] = &op_drop;
     vm->ops[OP_DEPTH] = &op_depth;
+
     vm->ops[OP_OUTPUT] = &op_output;
+    vm->ops[OP_GETC] = &op_getc;
 
     /* math operatins */
     vm->ops[OP_ADD] = &op_add;

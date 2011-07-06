@@ -50,7 +50,8 @@ typedef enum op {
 
     OP_EQ, /* A simple equivalence operation */
 
-    OP_OUTPUT /* Outputs what ever is currently on the top of the stack */
+    OP_OUTPUT, /* Outputs what ever is currently on the top of the stack */
+    OP_GETC /* read a single character */
 } op_type;
 
 

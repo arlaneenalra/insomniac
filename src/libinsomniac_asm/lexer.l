@@ -32,6 +32,8 @@ CHAR_VAL  (newline|space|[^{WS}])
 "()"                    { return OP_LIT_EMPTY; }
 
 "out"                   { return OP_OUTPUT; }
+"read"                  { return OP_GETC; }
+
 "nop"                   { return OP_NOP; }
 "dup"                   { return OP_DUP_REF; }
 "depth"                 { return OP_DEPTH; }

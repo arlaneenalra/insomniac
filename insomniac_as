@@ -9,6 +9,7 @@ out  ( obj -- ) Outputs the object on top of the stack to stdout
 nop ( -- ) Does nothing
 dup ( a -- a a)
 swap ( a b -- b a)
+depth ( -- depth ) How deep is the stack?
 sym    ( str -- sym ) Takes a string and makes it into a symbol
 cons   ( car cdr -- (car . cdr) ) Takes the top two stack entries and
                                   makes them into a pair
@@ -22,7 +23,8 @@ jmp  ( -label- ) Jumps to given label
 jnf  ( obj -label- ) Jumps to the given label if obj is not false
 
 bind ( value sym -- ) Binds a symbol in the current environemnt
-! ( value sym -- ) Stores a value at the given symbol, must already exist
+! ( value sym -- ) Stores a value at the given symbol, must already
+                   exist
 @ ( sym -- value ) Load the value stored in a symbol
 
 + ( a b -- a+b )
@@ -30,4 +32,15 @@ bind ( value sym -- ) Binds a symbol in the current environemnt
 * ( a b -- a*b )
 / ( a b -- a/b )
 % ( a b -- a%b ) 
+
+Numberic comparisons
+= ( a b -- a==b ) 
+< ( a b -- a<b )
+> ( a b -- a>b )
+
+not ( bool -- !bool) if false is on top of the stack, returns true,
+                     otherwise false
+eq  ( a b -- a eq b) Simple equivalence operations works for most
+                     primitive types and checks to see if complex
+                     object references are the same object
 

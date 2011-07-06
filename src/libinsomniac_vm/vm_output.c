@@ -45,6 +45,8 @@ void output_char(FILE *fout, object_type *character) {
     utf8_encode_char(char_buf, character->value.character);
 
     fprintf(fout, "#\\%s", char_buf);
+
+    fprintf(fout, "<%x>", character->value.character);
 }
 
 void output_vector(FILE *fout, object_type *vector) {

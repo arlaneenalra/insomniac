@@ -24,6 +24,7 @@ CHAR_VAL  (newline|space|[^{WS}]|x[:xdigit:]+)
 %x EXPECT_LABEL
 
 %%
+";".*$                  { /* Comment */ }
 
 {SIGNS}?"0x"?{DIGITS}        { return OP_LIT_FIXNUM; }
 "#t"                    { return OP_LIT_TRUE; }

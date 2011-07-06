@@ -126,6 +126,21 @@ void op_dup_ref(vm_internal_type *vm) {
     gc_unprotect(vm->gc);
 }
 
+/* return the current stack depth */
+void op_depth(vm_internal_type *vm) {
+    object_type *depth = 0;
+
+    gc_register_root(vm->gc, (void **)&depth);
+    
+    depth = vm_alloc(vm, FIXNUM);
+    
+    depth->value.integer = vm->depth;
+    
+    vm_push(vm, depth);
+
+    gc_unregister_root(vm->gc, (void **)&depth);
+}
+
 /* drop the top item on the stack */
 void op_drop(vm_internal_type *vm) {
     vm_pop(vm);
@@ -402,6 +417,57 @@ void op_set(vm_internal_type *vm) {
     gc_unregister_root(vm->gc, (void **)&key);    
 }
 
+
+/* does a simple object equivalence check */
+void op_eq(vm_internal_type *vm) {
+    object_type *obj1 = 0;
+    object_type *obj2 = 0;
+    int result = 0;
+
+    gc_register_root(vm->gc, (void **)&obj1);
+    gc_register_root(vm->gc, (void **)&obj2);
+
+    obj1 = vm_pop(vm);
+    obj2 = vm_pop(vm);
+
+
+    /* make sure we have actual objects */
+    if((!obj1 || !obj2)
+       && (obj1->type != obj2->type)) {
+        vm_push(vm, vm->false);
+    } else {
+        /* Do comparisons for special types */
+
+        switch(obj1->type) {
+        case FIXNUM:
+            result = obj1->value.integer == obj2->value.integer;
+            break;
+        case BOOL:
+            result = obj1->value.bool == obj2->value.bool;
+            break;
+        case CHAR:
+            result = obj1->value.character == obj2->value.character;
+            break;
+        case STRING:
+            result = strcmp(obj1->value.string.bytes,
+                            obj2->value.string.bytes);
+            break;
+        default:
+            result = obj1 == obj2;
+            break;
+        }
+
+        /* push the result onto the stack */
+        vm_push(vm, result ? vm->true : vm->false);
+    }
+
+    
+    gc_unregister_root(vm->gc, (void **)&obj2);
+    gc_unregister_root(vm->gc, (void **)&obj1);
+
+}
+
+/* return the boolean inverse of the given object */
 void op_not(vm_internal_type *vm) {
     object_type *obj = 0;
     
@@ -450,7 +516,7 @@ void fn_name(vm_internal_type *vm) {                    \
         assert(0);                                      \
     }                                                   \
                                                         \
-    result = gc_alloc_type(vm->gc, 0, vm->types[FIXNUM]);\
+    result = vm_alloc(vm, FIXNUM);                      \
                                                         \
     result->value.integer =                             \
         num1->value.integer op num2->value.integer;     \
@@ -536,6 +602,7 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_SWAP] = &op_swap;
     vm->ops[OP_DUP_REF] = &op_dup_ref;
     vm->ops[OP_DROP] = &op_drop;
+    vm->ops[OP_DEPTH] = &op_depth;
     vm->ops[OP_OUTPUT] = &op_output;
 
     /* math operatins */
@@ -552,6 +619,7 @@ void setup_instructions(vm_internal_type *vm) {
 
     /* Logical operations */
     vm->ops[OP_NOT] = &op_not;
+    vm->ops[OP_EQ] = &op_eq;
 
 
     /* jump operations */
@@ -560,3 +628,4 @@ void setup_instructions(vm_internal_type *vm) {
 
     
 }
+

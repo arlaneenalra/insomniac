@@ -33,6 +33,7 @@ typedef enum op {
     OP_SWAP, /* Swap the top two items on the stack */
     OP_DUP_REF, /* Duplicate the reference on the op of the stack */
     OP_DROP, /* drop the top item on the stack */
+    OP_DEPTH, /* current stack depth */
 
     /* Math functions */
     OP_ADD,
@@ -46,6 +47,8 @@ typedef enum op {
     OP_NUMERIC_GT,
 
     OP_NOT, /* invert a boolean value */
+
+    OP_EQ, /* A simple equivalence operation */
 
     OP_OUTPUT /* Outputs what ever is currently on the top of the stack */
 } op_type;

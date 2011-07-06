@@ -16,7 +16,7 @@ IDENT     [!$%&*+\-./<=>?@^_~[:alnum:]]
 SIGNS     [-+]
 LABEL     {IDENT}+
 
-CHAR_VAL  (newline|space|[^{WS}]|x[:xdigit:]+)
+CHAR_VAL  (newline|space|[^{WS}])
 
 %x EXPECT_CHAR
 %x EXPECT_STRING
@@ -26,7 +26,7 @@ CHAR_VAL  (newline|space|[^{WS}]|x[:xdigit:]+)
 %%
 ";".*$                  { /* Comment */ }
 
-{SIGNS}?"0x"?{DIGITS}        { return OP_LIT_FIXNUM; }
+{SIGNS}?{DIGITS}        { return OP_LIT_FIXNUM; }
 "#t"                    { return OP_LIT_TRUE; }
 "#f"                    { return OP_LIT_FALSE;} 
 "()"                    { return OP_LIT_EMPTY; }
@@ -34,6 +34,7 @@ CHAR_VAL  (newline|space|[^{WS}]|x[:xdigit:]+)
 "out"                   { return OP_OUTPUT; }
 "nop"                   { return OP_NOP; }
 "dup"                   { return OP_DUP_REF; }
+"depth"                 { return OP_DEPTH; }
 "drop"                  { return OP_DROP; }
 "swap"                  { return OP_SWAP; }
 "cons"                  { return OP_CONS; }
@@ -54,6 +55,7 @@ CHAR_VAL  (newline|space|[^{WS}]|x[:xdigit:]+)
 "<"                     { return OP_NUMERIC_LT; }
 ">"                     { return OP_NUMERIC_GT;}
 
+"eq"                    { return OP_EQ; }
 "not"                   { return OP_NOT; }
                        
 "jnf"                   { BEGIN(EXPECT_TARGET);
@@ -69,10 +71,16 @@ CHAR_VAL  (newline|space|[^{WS}]|x[:xdigit:]+)
 <EXPECT_LABEL>":"       {/* Ignore end of label marker */
                           BEGIN(INITIAL); }
 
-#\\                     { BEGIN(EXPECT_CHAR); }
+"#\\"                     { BEGIN(EXPECT_CHAR); }
 
-<EXPECT_CHAR>{CHAR_VAL} { BEGIN(INITIAL);
+<EXPECT_CHAR>{
+    "x"[[:xdigit:]]+     { BEGIN(INITIAL);
 			  return OP_LIT_CHAR; }
+
+    {CHAR_VAL}          { BEGIN(INITIAL);
+			  return OP_LIT_CHAR; }
+
+}
 
 \"                      { BEGIN(EXPECT_STRING);
                           return STRING_START_TOKEN; }

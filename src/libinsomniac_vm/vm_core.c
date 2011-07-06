@@ -32,6 +32,7 @@ vm_type *vm_create(gc_type *gc) {
 
     /* setup the stack */
     vm->stack_root = vm->empty;
+    vm->depth = 0;
 
     /* setup a symbol table */
     vm->symbol_table = hash_create_string(gc);
@@ -64,6 +65,7 @@ void vm_push(vm_type *vm_void, object_type *obj) {
     
     /* push an item onto the stack */
     vm->stack_root = cons(vm, obj, vm->stack_root);
+    vm->depth++;
 
     gc_unprotect(vm->gc);
 }
@@ -80,6 +82,7 @@ object_type *vm_pop(vm_type *vm_void) {
     /* pop the value off */
     obj = vm->stack_root->value.pair.car;
     vm->stack_root=vm->stack_root->value.pair.cdr;
+    vm->depth--;
 
     return obj;
 }
@@ -90,6 +93,7 @@ void vm_reset(vm_type *vm_void) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
 
     vm->stack_root = vm->empty;
+    vm->depth = 0;
     vm->env = 0;
     push_env(vm);
 }

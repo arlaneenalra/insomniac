@@ -37,6 +37,7 @@ struct env {
 struct vm_internal {
  
     object_type *stack_root;
+    vm_int depth;
 
     gc_type *gc;
 

@@ -42,6 +42,18 @@ CHAR_VAL  (newline|space|[^{WS}]|x[:xdigit:]+)
 "!"                     { return OP_SET; }
 "@"                     { return OP_READ; }
 
+
+"+"                     { return OP_ADD; }
+"-"                     { return OP_SUB; }
+"*"                     { return OP_MUL; }
+"/"                     { return OP_DIV; }
+"%"                     { return OP_MOD; }
+
+"="                     { return OP_NUMERIC_EQUAL; }
+"<"                     { return OP_NUMERIC_LT; }
+">"                     { return OP_NUMERIC_GT;}
+
+"not"                   { return OP_NOT; }
                        
 "jnf"                   { BEGIN(EXPECT_TARGET);
                           return OP_JNF; }

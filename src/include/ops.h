@@ -34,6 +34,19 @@ typedef enum op {
     OP_DUP_REF, /* Duplicate the reference on the op of the stack */
     OP_DROP, /* drop the top item on the stack */
 
+    /* Math functions */
+    OP_ADD,
+    OP_SUB,
+    OP_MUL,
+    OP_DIV,
+    OP_MOD,
+
+    OP_NUMERIC_EQUAL,
+    OP_NUMERIC_LT,
+    OP_NUMERIC_GT,
+
+    OP_NOT, /* invert a boolean value */
+
     OP_OUTPUT /* Outputs what ever is currently on the top of the stack */
 } op_type;
 

@@ -45,6 +45,7 @@ int main(int argc, char**argv) {
     gc_stats(gc);
     
     eval_string(vm, gc, "\"hi\" sym dup 1 swap bind dup @ out dup 3 swap ! @ out");
+    eval_string(vm, gc, "100000 loop: 1 - dup dup out 0 = not jnf loop \"done\" out ");
 
     /* eval_string(vm, gc, "#f out #\\n out 2 1 dup cons cons out"); */
 

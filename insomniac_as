@@ -23,4 +23,11 @@ jnf  ( obj -label- ) Jumps to the given label if obj is not false
 
 bind ( value sym -- ) Binds a symbol in the current environemnt
 ! ( value sym -- ) Stores a value at the given symbol, must already exist
-@ ( sym -- value ) Read the value stored in a symbol
+@ ( sym -- value ) Load the value stored in a symbol
+
++ ( a b -- a+b )
+- ( a b -- a-b )
+* ( a b -- a*b )
+/ ( a b -- a/b )
+% ( a b -- a%b ) 
+

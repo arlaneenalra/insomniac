@@ -402,6 +402,113 @@ void op_set(vm_internal_type *vm) {
     gc_unregister_root(vm->gc, (void **)&key);    
 }
 
+void op_not(vm_internal_type *vm) {
+    object_type *obj = 0;
+    
+    gc_register_root(vm->gc, (void **)&obj);
+    
+    obj = vm_pop(vm);
+
+    if(!obj) {
+        printf("Stack Underrun!");
+        assert(0);
+    }
+
+    /* only #f is false */
+    if(obj->type == BOOL && !obj->value.bool) {
+        vm_push(vm, vm->true);
+    } else {
+        vm_push(vm, vm->false);
+    }
+
+    gc_unregister_root(vm->gc, (void **)&obj);
+}
+
+/* Math operations */
+#define NUMERIC_OP(fn_name, op)                         \
+void fn_name(vm_internal_type *vm) {                    \
+    object_type *num1 = 0;                              \
+    object_type *num2 = 0;                              \
+    object_type *result = 0;                            \
+                                                        \
+    gc_register_root(vm->gc, (void **)&num1);           \
+    gc_register_root(vm->gc, (void **)&num2);           \
+    gc_register_root(vm->gc, (void **)&result);         \
+                                                        \
+    /* verify that the firt two objects are number */   \
+    num2 = vm_pop(vm);                                  \
+    num1 = vm_pop(vm);                                  \
+                                                        \
+    /* TODO: replace this with sane exception           \
+       handler */                                       \
+    if(!num1 || num1->type != FIXNUM ||                 \
+       !num2 || num2->type != FIXNUM) {                 \
+        printf("Attempt to calculate with non-number\n");\
+        output_object(stdout,num1);                     \
+        printf("\n");                                   \
+        output_object(stdout,num2);                     \
+        assert(0);                                      \
+    }                                                   \
+                                                        \
+    result = gc_alloc_type(vm->gc, 0, vm->types[FIXNUM]);\
+                                                        \
+    result->value.integer =                             \
+        num1->value.integer op num2->value.integer;     \
+    vm_push(vm, result);                                \
+                                                        \
+    gc_unregister_root(vm->gc, (void **)&result);       \
+    gc_unregister_root(vm->gc, (void **)&num2);         \
+    gc_unregister_root(vm->gc, (void **)&num1);         \
+}                                                       \
+
+NUMERIC_OP(op_add, +)
+NUMERIC_OP(op_sub, -)
+NUMERIC_OP(op_mul, *)
+NUMERIC_OP(op_div, /)
+NUMERIC_OP(op_mod, %)
+
+
+#define NUMERIC_LOGIC(fn_name, op)                      \
+void fn_name(vm_internal_type *vm) {                    \
+    object_type *num1 = 0;                              \
+    object_type *num2 = 0;                              \
+    object_type *result = 0;                            \
+                                                        \
+    gc_register_root(vm->gc, (void **)&num1);           \
+    gc_register_root(vm->gc, (void **)&num2);           \
+    gc_register_root(vm->gc, (void **)&result);         \
+                                                        \
+    /* verify that the firt two objects are number */   \
+    num2 = vm_pop(vm);                                  \
+    num1 = vm_pop(vm);                                  \
+                                                        \
+    /* TODO: replace this with sane exception           \
+       handler */                                       \
+    if(!num1 || num1->type != FIXNUM ||                 \
+       !num2 || num2->type != FIXNUM) {                 \
+        printf("Attempt to calculate with non-number\n");\
+        output_object(stdout,num1);                     \
+        printf("\n");                                   \
+        output_object(stdout,num2);                     \
+        assert(0);                                      \
+    }                                                   \
+                                                        \
+    if(num1->value.integer op num2->value.integer) {    \
+        result = vm->true;                              \
+    } else {                                            \
+        result = vm->false;                             \
+    }                                                   \
+    vm_push(vm, result);                                \
+                                                        \
+    gc_unregister_root(vm->gc, (void **)&result);       \
+    gc_unregister_root(vm->gc, (void **)&num2);         \
+    gc_unregister_root(vm->gc, (void **)&num1);         \
+}                                                       \
+
+NUMERIC_LOGIC(op_numeric_equal, ==)
+NUMERIC_LOGIC(op_numeric_lt, <)
+NUMERIC_LOGIC(op_numeric_gt, >)
+
 /* setup of instructions in given vm instance */
 void setup_instructions(vm_internal_type *vm) {
 
@@ -431,7 +538,25 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_DROP] = &op_drop;
     vm->ops[OP_OUTPUT] = &op_output;
 
+    /* math operatins */
+    vm->ops[OP_ADD] = &op_add;
+    vm->ops[OP_SUB] = &op_sub;
+    vm->ops[OP_MUL] = &op_mul;
+    vm->ops[OP_DIV] = &op_div;
+    vm->ops[OP_MOD] = &op_mod;
+
+    /* numeric logical operations */
+    vm->ops[OP_NUMERIC_EQUAL] = &op_numeric_equal;
+    vm->ops[OP_NUMERIC_LT] = &op_numeric_lt;
+    vm->ops[OP_NUMERIC_GT] = &op_numeric_gt;
+
+    /* Logical operations */
+    vm->ops[OP_NOT] = &op_not;
+
+
     /* jump operations */
     vm->ops[OP_JMP] = &op_jmp;
     vm->ops[OP_JNF] = &op_jnf;
+
+    
 }

@@ -227,21 +227,6 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
             asm_lit_string(buf, scanner);
             break;
 
-        case OP_CONS:
-        case OP_MAKE_SYMBOL:
-        case OP_MAKE_VECTOR:
-        case OP_VECTOR_SET:
-        case OP_VECTOR_REF:
-        case OP_DUP_REF:
-        case OP_SWAP:
-        case OP_OUTPUT:
-        case OP_DROP:
-        case OP_BIND:
-        case OP_SET:
-        case OP_READ:
-            EMIT(buf, token, 1);
-            break;
-
         case OP_JMP:            
         case OP_JNF:
             EMIT(buf, token, 1); /* emit the jump operation */
@@ -252,9 +237,12 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
             asm_label(gc, buf, labels, get_text(scanner));
             break;
 
+            /* All otherwise not defined tokens are
+               their opcode */
         default:
-            printf("Undefined instruction '%s'\n", get_text(scanner));
+            EMIT(buf, token, 1);
             break;
+
         }
     }
 

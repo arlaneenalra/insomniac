@@ -15,7 +15,7 @@ size_t buffer_size(buffer_type *buf);
 
 /* create a new buffer of size_t bytes containing everything 
  in the buffer. */
-size_t buffer_read(buffer_type *buf, uint8_t **dest, size_t length);
+size_t buffer_read(buffer_type *buf, uint8_t *dest, size_t length);
 
 
 #endif

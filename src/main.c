@@ -1,5 +1,11 @@
+
 #include <stdio.h>
 #include <assert.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include <insomniac.h>
 #include <ops.h>
@@ -26,37 +32,65 @@ void eval_string(vm_type *vm, gc_type *gc, char *str) {
     gc_unregister_root(gc, (void **)&code_ref);
 }
 
+void load_buf(gc_type *gc, char *file, char **code_str) {
+    int fd = 0;
+    char bytes[4096];
+    size_t count = 0;
+    buffer_type *buf = 0;
+
+    gc_register_root(gc, &buf);
+    buf = buffer_create(gc);
+
+    fd = open(file, O_RDONLY);
+    
+    /* read everything into our elastic buffer */
+    while((count = read(fd, bytes, 4096))) {
+        buffer_write(buf, (uint8_t *)bytes, count);
+    }
+
+    close(fd);
+
+    /* Convert to a single string */
+    count = buffer_size(buf);
+    *code_str = gc_alloc(gc, 0, count);
+    
+    buffer_read(buf, (uint8_t *)*code_str, count);
+
+    gc_unregister_root(gc, &buf);
+}
+
+
 int main(int argc, char**argv) {
     gc_type *gc = gc_create(sizeof(object_type));
     vm_type *vm = 0; 
-
-
+    char *code_str = 0;
 
     /* needed to setup locale aware printf . . . 
        I need to do a great deal more research here */
     setlocale(LC_ALL, "");
     printf("'%lc' lambda\n", 0x03BB);
 
+    /* check for file argument */
+    if(argc < 2) {
+        printf("Usage: %s <file.asm>\n", argv[0]);
+        exit(-1);
+    }
+
     /* make this a root to the garbage collector */
     gc_register_root(gc, &vm);
+    gc_register_root(gc, (void **)&code_str);
 
     vm = vm_create(gc);
 
-    gc_stats(gc);
-    
-    eval_string(vm, gc, "\"hi\" sym dup 1 swap bind dup @ out dup 3 swap ! @ out");
-    eval_string(vm, gc, "100000 loop: 1 - dup dup out 0 = not jnf loop \"done\" out ");
+    /* load and eval */
+    load_buf(gc, argv[1], &code_str);
+    eval_string(vm, gc, code_str);
 
-    /* eval_string(vm, gc, "#f out #\\n out 2 1 dup cons cons out"); */
 
-    /* eval_string(vm, gc, " \"Hi\" out #\\space out \"\" out"); */
-
-    /* eval_string(vm, gc, "#f 1 2 3 4 5 6 7 8 () swap label: cons swap dup jnf label drop out jmp end \"Hi There\" out end: \"Done.\" out"); */
-
+    /* Shut everything down */
     vm_destroy(vm);
-
     gc_unregister_root(gc, &vm);
-
+    gc_unregister_root(gc, (void **)&code_str);
     gc_destroy(gc);
 
     return 0;

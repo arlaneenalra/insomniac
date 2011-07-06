@@ -112,9 +112,9 @@ void buffer_write(buffer_type *buf_void, uint8_t *bytes, size_t length) {
 }
 
 /* read data out of the given buffer */
-size_t buffer_read(buffer_type *buf_void, uint8_t **dest_ptr, size_t length) {
+size_t buffer_read(buffer_type *buf_void, uint8_t *dest_ptr, size_t length) {
     buffer_internal_type *buf=(buffer_internal_type *)buf_void;
-    uint8_t *dest = *dest_ptr;
+    uint8_t *dest = dest_ptr;
     block_type *block = 0;
     size_t offset = 0;
     size_t copy_amount = 0;

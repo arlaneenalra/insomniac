@@ -252,7 +252,7 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
     /* build a code_ref */
     length = buffer_size(buf);
     *code_ref = gc_alloc(gc, 0, length);
-    length = buffer_read(buf, code_ref, length);
+    length = buffer_read(buf, *code_ref, length);
 
     /* replace jump address fields */
     rewrite_jumps(*code_ref, jump_list, labels);

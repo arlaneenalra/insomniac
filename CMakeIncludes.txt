@@ -1,7 +1,7 @@
 
 #set(CMAKE_C_FLAGS "-Wall -g -O3 -fno-optimize-sibling-calls -std=gnu99 -pedantic -DDEBUG -lm")
 
-set(CMAKE_C_FLAGS "-Wall -g -O3 -std=gnu99 -pedantic -DDEBUG -lm")
+set(CMAKE_C_FLAGS "-Wall -g -std=gnu99 -pedantic -DDEBUG -lm")
 
 
 include_directories(${PROJECT_SOURCE_DIR}/src/include)

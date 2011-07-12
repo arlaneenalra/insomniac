@@ -97,6 +97,48 @@ void op_cons(vm_internal_type *vm) {
     gc_unprotect(vm->gc);
 }
 
+/* extract the car from a given pair */
+void op_car(vm_internal_type *vm) {
+    object_type *obj = 0;
+    
+    gc_register_root(vm->gc, (void**)&obj);
+
+    obj = vm_pop(vm);
+
+    if(obj && obj->type == PAIR) {
+
+        obj = obj->value.pair.car;
+    } else {
+        printf("Attempt to read the car of a non-pair\n");
+        assert(0);
+    }
+
+    vm_push(vm,obj);
+
+    gc_unregister_root(vm->gc,(void **)&obj);
+}
+
+/* extract the car from a given pair */
+void op_cdr(vm_internal_type *vm) {
+    object_type *obj = 0;
+    
+    gc_register_root(vm->gc, (void**)&obj);
+
+    obj = vm_pop(vm);
+
+    if(obj && obj->type == PAIR) {
+
+        obj = obj->value.pair.cdr;
+    } else {
+        printf("Attempt to read the cdr of a non-pair\n");
+        assert(0);
+    }
+
+    vm_push(vm,obj);
+
+    gc_unregister_root(vm->gc,(void **)&obj);
+}
+
 /* swap the top two items on the stack */
 void op_swap(vm_internal_type *vm) {
     object_type *obj = 0;
@@ -608,6 +650,8 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_LIT_FALSE] = &op_lit_false;
 
     vm->ops[OP_CONS] = &op_cons;
+    vm->ops[OP_CAR] = &op_car;
+    vm->ops[OP_CDR] = &op_cdr;
 
     vm->ops[OP_BIND] = &op_bind;
     vm->ops[OP_SET] = &op_set;

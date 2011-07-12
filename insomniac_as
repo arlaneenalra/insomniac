@@ -6,13 +6,20 @@
 "Hi"   ( -- s ) Puts a string literal on the stack
 
 out  ( obj -- ) Outputs the object on top of the stack to stdout
+               printf)
 nop ( -- ) Does nothing
 dup ( a -- a a)
 swap ( a b -- b a)
 depth ( -- depth ) How deep is the stack?
 sym    ( str -- sym ) Takes a string and makes it into a symbol
+
 cons   ( car cdr -- (car . cdr) ) Takes the top two stack entries and
                                   makes them into a pair
+car    ( pair -- car ) Return the car of the pair
+cdr    ( pair -- cdr ) Return the cdr of the pair
+set-car ( pair val -- pair ) Returns the pair with it's car modified
+set-cdr ( pair val -- pair ) Returns the pair with it's cdr modified
+
 vector ( size -- vector ) Makes a vector of the given size
 vec@ ( index vector -- obj ) Takes an index and vector and
                                 retrieves the object at the given

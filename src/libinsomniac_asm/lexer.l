@@ -39,8 +39,13 @@ CHAR_VAL  (newline|space|[^{WS}])
 "depth"                 { return OP_DEPTH; }
 "drop"                  { return OP_DROP; }
 "swap"                  { return OP_SWAP; }
-"cons"                  { return OP_CONS; }
 "sym"                   { return OP_MAKE_SYMBOL; }
+
+"cons"                  { return OP_CONS; }
+"car"                   { return OP_CAR; }
+"cdr"                   { return OP_CDR; }
+"set-car"               { return OP_SET_CAR; }
+"set-cdr"               { return OP_SET_CDR; }
 
 "bind"                  { return OP_BIND; }
 "!"                     { return OP_SET; }

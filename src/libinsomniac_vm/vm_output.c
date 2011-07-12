@@ -44,9 +44,10 @@ void output_char(FILE *fout, object_type *character) {
     /* encode the string in utf8 */
     utf8_encode_char(char_buf, character->value.character);
 
-    fprintf(fout, "#\\%s", char_buf);
+    fprintf(fout, "%s", char_buf);
+    /* fprintf(fout, "#\\%s", char_buf); */
 
-    fprintf(fout, "<%x>", character->value.character);
+    /* fprintf(fout, "<%x>", character->value.character); */
 }
 
 void output_vector(FILE *fout, object_type *vector) {
@@ -95,9 +96,6 @@ void output_object(FILE *fout, object_type *obj) {
         break;
 
     case STRING:
-        fprintf(fout, "\"%s\"", obj->value.string.bytes);
-        break;
-
     case SYMBOL:
         fprintf(fout, "%s", obj->value.string.bytes);
         break;

@@ -199,28 +199,12 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
 
         /* Handle individual tokens */
         switch(token) {
-        case OP_NOP:
-            EMIT_NOP(buf);
-            break;
-
-        case OP_LIT_EMPTY:
-            EMIT_LIT_EMPTY(buf);
-            break;
-
         case OP_LIT_FIXNUM:
             asm_lit_fixnum(buf, scanner);
             break;
 
         case OP_LIT_CHAR:
             asm_lit_char(buf, scanner);
-            break;
-
-        case OP_LIT_TRUE:
-            EMIT_LIT_TRUE(buf);
-            break;
-            
-        case OP_LIT_FALSE:
-            EMIT_LIT_FALSE(buf);
             break;
 
         case STRING_START_TOKEN:

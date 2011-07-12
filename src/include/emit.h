@@ -32,24 +32,6 @@
     buffer_write(buf, (uint8_t *)str, length);  \
 }
 
-#define EMIT_MAKE_SYMBOL(buf) EMIT(buf, OP_MAKE_SYMBOL, 1)
-
-#define EMIT_LIT_EMPTY(buf) EMIT(buf, OP_LIT_EMPTY, 1)
-
-#define EMIT_LIT_TRUE(buf) EMIT(buf, OP_LIT_TRUE, 1)
-#define EMIT_LIT_FALSE(buf) EMIT(buf, OP_LIT_FALSE, 1)
-
-#define EMIT_CONS(buf) EMIT(buf, OP_CONS, 1)
-
-#define EMIT_MAKE_VECTOR(buf) EMIT(buf, OP_MAKE_VECTOR, 1)
-#define EMIT_VECTOR_SET(buf) EMIT(buf, OP_VECTOR_SET, 1)
-#define EMIT_VECTOR_REF(buf) EMIT(buf, OP_VECTOR_REF, 1)
-
-#define EMIT_NOP(buf) EMIT(buf, OP_NOP, 1)
-#define EMIT_SWAP(buf) EMIT(buf, OP_SWAP, 1)
-#define EMIT_DUP_REF(buf) EMIT(buf, OP_DUP_REF, 1)
-#define EMIT_OUTPUT(buf) EMIT(buf, OP_OUTPUT, 1)
-
 /* core of all jump operations */
 #define JMP(type, target) type, INT_64(target)
 #define EMIT_JMP_BODY(buf, type, target) \

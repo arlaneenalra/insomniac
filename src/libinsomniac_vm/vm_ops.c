@@ -206,6 +206,30 @@ void op_swap(vm_internal_type *vm) {
     gc_unprotect(vm->gc);
 }
 
+/* rotate the top two items on the stack */
+void op_rot(vm_internal_type *vm) {
+    object_type *obj = 0;
+    object_type *obj2 = 0;
+    object_type *obj3 = 0;
+
+    
+    gc_register_root(vm->gc, (void **)&obj);
+    gc_register_root(vm->gc, (void **)&obj2);
+    gc_register_root(vm->gc, (void **)&obj3);
+
+    obj = vm_pop(vm);
+    obj2 = vm_pop(vm);
+    obj3 = vm_pop(vm);
+
+    vm_push(vm, obj);
+    vm_push(vm, obj3);
+    vm_push(vm, obj2);
+
+    gc_unregister_root(vm->gc, (void **)&obj);
+    gc_unregister_root(vm->gc, (void **)&obj2);
+    gc_unregister_root(vm->gc, (void **)&obj3);
+}
+
 /* duplicate the reference on top of the stack */
 void op_dup_ref(vm_internal_type *vm) {
     object_type *obj = 0;
@@ -389,12 +413,6 @@ void op_getc(vm_internal_type *vm) {
     
 }
 
-/* straight jump */
-void op_jmp(vm_internal_type *vm) {
-    vm_int target = parse_int(vm);
-    
-    vm->env->ip += target;
-}
 
 /* jump if the top of stack is not false */
 void op_jnf(vm_internal_type *vm) {
@@ -411,6 +429,58 @@ void op_jnf(vm_internal_type *vm) {
     }
 
     gc_unregister_root(vm->gc, (void**)&obj);
+}
+
+/* straight jump */
+void op_jmp(vm_internal_type *vm) {
+    vm_int target = parse_int(vm);
+    
+    vm->env->ip += target;
+}
+
+
+/* create a procedure reference based on address */
+void op_call(vm_internal_type *vm) {
+    object_type *closure = 0;
+    vm_int target = parse_int(vm); /* get target address */
+
+    gc_register_root(vm->gc, (void **)&closure);
+
+    /* allocate a new closure */
+    closure = vm_alloc(vm, CLOSURE);
+
+    /* save our current environment */
+    closure->value.closure = vm->env;
+
+    vm_push(vm, closure);
+
+    gc_unregister_root(vm->gc, (void **)&closure);
+
+    push_env(vm); /* create a child of the current env */
+
+    /* Do the jump */
+    vm->env->ip += target;
+}
+
+/* jump indirect operation */
+void op_jin(vm_internal_type *vm) {
+    object_type *closure = 0;
+    
+    gc_register_root(vm->gc, (void **)&closure);
+    
+    closure = vm_pop(vm);
+
+    if(!closure || closure->type != CLOSURE) {
+        printf("Attempt to jump to non-closure");
+        output_object(stdout, closure);
+        printf("\n");
+        assert(0);
+    }
+
+    /* clone the closures environment */
+    clone_env(vm, closure->value.closure);
+
+    gc_unregister_root(vm->gc, (void **)&closure);
 }
 
 /* bind a new location in the current environment */
@@ -715,6 +785,7 @@ void setup_instructions(vm_internal_type *vm) {
 
     /* stack operations */
     vm->ops[OP_SWAP] = &op_swap;
+    vm->ops[OP_ROT] = &op_rot;
     vm->ops[OP_DUP_REF] = &op_dup_ref;
     vm->ops[OP_DROP] = &op_drop;
     vm->ops[OP_DEPTH] = &op_depth;
@@ -743,6 +814,9 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_JMP] = &op_jmp;
     vm->ops[OP_JNF] = &op_jnf;
 
-    
+
+    /* procedure operations */
+    vm->ops[OP_CALL] = &op_call;
+    vm->ops[OP_JIN] = &op_jin; /* jump indirect */
 }
 

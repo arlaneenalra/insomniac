@@ -28,14 +28,17 @@ typedef enum op {
     OP_VECTOR_REF, /* read the index into a vector an put it on the stack */
 
     /* jump operations Jumps are relative */
+    OP_CALL, /* call the given target and leave return on stack */
     OP_JMP, /* just a jump */
     OP_JNF, /* jump if not false */
+    OP_JIN, /* jump to closure on stack */
 
     OP_BIND, /* bind a value to a symbol */
     OP_SET,  /* set the value of a symbol */
     OP_READ, /* retrieve the value bound to a symbol */
 
     OP_SWAP, /* Swap the top two items on the stack */
+    OP_ROT, /* Rotate the top three items on the stack */
     OP_DUP_REF, /* Duplicate the reference on the op of the stack */
     OP_DROP, /* drop the top item on the stack */
     OP_DEPTH, /* current stack depth */

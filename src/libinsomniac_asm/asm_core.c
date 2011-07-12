@@ -213,6 +213,7 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
 
         case OP_JMP:            
         case OP_JNF:
+        case OP_CALL:
             EMIT(buf, token, 1); /* emit the jump operation */
             asm_jump(gc, buf, scanner, &jump_list);
             break;                

@@ -28,6 +28,17 @@ gc_type_def register_string(gc_type *gc) {
     return str;
 }
 
+/* register a continuation container type */
+gc_type_def register_closure(gc_type *gc) {
+    gc_type_def closure = 0;
+    
+    closure = gc_register_type(gc, sizeof(object_type));
+    gc_register_pointer(gc, closure, offsetof(object_type, value.closure));
+    
+    return closure;
+}
+
+
 /* register a vector type */
 gc_type_def register_vector(gc_type *gc) {
     gc_type_def vector = 0;
@@ -67,6 +78,8 @@ void create_types(vm_internal_type *vm) {
 
     vm->types[STRING] = register_string(gc);
     vm->types[VECTOR] = register_vector(gc);
+
+    vm->types[CLOSURE] = register_closure(gc);
 
     vm->types[EMPTY] = register_basic(gc);
 

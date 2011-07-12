@@ -39,6 +39,7 @@ CHAR_VAL  (newline|space|[^{WS}])
 "depth"                 { return OP_DEPTH; }
 "drop"                  { return OP_DROP; }
 "swap"                  { return OP_SWAP; }
+"rot"                   { return OP_ROT; }
 "sym"                   { return OP_MAKE_SYMBOL; }
 
 "cons"                  { return OP_CONS; }
@@ -64,7 +65,10 @@ CHAR_VAL  (newline|space|[^{WS}])
 
 "eq"                    { return OP_EQ; }
 "not"                   { return OP_NOT; }
-                       
+
+"call"                  { BEGIN(EXPECT_TARGET);
+                          return OP_CALL; }
+
 "jnf"                   { BEGIN(EXPECT_TARGET);
                           return OP_JNF; }
 "jmp"                   { BEGIN(EXPECT_TARGET);
@@ -72,6 +76,10 @@ CHAR_VAL  (newline|space|[^{WS}])
 
 <EXPECT_TARGET>{LABEL}  { BEGIN(INITIAL);
                           return LABEL_TOKEN; }
+
+"jin"                   { return OP_JIN; }
+"ret"                   { return OP_JIN; }
+
 
 {LABEL}/":"             { BEGIN(EXPECT_LABEL);
                           return LABEL_TOKEN; }

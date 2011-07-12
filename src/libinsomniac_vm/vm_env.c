@@ -15,7 +15,29 @@ void push_env(vm_internal_type *vm) {
     new_env->parent = vm->env;
     vm->env = new_env;
 
+    /* if we have a parent, save off the parents
+       ip and code_ref */
+    if(vm->env->parent) {
+        vm->env->code_ref = vm->env->parent->code_ref;
+        vm->env->ip = vm->env->parent->ip;
+
+    }
+
     gc_unregister_root(vm->gc, (void **)&new_env);
+}
+
+/* create a copy of the environment in a new environment */
+void clone_env(vm_internal_type *vm, env_type *env) {    
+
+    vm->env = gc_alloc_type(vm->gc, 0, vm->env_type);
+
+    /* copy env to vm->env */
+    memcpy(vm->env, env, sizeof(env_type));
+    /* create new hash table */
+    /* vm->env->bindings = env->bindings */
+    /* vm->env->code_ref = env->code_ref; */
+    /* vm->env->ip = env->ip; */
+    /* vm->env-> */
 }
 
 /* pop off the current environment */

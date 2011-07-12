@@ -10,6 +10,7 @@ out  ( obj -- ) Outputs the object on top of the stack to stdout
 nop ( -- ) Does nothing
 dup ( a -- a a)
 swap ( a b -- b a)
+rot (c b a -- a c b)
 depth ( -- depth ) How deep is the stack?
 sym    ( str -- sym ) Takes a string and makes it into a symbol
 
@@ -28,6 +29,15 @@ vec! ( index obj vector -- ) Takes an index, object, and vector and
                                 stores the object at the given index
 jmp  ( -label- ) Jumps to given label
 jnf  ( obj -label- ) Jumps to the given label if obj is not false
+
+call ( -label- closure ) Converts the given label to closure and
+                         leaves it on the stack then jumps to the
+                         label.
+
+ret ( closure -- ) Synonym for jin
+jin ( closure -- ) Return to the location left on the stack and
+                   replace the current environment with the one
+                   associated with that location
 
 bind ( value sym -- ) Binds a symbol in the current environemnt
 ! ( value sym -- ) Stores a value at the given symbol, must already

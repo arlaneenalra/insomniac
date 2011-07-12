@@ -23,6 +23,8 @@ typedef enum cell {
     PAIR,
     EMPTY,
 
+    CLOSURE,
+
     CELL_MAX /* Hack to get last enum value */
 } cell_type;
 
@@ -44,6 +46,8 @@ typedef struct vector {
     object_type **vector;
 } vector_type;
 
+/* holds a portion of the vm's execution state */
+typedef void * closure_type;
 
 /* define a memory object */
 struct object {
@@ -58,6 +62,7 @@ struct object {
         vm_char character;
         string_type string;
         vector_type vector;
+        closure_type closure;
     } value;
 
 };

@@ -1,4 +1,4 @@
-;;; A simple test for car, cdr, set-car, and set-cdr
+f;;; A simple test for car, cdr, set-car, and set-cdr
         100
         0
         cons                    ; setup working pair
@@ -35,8 +35,7 @@ done:
         "Done."
         out
 
-
-        stack:  
+stack:  
         "Dumping Stack"
         out
         #\newline

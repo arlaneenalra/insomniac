@@ -139,6 +139,57 @@ void op_cdr(vm_internal_type *vm) {
     gc_unregister_root(vm->gc,(void **)&obj);
 }
 
+/* extract the car from a given pair */
+void op_set_car(vm_internal_type *vm) {
+    object_type *pair = 0;
+    object_type *obj = 0;
+    
+    gc_register_root(vm->gc, (void**)&obj);
+    gc_register_root(vm->gc, (void**)&pair);
+
+    obj = vm_pop(vm);
+    pair = vm_pop(vm);
+
+    if(obj && pair && pair->type == PAIR) {
+
+        pair->value.pair.car = obj;
+    } else {
+        printf("Attempt to set the car of a non-pair or set car to non-object\n");
+        assert(0);
+    }
+
+    vm_push(vm, pair);
+
+    gc_unregister_root(vm->gc,(void **)&pair);
+    gc_unregister_root(vm->gc,(void **)&obj);
+}
+
+/* extract the car from a given pair */
+void op_set_cdr(vm_internal_type *vm) {
+    object_type *pair = 0;
+    object_type *obj = 0;
+    
+    gc_register_root(vm->gc, (void**)&obj);
+    gc_register_root(vm->gc, (void**)&pair);
+
+    obj = vm_pop(vm);
+    pair = vm_pop(vm);
+
+    if(obj && pair && pair->type == PAIR) {
+
+        pair->value.pair.cdr = obj;
+    } else {
+        printf("Attempt to set the cdr of a non-pair or set cdr to non-object\n");
+        assert(0);
+    }
+
+    vm_push(vm, pair);
+
+    gc_unregister_root(vm->gc,(void **)&pair);
+    gc_unregister_root(vm->gc,(void **)&obj);
+}
+
+
 /* swap the top two items on the stack */
 void op_swap(vm_internal_type *vm) {
     object_type *obj = 0;
@@ -610,10 +661,12 @@ void fn_name(vm_internal_type *vm) {                    \
        handler */                                       \
     if(!num1 || num1->type != FIXNUM ||                 \
        !num2 || num2->type != FIXNUM) {                 \
-        printf("Attempt to calculate with non-number\n");\
+        printf("Attempt to compare with non-number\n");\
+        printf("\"");                                   \
         output_object(stdout,num1);                     \
-        printf("\n");                                   \
+        printf("\"\n\"");                               \
         output_object(stdout,num2);                     \
+        printf("\"\n");                                 \
         assert(0);                                      \
     }                                                   \
                                                         \
@@ -652,6 +705,8 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_CONS] = &op_cons;
     vm->ops[OP_CAR] = &op_car;
     vm->ops[OP_CDR] = &op_cdr;
+    vm->ops[OP_SET_CAR] = &op_set_car;
+    vm->ops[OP_SET_CDR] = &op_set_cdr;
 
     vm->ops[OP_BIND] = &op_bind;
     vm->ops[OP_SET] = &op_set;

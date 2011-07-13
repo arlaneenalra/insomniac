@@ -139,6 +139,9 @@ void op_car(vm_internal_type *vm) {
         obj = obj->value.pair.car;
     } else {
         printf("Attempt to read the car of a non-pair\n");
+        output_object(stdout, obj);
+        printf("\n");
+        output_object(stdout, vm->stack_root);
         assert(0);
     }
 

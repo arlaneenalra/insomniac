@@ -86,7 +86,11 @@ int main(int argc, char**argv) {
     load_buf(gc, argv[1], &code_str);
     eval_string(vm, gc, code_str);
 
+    vm_reset(vm);
 
+    gc_stats(gc);
+    gc_sweep(gc);
+    gc_stats(gc);
     /* Shut everything down */
     vm_destroy(vm);
     gc_unregister_root(gc, &vm);

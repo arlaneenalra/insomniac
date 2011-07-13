@@ -113,7 +113,7 @@ void output_object(FILE *fout, object_type *obj) {
         break;
         
     default:
-        fprintf(fout, "<Unkown Object>");
+        fprintf(fout, "<Unkown Object %p>", obj);
         break;
     }
 }

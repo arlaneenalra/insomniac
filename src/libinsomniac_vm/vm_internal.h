@@ -68,7 +68,7 @@ void setup_instructions(vm_internal_type *vm);
 
 /* code for creating or removing new environments */
 void push_env(vm_internal_type *vm);
-void clone_env(vm_internal_type *vm, env_type *env);
+void clone_env(vm_internal_type *vm, env_type **target, env_type *env);
 void pop_env(vm_internal_type *vm);
 
 /* output funcitons */

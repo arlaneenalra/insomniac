@@ -66,9 +66,10 @@ CHAR_VAL  (newline|space|[^{WS}])
 "eq"                    { return OP_EQ; }
 "not"                   { return OP_NOT; }
 
+"proc"                  { BEGIN(EXPECT_TARGET);
+                          return OP_PROC; }
 "call"                  { BEGIN(EXPECT_TARGET);
                           return OP_CALL; }
-
 "jnf"                   { BEGIN(EXPECT_TARGET);
                           return OP_JNF; }
 "jmp"                   { BEGIN(EXPECT_TARGET);

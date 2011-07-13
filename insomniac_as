@@ -30,9 +30,11 @@ vec! ( index obj vector -- ) Takes an index, object, and vector and
 jmp  ( -label- ) Jumps to given label
 jnf  ( obj -label- ) Jumps to the given label if obj is not false
 
-call ( -label- closure ) Converts the given label to closure and
-                         leaves it on the stack then jumps to the
-                         label.
+call ( -label- closure ) Converts the location following this
+                         instruction to closure and leaves it on the
+                         stack then jumps to the label.
+proc ( -label- closure ) Creates a closure that begins execution at
+                         the given label.
 
 ret ( closure -- ) Synonym for jin
 jin ( closure -- ) Return to the location left on the stack and

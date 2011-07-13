@@ -1,7 +1,7 @@
 ;;; A simple example of calling a bound function
 
         ;; Setup function calls
-        call newline
+        proc newline
         "newline"
         sym
         bind
@@ -33,14 +33,8 @@ eval:
         @
         ret
         
-save_proc:                      ; ( ret-func, ret-caller )
-        swap                    ; ( ret-caller, ret-func )
-        ret
-
-        ;; outputs a newline
+        ;; ( -- )
 newline:
-        call save_proc           ; save return as closure
-        
         ;; Output a newline
         #\newline
         out

@@ -439,7 +439,8 @@ void op_jmp(vm_internal_type *vm) {
 }
 
 
-/* create a procedure reference based on address */
+/* create a procedure reference based on the current address
+ and jump to target */
 void op_call(vm_internal_type *vm) {
     object_type *closure = 0;
     vm_int target = parse_int(vm); /* get target address */
@@ -462,6 +463,34 @@ void op_call(vm_internal_type *vm) {
     vm->env->ip += target;
 }
 
+/* create a procedure reference based on target and leave it 
+ on the stack*/
+void op_proc(vm_internal_type *vm) {
+    object_type *closure = 0;
+    vm_int target = parse_int(vm); /* get target address */
+    env_type *env = 0;
+
+    gc_register_root(vm->gc, (void **)&closure);
+    gc_register_root(vm->gc, (void **)&env);
+
+    /* allocate a new closure */
+    closure = vm_alloc(vm, CLOSURE);
+
+    /* save our current environment */
+    clone_env(vm, (env_type **)&env, vm->env);
+
+    /* update the ip */
+    env->ip +=target;
+    
+    closure->value.closure = env;
+
+    vm_push(vm, closure);
+
+    gc_unregister_root(vm->gc, (void **)&env);
+    gc_unregister_root(vm->gc, (void **)&closure);
+
+}
+
 /* jump indirect operation */
 void op_jin(vm_internal_type *vm) {
     object_type *closure = 0;
@@ -478,7 +507,7 @@ void op_jin(vm_internal_type *vm) {
     }
 
     /* clone the closures environment */
-    clone_env(vm, closure->value.closure);
+    clone_env(vm, &(vm->env), closure->value.closure);
 
     gc_unregister_root(vm->gc, (void **)&closure);
 }
@@ -817,6 +846,7 @@ void setup_instructions(vm_internal_type *vm) {
 
     /* procedure operations */
     vm->ops[OP_CALL] = &op_call;
+    vm->ops[OP_PROC] = &op_proc;
     vm->ops[OP_JIN] = &op_jin; /* jump indirect */
 }
 

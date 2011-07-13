@@ -1,10 +1,12 @@
 ;;; A simple example of calling a bound function
 
-        ;; Setup function calls
         proc newline
         s"newline"
         bind
-
+        
+        ;; Setup function calls
+        100000
+top:
 
         S"newline"
         call eval
@@ -20,9 +22,15 @@
 
         dup
         call eval
+        call eval
 
+        1 -
+        dup
+        0 =
+        jnf exit
         
-        jmp exit
+        proc top
+        jin
 
         
         ;; ( sym -- )

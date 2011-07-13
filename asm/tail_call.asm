@@ -71,13 +71,6 @@ loop:
         @
         cons
 
-        ;; "Stack Depth:"
-        ;; out
-        ;; depth
-        ;; out
-        ;; #\newline
-        ;; out
-
         swap
         
         proc loop

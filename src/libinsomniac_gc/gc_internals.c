@@ -15,7 +15,7 @@ vm_int count_list(meta_obj_type **list) {
 }
 
 /* walk a list and free every element in it */
-void destroy_list(meta_obj_type **list) {
+void destroy_list(gc_ms_type *gc, meta_obj_type **list) {
     meta_obj_type *meta = 0;
 
     /* retrieve the first list value */
@@ -38,7 +38,7 @@ void destroy_list(meta_obj_type **list) {
 /* allocate an object */
 meta_obj_type *internal_alloc(gc_ms_type *gc, uint8_t perm, size_t size) {
     meta_obj_type *meta = 0;
-    size_t real_size=0;
+    size_t real_size = 0;
     
     /* adjust the requested size with 
        the size of our meta object */
@@ -64,10 +64,8 @@ meta_obj_type *internal_alloc(gc_ms_type *gc, uint8_t perm, size_t size) {
 
     /* If we didn't find an object,
        create one. */
-
     if(!meta) {
         /* create a new obect */
-
         meta = MALLOC(real_size);
     }
 
@@ -96,6 +94,28 @@ meta_obj_type *internal_alloc(gc_ms_type *gc, uint8_t perm, size_t size) {
     return meta;
 }
 
+/* allocate but only based on a multiple of gc->size_granulartiy */
+void *gc_malloc(gc_ms_type *gc, size_t size) {
+    size_t real_size = size;
+
+    /* if we have a gc, use size_granularity */
+    if(gc) {
+        real_size += gc->size_granularity -
+            (real_size % gc->size_granularity);
+        gc->allocations++;
+    }
+
+    return calloc(1, real_size);
+}
+
+/* Count frees */
+void gc_free(gc_ms_type *gc, void *obj) {
+    if(gc) {
+        gc->allocations--;
+    }
+    free(obj);
+}
+
 /* determine what the next mark will be for created objects */
 mark_type set_next_mark(gc_ms_type *gc) {
     mark_type mark = gc->current_mark;
@@ -110,7 +130,7 @@ void pre_alloc(gc_ms_type *gc) {
 
     gc_protect(gc);
     
-    for(int i = 0; i < 5000; i++) {
+    for(int i = 0; i < 500; i++) {
         obj=gc_alloc(gc, 0, gc->cell_size);
     }
     

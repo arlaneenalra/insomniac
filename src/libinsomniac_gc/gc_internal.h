@@ -79,8 +79,11 @@ typedef struct gc_ms {
     uint32_t num_types; /* number of types */
 
     size_t cell_size; /* size of a normal cell */
+    size_t size_granularity; /* the actual size of a normal cell*/
 
     vm_int protect_count;
+    
+    vm_int allocations; /* Total number of active allocations */
 
     mark_type current_mark;
 
@@ -92,8 +95,8 @@ meta_obj_type *internal_alloc(gc_ms_type *gc, uint8_t perm, size_t size);
 void pre_alloc(gc_ms_type *gc);
 
 /* clean up an allocated list of objects */
-void destroy_list(meta_obj_type **list);
-void destroy_types(meta_obj_def_type *type_list, uint32_t num_types);
+void destroy_list(gc_ms_type *gc, meta_obj_type **list);
+void destroy_types(gc_ms_type *gc, meta_obj_def_type *type_list, uint32_t num_types);
 
 /* count how many objects are in a given list */
 vm_int count_list(meta_obj_type **list);
@@ -112,7 +115,18 @@ void sweep(gc_ms_type *gc);
 meta_obj_type *meta_from_obj(void *obj);
 void *obj_from_meta(meta_obj_type *meta);
 
+void *gc_malloc(gc_ms_type *gc, size_t size);
+void gc_free(gc_ms_type *gc, void *obj);
+
 /* offeset into a meta object for the actual object */
 #define OBJECT_OFFSET offsetof(meta_obj_type, obj)
+
+/* deal with these as a macro incase I need to change them latter */
+/* #define MALLOC(size) calloc(1, size) */
+#define MALLOC(size) gc_malloc(gc, size)
+#define MALLOC_TYPE(type) (type *)MALLOC(sizeof(type))
+/* #define FREE(ptr) free(ptr) */
+#define FREE(ptr) gc_free(gc, ptr);
+
 
 #endif

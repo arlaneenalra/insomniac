@@ -4,11 +4,13 @@
 
 /* construct a new instance of our GC */
 gc_type *gc_create(size_t cell_size) {
-    gc_ms_type *gc = MALLOC_TYPE(gc_ms_type);
+    gc_ms_type *gc = 0;
+    gc = MALLOC_TYPE(gc_ms_type);
     
     gc->current_mark = RED;
     gc->protect_count = 0;
     gc->cell_size = cell_size;
+    gc->size_granularity = sizeof(meta_obj_type)+ cell_size;
 
     /* used to keep track of type definitions */
     gc->type_defs = 0;
@@ -28,11 +30,11 @@ void gc_destroy(gc_type *gc_void) {
         /* cast back to our internal type */
         gc_ms_type *gc = (gc_ms_type *)gc_void;
 
-        destroy_list(&(gc->active_list));
-        destroy_list(&(gc->dead_list));
-        destroy_list(&(gc->perm_list));
+        destroy_list(gc, &(gc->active_list));
+        destroy_list(gc, &(gc->dead_list));
+        destroy_list(gc, &(gc->perm_list));
 
-        destroy_types(gc->type_defs, gc->num_types);
+        destroy_types(gc, gc->type_defs, gc->num_types);
 
         FREE(gc);
     }
@@ -176,8 +178,8 @@ void gc_stats(gc_type *gc_void) {
     dead=count_list(&(gc->dead_list));
     perm=count_list(&(gc->perm_list));
 
-    printf("GC statistics active:%" PRIi64 " dead:%" PRIi64 " perm:%" PRIi64 "\n",
-           active, dead, perm);
+    printf("GC statistics active:%" PRIi64 " dead:%" PRIi64 " perm:%" PRIi64 " Allocations : %"PRIi64 "\n",
+           active, dead, perm, gc->allocations);
 }
 
 /* initiate a sweep of objects in the active list */

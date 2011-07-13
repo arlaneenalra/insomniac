@@ -15,6 +15,7 @@ typedef enum op {
     OP_LIT_FALSE,
 
     OP_LIT_STRING, /* Define a string literal */
+    OP_LIT_SYMBOL, /* Define a symbol literal */
     OP_MAKE_SYMBOL, /* Take a string and turn it into a symbol */
 
     OP_CONS, /* Cons instruction */
@@ -60,7 +61,9 @@ typedef enum op {
     OP_EQ, /* A simple equivalence operation */
 
     OP_OUTPUT, /* Outputs what ever is currently on the top of the stack */
-    OP_GETC /* read a single character */
+    OP_GETC, /* read a single character */
+    
+    OP_MAX_INS /* must be the last instruction in list */
 } op_type;
 
 

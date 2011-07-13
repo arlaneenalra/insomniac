@@ -4,6 +4,7 @@
 #t #f  ( -- b ) Puts true or false on the stack
 
 "Hi"   ( -- s ) Puts a string literal on the stack
+s"Hi"  ( -- sym ) Put a symbol literal on the stack
 
 out  ( obj -- ) Outputs the object on top of the stack to stdout
                printf)

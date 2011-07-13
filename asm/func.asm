@@ -2,20 +2,19 @@
 
         ;; Setup function calls
         proc newline
-        "newline"
-        sym
+        s"newline"
         bind
 
 
-        "newline"
-        sym
-        dup
+        S"newline"
         call eval
         
         
         "Hi There"
         out
 
+        "newline"
+        sym
         dup
         call eval
 

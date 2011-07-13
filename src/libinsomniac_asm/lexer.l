@@ -98,6 +98,9 @@ CHAR_VAL  (newline|space|[^{WS}])
 
 }
 
+[sS]\"                    { BEGIN(EXPECT_STRING);
+                          return SYMBOL_START_TOKEN; }
+
 \"                      { BEGIN(EXPECT_STRING);
                           return STRING_START_TOKEN; }
 

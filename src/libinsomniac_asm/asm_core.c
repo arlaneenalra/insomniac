@@ -208,6 +208,12 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
             break;
 
         case STRING_START_TOKEN:
+            EMIT(buf, OP_LIT_STRING, 1);
+            asm_lit_string(buf, scanner);
+            break;
+
+        case SYMBOL_START_TOKEN:
+            EMIT(buf, OP_LIT_SYMBOL, 1);
             asm_lit_string(buf, scanner);
             break;
 

@@ -18,6 +18,35 @@ vm_int parse_int(vm_internal_type *vm) {
     return num;
 }
 
+/* parse a string */
+void parse_string(vm_internal_type *vm, object_type **obj) {
+    vm_int length = 0;
+    char *str_start = 0;
+
+    /* retrieve the length value */
+    length = parse_int(vm);
+
+    /* pull in the actuall string bytes */
+    str_start = (char *)&(vm->env->code_ref[vm->env->ip]);
+    *obj = vm_make_string(vm, str_start, length);
+
+    /* update ip */
+    vm->env->ip += length;
+}
+
+/* either make the given object into a symbol or replace
+   it with the symbol version */
+void make_symbol(vm_internal_type *vm, object_type **obj) {
+    if(!hash_get(vm->symbol_table,
+                 (*obj)->value.string.bytes, (void **)obj)) {
+
+        (*obj)->type = SYMBOL;
+        
+        hash_set(vm->symbol_table,
+                 (*obj)->value.string.bytes, (*obj));
+    }
+
+}
 
 /* decode an integer literal and push it onto the stack */
 void op_lit_64bit(vm_internal_type *vm) {
@@ -265,50 +294,48 @@ void op_drop(vm_internal_type *vm) {
 
 /* Given a string, convert it into a symbol */
 void op_make_symbol(vm_internal_type *vm) {
-    object_type *obj = 0;
     object_type *string = 0;
 
-    gc_protect(vm->gc);
+    gc_register_root(vm->gc, (void **)&string);
     
     string = vm_pop(vm);
     
     assert(string && string->type == STRING);
 
-    if(!hash_get(vm->symbol_table,
-                string->value.string.bytes, (void **)&obj)) {
+    make_symbol(vm, &string);
 
-        string->type = SYMBOL;
-        
-        hash_set(vm->symbol_table,
-                 string->value.string.bytes, string);
-        obj = string;
-    }
+    vm_push(vm, string);
+
+    gc_unregister_root(vm->gc, (void **)&string);
+}
+
+/* load a string litteral and push it onto the stack*/
+void op_lit_symbol(vm_internal_type *vm) {
+    object_type *obj = 0;
     
+    gc_register_root(vm->gc, (void **)&obj);
+    
+    parse_string(vm, &obj);
+    make_symbol(vm, &obj);
+
     vm_push(vm, obj);
 
-    gc_unprotect(vm->gc);
+    gc_unregister_root(vm->gc, (void **)&obj);    
+
 }
 
 /* load a string litteral and push it onto the stack*/
 void op_lit_string(vm_internal_type *vm) {
     object_type *obj = 0;
-    vm_int length = 0;
-    char *str_start = 0;
     
-    /* retrieve the length value */
-    length = parse_int(vm);
-
-    gc_protect(vm->gc);
-
-    /* pull in the actuall string bytes */
-    str_start = (char *)&(vm->env->code_ref[vm->env->ip]);
-    obj = vm_make_string(vm, str_start, length);
+    gc_register_root(vm->gc, (void **)&obj);
+    
+    parse_string(vm, &obj);
 
     vm_push(vm, obj);
 
-    gc_unprotect(vm->gc);
-    
-    vm->env->ip += length;
+    gc_unregister_root(vm->gc, (void **)&obj);    
+
 }
 
 /* allocate a new vector */
@@ -792,6 +819,7 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_LIT_EMPTY] = &op_lit_empty;
     vm->ops[OP_LIT_CHAR] = &op_lit_char;
     vm->ops[OP_LIT_STRING] = &op_lit_string;
+    vm->ops[OP_LIT_SYMBOL] = &op_lit_symbol;
     vm->ops[OP_MAKE_SYMBOL] = &op_make_symbol;
 
     vm->ops[OP_MAKE_VECTOR] = &op_make_vector;

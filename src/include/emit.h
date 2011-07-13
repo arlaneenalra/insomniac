@@ -27,7 +27,6 @@
 #define EMIT_LIT_STRING(buf, str) \
     {                             \
     vm_int length = strlen(str);  \
-    EMIT(buf, OP_LIT_STRING, 1);  \
     EMIT(buf, INT_64(length), 8); \
     buffer_write(buf, (uint8_t *)str, length);  \
 }

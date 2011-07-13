@@ -9,11 +9,13 @@ hashtable_type *hash_create(gc_type *gc, hash_fn fn,
                             hash_cmp cmp) {
     
     static gc_type_def hashtable_type_def = 0;
+    static gc_type_def key_value_type_def = 0;
     hash_internal_type *table;
     
     /* register the hashtable type with the gc */
     if(!hashtable_type_def) {
         hashtable_type_def = register_hashtable(gc);
+        key_value_type_def = register_key_value(gc);
     }
     
     gc_register_root(gc, (void**)&table);
@@ -27,7 +29,8 @@ hashtable_type *hash_create(gc_type *gc, hash_fn fn,
     /* resize the hashtable */
     hash_resize(table, HASH_SIZE);
 
-    table->key_value = register_key_value(gc);
+    /* table->key_value = register_key_value(gc); */
+    table->key_value = key_value_type_def;
 
 
     gc_unregister_root(gc, (void**)&table);

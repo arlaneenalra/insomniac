@@ -18,7 +18,7 @@
         out
 
         ()
-        200000
+        2000000
         cons
         proc output
         cons
@@ -60,7 +60,7 @@ loop:
         ;; if the number is not 0, loop
         dup
         0 =
-        jnf loop_exit:
+        jnf loop_exit
 
         ;; Reconstruct argument list
         ()
@@ -98,8 +98,8 @@ eval:   swap
 output:
         swap
         drop
-        "."
-        out
+        ;; "."
+        ;; out
         ret
 
 done:

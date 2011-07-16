@@ -2,16 +2,19 @@
 %option always-interactive
 %option yylineno
 %option nounput noinput
+%option debug
 
 %{
 
 #include "asm_internal.h"
+#define ECHO { for(int i=0; i< yyleng; i++) {fprintf(yyout, "Unmatched on line:%d '%c' %d\n", yylineno, yytext[0], yytext[0]); } }
+
 
 %}
 
 DIGITS    [0-9]+
-EOL       \n|\r\n|\n\r|\r
-WS	  {EOL}|[[:blank:]]
+
+WS	  [\n\r[:blank:]]
 IDENT     [!$%&*+\-./<=>?@^_~[:alnum:]]
 SIGNS     [-+]
 LABEL     {IDENT}+
@@ -24,6 +27,9 @@ CHAR_VAL  (newline|space|[^{WS}])
 %x EXPECT_LABEL
 
 %%
+
+{WS}                    { /* Ignore white space */ }
+
 ";".*$                  { /* Comment */ }
 
 {SIGNS}?{DIGITS}        { return OP_LIT_FIXNUM; }
@@ -75,8 +81,12 @@ CHAR_VAL  (newline|space|[^{WS}])
 "jmp"                   { BEGIN(EXPECT_TARGET);
                           return OP_JMP; }
 
-<EXPECT_TARGET>{LABEL}  { BEGIN(INITIAL);
+<EXPECT_TARGET>{
+
+     {LABEL}            { BEGIN(INITIAL);
                           return LABEL_TOKEN; }
+     {WS}               { /*Ignore whitespace */ }
+}
 
 "jin"                   { return OP_JIN; }
 "ret"                   { return OP_JIN; }
@@ -100,7 +110,7 @@ CHAR_VAL  (newline|space|[^{WS}])
 
 [sS]\"                    { BEGIN(EXPECT_STRING);
                           return SYMBOL_START_TOKEN; }
-
+\
 \"                      { BEGIN(EXPECT_STRING);
                           return STRING_START_TOKEN; }
 
@@ -110,8 +120,6 @@ CHAR_VAL  (newline|space|[^{WS}])
         \"                { BEGIN(INITIAL); 
                             return STRING_END_TOKEN; }
 }
-
-{WS}                    { /* Ignore white space */ }
 
 
 <<EOF>>                 { return END_OF_FILE; }

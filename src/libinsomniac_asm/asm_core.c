@@ -189,6 +189,7 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
     labels = hash_create_string(gc);
 
     yylex_init(&scanner);
+    /* yyset_debug(1, scanner); */
 
 
     /* set the scanners input */

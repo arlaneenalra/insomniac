@@ -6,8 +6,26 @@
         S"a"
         bind
 
-        call func1
+        ;; Should not work
+        "Root b="
+        out
+        s"b" @
+        out
+        #\newline
+        out
 
+        proc func1
+        s"func1"
+        bind
+
+        proc func2
+        s"func2"
+        bind
+
+        ;;  call func1
+        s"func1" @
+        call caller
+        
         ;; Should not work
         "Root b="
         out
@@ -17,10 +35,13 @@
         out
 
 
-
-
         jmp exit
 
+
+        ;; call the passed in proc
+caller:
+        swap                    ; swap the return addresses
+        ret                     ; return
 
 func1:
         "2"
@@ -44,8 +65,11 @@ func1:
         out
 
 
-        ;; call into func2
-        call func2
+        s"func2" @
+        call caller
+
+        ;; ;; call into func2
+        ;; call func2
         
         ret
 

@@ -598,7 +598,10 @@ void op_proc(vm_internal_type *vm) {
     closure = vm_alloc(vm, CLOSURE);
 
     /* save our current environment */
-    clone_env(vm, (env_type **)&env, vm->env);
+    /* clone_env(vm, (env_type **)&env, vm->env); */
+    push_env(vm);
+    env = vm->env;
+    pop_env(vm);
 
     /* update the ip */
     env->ip +=target;

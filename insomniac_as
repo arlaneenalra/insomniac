@@ -32,6 +32,7 @@ jmp  ( -label- ) Jumps to given label
 jnf  ( obj -label- ) Jumps to the given label if obj is not false
 
 continue ( -label- ) Sets the location of an exception handling routine
+restore ( -- )  Turn exception handling on from within an exception handler, there is no checking on this so make sure you only call it if you are in an exception handler that has been called
 
 call ( -label- closure ) Converts the location following this
                          instruction to closure and leaves it on the

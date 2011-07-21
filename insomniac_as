@@ -31,6 +31,8 @@ vec! ( index obj vector -- ) Takes an index, object, and vector and
 jmp  ( -label- ) Jumps to given label
 jnf  ( obj -label- ) Jumps to the given label if obj is not false
 
+continue ( -label- ) Sets the location of an exception handling routine
+
 call ( -label- closure ) Converts the location following this
                          instruction to closure and leaves it on the
                          stack then jumps to the label.

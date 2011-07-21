@@ -31,6 +31,7 @@ typedef enum op {
     /* jump operations Jumps are relative */
     OP_CALL, /* call the given target and leave return on stack */
     OP_PROC, /* create a closure for the given target */
+    OP_CONTINUE, /* an exception handling routine for the current environment */
     OP_JMP, /* just a jump */
     OP_JNF, /* jump if not false */
     OP_JIN, /* jump to closure on stack */

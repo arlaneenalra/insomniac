@@ -34,11 +34,6 @@ void clone_env(vm_internal_type *vm, env_type **target,
 
     /* copy env to vm->env */
     memcpy(*target, env, sizeof(env_type));
-    /* create new hash table */
-    /* vm->env->bindings = env->bindings */
-    /* vm->env->code_ref = env->code_ref; */
-    /* vm->env->ip = env->ip; */
-    /* vm->env-> */
 }
 
 /* pop off the current environment */

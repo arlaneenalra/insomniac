@@ -48,6 +48,50 @@ void make_symbol(vm_internal_type *vm, object_type **obj) {
 
 }
 
+/* throw an exception */
+void throw(vm_internal_type *vm, char *msg) {
+    object_type *exception = 0;
+    object_type *next_closure = 0;
+    object_type *message = 0;
+
+    /* make the exception */
+    gc_register_root(vm->gc, (void **)&exception);
+    gc_register_root(vm->gc, (void **)&next_closure);
+    gc_register_root(vm->gc, (void **)&message);
+
+    /* save the current point in the execution */
+    next_closure = vm_alloc(vm, CLOSURE);
+    clone_env(vm, (env_type **)&(next_closure->value.closure), vm->env);
+
+    /* make a string object for the message */
+    message = vm_make_string(vm, msg, strlen(msg));
+
+    /* put everything in a pair */
+    exception = cons(vm,  message, next_closure);
+    
+    /* put the exception itself on the stack */
+    vm_push(vm, exception);
+
+    gc_unregister_root(vm->gc, (void **)&message);
+    gc_unregister_root(vm->gc, (void **)&next_closure);
+    gc_unregister_root(vm->gc, (void **)&exception);
+
+    /* go hunting for the exception handler routine */
+    while(vm->env && !vm->env->handler) {
+        vm->env = vm->env->parent;
+    }
+
+    /* did we find a handler ? */
+    if(vm->env->handler) {
+        vm->env->ip = vm->env->handler_addr;
+        return;
+    }
+
+    /* we did not find a handler ! */
+    fprintf(stderr, "Unhandled Exception: '%s'\n", msg);
+    assert(0);
+}
+
 /* decode an integer literal and push it onto the stack */
 void op_lit_64bit(vm_internal_type *vm) {
     object_type *obj = 0;
@@ -468,6 +512,19 @@ void op_jmp(vm_internal_type *vm) {
     vm->env->ip += target;
 }
 
+/* set the exception handler for the current 
+   environment */
+void op_continue(vm_internal_type *vm) {
+    vm_int target = parse_int(vm);
+
+    /* we need an absolute address for the 
+       exception handler as we don't know 
+       where it will be called from */
+
+    vm->env->handler = 1;
+    vm->env->handler_addr = vm->env->ip + target;
+}
+
 
 /* create a procedure reference based on the current address
  and jump to target */
@@ -879,5 +936,8 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_CALL] = &op_call;
     vm->ops[OP_PROC] = &op_proc;
     vm->ops[OP_JIN] = &op_jin; /* jump indirect */
+
+    /* Exception Handline */
+    vm->ops[OP_CONTINUE] = &op_continue;
 }
 

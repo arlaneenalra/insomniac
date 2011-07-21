@@ -29,6 +29,10 @@ struct env {
     /* current variable bindings */
     hashtable_type *bindings;
 
+    /* exception handler */
+    uint8_t handler;
+    size_t handler_addr;
+
     /* parent environment */
     env_type *parent;
 };

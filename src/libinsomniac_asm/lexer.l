@@ -76,6 +76,8 @@ CHAR_VAL  (newline|space|[^{WS}])
                           return OP_PROC; }
 "call"                  { BEGIN(EXPECT_TARGET);
                           return OP_CALL; }
+"continue"              { BEGIN(EXPECT_TARGET);
+                          return OP_CONTINUE; }
 "jnf"                   { BEGIN(EXPECT_TARGET);
                           return OP_JNF; }
 "jmp"                   { BEGIN(EXPECT_TARGET);

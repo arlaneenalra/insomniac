@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include "vm_internal.h"
 
 /* parse an integer in byte code form */
@@ -49,46 +50,74 @@ void make_symbol(vm_internal_type *vm, object_type **obj) {
 }
 
 /* throw an exception */
-void throw(vm_internal_type *vm, char *msg) {
+void throw(vm_internal_type *vm, char *msg, int num, ...) {
+    va_list ap;
     object_type *exception = 0;
-    object_type *next_closure = 0;
-    object_type *message = 0;
+    object_type *obj = 0;
 
     /* make the exception */
     gc_register_root(vm->gc, (void **)&exception);
-    gc_register_root(vm->gc, (void **)&next_closure);
-    gc_register_root(vm->gc, (void **)&message);
+    gc_register_root(vm->gc, (void **)&obj);
+
+    exception = vm->empty;
+  
+    /* save off any given objects */    
+    va_start(ap, num);
+    
+    for(int i = 0; i < num ; i++) {
+        obj = va_arg(ap, object_type *);
+        exception = cons(vm, obj, exception);
+    }
+    
+    va_end(ap);
 
     /* save the current point in the execution */
-    next_closure = vm_alloc(vm, CLOSURE);
-    clone_env(vm, (env_type **)&(next_closure->value.closure), vm->env);
+    obj = vm_alloc(vm, CLOSURE);
+    clone_env(vm, (env_type **)&(obj->value.closure), vm->env);
+    
+    exception = cons(vm, obj, exception);
+
+    /* /\* save the stack *\/ */
+    /* exception = cons(vm, vm->stack_root, exception); */
 
     /* make a string object for the message */
-    message = vm_make_string(vm, msg, strlen(msg));
+    obj = vm_make_string(vm, msg, strlen(msg));
 
     /* put everything in a pair */
-    exception = cons(vm,  message, next_closure);
+    exception = cons(vm,  obj, exception);
     
     /* put the exception itself on the stack */
     vm_push(vm, exception);
 
-    gc_unregister_root(vm->gc, (void **)&message);
-    gc_unregister_root(vm->gc, (void **)&next_closure);
+    gc_unregister_root(vm->gc, (void **)&obj);
     gc_unregister_root(vm->gc, (void **)&exception);
 
+ /* we did not find a handler ! */
     /* go hunting for the exception handler routine */
     while(vm->env && !vm->env->handler) {
         vm->env = vm->env->parent;
     }
 
+
     /* did we find a handler ? */
-    if(vm->env->handler) {
+    if(vm->env) {
+    clone_env(vm, (env_type **)&(vm->env), vm->env);
+        /* disable exception handler while 
+           handling exceptions */
+        vm->env->handler = 0;
+        /* we can assume that if vm is a valid pointer, 
+           handler is a valid */
         vm->env->ip = vm->env->handler_addr;
         return;
     }
 
     /* we did not find a handler ! */
-    fprintf(stderr, "Unhandled Exception: '%s'\n", msg);
+    vm_pop(vm);
+    printf("Unhandled Exception: '%s'\n", msg);
+    printf("Current Stack:\n");
+    output_object(stdout, vm->stack_root);
+    printf("\n");
+
     assert(0);
 }
 
@@ -181,15 +210,13 @@ void op_car(vm_internal_type *vm) {
     if(obj && obj->type == PAIR) {
 
         obj = obj->value.pair.car;
+        vm_push(vm,obj);
+
     } else {
-        printf("Attempt to read the car of a non-pair\n");
-        output_object(stdout, obj);
-        printf("\n");
-        output_object(stdout, vm->stack_root);
-        assert(0);
+        
+        throw(vm, "Attempt to read the car of a non-pair", 1, obj);
     }
 
-    vm_push(vm,obj);
 
     gc_unregister_root(vm->gc,(void **)&obj);
 }
@@ -205,12 +232,12 @@ void op_cdr(vm_internal_type *vm) {
     if(obj && obj->type == PAIR) {
 
         obj = obj->value.pair.cdr;
-    } else {
-        printf("Attempt to read the cdr of a non-pair\n");
-        assert(0);
-    }
+        vm_push(vm,obj);
 
-    vm_push(vm,obj);
+    } else {
+
+        throw(vm, "Attempt to read the cdr of a non-pair", 1, obj);
+    }
 
     gc_unregister_root(vm->gc,(void **)&obj);
 }
@@ -229,12 +256,12 @@ void op_set_car(vm_internal_type *vm) {
     if(obj && pair && pair->type == PAIR) {
 
         pair->value.pair.car = obj;
-    } else {
-        printf("Attempt to set the car of a non-pair or set car to non-object\n");
-        assert(0);
-    }
 
-    vm_push(vm, pair);
+        vm_push(vm, pair);
+
+    } else {
+        throw(vm, "Attempt to set the car of a non-pair or set car to non-object", 2, obj, pair);
+    }
 
     gc_unregister_root(vm->gc,(void **)&pair);
     gc_unregister_root(vm->gc,(void **)&obj);
@@ -254,12 +281,12 @@ void op_set_cdr(vm_internal_type *vm) {
     if(obj && pair && pair->type == PAIR) {
 
         pair->value.pair.cdr = obj;
-    } else {
-        printf("Attempt to set the cdr of a non-pair or set cdr to non-object\n");
-        assert(0);
-    }
+        vm_push(vm, pair);
 
-    vm_push(vm, pair);
+    } else {
+
+        throw(vm, "Attempt to set the cdr of a non-pair or set cdr to non-object", 2, obj, pair);
+    }
 
     gc_unregister_root(vm->gc,(void **)&pair);
     gc_unregister_root(vm->gc,(void **)&obj);
@@ -525,6 +552,13 @@ void op_continue(vm_internal_type *vm) {
     vm->env->handler_addr = vm->env->ip + target;
 }
 
+/* set the exception handler for the current 
+   environment */
+void op_restore(vm_internal_type *vm) {
+    /* restore the current exception handler */
+    vm->env->handler = 1;
+}
+
 
 /* create a procedure reference based on the current address
  and jump to target */
@@ -587,14 +621,13 @@ void op_jin(vm_internal_type *vm) {
     closure = vm_pop(vm);
 
     if(!closure || closure->type != CLOSURE) {
-        printf("Attempt to jump to non-closure");
-        output_object(stdout, closure);
-        printf("\n");
-        assert(0);
-    }
+        throw(vm, "Attempt to jump to non-closure", 1, closure);
 
-    /* clone the closures environment */
-    clone_env(vm, &(vm->env), closure->value.closure);
+    } else {
+
+        /* clone the closures environment */
+        clone_env(vm, &(vm->env), closure->value.closure);
+    }
 
     gc_unregister_root(vm->gc, (void **)&closure);
 }
@@ -617,9 +650,7 @@ void op_bind(vm_internal_type *vm) {
                  key->value.string.bytes,
                  value);
     } else {
-        printf("Attempt to bind with non-symbol\n");
-        output_object(stdout, key);
-        assert(0);
+        throw(vm, "Attempt to bind with non-symbol", 2, key, value);
     }
 
     gc_unregister_root(vm->gc, (void **)&value);
@@ -638,9 +669,12 @@ void op_read(vm_internal_type *vm) {
 
     /* make sure the key is a symbol */
     if(!key  || key->type != SYMBOL) {
-        printf("Attempt to read with non-symbol\n");
-        output_object(stdout, key);
-        assert(0);
+        throw(vm,"Attempt to read with non-symbol", 1, key);
+        
+        /* there has to be a better way to do this */
+        gc_unregister_root(vm->gc, (void **)&value);
+        gc_unregister_root(vm->gc, (void **)&key);
+        return;
     }
 
     /* search all environments and parents for
@@ -654,12 +688,12 @@ void op_read(vm_internal_type *vm) {
     
     /* we didn't find anything */
     if(!value) {
-        printf("Attempt to read undefined symbol\n");
-        output_object(stdout, key);
-        assert(0);
-    }
+        throw(vm, "Attempt to read undefined symbol", 1, key);
 
-    vm_push(vm, value);
+    } else {
+
+        vm_push(vm, value);
+    }
 
     gc_unregister_root(vm->gc, (void **)&value);
     gc_unregister_root(vm->gc, (void **)&key);    
@@ -679,9 +713,11 @@ void op_set(vm_internal_type *vm) {
 
     /* make sure the key is a symbol */
     if(!key  || key->type != SYMBOL) {
-        printf("Attempt to read with non-symbol\n");
-        output_object(stdout, key);
-        assert(0);
+        throw(vm, "Attempt to set with non-symbol", 2, key, value);
+
+        gc_unregister_root(vm->gc, (void **)&value);
+        gc_unregister_root(vm->gc, (void **)&key);
+        return;
     }
 
     /* search all environments and parents for
@@ -703,9 +739,7 @@ void op_set(vm_internal_type *vm) {
 
     /* don't allow writing of undefined symbols */
     if(!done) {
-        printf("Attempt to set undefined symbol\n");
-        output_object(stdout, key);
-        assert(0);
+        throw(vm, "Attempt to set undefined symbol", 2, key, value);
     }
     
     gc_unregister_root(vm->gc, (void **)&value);
@@ -939,5 +973,6 @@ void setup_instructions(vm_internal_type *vm) {
 
     /* Exception Handline */
     vm->ops[OP_CONTINUE] = &op_continue;
+    vm->ops[OP_RESTORE] = &op_restore;
 }
 

@@ -72,6 +72,8 @@ CHAR_VAL  (newline|space|[^{WS}])
 "eq"                    { return OP_EQ; }
 "not"                   { return OP_NOT; }
 
+"restore"               { return OP_RESTORE; }
+
 "proc"                  { BEGIN(EXPECT_TARGET);
                           return OP_PROC; }
 "call"                  { BEGIN(EXPECT_TARGET);

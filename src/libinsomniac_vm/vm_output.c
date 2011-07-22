@@ -111,6 +111,11 @@ void output_object(FILE *fout, object_type *obj) {
             fprintf(fout, "#f");
         }
         break;
+
+    case CLOSURE:
+        fprintf(fout, "<CLOSURE %p:%p>", (void *)obj,
+                (void *)obj->value.closure);
+        break;
         
     default:
         fprintf(fout, "<Unkown Object %p>", (void *)obj);

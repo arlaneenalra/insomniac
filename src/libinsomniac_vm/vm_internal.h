@@ -10,6 +10,7 @@
 #include <gc.h>
 #include <ops.h>
 #include <hash.h>
+#include <buffer.h>
 #include <vm.h>
 
 typedef struct vm_internal vm_internal_type;
@@ -24,6 +25,7 @@ typedef void (*fn_type)(vm_internal_type *vm);
 struct env {
     /* current execution state */
     uint8_t *code_ref;
+    size_t length;
     size_t ip;
 
     /* current variable bindings */
@@ -69,6 +71,8 @@ vm_int parse_int(vm_internal_type *vm);
 void parse_string(vm_internal_type *vm, object_type **obj);
 void make_symbol(vm_internal_type *vm, object_type **obj);
 void throw(vm_internal_type *vm, char *msg, int num, ...);
+
+void vm_load_buf(vm_internal_type *vm, char *file, object_type **obj);
 
 void create_types(vm_internal_type *vm);
 gc_type_def create_vm_type(gc_type *gc);

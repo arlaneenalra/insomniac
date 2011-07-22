@@ -4,16 +4,7 @@
         ;; from scheme directly, so they start with
         ;; a space
 
-        proc hello
-        s" hello"
-        bind
-
-        ret
-
-hello:
-        "Hello World!"
+        "Hello"
         out
         #\newline
         out
-        
-        ret

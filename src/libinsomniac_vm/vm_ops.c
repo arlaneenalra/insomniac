@@ -1,4 +1,5 @@
 #include "vm_internal.h"
+#include <asm.h>
 
 /* decode an integer literal and push it onto the stack */
 void op_lit_64bit(vm_internal_type *vm) {
@@ -375,6 +376,74 @@ void op_output(vm_internal_type *vm) {
     vm_output_object(stdout, obj);
 
     gc_unregister_root(vm->gc, (void**)&obj);
+}
+
+/* load a file and store it in a single string */
+void op_slurp(vm_internal_type *vm) {
+    object_type *obj = 0;
+
+    gc_register_root(vm->gc, (void**)&obj);
+    
+    obj = vm_pop(vm);
+
+    if(!obj || obj->type != STRING) {
+        throw(vm, "Slurp file name not a string!", 1, obj);
+
+    } else {
+    
+        /* load the file */
+        vm_load_buf(vm, obj->value.string.bytes, &obj);
+        
+        vm_push(vm, obj);
+    }
+
+    gc_unregister_root(vm->gc, (void**)&obj);    
+}
+
+/* assemble a string on the stack into a proc */
+void op_asm(vm_internal_type *vm) {
+    object_type *obj = 0;
+    object_type *closure =0;
+    env_type *env = 0;
+
+    uint8_t *code_ref = 0;
+    size_t written = 0;
+
+    gc_register_root(vm->gc, (void **)&obj);
+    gc_register_root(vm->gc, (void **)&closure);
+    gc_register_root(vm->gc, (void **)&code_ref);
+    gc_register_root(vm->gc, (void **)&env);
+
+    obj = vm_pop(vm);
+
+    if(!obj || obj->type != STRING) {
+        throw(vm, "Attempt to assemble non-string", 1, obj);
+
+    } else {
+        /* assemble the string */
+        written = asm_string(vm->gc, obj->value.string.bytes, &code_ref);
+        /* clone the current environment in a 
+           closure */
+        clone_env(vm, (env_type **)&env, vm->env);
+
+        /* point to the entry point of our 
+           assembled code_ref */
+        env->code_ref = code_ref;
+        env->ip = 0;
+        env->length = written;
+
+        closure = vm_alloc(vm, CLOSURE);
+        /* save the new closure onto our stack */
+        closure->value.closure = env;
+
+        vm_push(vm, closure);
+    }
+
+    gc_unregister_root(vm->gc, (void **)&env);
+    gc_unregister_root(vm->gc, (void **)&code_ref);
+    gc_unregister_root(vm->gc, (void **)&closure);
+    gc_unregister_root(vm->gc, (void **)&obj);
+
 }
 
 /* read a single character */
@@ -853,6 +922,8 @@ void setup_instructions(vm_internal_type *vm) {
 
     vm->ops[OP_OUTPUT] = &op_output;
     vm->ops[OP_GETC] = &op_getc;
+    vm->ops[OP_SLURP] = &op_slurp;
+    vm->ops[OP_ASM] = &op_asm;
 
     /* math operatins */
     vm->ops[OP_ADD] = &op_add;
@@ -870,11 +941,9 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_NOT] = &op_not;
     vm->ops[OP_EQ] = &op_eq;
 
-
     /* jump operations */
     vm->ops[OP_JMP] = &op_jmp;
     vm->ops[OP_JNF] = &op_jnf;
-
 
     /* procedure operations */
     vm->ops[OP_CALL] = &op_call;

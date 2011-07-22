@@ -50,6 +50,13 @@ call_in ( closure1 -- closure2 ) Converts the location following this
                                  on the stack and enters the initial
                                  closure.
 
+slurp ( file -- string ) A crude routine to load a file into a string
+                         and leave the entire thing on the stack. This
+                         should not be used outside of the bootstrap
+                         code.
+asm ( string -- proc ) Take a string and convert it into an assembled
+                       proc in the current environment.
+
 bind ( value sym -- ) Binds a symbol in the current environemnt
 ! ( value sym -- ) Stores a value at the given symbol, must already
                    exist

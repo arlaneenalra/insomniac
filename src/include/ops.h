@@ -66,6 +66,9 @@ typedef enum op {
 
     OP_OUTPUT, /* Outputs what ever is currently on the top of the stack */
     OP_GETC, /* read a single character */
+
+    OP_SLURP, /* load a file into a string */
+    OP_ASM, /* assemble the given string */
     
     OP_MAX_INS /* must be the last instruction in list */
 } op_type;

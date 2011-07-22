@@ -10,11 +10,12 @@ object_type *vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref) {
     /* setup the ip */
     vm->env->ip = 0;
     vm->env->code_ref = code_ref;
+    vm->env->length = length;
 
     /* iterate over instrcutions */
-    while(vm->env->ip < length) {
+    while(vm->env->ip < vm->env->length) {
         /* load instrcutions */
-        op_code = code_ref[vm->env->ip];
+        op_code = vm->env->code_ref[vm->env->ip];
         op_call = vm->ops[op_code];
 
         

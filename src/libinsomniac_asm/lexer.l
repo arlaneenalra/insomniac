@@ -39,6 +39,8 @@ CHAR_VAL  (newline|space|[^{WS}])
 
 "out"                   { return OP_OUTPUT; }
 "read"                  { return OP_GETC; }
+"slurp"                 { return OP_SLURP; }
+"asm"                   { return OP_ASM; }
 
 "nop"                   { return OP_NOP; }
 "dup"                   { return OP_DUP_REF; }

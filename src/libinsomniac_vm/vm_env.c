@@ -20,7 +20,7 @@ void push_env(vm_internal_type *vm) {
     if(vm->env->parent) {
         vm->env->code_ref = vm->env->parent->code_ref;
         vm->env->ip = vm->env->parent->ip;
-
+        vm->env->length = vm->env->parent->length;
     }
 
     gc_unregister_root(vm->gc, (void **)&new_env);

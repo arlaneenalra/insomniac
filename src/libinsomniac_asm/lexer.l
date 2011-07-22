@@ -94,6 +94,7 @@ CHAR_VAL  (newline|space|[^{WS}])
 
 "jin"                   { return OP_JIN; }
 "ret"                   { return OP_JIN; }
+"call_in"               { return OP_CALL_IN; }
 
 
 {LABEL}/":"             { BEGIN(EXPECT_LABEL);

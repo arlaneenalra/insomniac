@@ -573,7 +573,6 @@ void op_call(vm_internal_type *vm) {
 
     /* save our current environment */
     closure->value.closure = vm->env;
-
     vm_push(vm, closure);
 
     gc_unregister_root(vm->gc, (void **)&closure);
@@ -632,6 +631,35 @@ void op_jin(vm_internal_type *vm) {
         clone_env(vm, &(vm->env), closure->value.closure);
     }
 
+    gc_unregister_root(vm->gc, (void **)&closure);
+}
+
+/* call indirect operation */
+void op_call_in(vm_internal_type *vm) {
+    object_type *closure = 0;
+    object_type *ret = 0;
+    
+    gc_register_root(vm->gc, (void **)&closure);
+    gc_register_root(vm->gc, (void **)&ret);
+    
+    closure = vm_pop(vm);
+
+    if(!closure || closure->type != CLOSURE) {
+        throw(vm, "Attempt to jump to non-closure", 1, closure);
+
+    } else {
+        /* allocate a new closure */
+        ret = vm_alloc(vm, CLOSURE);
+
+        /* save our current environment */
+        ret->value.closure = vm->env;
+        vm_push(vm, ret);
+
+        /* clone the closures environment */
+        clone_env(vm, &(vm->env), closure->value.closure);
+    }
+
+    gc_unregister_root(vm->gc, (void **)&ret);
     gc_unregister_root(vm->gc, (void **)&closure);
 }
 
@@ -973,6 +1001,7 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_CALL] = &op_call;
     vm->ops[OP_PROC] = &op_proc;
     vm->ops[OP_JIN] = &op_jin; /* jump indirect */
+    vm->ops[OP_CALL_IN] = &op_call_in; /* jump indirect */
 
     /* Exception Handline */
     vm->ops[OP_CONTINUE] = &op_continue;

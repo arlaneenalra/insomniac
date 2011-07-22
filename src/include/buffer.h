@@ -1,6 +1,8 @@
 #ifndef _BUFFER_
 #define _BUFFER_
 
+#define BLOCK_SIZE 4096
+
 /* Basic data types and functions for an elastic buffer */
 typedef void buffer_type;
 

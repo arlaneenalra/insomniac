@@ -24,7 +24,7 @@
 
         ;;  call func1
         s"func1" @
-        call caller
+        call_in
         
         ;; Should not work
         "Root b="
@@ -38,10 +38,6 @@
         jmp exit
 
 
-        ;; call the passed in proc
-caller:
-        swap                    ; swap the return addresses
-        ret                     ; return
 
 func1:
         "2"
@@ -66,7 +62,7 @@ func1:
 
 
         s"func2" @
-        call caller
+        call_in
 
         ;; ;; call into func2
         ;; call func2

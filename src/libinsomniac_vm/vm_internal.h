@@ -65,6 +65,11 @@ struct vm_internal {
 /* construct a new pair */
 object_type *cons(vm_type *vm, object_type *car, object_type *cdr);
 
+vm_int parse_int(vm_internal_type *vm);
+void parse_string(vm_internal_type *vm, object_type **obj);
+void make_symbol(vm_internal_type *vm, object_type **obj);
+void throw(vm_internal_type *vm, char *msg, int num, ...);
+
 void create_types(vm_internal_type *vm);
 gc_type_def create_vm_type(gc_type *gc);
 

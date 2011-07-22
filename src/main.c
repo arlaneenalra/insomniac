@@ -23,11 +23,8 @@ void eval_string(vm_type *vm, gc_type *gc, char *str) {
 
     /* assemble a simple command */
     written = asm_string(gc, str, &code_ref);
-    printf("Bytes written: %zu\n", written);
-    printf("Evaluating\n");
 
     vm_eval(vm, written, code_ref);
-    printf("\n");
 
     gc_unregister_root(gc, (void **)&code_ref);
 }
@@ -42,9 +39,15 @@ void load_buf(gc_type *gc, char *file, char **code_str) {
     buf = buffer_create(gc);
 
     fd = open(file, O_RDONLY);
+
+    /* make sure that we could open the file */
+    if(fd == -1 ) {
+        printf("Unable to open input file: %s\n", file);
+        exit(-2);
+    }
     
     /* read everything into our elastic buffer */
-    while((count = read(fd, bytes, 4096))) {
+    while((count = read(fd, bytes, BLOCK_SIZE))) {
         buffer_write(buf, (uint8_t *)bytes, count);
     }
 
@@ -68,7 +71,6 @@ int main(int argc, char**argv) {
     /* needed to setup locale aware printf . . . 
        I need to do a great deal more research here */
     setlocale(LC_ALL, "");
-    printf("'%lc' lambda\n", 0x03BB);
 
     /* check for file argument */
     if(argc < 2) {
@@ -88,9 +90,6 @@ int main(int argc, char**argv) {
 
     vm_reset(vm);
 
-    gc_stats(gc);
-    gc_sweep(gc);
-    gc_stats(gc);
     /* Shut everything down */
     vm_destroy(vm);
     gc_unregister_root(gc, &vm);

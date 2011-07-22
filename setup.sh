@@ -10,6 +10,9 @@ fi
 
 cd $TARGET
 
+# setup some needed directories
+ln -s ../lib lib
+
 echo "	Running cmake"
 cmake ..
 

@@ -38,6 +38,16 @@ gc_type_def register_closure(gc_type *gc) {
     return closure;
 }
 
+/* register a library container type */
+gc_type_def register_library(gc_type *gc) {
+    gc_type_def library = 0;
+    
+    library = gc_register_type(gc, sizeof(object_type));
+    gc_register_pointer(gc, library, offsetof(object_type, value.library));
+    
+    return library;
+}
+
 
 /* register a vector type */
 gc_type_def register_vector(gc_type *gc) {
@@ -80,6 +90,7 @@ void create_types(vm_internal_type *vm) {
     vm->types[VECTOR] = register_vector(gc);
 
     vm->types[CLOSURE] = register_closure(gc);
+    vm->types[LIBRARY] = register_library(gc);
 
     vm->types[EMPTY] = register_basic(gc);
 

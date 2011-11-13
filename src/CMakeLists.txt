@@ -22,11 +22,11 @@ add_executable( insomniac
   )
 
 target_link_libraries(insomniac 
-  libinsomniac_vm
-  libinsomniac_gc
-  libinsomniac_buffer
-  libinsomniac_hash
-  libinsomniac_asm
+  insomniac_buffer
+  insomniac_hash
+  insomniac_vm
+  insomniac_gc
+  insomniac_asm
   dl
   )
 

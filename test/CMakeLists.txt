@@ -12,9 +12,9 @@ add_executable(test_hash
   )
 
 target_link_libraries(test_hash
-  libinsomniac_gc
-  libinsomniac_hash
-  libtester
+  insomniac_gc
+  insomniac_hash
+  tester
   )
 
 

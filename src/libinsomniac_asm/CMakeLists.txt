@@ -12,7 +12,7 @@ FLEX_TARGET(LEXER lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.c
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 
-add_library(libinsomniac_asm
+add_library(insomniac_asm
   asm_core.c
   ${FLEX_LEXER_OUTPUTS}
   )

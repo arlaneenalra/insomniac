@@ -11,7 +11,9 @@ fi
 cd $TARGET
 
 # setup some needed directories
-ln -s ../lib lib
+if [ ! -x "lib" ] ; then
+  ln -s ../lib lib
+fi
 
 echo "	Running cmake"
 cmake ..

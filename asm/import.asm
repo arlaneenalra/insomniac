@@ -1,13 +1,41 @@
 
 
 ;;; Check import
-        "src/libinsomniac_io/liblibinsomniac_io.so"
+        "src/libinsomniac_io/libinsomniac_io.so"
         import
         s"io.lib"
         bind
 
+        "src/libinsomniac_io/libinsomniac_io.so"
+        import
+        s"io2.lib"
+        bind
+
+        "src/libinsomniac_io/libinsomniac_io.so"
+        import
+        s"io3.lib"
+        bind
+
+
         call hi
         call hi
+
+
+        s"io.lib" @
+        dup out #\newline out
+        s"io2.lib" @
+        dup out #\newline out
+        eq
+
+        s"io3.lib" @
+        out #\newline out
+
+        jnf good
+        "io.lib and io2.lib are not equal"
+        out
+        #\newline
+        out
+good:   
 
 
 ;;; Test code designed to do loading of libraries

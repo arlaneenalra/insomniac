@@ -24,4 +24,10 @@ object_type *vm_make_vector(vm_type *vm_void, vm_int length);
 
 #include "utf8.h"
 
+/* interface definitions for external libraries */
+typedef void (*ext_call_type)(vm_type *vm);
+
+/* used to define an export list */
+#define EXPORT_LIST ext_call_type export_list[]
+
 #endif

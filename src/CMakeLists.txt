@@ -7,6 +7,7 @@ add_subdirectory(libinsomniac_gc)
 add_subdirectory(libinsomniac_buffer)
 add_subdirectory(libinsomniac_hash)
 add_subdirectory(libinsomniac_asm)
+add_subdirectory(libinsomniac_io)
 
 link_directories(
   ${libinsomniac_vm_BIN_DIR}/libinsomniac_vm

@@ -69,6 +69,9 @@ typedef enum op {
 
     OP_SLURP, /* load a file into a string */
     OP_ASM, /* assemble the given string */
+
+    OP_IMPORT, /* load a dll */
+    OP_CALL_EXT, /* call a function exported by the dll */
     
     OP_MAX_INS /* must be the last instruction in list */
 } op_type;

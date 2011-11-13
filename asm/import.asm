@@ -1,27 +1,29 @@
+
+
+;;; Check import
+        "liblibinsomniac_io.so"
+        import
+        0 call_ext
+
+
 ;;; Test code designed to do loading of libraries
         "lib/stdlib.asm"
         slurp
-        dup out
+        ;; dup out
         asm
 
         "Assembled" out
-        #\newline out
+         #\newline out
 
-        dup
-        out
-        #\newline
-        out
+        ;; dup
+        ;; out
+        ;; #\newline
+        ;; out
         
         call_in
-
         
         jmp loop
 
-hi:
-        "Hi There"
-        out
-        #\newline out
-        ret
 
 loop:
         out

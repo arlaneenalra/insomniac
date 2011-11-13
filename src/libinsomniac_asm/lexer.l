@@ -41,6 +41,7 @@ CHAR_VAL  (newline|space|[^{WS}])
 "read"                  { return OP_GETC; }
 "slurp"                 { return OP_SLURP; }
 "asm"                   { return OP_ASM; }
+"import"                { return OP_IMPORT; }
 
 "nop"                   { return OP_NOP; }
 "dup"                   { return OP_DUP_REF; }
@@ -97,6 +98,7 @@ CHAR_VAL  (newline|space|[^{WS}])
 "jin"                   { return OP_JIN; }
 "ret"                   { return OP_JIN; }
 "call_in"               { return OP_CALL_IN; }
+"call_ext"               { return OP_CALL_EXT; }
 
 
 {LABEL}/":"             { BEGIN(EXPECT_LABEL);

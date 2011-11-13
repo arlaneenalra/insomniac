@@ -400,6 +400,16 @@ void op_slurp(vm_internal_type *vm) {
     gc_unregister_root(vm->gc, (void**)&obj);    
 }
 
+/* do a dlopen on a dll */
+void op_import(vm_internal_type *vm) {   
+    printf("#I\n");
+}
+
+/* call a function off a given library */
+void op_call_ext(vm_internal_type *vm) {
+    printf("#C\n");
+}
+
 /* assemble a string on the stack into a proc */
 void op_asm(vm_internal_type *vm) {
     object_type *obj = 0;
@@ -950,6 +960,9 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_PROC] = &op_proc;
     vm->ops[OP_JIN] = &op_jin; /* jump indirect */
     vm->ops[OP_CALL_IN] = &op_call_in; /* jump indirect */
+
+    vm->ops[OP_IMPORT] = &op_import; /* dlopen a dll */
+    vm->ops[OP_CALL_EXT] = &op_call_ext; /* call an imported function */
 
     /* Exception Handline */
     vm->ops[OP_CONTINUE] = &op_continue;

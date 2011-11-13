@@ -484,7 +484,7 @@ void op_call_ext(vm_internal_type *vm) {
         } else {
 
             /* call the function */
-            ((ext_call_type *)lib->value.library.functions)[func](vm);
+            ((ext_call_type *)lib->value.library.functions)[func](vm, vm->gc);
         }
     }
 

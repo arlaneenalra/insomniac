@@ -16,15 +16,20 @@
         ;; dup out
         asm
 
-        "Assembled" out
-         #\newline out
+        call_in
+
+        "Assembled"
+        call say
+        
+        #\newline
+        call say
+
 
         ;; dup
         ;; out
         ;; #\newline
         ;; out
         
-        call_in
         
         jmp loop
 
@@ -32,6 +37,12 @@
 hi:
         s"io.lib" @
         0 call_ext
+        ret
+
+say:
+        swap
+        s"io.lib" @
+        1 call_ext
         ret
 
 
@@ -55,4 +66,6 @@ loop:
         out
         #\newline
         out
-        
+
+        "WHOOP!"
+        call say

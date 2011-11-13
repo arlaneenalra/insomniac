@@ -85,7 +85,7 @@ int main(int argc, char**argv) {
     vm = vm_create(gc);
 
     /* load and eval */
-    eval_string(vm, gc, " \"Hello World\" out #\\newline out");
+    eval_string(vm, gc, " \"Insomniac VM\" out #\\newline out");
     load_buf(gc, argv[1], &code_str);
     eval_string(vm, gc, code_str);
 

@@ -1,7 +1,8 @@
 ;;; A simple test for tail call recursion, assuming all
 ;;; well.
         ()
-        100000
+        ;;; 100000
+        10000
         cons
         proc output
         cons
@@ -18,7 +19,7 @@
         out
 
         ()
-        2000000
+        20000
         cons
         proc output
         cons

@@ -27,6 +27,7 @@ target_link_libraries(insomniac
   libinsomniac_buffer
   libinsomniac_hash
   libinsomniac_asm
+  dl
   )
 
 

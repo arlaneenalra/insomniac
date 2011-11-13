@@ -1,6 +1,8 @@
 #include "vm_internal.h"
 #include <asm.h>
 
+#include <dlfcn.h>
+
 /* decode an integer literal and push it onto the stack */
 void op_lit_64bit(vm_internal_type *vm) {
     object_type *obj = 0;
@@ -402,12 +404,92 @@ void op_slurp(vm_internal_type *vm) {
 
 /* do a dlopen on a dll */
 void op_import(vm_internal_type *vm) {   
-    printf("#I\n");
+    object_type *obj = 0;
+    object_type *lib = 0;
+    void *handle = 0;
+    ext_call_type **export_list = 0;
+    vm_int func_count = 0;
+    char *msg = 0;
+
+    gc_register_root(vm->gc, (void **)&obj);
+    gc_register_root(vm->gc, (void **)&lib);
+
+    obj = vm_pop(vm);
+
+    if(!obj || obj->type != STRING) {
+        throw(vm, "Attempt to import with non-string filename", 1, obj);
+    } else {
+        /* check if the library has been loaded */
+        handle = dlopen(obj->value.string.bytes, RTLD_NOW | RTLD_LOCAL | RTLD_NOLOAD);
+
+        /* load the library if it has not been loaded */
+        if(!handle) {
+            handle = dlopen(obj->value.string.bytes, RTLD_NOW | RTLD_LOCAL | RTLD_DEEPBIND);
+        }
+
+
+        /* check to make sure we did not run into an error */
+        if(!handle) {
+            throw(vm, dlerror(), 1, obj);
+        } else {
+            lib = vm_alloc(vm, LIBRARY);
+           
+            dlerror(); /* Clear error states */
+            export_list = (ext_call_type **)dlsym(handle, "export_list");
+            
+            if((msg = dlerror())) {
+                throw(vm, msg, 1, obj);
+            } else {
+
+                /* count the number of functions */
+                while(export_list[func_count]) {
+                    func_count++;
+                }
+
+                lib->value.library.handle = handle;
+                lib->value.library.functions = export_list;
+                lib->value.library.func_count = func_count;
+                
+                vm_push(vm, lib);
+            }
+        }
+        
+    }
+    
+    gc_unregister_root(vm->gc, (void **)&lib);
+    gc_unregister_root(vm->gc, (void **)&obj);
 }
 
 /* call a function off a given library */
 void op_call_ext(vm_internal_type *vm) {
-    printf("#C\n");
+    object_type *obj = 0;
+    object_type *lib = 0;
+
+    vm_int func = 0;
+
+    gc_register_root(vm->gc, (void **)&obj);
+    gc_register_root(vm->gc, (void **)&lib);
+
+    obj = vm_pop(vm);
+    lib = vm_pop(vm);
+
+    if(!obj || !lib || obj->type != FIXNUM || lib->type != LIBRARY) {
+        throw(vm, "Invalid arguments to call_ext", 2, obj, lib);
+    } else {
+
+        func = obj->value.integer;
+
+        if(func > lib->value.library.func_count) {
+            throw(vm, "Invalide function number", 2, obj, lib);
+        } else {
+
+            /* call the function */
+            ((ext_call_type *)lib->value.library.functions)[func](vm);
+        }
+    }
+
+    gc_unregister_root(vm->gc, (void **)&lib);
+    gc_unregister_root(vm->gc, (void **)&obj);
 }
 
 /* assemble a string on the stack into a proc */

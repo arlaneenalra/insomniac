@@ -1,9 +1,13 @@
 
 
 ;;; Check import
-        "liblibinsomniac_io.so"
+        "src/libinsomniac_io/liblibinsomniac_io.so"
         import
-        0 call_ext
+        s"io.lib"
+        bind
+
+        call hi
+        call hi
 
 
 ;;; Test code designed to do loading of libraries
@@ -23,6 +27,12 @@
         call_in
         
         jmp loop
+
+
+hi:
+        s"io.lib" @
+        0 call_ext
+        ret
 
 
 loop:

@@ -53,6 +53,7 @@ typedef void * closure_type;
 /* holds a library handle */
 typedef struct library {
     void *handle;
+    void *functions;
     vm_int func_count;
 } library_type;
 

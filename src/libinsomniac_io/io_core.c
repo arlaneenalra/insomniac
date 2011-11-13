@@ -8,6 +8,7 @@ void hello_world(vm_type *vm) {
 
 
 /* setup the export list */
-EXPORT_LIST = {
-    &hello_world
+ext_call_type export_list[] = {
+    &hello_world,
+    0
 };

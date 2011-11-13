@@ -116,6 +116,11 @@ void output_object(FILE *fout, object_type *obj) {
         fprintf(fout, "<CLOSURE %p:%p>", (void *)obj,
                 (void *)obj->value.closure);
         break;
+
+    case LIBRARY:
+        fprintf(fout, "<LIBRARY %p:%p #%"PRIi64">", (void *)obj,
+                (void *)obj->value.library.handle, obj->value.library.func_count);
+        break;
         
     default:
         fprintf(fout, "<Unkown Object %p>", (void *)obj);

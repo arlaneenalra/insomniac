@@ -637,10 +637,10 @@ void op_proc(vm_internal_type *vm) {
     closure = vm_alloc(vm, CLOSURE);
 
     /* save our current environment */
-    /* clone_env(vm, (env_type **)&env, vm->env); */
-    push_env(vm);
-    env = vm->env;
-    pop_env(vm);
+    clone_env(vm, (env_type **)&env, vm->env);
+    /* push_env(vm); */
+    /* env = vm->env; */
+    /* pop_env(vm); */
 
     /* update the ip */
     env->ip +=target;
@@ -697,6 +697,8 @@ void op_call_in(vm_internal_type *vm) {
 
         /* clone the closures environment */
         clone_env(vm, &(vm->env), closure->value.closure);
+        /* create a child environment */
+        push_env(vm);
     }
 
     gc_unregister_root(vm->gc, (void **)&ret);

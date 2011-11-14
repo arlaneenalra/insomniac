@@ -1,5 +1,5 @@
 ;;; Looking for a leak in proc
-        5000000
+        10000
 
         proc output
         s"output"
@@ -18,8 +18,7 @@ loop:
         
 do_loop:        
         proc loop
-        drop
-        jmp loop
+        jin
 
 
 output:

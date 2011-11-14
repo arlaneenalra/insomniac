@@ -5,30 +5,25 @@
         bind
         
         ;; Setup function calls
-        100000
+        1000000
+
 top:
-
-        S"newline"
-        call eval
         
         
-        "Hi There"
+        "Hi There "
         out
-
-        "newline"
-        sym
-        dup
-        call eval
-
-        dup
-        call eval
-        call eval
-
+        
+        dupout
+        " " out
+        
         1 -
         dup
         0 =
         jnf exit
         
+        depth
+        #\newline out out #\newline out
+
         proc top
         jin
 

@@ -64,6 +64,14 @@ func1:
         s"func2" @
         call_in
 
+        ;; This should work
+        "Func1 a="
+        out
+        s"a" @
+        out
+        #\newline
+        out
+
         ;; ;; call into func2
         ;; call func2
         
@@ -77,6 +85,10 @@ func2:
         out
         #\newline
         out
+
+        ;; Change the value of a
+        5 
+        s"a" !
 
         ;; Should not work
         "Func2 b="
@@ -131,13 +143,6 @@ handler:
         
         ret                     ;Return
 
-
-        #\newline
-        out
-        "WTF Mate!"
-        out
-        #\newline
-        out
 
         ;; Exit function
 exit:

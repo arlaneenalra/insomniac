@@ -2,7 +2,7 @@
 ;;; well.
         ()
         ;;; 100000
-        10000
+        1000000
         cons
         proc output
         cons
@@ -19,7 +19,7 @@
         out
 
         ()
-        20000
+        2000000
         cons
         proc output
         cons

@@ -13,6 +13,7 @@ dup ( a -- a a)
 swap ( a b -- b a)
 rot (c b a -- a c b)
 depth ( -- depth ) How deep is the stack?
+
 sym    ( str -- sym ) Takes a string and makes it into a symbol
 
 cons   ( car cdr -- (car . cdr) ) Takes the top two stack entries and
@@ -32,6 +33,7 @@ jmp  ( -label- ) Jumps to given label
 jnf  ( obj -label- ) Jumps to the given label if obj is not false
 
 continue ( -label- ) Sets the location of an exception handling routine
+
 restore ( -- )  Turn exception handling on from within an exception 
                 handler, there is no checking on this so make sure you 
                 only call it if you are in an exception handler that 
@@ -39,7 +41,9 @@ restore ( -- )  Turn exception handling on from within an exception
 
 call ( -label- closure ) Converts the location following this
                          instruction to closure and leaves it on the
-                         stack then jumps to the label.
+                         stack then jumps to the label. Note: not tail
+                         call safe!
+
 proc ( -label- closure ) Creates a closure that begins execution at
                          the given label.
 
@@ -70,8 +74,10 @@ asm ( string -- proc ) Take a string and convert it into an assembled
                        proc in the current environment.
 
 bind ( value sym -- ) Binds a symbol in the current environemnt
+
 ! ( value sym -- ) Stores a value at the given symbol, must already
                    exist
+
 @ ( sym -- value ) Load the value stored in a symbol
 
 + ( a b -- a+b )

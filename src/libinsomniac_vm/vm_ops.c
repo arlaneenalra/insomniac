@@ -431,7 +431,13 @@ void op_import(vm_internal_type *vm) {
         /* check to make sure we did not run into an error */
         if(!handle) {
             throw(vm, dlerror(), 1, obj);
-        } else {
+
+        } else if(hash_get(vm->import_table, handle, (void**)&lib)) {
+            /* if we have already imported this library,
+               return the existing library object */
+            vm_push(vm, lib);
+
+        } else { 
             lib = vm_alloc(vm, LIBRARY);
            
             dlerror(); /* Clear error states */
@@ -449,7 +455,11 @@ void op_import(vm_internal_type *vm) {
                 lib->value.library.handle = handle;
                 lib->value.library.functions = export_list;
                 lib->value.library.func_count = func_count;
-                
+
+                /* save this library off into the import table. */
+                hash_set(vm->import_table,
+                    handle, lib);
+
                 vm_push(vm, lib);
             }
         }

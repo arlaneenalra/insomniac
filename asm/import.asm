@@ -97,3 +97,7 @@ loop:
 
         "WHOOP!"
         call say
+
+        #\newline
+        out
+

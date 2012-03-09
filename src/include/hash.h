@@ -28,6 +28,10 @@ hashtable_type *hash_create(gc_type *gc, hash_fn fn,
 #define hash_create_string(gc) \
     hash_create(gc, &hash_string, &hash_string_cmp)
 
+/* macro to make string hash tables easier to deal with */
+#define hash_create_pointer(gc) \
+    hash_create(gc, &hash_pointer, &hash_pointer_cmp)
+
 /* bind a key and value in the given table */
 void hash_set(hashtable_type *hash, void *key, void* value);
 
@@ -46,5 +50,9 @@ void hash_info(hashtable_type *hash);
 /* functions for string keyed hashtables */
 hash_type hash_string(void *key);
 cmp_type hash_string_cmp(void *key1, void *key2);
+
+/* functions for pointer keyed hashtables */
+hash_type hash_pointer(void *key);
+cmp_type hash_pointer_cmp(void *key1, void *key2);
 
 #endif

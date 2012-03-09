@@ -59,6 +59,8 @@ struct vm_internal {
 
     hashtable_type *symbol_table; /* Symbol table */
     
+    hashtable_type *import_table; /* Loaded library table */
+    
     /* current execution state */
     gc_type_def env_type;
     env_type *env;

@@ -6,8 +6,12 @@
 "Hi"   ( -- s ) Puts a string literal on the stack
 s"Hi"  ( -- sym ) Put a symbol literal on the stack
 
+
 out  ( obj -- ) Outputs the object on top of the stack to stdout
-               printf)
+               printf. This instruction should only be used for
+               debugging purposes.
+
+
 nop ( -- ) Does nothing
 dup ( a -- a a)
 swap ( a b -- b a)

@@ -73,7 +73,6 @@ struct object {
         closure_type closure;
         library_type library;
     } value;
-
 };
 
 #endif

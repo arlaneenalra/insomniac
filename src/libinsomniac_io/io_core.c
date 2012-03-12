@@ -22,8 +22,14 @@ void say_something(vm_type *vm, gc_type *gc) {
 
 
 /* setup the export list */
-ext_call_type export_list[] = {
-    &hello_world,
-    &say_something,
-    0
+/* ext_call_type export_list[] = { */
+/*     &hello_world, */
+/*     &say_something, */
+/*     0 */
+/* }; */
+
+binding_type export_list[] = {
+    {"io-hello-world", &hello_world},
+    {"io-say", &say_something},
+    {0,0},
 };

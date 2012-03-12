@@ -407,7 +407,7 @@ void op_import(vm_internal_type *vm) {
     object_type *obj = 0;
     object_type *lib = 0;
     void *handle = 0;
-    ext_call_type **export_list = 0;
+    binding_type **export_list = 0;
     vm_int func_count = 0;
     char *msg = 0;
 
@@ -441,7 +441,7 @@ void op_import(vm_internal_type *vm) {
             lib = vm_alloc(vm, LIBRARY);
            
             dlerror(); /* Clear error states */
-            export_list = (ext_call_type **)dlsym(handle, "export_list");
+            export_list = (binding_type **)dlsym(handle, "export_list");
             
             if((msg = dlerror())) {
                 throw(vm, msg, 1, obj);
@@ -474,6 +474,7 @@ void op_import(vm_internal_type *vm) {
 void op_call_ext(vm_internal_type *vm) {
     object_type *obj = 0;
     object_type *lib = 0;
+    ext_call_type func_ptr = 0;
 
     vm_int func = 0;
 
@@ -494,7 +495,8 @@ void op_call_ext(vm_internal_type *vm) {
         } else {
 
             /* call the function */
-            ((ext_call_type *)lib->value.library.functions)[func](vm, vm->gc);
+            func_ptr = ((binding_type *)lib->value.library.functions)[func].func;
+            (*func_ptr)(vm, vm->gc);
         }
     }
 

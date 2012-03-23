@@ -66,9 +66,10 @@ slurp ( file -- string ) A crude routine to load a file into a string
                          should not be used outside of the bootstrap
                          code.
 
-import ( file -- library ) Load an external dll and create return a 
-                           dispatching procedure that can be used to 
-                           call functions within the dll.
+import ( file -- bindings library ) Load an external dll and return an
+                                    alist of name to function id bindings
+                                    as well as a library object that can 
+                                    be used with call_ext. 
 
 call_ext (<arguments> library func -- <returns>) Call a given function
                                                  from the given library

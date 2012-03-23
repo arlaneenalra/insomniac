@@ -3,7 +3,6 @@
 ;;; Check import
         "src/libinsomniac_io/libinsomniac_io.so"
         import
-
         drop
         s"io.lib"
         bind
@@ -11,9 +10,6 @@
 
         "src/libinsomniac_io/libinsomniac_io.so"
         import
-
-        jmp loop
-
         drop
         s"io2.lib"
         bind
@@ -63,11 +59,11 @@ good:
         #\newline
         call say
 
-
-        ;; dup
-        ;; out
-        ;; #\newline
-        ;; out
+        
+        dup
+        out
+        #\newline
+        out
         
         
         jmp loop
@@ -106,8 +102,8 @@ loop:
         #\newline
         out
 
-;;        "WHOOP!"
-;;        call say
+        "WHOOP!"
+        call say
 
         #\newline
         out

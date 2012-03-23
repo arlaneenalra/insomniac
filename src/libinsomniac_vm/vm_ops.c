@@ -437,67 +437,78 @@ void op_import(vm_internal_type *vm) {
         if(!handle) {
             throw(vm, dlerror(), 1, obj);
 
-        } else if(hash_get(vm->import_table, handle, (void**)&lib)) {
-            /* if we have already imported this library,
-               return the existing library object */
-            vm_push(vm, lib);
-
-        } else { 
-            lib = vm_alloc(vm, LIBRARY);
-           
-            dlerror(); /* Clear error states */
-            export_list = (binding_type **)dlsym(handle, "export_list");
-            
-            if((msg = dlerror())) {
-                throw(vm, msg, 1, obj);
-            } else {
-
-                /* setup a binding alist so we can bind the exported 
-                 * symbols to function call values
-                 */
-
-                binding_alist = vm->empty;
-
-                /* count the number of functions */
-                while(((binding_type *)export_list)[func_count].func) {
-
-                    symbol = ((binding_type *)export_list)[func_count].symbol;
-                    /* create string object */ 
-                    obj = vm_make_string(vm, 
-                        symbol,
-                        strlen(symbol));
-
-                    /* make our string into a symbol */
-                    make_symbol(vm, &obj);
-
-                    /* convert the func_counter into a number */
-                    obj2 = vm_alloc(vm, FIXNUM);
-                    obj2->value.integer = func_count;
-
-                    /* This may have some vm allocation issues */
-                    binding_alist = cons(vm,
-
-                                        cons(vm,
-                                            obj,
-                                            obj2
-                                            ),
-                                        binding_alist);
-                    func_count++;
-                }
-
-                lib->value.library.handle = handle;
-                lib->value.library.functions = export_list;
-                lib->value.library.func_count = func_count;
-
-                /* save this library off into the import table. */
-                hash_set(vm->import_table,
-                    handle, lib);
-
+        } else {
+            if(hash_get(vm->import_table, handle, (void**)&lib)) {
+                /* if we have already imported this library,
+                   return the existing library object */
                 vm_push(vm, lib);
-                vm_push(vm, binding_alist);
+                
+            } else { 
+                lib = vm_alloc(vm, LIBRARY);
+           
+                dlerror(); /* Clear error states */
+                export_list = (binding_type **)dlsym(handle, "export_list");
+            
+                if((msg = dlerror())) {
+                    throw(vm, msg, 1, obj);
+                } else {
+
+
+                    func_count = 0;
+
+                    while(((binding_type *)export_list)[func_count].func) {
+                        func_count++;
+                    }
+
+                    lib->value.library.handle = handle;
+                    lib->value.library.functions = export_list;
+                    lib->value.library.func_count = func_count;
+
+                    /* save this library off into the import table. */
+                    hash_set(vm->import_table,
+                             handle, lib);
+
+                    vm_push(vm, lib);
+                }
             }
+
+            /* setup a binding alist so we can bind the exported 
+             * symbols to function call values
+             */
+
+            binding_alist = vm->empty;
+            export_list = lib->value.library.functions;
+            func_count = 0;
+
+            /* count the number of functions */
+            while(((binding_type *)export_list)[func_count].func) {
+
+                symbol = ((binding_type *)export_list)[func_count].symbol;
+                /* create string object */ 
+                obj = vm_make_string(vm, 
+                                     symbol,
+                                     strlen(symbol));
+
+                /* make our string into a symbol */
+                make_symbol(vm, &obj);
+
+                /* convert the func_counter into a number */
+                obj2 = vm_alloc(vm, FIXNUM);
+                obj2->value.integer = func_count;
+
+                /* This may have some vm allocation issues */
+                binding_alist = cons(vm,
+                                     cons(vm,
+                                          obj,
+                                          obj2
+                                          ),
+                                     binding_alist);
+
+                /* increment function count */
+                func_count++;
+            }
+            vm_push(vm, binding_alist);
         }
-        
     }
     
     gc_unregister_root(vm->gc, (void **)&binding_alist);

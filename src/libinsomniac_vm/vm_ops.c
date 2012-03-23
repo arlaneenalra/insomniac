@@ -405,14 +405,19 @@ void op_slurp(vm_internal_type *vm) {
 /* do a dlopen on a dll */
 void op_import(vm_internal_type *vm) {   
     object_type *obj = 0;
+    object_type *obj2 = 0;
     object_type *lib = 0;
+    object_type *binding_alist = 0;
     void *handle = 0;
     binding_type **export_list = 0;
+    char *symbol = 0;
     vm_int func_count = 0;
     char *msg = 0;
 
     gc_register_root(vm->gc, (void **)&obj);
+    gc_register_root(vm->gc, (void **)&obj2);
     gc_register_root(vm->gc, (void **)&lib);
+    gc_register_root(vm->gc, (void **)&binding_alist);
 
     obj = vm_pop(vm);
 
@@ -447,8 +452,36 @@ void op_import(vm_internal_type *vm) {
                 throw(vm, msg, 1, obj);
             } else {
 
+                /* setup a binding alist so we can bind the exported 
+                 * symbols to function call values
+                 */
+
+                binding_alist = vm->empty;
+
                 /* count the number of functions */
-                while(export_list[func_count]) {
+                while(((binding_type *)export_list)[func_count].func) {
+
+                    symbol = ((binding_type *)export_list)[func_count].symbol;
+                    /* create string object */ 
+                    obj = vm_make_string(vm, 
+                        symbol,
+                        strlen(symbol));
+
+                    /* make our string into a symbol */
+                    make_symbol(vm, &obj);
+
+                    /* convert the func_counter into a number */
+                    obj2 = vm_alloc(vm, FIXNUM);
+                    obj2->value.integer = func_count;
+
+                    /* This may have some vm allocation issues */
+                    binding_alist = cons(vm,
+
+                                        cons(vm,
+                                            obj,
+                                            obj2
+                                            ),
+                                        binding_alist);
                     func_count++;
                 }
 
@@ -461,12 +494,15 @@ void op_import(vm_internal_type *vm) {
                     handle, lib);
 
                 vm_push(vm, lib);
+                vm_push(vm, binding_alist);
             }
         }
         
     }
     
+    gc_unregister_root(vm->gc, (void **)&binding_alist);
     gc_unregister_root(vm->gc, (void **)&lib);
+    gc_unregister_root(vm->gc, (void **)&obj2);
     gc_unregister_root(vm->gc, (void **)&obj);
 }
 
@@ -491,7 +527,7 @@ void op_call_ext(vm_internal_type *vm) {
         func = obj->value.integer;
 
         if(func > lib->value.library.func_count) {
-            throw(vm, "Invalide function number", 2, obj, lib);
+            throw(vm, "Invalid function number", 2, obj, lib);
         } else {
 
             /* call the function */

@@ -3,28 +3,39 @@
 ;;; Check import
         "src/libinsomniac_io/libinsomniac_io.so"
         import
+
+        drop
         s"io.lib"
         bind
 
-        "src/libinsomniac_io/libinsomniac_io.so"
-        import
-        s"io2.lib"
-        bind
 
         "src/libinsomniac_io/libinsomniac_io.so"
         import
+
+        jmp loop
+
+        drop
+        s"io2.lib"
+        bind
+
+
+        "src/libinsomniac_io/libinsomniac_io.so"
+        import
+        drop
         s"io3.lib"
         bind
 
 
-        call hi
-        call hi
 
 
         s"io.lib" @
         dup out #\newline out
+
         s"io2.lib" @
         dup out #\newline out
+        
+        jmp loop
+
         eq
 
         s"io3.lib" @
@@ -95,8 +106,8 @@ loop:
         #\newline
         out
 
-        "WHOOP!"
-        call say
+;;        "WHOOP!"
+;;        call say
 
         #\newline
         out

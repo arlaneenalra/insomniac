@@ -7,13 +7,11 @@
         s"io.lib"
         bind
 
-
         "src/libinsomniac_io/libinsomniac_io.so"
         import
         drop
         s"io2.lib"
         bind
-
 
         "src/libinsomniac_io/libinsomniac_io.so"
         import
@@ -21,16 +19,14 @@
         s"io3.lib"
         bind
 
-
-
+        call hi
+        call hi
 
         s"io.lib" @
         dup out #\newline out
 
         s"io2.lib" @
         dup out #\newline out
-        
-        jmp loop
 
         eq
 
@@ -59,15 +55,12 @@ good:
         #\newline
         call say
 
-        
         dup
         out
         #\newline
         out
         
-        
         jmp loop
-
 
 hi:
         s"io.lib" @

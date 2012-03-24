@@ -27,5 +27,10 @@ object_type *vm_make_vector(vm_type *vm_void, vm_int length);
 /* interface definitions for external libraries */
 typedef void (*ext_call_type)(vm_type *vm, gc_type *gc);
 
+typedef struct binding {
+    char *symbol;
+    ext_call_type func;
+} binding_type;
+
 
 #endif

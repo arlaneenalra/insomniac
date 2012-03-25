@@ -28,11 +28,21 @@ int utf8_head_count_bytes(char c) {
 
 /* read a multibyte unicode character from stdin */
 void utf8_read_char(vm_char *character) {
+    int in_c = 0; 
     char c;
     int bytes = 0;
 
     /* read in the first byte */
-    c = getchar();
+    in_c = getchar();
+
+    /* handle eof */
+    if(in_c == EOF) {
+        *character = -1;
+        return;
+    }
+
+    /* mask down to one byte */
+    c = in_c & 0xFF;
 
     bytes = utf8_head_count_bytes(c);
 

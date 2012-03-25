@@ -19,7 +19,7 @@ IDENT     [!$%&*+\-./<=>?@^_~[:alnum:]]
 SIGNS     [-+]
 LABEL     {IDENT}+
 
-CHAR_VAL  (newline|space|[^{WS}])
+CHAR_VAL  (newline|space|eof|[^{WS}])
 
 %x EXPECT_CHAR
 %x EXPECT_STRING

@@ -25,6 +25,9 @@ void asm_lit_char(buffer_type *buf, yyscan_t *scanner) {
     } else if(strcmp(str, "space")==0) {
 	c = ' ';
 
+    } else if(strcmp(str, "eof")==0) {
+        c = -1;
+    
     } else if(*str=='x' && strlen(str) > 1) { /* Hex encoded charater */
 	c = strtoul(str+1, 0, 16);
     }

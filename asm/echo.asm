@@ -4,12 +4,12 @@ loop:
         dup     
         out
 
-        #\x eq
+
+        #\eof eq
         not
 
         jnf loop
 
-        "bye" out
         
         
         

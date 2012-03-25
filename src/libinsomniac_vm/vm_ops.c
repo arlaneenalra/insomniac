@@ -605,8 +605,7 @@ void op_getc(vm_internal_type *vm) {
     
     obj = vm_alloc(vm, CHAR);
 
-    /* TODO: make this utf8 compliant */
-    obj->value.character = getchar();
+    utf8_read_char(&(obj->value.character));
     vm_push(vm, obj);
 
     gc_unregister_root(vm->gc, (void**)&obj);

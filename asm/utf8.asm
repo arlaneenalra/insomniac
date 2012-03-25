@@ -1,0 +1,10 @@
+        #\x3BB
+        out
+        #\x39b  
+        out
+        #\x1000
+        out
+        #\x6587
+        out 
+        #\newline
+        out

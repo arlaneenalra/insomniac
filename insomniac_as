@@ -102,3 +102,15 @@ eq  ( a b -- a eq b) Simple equivalence operations works for most
                      primitive types and checks to see if complex
                      object references are the same object
 
+Type testing predicates
+
+All of these match (obj -- bool) and return true if the object on the top of the stack is of the given type.
+
+fixnum?
+bool?
+char?
+string?
+vector?
+pair?
+null?
+proc?

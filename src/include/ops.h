@@ -72,6 +72,19 @@ typedef enum op {
 
     OP_IMPORT, /* load a dll */
     OP_CALL_EXT, /* call a function exported by the dll */
+
+    /* Each of these tests to see if the object on top of the stack is of the 
+       named type. */
+    OP_IS_FIXNUM, 
+    OP_IS_BOOL,
+    OP_IS_CHAR,
+    OP_IS_STRING,
+    OP_IS_SYMBOL,
+    OP_IS_VECTOR,
+    OP_IS_PAIR,
+    OP_IS_EMPTY,
+    OP_IS_CLOSURE,
+    OP_IS_LIBRARY,
     
     OP_MAX_INS /* must be the last instruction in list */
 } op_type;

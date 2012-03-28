@@ -1,4 +1,4 @@
-#include "vm_instructions_interanl.h"
+#include "vm_instructions_internal.h"
 
 /* cons the top two objects on the stack */
 void op_cons(vm_internal_type *vm) {

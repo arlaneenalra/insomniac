@@ -37,6 +37,17 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "#f"                    { return OP_LIT_FALSE;} 
 "()"                    { return OP_LIT_EMPTY; }
 
+"fixnum?"               { return OP_IS_FIXNUM; }
+"bool?"                 { return OP_IS_BOOL; }
+"char?"                 { return OP_IS_CHAR; }
+"string?"               { return OP_IS_STRING; }
+"symbol?"               { return OP_IS_SYMBOL; }
+"vector?"               { return OP_IS_VECTOR; }
+"pair?"                 { return OP_IS_PAIR; }
+"null?"                 { return OP_IS_EMPTY; }
+"proc?"                 { return OP_IS_CLOSURE; }
+
+
 "out"                   { return OP_OUTPUT; }
 "read"                  { return OP_GETC; }
 "slurp"                 { return OP_SLURP; }
@@ -139,3 +150,4 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 char * get_text(void * scanner) {
 	return yyget_text(scanner);
 }
+

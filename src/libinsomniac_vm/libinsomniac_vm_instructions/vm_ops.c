@@ -1,6 +1,7 @@
 #include "vm_instructions_internal.h"
-#include "vm_math.h" 
 
+#include "vm_math.h" 
+#include "vm_types.h"
 
 
 /* Math operations */
@@ -13,6 +14,19 @@ NUMERIC_OP(op_mod, %)
 NUMERIC_LOGIC(op_numeric_equal, ==)
 NUMERIC_LOGIC(op_numeric_lt, <)
 NUMERIC_LOGIC(op_numeric_gt, >)
+
+/* Identifiy the type of an object */
+TYPE_OP(op_is_fixnum, FIXNUM)
+TYPE_OP(op_is_bool, BOOL)
+TYPE_OP(op_is_char, CHAR)
+TYPE_OP(op_is_string, STRING)
+TYPE_OP(op_is_symbol, SYMBOL)
+TYPE_OP(op_is_vector, VECTOR)
+TYPE_OP(op_is_pair, PAIR)
+TYPE_OP(op_is_empty, EMPTY)
+TYPE_OP(op_is_closure, CLOSURE)
+TYPE_OP(op_is_library, LIBRARY)
+
 
 /* setup of instructions in given vm instance */
 void setup_instructions(vm_internal_type *vm) {
@@ -85,5 +99,18 @@ void setup_instructions(vm_internal_type *vm) {
     /* Exception Handline */
     vm->ops[OP_CONTINUE] = &op_continue;
     vm->ops[OP_RESTORE] = &op_restore;
+
+    /* type testing operations */
+    vm->ops[OP_IS_FIXNUM] = &op_is_fixnum;
+    vm->ops[OP_IS_BOOL] = &op_is_bool;
+    vm->ops[OP_IS_CHAR] = &op_is_char;
+    vm->ops[OP_IS_STRING] = &op_is_string;
+    vm->ops[OP_IS_SYMBOL] = &op_is_symbol;
+    vm->ops[OP_IS_VECTOR] = &op_is_vector;
+    vm->ops[OP_IS_PAIR] = &op_is_pair;
+    vm->ops[OP_IS_EMPTY] = &op_is_empty;
+    vm->ops[OP_IS_CLOSURE] = &op_is_closure;
+
+
 }
 

@@ -61,4 +61,9 @@ void op_import(vm_internal_type *vm);
 void op_call_ext(vm_internal_type *vm);
 void op_asm(vm_internal_type *vm);
 
+/* location/variable handling code */
+void op_bind(vm_internal_type *vm);
+void op_read(vm_internal_type *vm);
+void op_set(vm_internal_type *vm);
+
 #endif

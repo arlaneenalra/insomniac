@@ -1,67 +1,5 @@
-#include <vm_internal.h>
-#include <asm.h>
-
-#include <dlfcn.h>
-
-/* decode an integer literal and push it onto the stack */
-void op_lit_64bit(vm_internal_type *vm) {
-    object_type *obj = 0;
-    vm_int num = 0;
-
-    num = parse_int(vm);
-
-    gc_protect(vm->gc);
-    
-    obj = vm_alloc(vm, FIXNUM);
-    obj->value.integer = num;
-
-    vm_push(vm, obj);
-
-    gc_unprotect(vm->gc);
-}
-
-/* decode a character literal and push it onto the stack */
-void op_lit_char(vm_internal_type *vm) {
-    object_type *obj = 0;
-    vm_char character = 0;
-    uint8_t byte = 0;
-
-    /* ip should be pointed at the instructions argument */
-    for(int i=4; i>=0; i--) {
-        byte = vm->env->code_ref[vm->env->ip + i];
-        
-        character = character << 8;
-        character = character | byte;
-    }
-
-    /* increment the ip field */
-    vm->env->ip += 4;
-
-    gc_protect(vm->gc);
-    
-    obj = vm_alloc(vm, CHAR);
-    obj->value.character = character;
-
-    vm_push(vm, obj);
-
-    gc_unprotect(vm->gc);
-}
-
-/* push the empty object onto the stack */
-void op_lit_empty(vm_internal_type *vm) {
-    vm_push(vm, vm->empty);
-}
-
-/* push a true object onto the stack */
-void op_lit_true(vm_internal_type *vm) {
-    vm_push(vm, vm->true);
-}
-
-/* push a true object onto the stack */
-void op_lit_false(vm_internal_type *vm) {
-    vm_push(vm, vm->false);
-}
- 
+#include "vm_instructions_internal.h"
+#include "vm_math.h" 
 
 /* cons the top two objects on the stack */
 void op_cons(vm_internal_type *vm) {
@@ -246,52 +184,6 @@ void op_depth(vm_internal_type *vm) {
 /* drop the top item on the stack */
 void op_drop(vm_internal_type *vm) {
     vm_pop(vm);
-}
-
-/* Given a string, convert it into a symbol */
-void op_make_symbol(vm_internal_type *vm) {
-    object_type *string = 0;
-
-    gc_register_root(vm->gc, (void **)&string);
-    
-    string = vm_pop(vm);
-    
-    assert(string && string->type == STRING);
-
-    make_symbol(vm, &string);
-
-    vm_push(vm, string);
-
-    gc_unregister_root(vm->gc, (void **)&string);
-}
-
-/* load a string litteral and push it onto the stack*/
-void op_lit_symbol(vm_internal_type *vm) {
-    object_type *obj = 0;
-    
-    gc_register_root(vm->gc, (void **)&obj);
-    
-    parse_string(vm, &obj);
-    make_symbol(vm, &obj);
-
-    vm_push(vm, obj);
-
-    gc_unregister_root(vm->gc, (void **)&obj);    
-
-}
-
-/* load a string litteral and push it onto the stack*/
-void op_lit_string(vm_internal_type *vm) {
-    object_type *obj = 0;
-    
-    gc_register_root(vm->gc, (void **)&obj);
-    
-    parse_string(vm, &obj);
-
-    vm_push(vm, obj);
-
-    gc_unregister_root(vm->gc, (void **)&obj);    
-
 }
 
 /* allocate a new vector */
@@ -950,88 +842,12 @@ void op_not(vm_internal_type *vm) {
     gc_unregister_root(vm->gc, (void **)&obj);
 }
 
-/* Math operations */
-#define NUMERIC_OP(fn_name, op)                         \
-void fn_name(vm_internal_type *vm) {                    \
-    object_type *num1 = 0;                              \
-    object_type *num2 = 0;                              \
-    object_type *result = 0;                            \
-                                                        \
-    gc_register_root(vm->gc, (void **)&num1);           \
-    gc_register_root(vm->gc, (void **)&num2);           \
-    gc_register_root(vm->gc, (void **)&result);         \
-                                                        \
-    /* verify that the firt two objects are number */   \
-    num2 = vm_pop(vm);                                  \
-    num1 = vm_pop(vm);                                  \
-                                                        \
-    /* TODO: replace this with sane exception           \
-       handler */                                       \
-    if(!num1 || num1->type != FIXNUM ||                 \
-       !num2 || num2->type != FIXNUM) {                 \
-        printf("Attempt to calculate with non-number\n");\
-        output_object(stdout,num1);                     \
-        printf("\n");                                   \
-        output_object(stdout,num2);                     \
-        assert(0);                                      \
-    }                                                   \
-                                                        \
-    result = vm_alloc(vm, FIXNUM);                      \
-                                                        \
-    result->value.integer =                             \
-        num1->value.integer op num2->value.integer;     \
-    vm_push(vm, result);                                \
-                                                        \
-    gc_unregister_root(vm->gc, (void **)&result);       \
-    gc_unregister_root(vm->gc, (void **)&num2);         \
-    gc_unregister_root(vm->gc, (void **)&num1);         \
-}                                                       \
 
 NUMERIC_OP(op_add, +)
 NUMERIC_OP(op_sub, -)
 NUMERIC_OP(op_mul, *)
 NUMERIC_OP(op_div, /)
 NUMERIC_OP(op_mod, %)
-
-
-#define NUMERIC_LOGIC(fn_name, op)                      \
-void fn_name(vm_internal_type *vm) {                    \
-    object_type *num1 = 0;                              \
-    object_type *num2 = 0;                              \
-    object_type *result = 0;                            \
-                                                        \
-    gc_register_root(vm->gc, (void **)&num1);           \
-    gc_register_root(vm->gc, (void **)&num2);           \
-    gc_register_root(vm->gc, (void **)&result);         \
-                                                        \
-    /* verify that the firt two objects are number */   \
-    num2 = vm_pop(vm);                                  \
-    num1 = vm_pop(vm);                                  \
-                                                        \
-    /* TODO: replace this with sane exception           \
-       handler */                                       \
-    if(!num1 || num1->type != FIXNUM ||                 \
-       !num2 || num2->type != FIXNUM) {                 \
-        printf("Attempt to compare with non-number\n");\
-        printf("\"");                                   \
-        output_object(stdout,num1);                     \
-        printf("\"\n\"");                               \
-        output_object(stdout,num2);                     \
-        printf("\"\n");                                 \
-        assert(0);                                      \
-    }                                                   \
-                                                        \
-    if(num1->value.integer op num2->value.integer) {    \
-        result = vm->true;                              \
-    } else {                                            \
-        result = vm->false;                             \
-    }                                                   \
-    vm_push(vm, result);                                \
-                                                        \
-    gc_unregister_root(vm->gc, (void **)&result);       \
-    gc_unregister_root(vm->gc, (void **)&num2);         \
-    gc_unregister_root(vm->gc, (void **)&num1);         \
-}                                                       \
 
 NUMERIC_LOGIC(op_numeric_equal, ==)
 NUMERIC_LOGIC(op_numeric_lt, <)
@@ -1046,13 +862,12 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_LIT_STRING] = &op_lit_string;
     vm->ops[OP_LIT_SYMBOL] = &op_lit_symbol;
     vm->ops[OP_MAKE_SYMBOL] = &op_make_symbol;
+    vm->ops[OP_LIT_TRUE] = &op_lit_true;
+    vm->ops[OP_LIT_FALSE] = &op_lit_false;
 
     vm->ops[OP_MAKE_VECTOR] = &op_make_vector;
     vm->ops[OP_VECTOR_SET] = &op_vector_set;
     vm->ops[OP_VECTOR_REF] = &op_vector_ref;
-
-    vm->ops[OP_LIT_TRUE] = &op_lit_true;
-    vm->ops[OP_LIT_FALSE] = &op_lit_false;
 
     vm->ops[OP_CONS] = &op_cons;
     vm->ops[OP_CAR] = &op_car;

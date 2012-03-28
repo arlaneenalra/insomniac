@@ -56,4 +56,9 @@ void op_output(vm_internal_type *vm);
 void op_slurp(vm_internal_type *vm);
 void op_getc(vm_internal_type *vm);
 
+/* library handling instructions */
+void op_import(vm_internal_type *vm);
+void op_call_ext(vm_internal_type *vm);
+void op_asm(vm_internal_type *vm);
+
 #endif

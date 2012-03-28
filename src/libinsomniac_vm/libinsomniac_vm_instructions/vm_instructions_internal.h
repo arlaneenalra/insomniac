@@ -17,4 +17,8 @@ void op_lit_string(vm_internal_type *vm);
 void op_lit_symbol(vm_internal_type *vm);
 void op_make_symbol(vm_internal_type *vm);
 
+/* logical opreations and comparisons */
+void op_eq(vm_internal_type *vm);
+void op_not(vm_internal_type *vm);
+
 #endif

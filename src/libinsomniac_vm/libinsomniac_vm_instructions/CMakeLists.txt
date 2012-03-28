@@ -10,6 +10,7 @@ include_directories(
 add_library(insomniac_vm_instructions
   vm_ops.c
   vm_literals.c
+  vm_logic.c
   )
 
 target_link_libraries(

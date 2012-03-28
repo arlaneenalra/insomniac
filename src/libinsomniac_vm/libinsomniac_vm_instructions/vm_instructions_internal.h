@@ -39,4 +39,16 @@ void op_dup_ref(vm_internal_type *vm);
 void op_depth(vm_internal_type *vm);
 void op_drop(vm_internal_type *vm);
 
+/* jumps, calls, and associated */
+void op_jnf(vm_internal_type *vm);
+void op_jmp(vm_internal_type *vm);
+void op_call(vm_internal_type *vm);
+void op_proc(vm_internal_type *vm);
+void op_jin(vm_internal_type *vm);
+void op_call_in(vm_internal_type *vm);
+
+/* exception handling instructions, in with jump code */
+void op_continue(vm_internal_type *vm);
+void op_restore(vm_internal_type *vm);
+
 #endif

@@ -47,6 +47,9 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "null?"                 { return OP_IS_EMPTY; }
 "proc?"                 { return OP_IS_CLOSURE; }
 
+"vector"                { return OP_MAKE_VECTOR; }
+"vec@"                  { return OP_VECTOR_REF; }
+"vec!"                  { return OP_VECTOR_SET; }
 
 "out"                   { return OP_OUTPUT; }
 "read"                  { return OP_GETC; }

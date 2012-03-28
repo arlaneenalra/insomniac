@@ -32,4 +32,11 @@ void op_cdr(vm_internal_type *vm);
 void op_set_car(vm_internal_type *vm);
 void op_set_cdr(vm_internal_type *vm);
 
+/* stack operations */
+void op_swap(vm_internal_type *vm);
+void op_rot(vm_internal_type *vm);
+void op_dup_ref(vm_internal_type *vm);
+void op_depth(vm_internal_type *vm);
+void op_drop(vm_internal_type *vm);
+
 #endif

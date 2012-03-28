@@ -13,6 +13,7 @@ add_library(insomniac_vm_instructions
   vm_logic.c
   vm_vector.c
   vm_list.c
+  vm_stack.c
   )
 
 target_link_libraries(

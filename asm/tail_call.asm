@@ -75,17 +75,17 @@ loop:
         swap
         
         proc loop
-        jin
+        ret 
 
 
 loop_exit:
         drop
         ret
 
-        ;; Do a jin from a proc
+        ;; Do a ret from a proc
 eval:   swap
         @
-        jin
+        ret
         
         
         ;; Output a number on its own line

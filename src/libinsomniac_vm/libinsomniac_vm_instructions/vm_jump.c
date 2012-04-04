@@ -80,8 +80,8 @@ void op_proc(vm_internal_type *vm) {
 
 }
 
-/* jump indirect operation */
-void op_jin(vm_internal_type *vm) {
+/* return operation */
+void op_ret(vm_internal_type *vm) {
     object_type *closure = 0;
     
     gc_register_root(vm->gc, (void **)&closure);

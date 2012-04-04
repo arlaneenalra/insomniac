@@ -110,7 +110,7 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 }
 
 "jin"                   { return OP_JIN; }
-"ret"                   { return OP_JIN; }
+"ret"                   { return OP_RET; }
 "call_in"               { return OP_CALL_IN; }
 "call_ext"               { return OP_CALL_EXT; }
 

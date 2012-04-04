@@ -1,4 +1,7 @@
 ;;; Testing nested function calls
+        proc jin_test
+        s"jin_test" bind 
+
         continue handler
 
         ;; Bind a
@@ -34,6 +37,21 @@
         #\newline
         out
 
+        s"jin_test" @
+        jin
+
+        jmp exit
+
+
+jin_test:
+        ;; testing jin
+        "Hi there" 
+        out
+        #\newline
+        out
+
+        s"c" @
+        out
 
         jmp exit
 

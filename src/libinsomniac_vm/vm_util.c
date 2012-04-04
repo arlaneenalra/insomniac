@@ -118,7 +118,7 @@ void throw(vm_internal_type *vm, char *msg, int num, ...) {
     gc_unregister_root(vm->gc, (void **)&obj);
     gc_unregister_root(vm->gc, (void **)&exception);
 
- /* we did not find a handler ! */
+    /* we did not find a handler ! */
     /* go hunting for the exception handler routine */
     while(vm->env && !vm->env->handler) {
         vm->env = vm->env->parent;

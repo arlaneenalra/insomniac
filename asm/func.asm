@@ -25,7 +25,7 @@ top:
         #\newline out out #\newline out
 
         proc top
-        jin
+        ret 
 
         
         ;; ( sym -- )

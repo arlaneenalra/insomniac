@@ -64,9 +64,6 @@ void op_proc(vm_internal_type *vm) {
 
     /* save our current environment */
     clone_env(vm, (env_type **)&env, vm->env);
-    /* push_env(vm); */
-    /* env = vm->env; */
-    /* pop_env(vm); */
 
     /* update the ip */
     env->ip +=target;
@@ -82,6 +79,39 @@ void op_proc(vm_internal_type *vm) {
 
 /* jump indirect operation */
 void op_jin(vm_internal_type *vm) {
+    object_type *closure = 0;
+    env_type *env = 0;
+    
+    gc_register_root(vm->gc, (void **)&closure);
+    gc_register_root(vm->gc, (void **)&env);
+    
+    closure = vm_pop(vm);
+
+    if(!closure || closure->type != CLOSURE) {
+        throw(vm, "Attempt to jump to non-closure", 1, closure);
+
+    } else {
+        
+        /* save the current environment */
+        env = vm->env;
+
+        /* clone the closures environment */
+        clone_env(vm, &(vm->env), closure->value.closure);
+
+        /* preserve the old bindings and parent so 
+           we have a jump equivalent. */
+        /* WARNING: This does break lose the current 
+           exception handler . . .*/
+        vm->env->bindings = env->bindings;
+        vm->env->parent = env->parent;
+    }
+
+    gc_unregister_root(vm->gc, (void **)&env);
+    gc_unregister_root(vm->gc, (void **)&closure);
+}
+
+/* return operation */
+void op_ret(vm_internal_type *vm) {
     object_type *closure = 0;
     
     gc_register_root(vm->gc, (void **)&closure);
@@ -99,6 +129,7 @@ void op_jin(vm_internal_type *vm) {
 
     gc_unregister_root(vm->gc, (void **)&closure);
 }
+
 
 /* call indirect operation */
 void op_call_in(vm_internal_type *vm) {

@@ -18,7 +18,7 @@ loop:
         
 do_loop:        
         proc loop
-        jin
+        ret 
 
 
 output:

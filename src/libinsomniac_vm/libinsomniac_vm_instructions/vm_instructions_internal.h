@@ -44,6 +44,7 @@ void op_jnf(vm_internal_type *vm);
 void op_jmp(vm_internal_type *vm);
 void op_call(vm_internal_type *vm);
 void op_proc(vm_internal_type *vm);
+void op_ret(vm_internal_type *vm);
 void op_jin(vm_internal_type *vm);
 void op_call_in(vm_internal_type *vm);
 

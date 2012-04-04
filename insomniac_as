@@ -55,6 +55,10 @@ jin ( closure -- ) Replace the executing code-ref with the one in
                    the closure object on the stack.  This does not 
                    modify bindings in the current environment and 
                    does not leave a return closure on the stack.
+                   NOTE: This instruction does lose the current 
+                   exception handler.  This is a difference between
+                   jin and jmp and is related to the how coderefs
+                   are dealt with interanlly.
 
 ret ( closure -- ) Return to the location left on the stack and
                    replace the current environment with the one

@@ -85,18 +85,35 @@ start:
         out
         #\newline out        
 
+        100
+loop:   
         proc test-env-read
         s"my-env2" @
         s" eval" @  
         call_in
 
+        1 -
+        dup
 
+        0 =
+        jnf done
+
+        jmp loop
+
+done:
+
+        proc test-env-read
+        s"my-env" @
+        s" eval" @  
+        call_in
+        
         jmp exit
 
 
         ;; Simple block of code to execute in the given environment
 test-env-bind:
         "In Env" s"B" bind
+        0 s"count" bind
 
 
         call test-env-read
@@ -106,7 +123,7 @@ test-env-bind:
         ;; Second simple block of code to execute in the given environment
 test-env-bind2:
         "In Env2" s"B" bind
-
+        0 s"count" bind
 
         call test-env-read
         
@@ -121,6 +138,13 @@ test-env-read:
         out
         #\newline
         out
+
+        "Count in Env: " out
+        s"count" @ dup out
+        #\newline out
+        
+        ;; increment count
+        1 + s"count" !
 
         ret
         

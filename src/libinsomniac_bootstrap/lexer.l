@@ -54,7 +54,7 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 }
 
 
-{IDENT}+  { return SYMBOL; }
+{IDENT}+  { return AST_SYMBOL; }
 
 [;].*     /* Eat comments */
 #!r6rs    /* Treat this as a comment */      

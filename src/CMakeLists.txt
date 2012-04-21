@@ -31,4 +31,13 @@ target_link_libraries(insomniac
   dl
   )
 
+add_executable(insc
+  compiler.c
+  )
+
+target_link_libraries(insc
+  insomniac_buffer
+  insomniac_hash
+  insomniac_gc
+  )
 

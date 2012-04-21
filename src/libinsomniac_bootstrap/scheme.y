@@ -2,7 +2,7 @@
 
 %{
 #include <stdio.h>
-
+#include "bootstrap_internal.h"
 #include "scheme.h"
 #include "lexer.h"
 
@@ -31,7 +31,7 @@ void yyerror(compiler_core_type *compiler, void *scanner, char *s);
 %token FIXED_NUMBER
 %token FLOAT_NUMBER
 
-%token SYMBOL
+%token AST_SYMBOL
 
 %token END_OF_FILE
 
@@ -77,8 +77,8 @@ quoted_list:
     object         { /* add_quote(compiler); */ }
     
 boolean:
-    TRUE_OBJ        { /* add_object(compiler, compiler->boolean.true); */ }
-  | FALSE_OBJ       { /* add_object(compiler, compiler->boolean.false); */ }
+    TRUE_OBJ        { emit_bool(compiler, 1); }
+  | FALSE_OBJ       { emit_bool(compiler, 0);}
 
 number:
     FIXED_NUMBER    { /* add_number(compiler, get_text(scanner)); */ }
@@ -97,7 +97,7 @@ object:
     boolean
   | CHAR_CONSTANT   { /* add_char(compiler, get_text(scanner)); */}
   | string 
-  | SYMBOL          { /* add_symbol(compiler, get_text(scanner)); */}
+  | AST_SYMBOL          { /* add_symbol(compiler, get_text(scanner)); */}
   | number
   | list
   | quoted_list

@@ -7,7 +7,7 @@
 typedef void buffer_type;
 
 /* create a new buffer */
-buffer_type *buffer_create(gc_type *gc);
+void buffer_create(gc_type *gc, buffer_type **buf_ret);
 
 /* write bytes into the buffer */
 void buffer_write(buffer_type *buf, uint8_t * bytes, size_t length);

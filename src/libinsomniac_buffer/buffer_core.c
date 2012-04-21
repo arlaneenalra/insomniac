@@ -19,7 +19,7 @@ gc_type_def create_block_type(gc_type *gc) {
 }
 
 /* create a new buffer */
-buffer_type *buffer_create(gc_type *gc) {
+void buffer_create(gc_type *gc, buffer_type **buf_ret) {
     static uint8_t init = 0;
     static gc_type_def buffer_gc_type = 0;
     static gc_type_def block_gc_type = 0;
@@ -44,9 +44,10 @@ buffer_type *buffer_create(gc_type *gc) {
     /* allocate our first block */
     buf->head = buf->tail = gc_alloc_type(buf->gc, 0, buf->block_gc_type);
 
-    gc_unprotect(gc);
+    /* save our buffer in the passed in pointer */
+    *buf_ret = buf;
 
-    return buf;
+    gc_unprotect(gc);
 }
 
 /* allocate a new buffer block and place it at the head of the list */

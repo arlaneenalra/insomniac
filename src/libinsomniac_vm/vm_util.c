@@ -156,7 +156,7 @@ void vm_load_buf(vm_internal_type *vm, char *file, object_type **obj) {
     buffer_type *buf = 0;
 
     gc_register_root(vm->gc, &buf);
-    buf = buffer_create(vm->gc);
+    buffer_create(vm->gc, &buf);
 
     fd = open(file, O_RDONLY);
 

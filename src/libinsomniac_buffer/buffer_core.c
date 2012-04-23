@@ -36,13 +36,15 @@ void buffer_create(gc_type *gc, buffer_type **buf_ret) {
 
 
     /* allocate a new buffer object */
-    buf = gc_alloc_type(gc, 0, buffer_gc_type);
+    gc_alloc_type(gc, 0, buffer_gc_type, (void **)&buf);
     
     buf->block_gc_type = block_gc_type;
     buf->gc = gc;
 
     /* allocate our first block */
-    buf->head = buf->tail = gc_alloc_type(buf->gc, 0, buf->block_gc_type);
+    /* buf->head = buf->tail = gc_alloc_type(buf->gc, 0, buf->block_gc_type); */
+    gc_alloc_type(buf->gc, 0, buf->block_gc_type, (void**)&(buf->tail)); 
+    buf->head = buf->tail;
 
     /* save our buffer in the passed in pointer */
     *buf_ret = buf;
@@ -56,7 +58,7 @@ void buffer_push(buffer_internal_type *buf) {
     
     gc_protect(buf->gc);
 
-    new_tail = gc_alloc_type(buf->gc, 0, buf->block_gc_type);
+    gc_alloc_type(buf->gc, 0, buf->block_gc_type, (void **)&new_tail);
     
     buf->tail->next = new_tail;
     buf->tail=new_tail;

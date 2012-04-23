@@ -77,11 +77,11 @@ void asm_label(gc_type *gc, buffer_type *buf,
     gc_register_root(gc, (void**)&addr);
 
     /* defensively copy the label name */
-    key = gc_alloc(gc, 0, strlen(str)+1);
+    gc_alloc(gc, 0, strlen(str)+1, (void **)&key);
     strcpy(key, str);
 
     /* save location */
-    addr = gc_alloc(gc, 0, sizeof(vm_int));
+    gc_alloc(gc, 0, sizeof(vm_int), (void **)&addr);
     *addr = buffer_size(buf);
 
     hash_set(labels, key, addr);
@@ -112,7 +112,7 @@ void asm_jump(gc_type *gc, buffer_type *buf,
     gc_register_root(gc, (void **)&jump);
 
     /* allocate a new jump */
-    jump = gc_alloc_type(gc, 0, jump_def);
+    gc_alloc_type(gc, 0, jump_def, (void **)&jump);
 
     /* save location of jump addr field */
     jump->addr = buffer_size(buf);
@@ -124,7 +124,7 @@ void asm_jump(gc_type *gc, buffer_type *buf,
 
     /* save a copy of the label */
     label = get_text(scanner);
-    jump->label = gc_alloc(gc, 0, strlen(label)+1);
+    gc_alloc(gc, 0, strlen(label)+1, (void **)&(jump->label));
     strcpy(jump->label, label);
     
     /* put this jump at the head of the
@@ -248,7 +248,8 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
 
     /* build a code_ref */
     length = buffer_size(buf);
-    *code_ref = gc_alloc(gc, 0, length);
+    /* *code_ref = gc_alloc(gc, 0, length); */
+    gc_alloc(gc, 0, length, (void **)code_ref);
     length = buffer_read(buf, *code_ref, length);
 
     /* replace jump address fields */

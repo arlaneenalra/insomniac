@@ -20,7 +20,7 @@ hashtable_type *hash_create(gc_type *gc, hash_fn fn,
     
     gc_register_root(gc, (void**)&table);
 
-    table = gc_alloc_type(gc, 0, hashtable_type_def);
+    gc_alloc_type(gc, 0, hashtable_type_def, (void **)&table);
 
     table->gc = gc;
     table->calc_hash = fn;
@@ -122,7 +122,7 @@ key_value_type *hash_find(hash_internal_type *table,
     if(action == CREATE) {
         gc_register_root(table->gc, (void**)&kv);
 
-        kv = gc_alloc_type(table->gc, 0, table->key_value);
+        gc_alloc_type(table->gc, 0, table->key_value, (void **)&kv);
 
         kv->key = key;
 
@@ -152,9 +152,10 @@ void hash_resize(hash_internal_type *table, size_t size) {
     old_table = table->table;
     old_size = table->size;
 
-    table->table = gc_alloc_pointer_array(table->gc,
-                                          0,
-                                          size);
+    gc_alloc_pointer_array(table->gc,
+			   0,
+			   size,
+			   (void **)&(table->table));
     table->size = size;
     table->entries = 0;
 

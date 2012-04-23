@@ -10,7 +10,7 @@ void vm_create(gc_type *gc, vm_type **vm_ret ) {
     
     /* create a permanent vm object */
     /* vm = gc_alloc_type(gc, 1, vm_type_def); */
-    vm = gc_alloc_type(gc, 0, vm_type_def);
+    gc_alloc_type(gc, 0, vm_type_def, (void**)&vm);
     
     vm->gc = gc;
 

@@ -55,7 +55,7 @@ void load_buf(gc_type *gc, char *file, char **code_str) {
 
     /* Convert to a single string */
     count = buffer_size(buf);
-    *code_str = gc_alloc(gc, 0, count);
+    gc_alloc(gc, 0, count, (void **)code_str);
     
     buffer_read(buf, (uint8_t *)*code_str, count);
 

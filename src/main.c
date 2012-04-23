@@ -36,7 +36,7 @@ void load_buf(gc_type *gc, char *file, char **code_str) {
     buffer_type *buf = 0;
 
     gc_register_root(gc, &buf);
-    buf = buffer_create(gc);
+    buffer_create(gc, &buf);
 
     fd = open(file, O_RDONLY);
 
@@ -82,7 +82,7 @@ int main(int argc, char**argv) {
     gc_register_root(gc, &vm);
     gc_register_root(gc, (void **)&code_str);
 
-    vm = vm_create(gc);
+    vm_create(gc, &vm);
 
     /* load and eval */
     eval_string(vm, gc, " \"Insomniac VM\" out #\\newline out");

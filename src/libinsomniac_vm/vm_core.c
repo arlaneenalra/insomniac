@@ -1,6 +1,6 @@
 #include "vm_internal.h"
 
-vm_type *vm_create(gc_type *gc) {
+void vm_create(gc_type *gc, vm_type **vm_ret ) {
     gc_type_def vm_type_def = 0;
     vm_internal_type *vm = 0;
 
@@ -43,10 +43,10 @@ vm_type *vm_create(gc_type *gc) {
     /* create the initial environment */
     push_env(vm);
 
-    /* FIXME: break in continuity, bad */
-    gc_unregister_root(gc, (void**)&vm);
+    /* save off the vm pointer to our external pointer */
+    *vm_ret = vm;
 
-    return (vm_type *)vm;
+    gc_unregister_root(gc, (void**)&vm);
 }
 
 

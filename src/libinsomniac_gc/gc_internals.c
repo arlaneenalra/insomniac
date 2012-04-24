@@ -131,7 +131,7 @@ void pre_alloc(gc_ms_type *gc) {
     gc_protect(gc);
     
     for(int i = 0; i < 500; i++) {
-        obj=gc_alloc(gc, 0, gc->cell_size);
+        gc_alloc(gc, 0, gc->cell_size, (void**)&obj);
     }
     
     gc_unprotect(gc);

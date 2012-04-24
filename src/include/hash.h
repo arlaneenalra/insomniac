@@ -21,16 +21,16 @@ typedef hash_type (*hash_fn)(void *key);
 typedef cmp_type(*hash_cmp)(void *key1, void *key2);
 
 /* construct a new hash table instance */
-hashtable_type *hash_create(gc_type *gc, hash_fn fn, 
-                           hash_cmp cmp);
+void hash_create(gc_type *gc, hash_fn fn, 
+                 hash_cmp cmp, hashtable_type **ret);
 
 /* macro to make string hash tables easier to deal with */
-#define hash_create_string(gc) \
-    hash_create(gc, &hash_string, &hash_string_cmp)
+#define hash_create_string(gc, ret)                 \
+    hash_create(gc, &hash_string, &hash_string_cmp, ret)
 
 /* macro to make string hash tables easier to deal with */
-#define hash_create_pointer(gc) \
-    hash_create(gc, &hash_pointer, &hash_pointer_cmp)
+#define hash_create_pointer(gc, ret)                      \
+    hash_create(gc, &hash_pointer, &hash_pointer_cmp, ret)
 
 /* bind a key and value in the given table */
 void hash_set(hashtable_type *hash, void *key, void* value);

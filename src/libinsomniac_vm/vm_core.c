@@ -1,6 +1,6 @@
 #include "vm_internal.h"
 
-vm_type *vm_create(gc_type *gc) {
+void vm_create(gc_type *gc, vm_type **vm_ret ) {
     gc_type_def vm_type_def = 0;
     vm_internal_type *vm = 0;
 
@@ -10,7 +10,7 @@ vm_type *vm_create(gc_type *gc) {
     
     /* create a permanent vm object */
     /* vm = gc_alloc_type(gc, 1, vm_type_def); */
-    vm = gc_alloc_type(gc, 0, vm_type_def);
+    gc_alloc_type(gc, 0, vm_type_def, (void**)&vm);
     
     vm->gc = gc;
 
@@ -35,18 +35,18 @@ vm_type *vm_create(gc_type *gc) {
     vm->depth = 0;
 
     /* setup a symbol table */
-    vm->symbol_table = hash_create_string(gc);
+    hash_create_string(gc, &(vm->symbol_table));
 
     /* setup a library hash table */
-    vm->import_table = hash_create_pointer(gc);
+    hash_create_pointer(gc, &(vm->import_table));
 
     /* create the initial environment */
     push_env(vm);
 
-    /* FIXME: break in continuity, bad */
-    gc_unregister_root(gc, (void**)&vm);
+    /* save off the vm pointer to our external pointer */
+    *vm_ret = vm;
 
-    return (vm_type *)vm;
+    gc_unregister_root(gc, (void**)&vm);
 }
 
 

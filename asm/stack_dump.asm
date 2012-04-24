@@ -1,3 +1,15 @@
+
+        1
+        2
+        3
+        4
+        5
+        6
+
+        call stack_dump
+
+        jmp done
+
         ;; Output everything in the stack but the
         ;; return address
 stack_dump:     
@@ -27,3 +39,6 @@ stack_dump_exit:
         out
 
         ret
+
+
+done:   

@@ -96,29 +96,31 @@ void gc_unregister_root(gc_type *gc_void, void **root) {
 }
 
 /* allocate a blob and attach it to the gc */
-void *gc_alloc(gc_type *gc_void, uint8_t perm, size_t size) {
+void gc_alloc(gc_type *gc_void, uint8_t perm, size_t size, void **ret) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
     meta_obj_type *meta = internal_alloc(gc, perm, size);
 
     /* mark as being untyped */
     meta->type_def = -1;
 
-    return obj_from_meta(meta); 
+    /* return obj_from_meta(meta);*/
+    *ret = obj_from_meta(meta);
 }
 
 /* allocate a type and attach it to the gc */
-void *gc_alloc_type(gc_type *gc_void, uint8_t perm, gc_type_def type) {
+void gc_alloc_type(gc_type *gc_void, uint8_t perm, gc_type_def type, void **ret) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
     meta_obj_def_type *type_ptr = &(gc->type_defs[type]);
     meta_obj_type *meta = internal_alloc(gc, perm, type_ptr->size);
 
     meta->type_def = type;
 
-    return obj_from_meta(meta); 
+    /* return obj_from_meta(meta); */
+    *ret = obj_from_meta(meta);
 }
 
 /* allocate an array and attach it to the gc */
-void *gc_alloc_pointer_array(gc_type *gc_void, uint8_t perm, size_t cells) {
+void gc_alloc_pointer_array(gc_type *gc_void, uint8_t perm, size_t cells, void **ret) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
     meta_obj_def_type *type_ptr = &(gc->type_defs[gc->array_type]);
     meta_obj_type *meta = 0;
@@ -127,7 +129,8 @@ void *gc_alloc_pointer_array(gc_type *gc_void, uint8_t perm, size_t cells) {
 
     meta->type_def = gc->array_type;
 
-    return obj_from_meta(meta); 
+    /* return obj_from_meta(meta); */
+    *ret = obj_from_meta(meta);
 }
 
 

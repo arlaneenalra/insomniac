@@ -156,7 +156,7 @@ void vm_load_buf(vm_internal_type *vm, char *file, object_type **obj) {
     buffer_type *buf = 0;
 
     gc_register_root(vm->gc, &buf);
-    buf = buffer_create(vm->gc);
+    buffer_create(vm->gc, &buf);
 
     fd = open(file, O_RDONLY);
 
@@ -178,7 +178,7 @@ void vm_load_buf(vm_internal_type *vm, char *file, object_type **obj) {
     *obj = vm_alloc(vm, STRING);
 
     (*obj)->value.string.length = count;
-    (*obj)->value.string.bytes = gc_alloc(vm->gc, 0, count+1);
+    gc_alloc(vm->gc, 0, count+1, (void **) &((*obj)->value.string.bytes));
     
     buffer_read(buf, (uint8_t *)((*obj)->value.string.bytes), count);
 

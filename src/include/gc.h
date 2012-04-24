@@ -23,9 +23,9 @@ void gc_protect(gc_type *gc);
 void gc_unprotect(gc_type *gc);
 
 /* allocate a new block */
-void *gc_alloc(gc_type *gc, uint8_t perm, size_t size);
-void *gc_alloc_type(gc_type *gc_void, uint8_t perm, gc_type_def);
-void *gc_alloc_pointer_array(gc_type *gc_void, uint8_t perm, size_t cells);
+void gc_alloc(gc_type *gc, uint8_t perm, size_t size, void **ret);
+void gc_alloc_type(gc_type *gc_void, uint8_t perm, gc_type_def, void **ret);
+void gc_alloc_pointer_array(gc_type *gc_void, uint8_t perm, size_t cells, void **ret);
 
 /* explicitly make a cell not permenant */
 void gc_de_perm(gc_type *gc, void *cell);

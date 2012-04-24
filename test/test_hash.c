@@ -37,10 +37,11 @@ void tear_down_hook() {
 void build_hash() {
 
     /* create a hash table */
-    hash = hash_create(gc, 
-                       &hash_string,
-                       &hash_string_cmp);
-
+    hash_create(gc, 
+                &hash_string,
+                &hash_string_cmp,
+                &hash);
+    
 
     /* push values into the hash */
     for(int i=0; i <10; i++) {

@@ -189,7 +189,7 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
 
     /* create an output buffer */
     buffer_create(gc, &buf);
-    labels = hash_create_string(gc);
+    hash_create_string(gc, &labels);
 
     yylex_init(&scanner);
     /* yyset_debug(1, scanner); */

@@ -5,8 +5,8 @@
 
 /* create a hashtable using the given function and 
    comparator */
-hashtable_type *hash_create(gc_type *gc, hash_fn fn,
-                            hash_cmp cmp) {
+void hash_create(gc_type *gc, hash_fn fn,
+                 hash_cmp cmp, hashtable_type **ret) {
     
     static gc_type_def hashtable_type_def = 0;
     static gc_type_def key_value_type_def = 0;
@@ -32,10 +32,9 @@ hashtable_type *hash_create(gc_type *gc, hash_fn fn,
     /* table->key_value = register_key_value(gc); */
     table->key_value = key_value_type_def;
 
+    *ret = (hashtable_type *)table;
 
     gc_unregister_root(gc, (void**)&table);
-    
-    return (hashtable_type *)table;
 }
 
 /* add a value to the hash */

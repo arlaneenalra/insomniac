@@ -10,7 +10,7 @@ void push_env(vm_internal_type *vm) {
     gc_alloc_type(vm->gc, 0, vm->env_type, (void **)&new_env);
     
     /* create new hash table */
-    new_env->bindings = hash_create_string(vm->gc);
+    hash_create_string(vm->gc, &(new_env->bindings));
 
     new_env->parent = vm->env;
     vm->env = new_env;

@@ -35,10 +35,10 @@ void vm_create(gc_type *gc, vm_type **vm_ret ) {
     vm->depth = 0;
 
     /* setup a symbol table */
-    vm->symbol_table = hash_create_string(gc);
+    hash_create_string(gc, &(vm->symbol_table));
 
     /* setup a library hash table */
-    vm->import_table = hash_create_pointer(gc);
+    hash_create_pointer(gc, &(vm->import_table));
 
     /* create the initial environment */
     push_env(vm);

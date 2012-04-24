@@ -45,8 +45,8 @@ void build_hash() {
     /* push values into the hash */
     for(int i=0; i <10; i++) {
         /* an ineffcient means of doing this */
-        key1 = gc_alloc(gc, 0, 40);
-        value = gc_alloc(gc, 0, 40);
+        gc_alloc(gc, 0, 40, (void **)&key1);
+        gc_alloc(gc, 0, 40, (void **)&value);
 
         snprintf(key1, 40, "k%i", i);
         snprintf(value, 40, "v%i", i);
@@ -74,8 +74,8 @@ int test_read() {
 
     for(int i=0; i <10; i++) {
         /* an ineffcient means of doing this */
-        key1 = gc_alloc(gc, 0, 40);
-        expected = gc_alloc(gc, 0, 40);
+        gc_alloc(gc, 0, 40, (void **)&key1);
+        gc_alloc(gc, 0, 40, (void **)&expected);
 
         snprintf(key1, 40, "k%i", i);
         snprintf(expected, 40, "v%i", i);

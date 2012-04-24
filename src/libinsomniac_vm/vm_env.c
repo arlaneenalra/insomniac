@@ -7,7 +7,7 @@ void push_env(vm_internal_type *vm) {
 
     gc_register_root(vm->gc, (void **)&new_env);
     
-    new_env = gc_alloc_type(vm->gc, 0, vm->env_type);
+    gc_alloc_type(vm->gc, 0, vm->env_type, (void **)&new_env);
     
     /* create new hash table */
     new_env->bindings = hash_create_string(vm->gc);
@@ -30,7 +30,7 @@ void push_env(vm_internal_type *vm) {
 void clone_env(vm_internal_type *vm, env_type **target,
                env_type *env) {    
 
-    *target = gc_alloc_type(vm->gc, 0, vm->env_type);
+    gc_alloc_type(vm->gc, 0, vm->env_type, (void **)target);
 
     /* copy env to vm->env */
     memcpy(*target, env, sizeof(env_type));

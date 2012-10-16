@@ -4,6 +4,7 @@
 %option nounput noinput
 
 %{
+#include "bootstrap_internal.h"
 #include "scheme.h"
 
 /* avoid a compiler warning */

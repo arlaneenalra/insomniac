@@ -34,12 +34,7 @@ void load_buf(gc_type *gc, char *file, char **code_str) {
     buffer_type *buf = 0;
 
     gc_register_root(gc, &buf);
-    gc_stats(gc);
-
-    gc_protect(gc);
-    buf = buffer_create(gc);
-    gc_unprotect(gc);
-    gc_stats(gc);
+    buffer_create(gc, (void **)&buf);
 
     fd = open(file, O_RDONLY);
 
@@ -51,17 +46,15 @@ void load_buf(gc_type *gc, char *file, char **code_str) {
     
     /* read everything into our elastic buffer */
     while((count = read(fd, bytes, BLOCK_SIZE))) {
-        gc_stats(gc);
         buffer_write(buf, (uint8_t *)bytes, count);
-        gc_stats(gc);
     }
 
     close(fd);
 
     /* Convert to a single string */
     count = buffer_size(buf);
-    *code_str = gc_alloc(gc, 0, count);
-    
+    gc_alloc(gc, 0, count, (void **)code_str);
+
     buffer_read(buf, (uint8_t *)*code_str, count);
 
     gc_unregister_root(gc, &buf);
@@ -78,7 +71,7 @@ int main(int argc, char**argv) {
 
     /* check for file argument */
     if(argc < 2) {
-        printf("Usage: %s <file.asm>\n", argv[0]);
+        printf("Usage: %s <file.scm>\n", argv[0]);
         exit(-1);
     }
 

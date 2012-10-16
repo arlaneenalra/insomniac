@@ -202,7 +202,7 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
     while((token = yylex(scanner)) != END_OF_FILE) {
 
         /* Handle individual tokens */
-        switch(token) {
+        switch((int)token) {
         case OP_LIT_FIXNUM:
             asm_lit_fixnum(buf, scanner);
             break;

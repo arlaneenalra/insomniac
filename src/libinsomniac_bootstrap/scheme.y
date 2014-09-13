@@ -59,18 +59,18 @@ vector:
    
 list_end:
     list_next    
-    CLOSE_PAREN    { /*pop_state(compiler); */ }
-  | CLOSE_PAREN    { /*pop_state(compiler); add_object(compiler, compiler->empty_list);*/}
+    CLOSE_PAREN    { pop_state(compiler); }
+  | CLOSE_PAREN    { pop_state(compiler); /*add_object(compiler, compiler->empty_list);*/}
 
 list:
-    OPEN_PAREN     { emit_empty(compiler); /*push_state(compiler); */}
+    OPEN_PAREN     { emit_empty(compiler); push_state(compiler, PUSH); }
     list_end       
 
 list_next:
-    object         { emit_cons(compiler); /* chain_state(compiler); */}
-  | object         { emit_cons(compiler); /* chain_state(compiler); */}
+    object         { emit_cons(compiler); push_state(compiler, CHAIN); }
+  | object         { emit_cons(compiler); push_state(compiler, CHAIN); }
     list_next      { }
-  | object         { /* chain_state(compiler); */}
+  | object         { push_state(compiler, CHAIN); }
     DOT
     object         { emit_cons(compiler); /* set(compiler, CDR); */}
 

@@ -2,13 +2,14 @@
 
 TMP=`mktemp`
 
+
 echo
 echo "Compiling ..."
 echo
 
 ../build/src/insc $1 | tee $TMP
 
-echo " out" > $TMP
+echo " out" >> $TMP
 
 echo
 echo
@@ -19,4 +20,3 @@ echo
 echo
 echo
 
-rm $TMP

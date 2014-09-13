@@ -22,7 +22,7 @@ stack_dump_loop:
         depth
         1 -
         0 =                     ; Depth + return makes 2
-        jnf stack_dump_exit:
+        jnf stack_dump_exit
 
         swap                    ; Save return context
 

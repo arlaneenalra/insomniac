@@ -2,6 +2,7 @@
 
 TMP=`mktemp`
 
+echo $TMP
 
 echo
 echo "Compiling ..."
@@ -9,7 +10,7 @@ echo
 
 ../build/src/insc $1 | tee $TMP
 
-echo " out" >> $TMP
+cat ../asm/stack_dumper.asm >> $TMP
 
 echo
 echo
@@ -20,3 +21,4 @@ echo
 echo
 echo
 
+rm $TMP

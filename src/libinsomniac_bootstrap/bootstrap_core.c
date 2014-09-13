@@ -50,6 +50,15 @@ void emit_fixnum(compiler_core_type *compiler, char *num) {
 }
 
 /* Emit a string */
+void emit_string(compiler_core_type *compiler, char *str) {
+  int length = strlen(str);
+
+  buffer_write(compiler->buf, (uint8_t *)" \"", 2);
+  buffer_write(compiler->buf, (uint8_t *)str, length);
+  buffer_write(compiler->buf, (uint8_t *)"\"", 1);
+}
+
+/* Emit a Symbol */
 void emit_symbol(compiler_core_type *compiler, char *sym) {
   int length = strlen(sym);
 

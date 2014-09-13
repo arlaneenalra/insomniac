@@ -76,10 +76,6 @@ list_next:
   | object         { emit_cons(compiler); push_state(compiler, CHAIN); }
     list_next      { }
 
-  /*| object         { emit_cons(compiler); push_state(compiler, CHAIN); }
-    DOT
-    object         { push_state(compiler, CHAIN); }*/
-
 quoted_list:
     QUOTE          
     object         { /* add_quote(compiler); */ }
@@ -93,9 +89,9 @@ number:
   | FLOAT_NUMBER    { /* add_float(compiler, get_text(scanner)); */ }
 
 string_end:
-    STRING_CONSTANT { /* add_string(compiler, get_text(scanner)); */}
+    STRING_CONSTANT { emit_string(compiler, yyget_text(scanner)); /* add_string(compiler, get_text(scanner)); */}
     DOUBLE_QUOTE
-  | DOUBLE_QUOTE    { /* add_string(compiler, ""); */}
+  | DOUBLE_QUOTE    { emit_string(compiler, ""); /* add_string(compiler, ""); */}
 
 string:
     DOUBLE_QUOTE

@@ -39,5 +39,6 @@ target_link_libraries(insc
   insomniac_buffer
   insomniac_hash
   insomniac_gc
+  insomniac_bootstrap
   )
 

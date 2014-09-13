@@ -40,7 +40,6 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 {SIGNS}?{DIGITS}[/]{DIGITS}              { return FLOAT_NUMBER; }
 
 
-
 #\\       { BEGIN(EXPECT_CHAR); }
 
 <EXPECT_CHAR>{CHAR_VAL} {	BEGIN(INITIAL); 

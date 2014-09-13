@@ -9,23 +9,9 @@
 
 #include <insomniac.h>
 
-#include <asm.h>
+#include <bootstrap.h>
 
 #include <locale.h>
-
-/* void eval_string(vm_type *vm, gc_type *gc, char *str) { */
-/*     size_t written=0; */
-/*     uint8_t *code_ref = 0; */
-
-/*     gc_register_root(gc, (void **)&code_ref); */
-
-/*     /\* assemble a simple command *\/ */
-/*     written = asm_string(gc, str, &code_ref); */
-
-/*     vm_eval(vm, written, code_ref); */
-
-/*     gc_unregister_root(gc, (void **)&code_ref); */
-/* } */
 
 void load_buf(gc_type *gc, char *file, char **code_str) {
     int fd = 0;
@@ -64,6 +50,8 @@ void load_buf(gc_type *gc, char *file, char **code_str) {
 int main(int argc, char**argv) {
     gc_type *gc = gc_create(sizeof(object_type));
     char *code_str = 0;
+    char *asm_str = 0;
+    size_t code_size = 0;
 
     /* needed to setup locale aware printf . . . 
        I need to do a great deal more research here */
@@ -77,12 +65,16 @@ int main(int argc, char**argv) {
 
     /* make this a root to the garbage collector */
     gc_register_root(gc, (void **)&code_str);
+    gc_register_root(gc, (void **)&asm_str);
 
     /* load and eval */
     load_buf(gc, argv[1], &code_str);
+    code_size = compile_string(gc, code_str, &asm_str);
+    
+    printf("%s", asm_str);
 
-    printf("%s", code_str);
-
+    // Clean up the garabge collector
+    gc_unregister_root(gc, (void **)&asm_str);
     gc_unregister_root(gc, (void **)&code_str);
     gc_destroy(gc);
 

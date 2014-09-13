@@ -33,6 +33,8 @@ void yyerror(compiler_core_type *compiler, void *scanner, char *s);
 
 %token AST_SYMBOL
 
+%token SPEC_DEFINE
+
 %token END_OF_FILE
 
 %%
@@ -56,21 +58,21 @@ vector:
     vector_end
    
 list_end:
-    list_next
+    list_next    
     CLOSE_PAREN    { /*pop_state(compiler); */ }
   | CLOSE_PAREN    { /*pop_state(compiler); add_object(compiler, compiler->empty_list);*/}
 
 list:
-    OPEN_PAREN     { /*push_state(compiler); */}
+    OPEN_PAREN     { emit_empty(compiler); /*push_state(compiler); */}
     list_end       
 
 list_next:
-    object         { /* chain_state(compiler); */}
-  | object         { /* chain_state(compiler); */}
-    list_next
+    object         { emit_cons(compiler); /* chain_state(compiler); */}
+  | object         { emit_cons(compiler); /* chain_state(compiler); */}
+    list_next      { }
   | object         { /* chain_state(compiler); */}
     DOT
-    object         { /* set(compiler, CDR); */}
+    object         { emit_cons(compiler); /* set(compiler, CDR); */}
 
 quoted_list:
     QUOTE          
@@ -81,7 +83,7 @@ boolean:
   | FALSE_OBJ       { emit_bool(compiler, 0);}
 
 number:
-    FIXED_NUMBER    { /* add_number(compiler, get_text(scanner)); */ }
+    FIXED_NUMBER    { emit_fixnum(compiler, yyget_text(scanner));  }
   | FLOAT_NUMBER    { /* add_float(compiler, get_text(scanner)); */ }
 
 string_end:
@@ -97,7 +99,7 @@ object:
     boolean
   | CHAR_CONSTANT   { /* add_char(compiler, get_text(scanner)); */}
   | string 
-  | AST_SYMBOL          { /* add_symbol(compiler, get_text(scanner)); */}
+  | AST_SYMBOL      { /* add_symbol(compiler, get_text(scanner)); */}
   | number
   | list
   | quoted_list

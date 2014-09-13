@@ -89,9 +89,9 @@ number:
   | FLOAT_NUMBER    { /* add_float(compiler, get_text(scanner)); */ }
 
 string_end:
-    STRING_CONSTANT { emit_string(compiler, yyget_text(scanner)); /* add_string(compiler, get_text(scanner)); */}
+    STRING_CONSTANT { emit_string(compiler, yyget_text(scanner)); }
     DOUBLE_QUOTE
-  | DOUBLE_QUOTE    { emit_string(compiler, ""); /* add_string(compiler, ""); */}
+  | DOUBLE_QUOTE    { emit_string(compiler, ""); }
 
 string:
     DOUBLE_QUOTE
@@ -99,7 +99,7 @@ string:
     
 object:
     boolean
-  | CHAR_CONSTANT   { /* add_char(compiler, get_text(scanner)); */}
+  | CHAR_CONSTANT   { emit_char(compiler, yyget_text(scanner)); }
   | string 
   | AST_SYMBOL      { emit_symbol(compiler, yyget_text(scanner)); }
   | number

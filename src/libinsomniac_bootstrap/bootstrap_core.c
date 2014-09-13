@@ -20,6 +20,14 @@ void emit_bool(compiler_core_type *compiler, int b) {
     buffer_write(compiler->buf, (uint8_t *)str_buf, length);
 }
 
+/* Emit a character constanct */
+void emit_char(compiler_core_type *compiler, char *c) {
+    char *prefix = " #\\";
+
+    buffer_write(compiler->buf, (uint8_t *)prefix, 3);
+    buffer_write(compiler->buf, (uint8_t *)c, strlen(c));
+}
+
 /* Emit an empty list into the code stream */
 void emit_empty(compiler_core_type *compiler) {
     char *empty = " ()";

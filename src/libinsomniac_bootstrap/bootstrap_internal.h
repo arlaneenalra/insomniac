@@ -33,6 +33,8 @@ struct compiler_core {
 };
 
 
+void emit_preamble(compiler_core_type *compiler);
+
 void emit_bool(compiler_core_type *compiler, int b);
 void emit_char(compiler_core_type *compiler, char *c);
 void emit_empty(compiler_core_type *compiler);

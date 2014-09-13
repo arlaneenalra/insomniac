@@ -105,7 +105,10 @@ size_t compile_string(gc_type *gc, char *str, char **asm_ref) {
     buffer_create(gc, &compiler.buf);
     compiler.states = 0;
 
-    // Actually parse the input stream.
+    /* Output preamble/bootstraping code into buffer */
+    emit_preamble(&compiler);
+
+    /* Actually parse the input stream. */
     yylex_init(&scanner);
     yy_scan_string(str, scanner);
 

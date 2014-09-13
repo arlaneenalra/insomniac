@@ -15,7 +15,7 @@
 
 void load_buf(gc_type *gc, char *file, char **code_str) {
     int fd = 0;
-    char bytes[4096];
+    char bytes[BLOCK_SIZE];
     size_t count = 0;
     buffer_type *buf = 0;
 

@@ -35,8 +35,10 @@ struct compiler_core {
 
 void emit_bool(compiler_core_type *compiler, int b);
 void emit_empty(compiler_core_type *compiler);
+void emit_drop(compiler_core_type *compiler);
 void emit_cons(compiler_core_type *compiler);
 void emit_fixnum(compiler_core_type *compile, char *num);
+void emit_symbol(compiler_core_type *compile, char *sym);
 
 
 /* Scheme parser */

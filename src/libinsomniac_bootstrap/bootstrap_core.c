@@ -27,6 +27,13 @@ void emit_empty(compiler_core_type *compiler) {
     buffer_write(compiler->buf, (uint8_t *)empty, 3);
 }
 
+/* Emit a drop statement */
+void emit_drop(compiler_core_type *compiler) {
+  char *drop = " drop";
+  
+  buffer_write(compiler->buf, (uint8_t *)drop, 5);
+}
+
 /* Emit a cons statement */
 void emit_cons(compiler_core_type *compiler) {
     char *cons = " cons";
@@ -42,6 +49,14 @@ void emit_fixnum(compiler_core_type *compiler, char *num) {
     buffer_write(compiler->buf, (uint8_t *)num, length);
 }
 
+/* Emit a string */
+void emit_symbol(compiler_core_type *compiler, char *sym) {
+  int length = strlen(sym);
+
+  buffer_write(compiler->buf, (uint8_t *)" s\"", 3);
+  buffer_write(compiler->buf, (uint8_t *)sym, length);
+  buffer_write(compiler->buf, (uint8_t *)"\"", 1);
+}
 
 gc_type_def create_state_type(gc_type *gc) {
     gc_type_def type = 0;

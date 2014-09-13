@@ -1,1 +1,1 @@
-(blue bing)
+(1 2 blue . bing)

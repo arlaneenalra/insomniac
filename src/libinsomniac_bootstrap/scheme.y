@@ -59,20 +59,26 @@ vector:
    
 list_end:
     list_next    
-    CLOSE_PAREN    { pop_state(compiler); }
-  | CLOSE_PAREN    { pop_state(compiler); /*add_object(compiler, compiler->empty_list);*/}
+    CLOSE_PAREN    { emit_empty(compiler); (void)pop_state(compiler); }
+  | list_next
+    DOT
+    object         { push_state(compiler, CHAIN); }
+    CLOSE_PAREN    { (void)pop_state(compiler); }
+  | CLOSE_PAREN    { emit_empty(compiler); (void)pop_state(compiler); }
 
 list:
-    OPEN_PAREN     { emit_empty(compiler); push_state(compiler, PUSH); }
+    OPEN_PAREN     { push_state(compiler, PUSH); }
     list_end       
 
 list_next:
     object         { emit_cons(compiler); push_state(compiler, CHAIN); }
+
   | object         { emit_cons(compiler); push_state(compiler, CHAIN); }
     list_next      { }
-  | object         { push_state(compiler, CHAIN); }
+
+  /*| object         { emit_cons(compiler); push_state(compiler, CHAIN); }
     DOT
-    object         { emit_cons(compiler); /* set(compiler, CDR); */}
+    object         { push_state(compiler, CHAIN); }*/
 
 quoted_list:
     QUOTE          
@@ -99,7 +105,7 @@ object:
     boolean
   | CHAR_CONSTANT   { /* add_char(compiler, get_text(scanner)); */}
   | string 
-  | AST_SYMBOL      { /* add_symbol(compiler, get_text(scanner)); */}
+  | AST_SYMBOL      { emit_symbol(compiler, yyget_text(scanner)); }
   | number
   | list
   | quoted_list

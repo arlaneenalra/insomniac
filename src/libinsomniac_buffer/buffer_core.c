@@ -116,7 +116,7 @@ void buffer_write(buffer_type *buf_void, uint8_t *bytes, size_t length) {
 
 /* read data out of the given buffer */
 size_t buffer_read(buffer_type *buf_void, uint8_t *dest_ptr, size_t length) {
-    buffer_internal_type *buf=(buffer_internal_type *)buf_void;
+    buffer_internal_type *buf = (buffer_internal_type *)buf_void;
     uint8_t *dest = dest_ptr;
     block_type *block = 0;
     size_t offset = 0;
@@ -137,6 +137,39 @@ size_t buffer_read(buffer_type *buf_void, uint8_t *dest_ptr, size_t length) {
 
         /* copy data from block to destination */
         memcpy(&(dest[offset]), &(block->block[0]), copy_amount);
+
+        offset+=copy_amount;
+
+        /* move to next block */
+        block = block->next;
+    }
+
+    return offset;
+}
+
+/* read data out of the given buffer */
+size_t buffer_append(buffer_type *buf_void, buffer_type *src_void, size_t length) {
+    buffer_internal_type *buf = (buffer_internal_type *)src_void;
+    block_type *block = 0;
+    size_t offset = 0;
+    size_t copy_amount = 0;
+    
+    block = buf->head;
+
+    /* walk all blocks and copy them into the destination buffer */
+    while((block != 0) && (offset < length)) {
+
+        /* do we have a whole block or a partial one */
+        copy_amount = length - offset;
+
+        /* only copy a block at a time */
+        if(copy_amount >= BLOCK_SIZE) {
+            copy_amount = BLOCK_SIZE;
+        } 
+
+        /* copy data from block to destination */
+        //memcpy(&(dest[offset]), &(block->block[0]), copy_amount);
+        buffer_write(buf_void, block->block, copy_amount);
 
         offset+=copy_amount;
 

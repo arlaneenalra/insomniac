@@ -19,5 +19,8 @@ size_t buffer_size(buffer_type *buf);
  in the buffer. */
 size_t buffer_read(buffer_type *buf, uint8_t *dest, size_t length);
 
+/* append the contents of one buffer into another one. */
+size_t buffer_append(buffer_type *buf, buffer_type *src_void, size_t length);
+
 
 #endif

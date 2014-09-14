@@ -1,16 +1,25 @@
 ;;; Insomniac Preable code
- 
-        ;; Setup Environment functions
-        proc env s" root-env" bind
-        proc push-env s" make-child" bind
-        proc call-in-env s" call-in-env" bind
 
-        ;; Bind scheme primitives
-        proc scheme-begin s"begin" bind
-        proc scheme-define s"define" bind
-        proc scheme-cons s"cons" bind
-        proc scheme-quote s"quote" bind
-        
+        ;; setup scheme primitives
+        call push-env
+        dup ;; save this so we can bind it in the runtime env
+
+        ;; bind scheme primitives in the scheme env
+        proc bind-scheme-primitives
+        swap
+        call call-in-env 
+      
+        ;; stack should be ( scheme -- )
+        call push-env ;; this will be the runtime environment
+        dup
+
+        ;; stack should be ( scheme runtime runtime -- )
+        proc bind-runtime-env
+        swap ;; stack should be ( scheme runtime bind-runtime runtime -- )
+        call call-in-env 
+
+        ;; stack should be ( runtime -- )
+
         ;; jump to entry point
         jmp start
 
@@ -19,8 +28,35 @@ env:
 
 push-env:
         proc env
+
 call-in-env:
         swap
+        ret
+
+        ;; setup any global bindings needed by the runtime code
+        ;; should have the scheme env as an argument
+        ;; expects ( scheme runtime ret -- runtime)
+bind-runtime-env:
+
+        rot
+        
+        s"runtime-env" bind ;; bind the runtime env
+        s"scheme-env" bind ;; bind the scheme env
+
+        s"runtime-env" @
+
+        swap
+        ret
+
+        ;; Bind scheme primitives
+bind-scheme-primitives:
+
+        proc scheme-begin s"begin" bind
+        proc scheme-define s"define" bind
+        proc scheme-cons s"cons" bind
+        proc scheme-quote s"quote" bind
+        proc scheme-lambda s"lamdba" bind
+
         ret
 
         ;; Bootstrap evaluator 
@@ -35,16 +71,20 @@ eval:
         jnf eval-scheme-call
 
         dup symbol?
-        jnf eval-lookup-symbol
+        jnf eval-lookup-symbol-in-env
 
         ;; what ever we have is not something that should be 
         ;; eval'd panic!
         jmp panic
 
-eval-lookup-symbol:
-        @
+        ;; lookup a symbol in an environment
+eval-lookup-symbol-in-env:
+        proc eval-lookup-symbol
+        jmp eval-call
 
-        swap
+        ;; look up a symbol and leave its value on the stack
+eval-lookup-symbol:
+        swap @ swap
         ret
 
 eval-scheme-call:
@@ -55,10 +95,9 @@ eval-scheme-call:
         call eval ;; it wasn't a symbol, evaluate it
 
 eval-call: ;; Do an indirect call for the retrieved value
-
-        s" root-env" @
-        s" call-in-env" @
-        call_in
+        
+        s"scheme-env" @
+        call call-in-env
 
         swap
         ret
@@ -120,6 +159,18 @@ scheme-cons:
         dup cdr car swap car cons
 
         swap 
+        ret
+
+        ;; Runtime lambda generator
+scheme-lambda:
+        swap
+
+        dup cdr car ;; procedure body
+        car ;; argument names
+
+
+
+        swap
         ret
 
         ;; User code entry point

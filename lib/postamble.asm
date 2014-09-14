@@ -1,8 +1,12 @@
 
 ;;; Postamble code
 ;;; This is what actually causes user code to run.
+;;; expects ( runtime user-code -- )
 
-        call eval
+        swap ;; ( user-code runtime -- )
+
+        proc eval swap  ;; ( user-code eval runtime -- )
+        call call-in-env
 
         "Returned: " out
         out

@@ -22,5 +22,10 @@ size_t buffer_read(buffer_type *buf, uint8_t *dest, size_t length);
 /* append the contents of one buffer into another one. */
 size_t buffer_append(buffer_type *buf, buffer_type *src_void, size_t length);
 
+/* bulk load the contents of a file into a buffer */
+size_t buffer_load(buffer_type *buf, char *file);
+
+/* slurp a file into a string */
+size_t buffer_load_string(gc_type *gc, char *file, char **str);
 
 #endif

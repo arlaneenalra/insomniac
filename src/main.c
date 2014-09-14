@@ -29,40 +29,6 @@ void eval_string(vm_type *vm, gc_type *gc, char *str) {
     gc_unregister_root(gc, (void **)&code_ref);
 }
 
-void load_buf(gc_type *gc, char *file, char **code_str) {
-    int fd = 0;
-    char bytes[4096];
-    size_t count = 0;
-    buffer_type *buf = 0;
-
-    gc_register_root(gc, &buf);
-    buffer_create(gc, &buf);
-
-    fd = open(file, O_RDONLY);
-
-    /* make sure that we could open the file */
-    if(fd == -1 ) {
-        printf("Unable to open input file: %s\n", file);
-        exit(-2);
-    }
-    
-    /* read everything into our elastic buffer */
-    while((count = read(fd, bytes, BLOCK_SIZE))) {
-        buffer_write(buf, (uint8_t *)bytes, count);
-    }
-
-    close(fd);
-
-    /* Convert to a single string */
-    count = buffer_size(buf);
-    gc_alloc(gc, 0, count, (void **)code_str);
-    
-    buffer_read(buf, (uint8_t *)*code_str, count);
-
-    gc_unregister_root(gc, &buf);
-}
-
-
 int main(int argc, char**argv) {
     gc_type *gc = gc_create(sizeof(object_type));
     vm_type *vm = 0; 
@@ -86,7 +52,7 @@ int main(int argc, char**argv) {
 
     /* load and eval */
     eval_string(vm, gc, " \"Insomniac VM\" out #\\newline out");
-    load_buf(gc, argv[1], &code_str);
+    (void)buffer_load_string(gc, argv[1], &code_str);
     eval_string(vm, gc, code_str);
 
     vm_reset(vm);

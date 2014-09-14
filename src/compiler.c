@@ -8,31 +8,16 @@
 #include <unistd.h>
 
 #include <insomniac.h>
-#include <ops.h>
-#include <emit.h>
 
-#include <asm.h>
+#include <bootstrap.h>
 
 #include <locale.h>
 
-void eval_string(vm_type *vm, gc_type *gc, char *str) {
-    size_t written=0;
-    uint8_t *code_ref = 0;
-
-    gc_register_root(gc, (void **)&code_ref);
-
-    /* assemble a simple command */
-    written = asm_string(gc, str, &code_ref);
-
-    vm_eval(vm, written, code_ref);
-
-    gc_unregister_root(gc, (void **)&code_ref);
-}
-
 int main(int argc, char**argv) {
     gc_type *gc = gc_create(sizeof(object_type));
-    vm_type *vm = 0; 
     char *code_str = 0;
+    char *asm_str = 0;
+    size_t code_size = 0;
 
     /* needed to setup locale aware printf . . . 
        I need to do a great deal more research here */
@@ -40,26 +25,22 @@ int main(int argc, char**argv) {
 
     /* check for file argument */
     if(argc < 2) {
-        fprintf(stderr, "Usage: %s <file.asm>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <file.scm>\n", argv[0]);
         exit(-1);
     }
 
     /* make this a root to the garbage collector */
-    gc_register_root(gc, &vm);
     gc_register_root(gc, (void **)&code_str);
-
-    vm_create(gc, &vm);
+    gc_register_root(gc, (void **)&asm_str);
 
     /* load and eval */
-    eval_string(vm, gc, " \"Insomniac VM\" out #\\newline out");
     (void)buffer_load_string(gc, argv[1], &code_str);
-    eval_string(vm, gc, code_str);
+    code_size = compile_string(gc, code_str, &asm_str);
+    
+    printf("%s", asm_str);
 
-    vm_reset(vm);
-
-    /* Shut everything down */
-    vm_destroy(vm);
-    gc_unregister_root(gc, &vm);
+    // Clean up the garabge collector
+    gc_unregister_root(gc, (void **)&asm_str);
     gc_unregister_root(gc, (void **)&code_str);
     gc_destroy(gc);
 

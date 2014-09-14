@@ -46,6 +46,7 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "pair?"                 { return OP_IS_PAIR; }
 "null?"                 { return OP_IS_EMPTY; }
 "proc?"                 { return OP_IS_CLOSURE; }
+"self?"                 { return OP_IS_SELF; }
 
 "vector"                { return OP_MAKE_VECTOR; }
 "vec@"                  { return OP_VECTOR_REF; }

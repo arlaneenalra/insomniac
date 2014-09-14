@@ -122,5 +122,7 @@ vector?
 pair?
 null?
 proc?
+symbol?
 
-
+self? ( a -- bool ) returns true if a is something that can be self evaluated and
+                    false in other cases.

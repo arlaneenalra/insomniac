@@ -10,7 +10,7 @@ typedef struct block block_type;
 /* a single block in our buffer definition */
 struct block {
     uint8_t block[BLOCK_SIZE];
-    buffer_type *next;
+    block_type *next;
 };
 
 

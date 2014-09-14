@@ -150,38 +150,12 @@ void throw(vm_internal_type *vm, char *msg, int num, ...) {
 
 /* load a file into a string */
 void vm_load_buf(vm_internal_type *vm, char *file, object_type **obj) {
-    int fd = 0;
-    char bytes[4096];
     size_t count = 0;
-    buffer_type *buf = 0;
 
-    gc_register_root(vm->gc, &buf);
-    buffer_create(vm->gc, &buf);
-
-    fd = open(file, O_RDONLY);
-
-    /* make sure that we could open the file */
-    if(fd == -1 ) {
-        printf("Unable to open input file: %s\n", file);
-        exit(-2);
-    }
-    
-    /* read everything into our elastic buffer */
-    while((count = read(fd, bytes, BLOCK_SIZE))) {
-        buffer_write(buf, (uint8_t *)bytes, count);
-    }
-
-    close(fd);
-
-    /* Convert to a single string */
-    count = buffer_size(buf);
     *obj = vm_alloc(vm, STRING);
 
-    (*obj)->value.string.length = count;
-    gc_alloc(vm->gc, 0, count+1, (void **) &((*obj)->value.string.bytes));
+    count = buffer_load_string(vm->gc, file, &((*obj)->value.string.bytes));
     
-    buffer_read(buf, (uint8_t *)((*obj)->value.string.bytes), count);
-
-    gc_unregister_root(vm->gc, &buf);
+    (*obj)->value.string.length = count;
 }
 

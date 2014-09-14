@@ -63,6 +63,12 @@ bind-runtime-env:
        
 
         s"runtime-env" bind ;; bind the runtime env
+
+        ;; force a child env for scheme to protect 
+        ;; top level bindings
+        ;; ( ret scheme -- )
+        proc push-env
+        swap call_in
         s"scheme-env" bind ;; bind the scheme env
 
         ;; setup special bindings for certain scheme functions

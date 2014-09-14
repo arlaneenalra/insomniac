@@ -4,6 +4,8 @@
 ;;; expects ( runtime user-code -- )
 
         swap ;; ( user-code runtime -- )
+        
+        dup rot ;; ( runtime user-code runtime -- )
 
         proc eval swap  ;; ( user-code eval runtime -- )
         call call-in-env
@@ -11,6 +13,15 @@
         "Returned: " out
         out
         #\newline out
+
+        ;; ( runtime -- )
+        s"scheme-env"
+        swap
+        proc eval-lookup-symbol
+        swap
+        call call-in-env
+
+        out #\newline out
 
         call stack_dump
 

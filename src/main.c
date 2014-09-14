@@ -40,7 +40,7 @@ int main(int argc, char**argv) {
 
     /* check for file argument */
     if(argc < 2) {
-        printf("Usage: %s <file.asm>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <file.asm>\n", argv[0]);
         exit(-1);
     }
 

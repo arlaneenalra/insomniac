@@ -17,7 +17,7 @@ void emit_bootstrap(compiler_core_type *compiler) {
 
   /* Make sure the preamble actually loaded */
   if (count == -1) {
-    printf("Error loading preamble! %s", compiler->preamble);
+    fprintf(stderr, "Error loading preamble! %s", compiler->preamble);
     exit(-3);
   }
 
@@ -27,6 +27,11 @@ void emit_bootstrap(compiler_core_type *compiler) {
   /* load the post amble */
   if (compiler->postamble) {
     count = buffer_load(buf, compiler->postamble);
+
+    if (count == -1) {
+      fprintf(stderr, "Error loading postamble! %s", compiler->postamble);
+      exit(-4);
+    }
   }
 
   /* replace the compiler buffer with the new one */

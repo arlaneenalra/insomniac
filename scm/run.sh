@@ -8,26 +8,36 @@ function abs_path {
 TMP=`mktemp`
 SRC=$(abs_path $1)
 
-echo $TMP
-
-echo
-echo "Compiling ..."
-echo
-
-# the compiler needs to know where to find it's preamble
 (
-  cd ../build
-  src/insc $SRC > $TMP
+  echo $TMP
+
+  echo
+  echo "Compiling ..."
+  echo
+
+  # the compiler needs to know where to find it's preamble
+  (
+    cd ../build
+    src/insc $SRC > $TMP
+  )
+
+  EXIT=$?
+
+  if [ "$EXIT" != "0" ] ; then
+    echo $EXIT
+    exit $EXIT 
+  fi
+
+  #cat ../asm/stack_dumper.asm >> $TMP
+
+  echo
+  echo
+  echo "Running ..."
+  echo
+
+  ../build/src/insomniac $TMP
+
 )
-
-#cat ../asm/stack_dumper.asm >> $TMP
-
-echo
-echo
-echo "Running ..."
-echo
-
-../build/src/insomniac $TMP
 
 echo
 echo

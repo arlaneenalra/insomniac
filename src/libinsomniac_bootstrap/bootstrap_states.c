@@ -29,7 +29,7 @@ void pop_state(compiler_core_type *compiler) {
   state_stack *state = 0;
 
   if (compiler->states == 0) {
-    printf("Attempt to pop non-existent state!\n");
+    fprintf(stderr, "Attempt to pop non-existent state!\n");
     assert(0);
   }
 

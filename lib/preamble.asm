@@ -65,22 +65,40 @@ bind-runtime-env:
         s"runtime-env" bind ;; bind the runtime env
         s"scheme-env" bind ;; bind the scheme env
 
-        proc eval dup s"eval" bind                
-        
-        ;; ( ret eval -- )
+        ;; setup special bindings for certain scheme functions
+        ()
+        proc eval s"eval" cons cons
+        proc define s"define" cons cons
+
+        ;; ( ret alist -- )
         
         swap
         ret
 
         ;; Bind scheme primitives
-        ;; expects ( eval ret -- )
+        ;; expects ( alist ret -- )
 bind-scheme-primitives:
         swap
         
-        s"eval" bind
+        ;; bind special functions
+        ;;s"eval" bind
+bind-scheme-primitives-loop:
+
+        dup null?
+        jnf bind-scheme-normal
+
+        dup car ;; save list and get entry
+        
+        dup cdr swap car ;; ( rest value key -- )
+        bind
+        
+        cdr
+        jmp bind-scheme-primitives-loop
+
+bind-scheme-normal:
+        drop
 
         proc scheme-begin s"begin" bind
-        proc scheme-define s"define" bind
         proc scheme-cons s"cons" bind
         proc scheme-quote s"quote" bind
         proc scheme-lambda s"lamdba" bind
@@ -109,7 +127,6 @@ eval:
         ;; lookup a symbol in an environment
 eval-lookup-symbol-in-env:
         proc eval-lookup-symbol
-        dup out #\newline out
 
         s"scheme-env" @
         call call-in-env
@@ -123,13 +140,9 @@ eval-lookup-symbol:
         ret
 
 eval-scheme-call:
-        "Scheme call" out #\newline out
-
         dup cdr ;; pull out any arguments
         
         swap car ;; pull out what's being called
-
-        dup out #\newline out
 
         call eval ;; it wasn't a symbol, evaluate it
 
@@ -147,6 +160,27 @@ eval-self-eval: ;; this object is self evaluatable
 
         swap
         ret
+
+        ;; define - the most basic form of define
+define:
+        swap
+
+        dup cdr car ;; ectract value
+        call eval ;; evaluate it
+
+        swap car  ;; get symbol to bind it to
+
+        proc define-in-env
+        s"scheme-env" @
+        call call-in-env
+       
+        () swap
+        ret
+        
+        ;; define a value in a particular env
+        ;; expects ( value symbol ret -- )
+define-in-env:
+        rot bind ret
 
 ;;; Scheme runtime functions
 
@@ -174,22 +208,6 @@ scheme-begin-done:
         swap
         ret
 
-        ;; define - the most basic form of define
-scheme-define:
-        ;;dup rot  ;; this leaves us with ( ret args ret )
-        swap
-
-        dup cdr car ;; ectract value
-
-        ;;call eval ;; evaluate it
-        s"eval" @ call_in
-
-        swap car  ;; get symbol to bind it to
-        bind      ;; bind symbol
-         
-        () swap
-
-        ret
 
         ;; quote - return passed in arguments without processing
 scheme-quote:

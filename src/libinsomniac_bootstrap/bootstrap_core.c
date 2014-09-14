@@ -97,13 +97,15 @@ size_t compile_string(gc_type *gc, char *str, char **asm_ref) {
     gc_register_root(gc, (void **)&compiler.states);
 
     compiler.gc = gc;
+    compiler.states = 0;
+    compiler.preamble = "lib/preamble.asm";
+
 
     if (!init) {
       compiler.state_type = create_state_type(compiler.gc);  
     }
     
     buffer_create(gc, &compiler.buf);
-    compiler.states = 0;
 
     /* Output preamble/bootstraping code into buffer */
     emit_preamble(&compiler);

@@ -25,6 +25,9 @@ struct compiler_core {
 
     gc_type_def state_type;
 
+    /* path to preamble code */
+    char *preamble;
+
     /* A state of compiler states */
     state_stack *states;
 

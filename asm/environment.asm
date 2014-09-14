@@ -11,12 +11,13 @@
         proc eval
         s" eval" bind
 
-        ;; call entry point to create a child environment
+        ;; call entry point to protect top level
+        ;; bindings at run time
         call start
 
         ;; ( proc ret -- ) 
 root-env:
-        " - In Root - " out
+        ;;" - In Root - " out
         swap
         jin
 
@@ -85,7 +86,7 @@ start:
         out
         #\newline out        
 
-        100
+        10
 loop:   
         proc test-env-read
         s"my-env2" @

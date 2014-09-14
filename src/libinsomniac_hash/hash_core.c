@@ -197,9 +197,10 @@ void hash_info(hashtable_type *void_table) {
     uint64_t active_chains = 0;
 
 
-    printf("Hash Info: Entries %lu Size %lu Load %f",
+    printf("Hash Info: Entries %lu Size %lu Load %f\n",
            table->entries, table->size, hash_load(table));
 
+    printf("\tHash Keys: ");
     for(int i=0; i < table->size; i++) {
         kv = table->table[i];
         current = 0;
@@ -207,9 +208,11 @@ void hash_info(hashtable_type *void_table) {
         while(kv) {
             /* save the previous value in the new
                table */
+            printf(" %s", (char *)kv->key);
             current++;
             kv = kv->next;
         }
+
         if(current > 0 ) {
             active_chains++;
         }
@@ -219,6 +222,6 @@ void hash_info(hashtable_type *void_table) {
         }
     }
     
-    printf(" Longest Chain %" PRIi64 " Active Chains %" PRIi64 " Average Chain %f\n",
+    printf("\n\tLongest Chain %" PRIi64 " Active Chains %" PRIi64 " Average Chain %f\n",
            max, active_chains, (table->entries * 1.0) / active_chains);
 }

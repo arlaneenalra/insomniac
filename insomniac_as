@@ -122,5 +122,5 @@ vector?
 pair?
 null?
 proc?
-
+symbol?
 

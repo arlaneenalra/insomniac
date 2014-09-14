@@ -2,6 +2,7 @@
   1
   #t
   "Green"
-  (define x 123)
-  (define y 2)
+  (define x '(1 2 3))
+  (define y 'x)
+  y 
 )

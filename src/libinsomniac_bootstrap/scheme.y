@@ -77,8 +77,13 @@ list_next:
     list_next      { }
 
 quoted_list:
-    QUOTE          
-    object         { /* add_quote(compiler); */ }
+    QUOTE          { emit_empty(compiler); push_state(compiler, PUSH); }
+    object         { 
+                     pop_state(compiler);
+                     emit_cons(compiler);
+                     emit_symbol(compiler, "quote");
+                     emit_cons(compiler);
+                   }
     
 boolean:
     TRUE_OBJ        { emit_bool(compiler, 1); }

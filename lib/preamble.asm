@@ -9,6 +9,7 @@
         proc scheme-begin s"begin" bind
         proc scheme-define s"define" bind
         proc scheme-cons s"cons" bind
+        proc scheme-quote s"quote" bind
         
         ;; jump to entry point
         jmp start
@@ -105,6 +106,11 @@ scheme-define:
          
         () swap
 
+        ret
+
+        ;; quote - return passed in arguments without processing
+scheme-quote:
+        swap car swap
         ret
 
         ;; cons - TODO: revisit this

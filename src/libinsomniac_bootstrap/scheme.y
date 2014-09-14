@@ -123,7 +123,6 @@ void yyerror(compiler_core_type *compiler, void *scanner, char *s) {
 
 int parse_internal(compiler_core_type *compiler, void *scanner) {
     int ret_val=0;
-    int parsing_flag=0;
     
     ret_val=yyparse(compiler, scanner);
 

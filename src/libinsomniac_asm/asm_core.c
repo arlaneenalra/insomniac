@@ -20,16 +20,16 @@ void asm_lit_char(buffer_type *buf, yyscan_t *scanner) {
     c = *str; 
 
     if(strcmp(str, "newline")==0) {
-	c = '\n';
+        c = '\n';
 
     } else if(strcmp(str, "space")==0) {
-	c = ' ';
+        c = ' ';
 
     } else if(strcmp(str, "eof")==0) {
         c = -1;
     
     } else if(*str=='x' && strlen(str) > 1) { /* Hex encoded charater */
-	c = strtoul(str+1, 0, 16);
+        c = strtoul(str+1, 0, 16);
     }
 
     EMIT_LIT_CHAR(buf, c);
@@ -117,6 +117,9 @@ void asm_jump(gc_type *gc, buffer_type *buf,
     /* save location of jump addr field */
     jump->addr = buffer_size(buf);
 
+    /* save the line number for this jump */
+    jump->lineno = yyget_lineno(scanner);
+
     /* make sure we have a label */
     if(yylex(scanner) != LABEL_TOKEN) {
         assert(0);
@@ -150,7 +153,7 @@ void rewrite_jumps(uint8_t *code_ref, jump_type *jump_list,
 
         /* look up label */
         if(!hash_get(labels, jump_list->label, (void **)&label_addr)) {
-            printf("Undefined jump to '%s' @ %" PRIi64 "\n", jump_list->label, jump_list->addr);
+            printf("Undefined jump to '%s' @ %" PRIi64 " on line %" PRIi64 "\n", jump_list->label, jump_list->addr, jump_list->lineno);
             assert(0);
         }
 

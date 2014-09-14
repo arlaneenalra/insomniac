@@ -140,7 +140,11 @@ void throw(vm_internal_type *vm, char *msg, int num, ...) {
     /* we did not find a handler ! */
     vm_pop(vm);
     printf("Unhandled Exception: '%s'\n", msg);
-    printf("Current Stack:\n");
+    
+    printf("Exception:\n");
+    output_object(stdout,exception);
+
+    printf("\nCurrent Stack:\n");
     output_object(stdout, vm->stack_root);
     printf("\n");
 

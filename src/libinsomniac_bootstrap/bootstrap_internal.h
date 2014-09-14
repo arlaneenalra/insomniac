@@ -25,8 +25,9 @@ struct compiler_core {
 
     gc_type_def state_type;
 
-    /* path to preamble code */
+    /* path to preamble and postamble code */
     char *preamble;
+    char *postamble;
 
     /* A state of compiler states */
     state_stack *states;
@@ -36,7 +37,7 @@ struct compiler_core {
 };
 
 
-void emit_preamble(compiler_core_type *compiler);
+void emit_bootstrap(compiler_core_type *compiler);
 
 void emit_bool(compiler_core_type *compiler, int b);
 void emit_char(compiler_core_type *compiler, char *c);

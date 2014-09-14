@@ -99,6 +99,7 @@ size_t compile_string(gc_type *gc, char *str, char **asm_ref) {
     compiler.gc = gc;
     compiler.states = 0;
     compiler.preamble = "lib/preamble.asm";
+    compiler.postamble = "lib/postamble.asm";
 
 
     if (!init) {
@@ -107,9 +108,6 @@ size_t compile_string(gc_type *gc, char *str, char **asm_ref) {
     
     buffer_create(gc, &compiler.buf);
 
-    /* Output preamble/bootstraping code into buffer */
-    emit_preamble(&compiler);
-
     /* Actually parse the input stream. */
     yylex_init(&scanner);
     yy_scan_string(str, scanner);
@@ -117,6 +115,9 @@ size_t compile_string(gc_type *gc, char *str, char **asm_ref) {
     parse_internal(&compiler, scanner);
 
     yylex_destroy(scanner);
+
+    /* Add appropriate bootstraping code */
+    emit_bootstrap(&compiler);
 
     /* Convert the output buffer back to a string. */
     length = buffer_size(compiler.buf);

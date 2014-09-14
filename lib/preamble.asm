@@ -8,6 +8,7 @@
         ;; Bind scheme primitives
         proc scheme-begin s"begin" bind
         proc scheme-define s"define" bind
+        proc scheme-cons s"cons" bind
         
         ;; jump to entry point
         jmp start
@@ -104,6 +105,15 @@ scheme-define:
          
         () swap
 
+        ret
+
+        ;; cons - TODO: revisit this
+scheme-cons:
+        swap
+
+        dup cdr car swap car cons
+
+        swap 
         ret
 
         ;; User code entry point

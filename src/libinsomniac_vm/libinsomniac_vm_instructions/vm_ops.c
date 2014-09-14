@@ -16,16 +16,20 @@ NUMERIC_LOGIC(op_numeric_lt, <)
 NUMERIC_LOGIC(op_numeric_gt, >)
 
 /* Identifiy the type of an object */
-TYPE_OP(op_is_fixnum, FIXNUM)
-TYPE_OP(op_is_bool, BOOL)
-TYPE_OP(op_is_char, CHAR)
-TYPE_OP(op_is_string, STRING)
-TYPE_OP(op_is_symbol, SYMBOL)
-TYPE_OP(op_is_vector, VECTOR)
-TYPE_OP(op_is_pair, PAIR)
-TYPE_OP(op_is_empty, EMPTY)
-TYPE_OP(op_is_closure, CLOSURE)
-TYPE_OP(op_is_library, LIBRARY)
+TYPE_OP(op_is_fixnum, TYPE_TEST(FIXNUM))
+TYPE_OP(op_is_bool, TYPE_TEST(BOOL))
+TYPE_OP(op_is_char, TYPE_TEST(CHAR))
+TYPE_OP(op_is_string, TYPE_TEST(STRING))
+TYPE_OP(op_is_symbol, TYPE_TEST(SYMBOL))
+TYPE_OP(op_is_vector, TYPE_TEST(VECTOR))
+TYPE_OP(op_is_pair, TYPE_TEST(PAIR))
+TYPE_OP(op_is_empty, TYPE_TEST(EMPTY))
+TYPE_OP(op_is_closure, TYPE_TEST(CLOSURE))
+TYPE_OP(op_is_library, TYPE_TEST(LIBRARY))
+TYPE_OP(op_is_self, \
+  (TYPE_TEST(FIXNUM) || TYPE_TEST(BOOL) || TYPE_TEST(CHAR) || TYPE_TEST(STRING) \
+   || TYPE_TEST(VECTOR) ) \
+)
 
 
 /* setup of instructions in given vm instance */
@@ -111,7 +115,6 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_IS_PAIR] = &op_is_pair;
     vm->ops[OP_IS_EMPTY] = &op_is_empty;
     vm->ops[OP_IS_CLOSURE] = &op_is_closure;
-
-
+    vm->ops[OP_IS_SELF] = &op_is_self;
 }
 

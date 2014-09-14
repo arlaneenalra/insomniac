@@ -1,9 +1,5 @@
 
 
-        call stack_dump
-
-        jmp done
-
         ;; Output everything in the stack but the
         ;; return address
 stack_dump:     

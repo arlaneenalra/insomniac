@@ -5,7 +5,14 @@ function abs_path {
   (cd "$(dirname '$1')" &>/dev/null && printf "%s/%s" "$(pwd)" "${1##*/}")
 }
 
-TMP=`mktemp`
+SAVE=$2
+
+if [ "$SAVE" == "" ] ; then
+  TMP=`mktemp`
+else 
+  TMP=$(abs_path $SAVE)
+fi
+
 SRC=$(abs_path $1)
 
 (
@@ -28,7 +35,6 @@ SRC=$(abs_path $1)
     exit $EXIT 
   fi
 
-  #cat ../asm/stack_dumper.asm >> $TMP
 
   echo
   echo
@@ -42,4 +48,6 @@ SRC=$(abs_path $1)
 echo
 echo
 
-rm $TMP
+if [ "$SAVE" == "" ] ; then
+  rm $TMP
+fi

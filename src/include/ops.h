@@ -86,12 +86,11 @@ typedef enum op {
     OP_IS_EMPTY,
     OP_IS_CLOSURE,
     OP_IS_LIBRARY,
+
+    OP_IS_SELF,
     
     OP_MAX_INS /* must be the last instruction in list */
 } op_type;
-
-
-
 
 
 #endif

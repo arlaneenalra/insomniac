@@ -1,4 +1,5 @@
-%define api.pure
+%pure-parser 
+/* %define api.pure */
 
 %{
 #include <stdio.h>
@@ -11,9 +12,8 @@ void yyerror(compiler_core_type *compiler, void *scanner, char *s);
 %}
 
 %parse-param {compiler_core_type *compiler}
-%param {void *scanner}
-/* %parse-param {void *scanner} */
-/* %lex-param {void *scanner} */
+%parse-param {void *scanner} 
+%lex-param {void *scanner} 
 
 %token OPEN_PAREN
 %token START_VECTOR

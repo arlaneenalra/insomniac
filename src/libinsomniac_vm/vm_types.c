@@ -109,9 +109,9 @@ gc_type_def create_vm_type(gc_type *gc) {
     gc_register_pointer(gc, vm_type_def,
                         offsetof(vm_internal_type, empty));
     gc_register_pointer(gc, vm_type_def, 
-                        offsetof(vm_internal_type, true));
+                        offsetof(vm_internal_type, vm_true));
     gc_register_pointer(gc, vm_type_def, 
-                        offsetof(vm_internal_type, false));
+                        offsetof(vm_internal_type, vm_false));
     gc_register_pointer(gc, vm_type_def, 
                         offsetof(vm_internal_type, symbol_table));
     gc_register_pointer(gc, vm_type_def,

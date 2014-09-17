@@ -12,9 +12,9 @@ void fn_name(vm_internal_type *vm) {                    \
     obj = vm_pop(vm);                                   \
                                                         \
     if(obj && type_test) {                              \
-        vm_push(vm, vm->true);                          \
+        vm_push(vm, vm->vm_true);                          \
     } else {                                            \
-        vm_push(vm, vm->false);                         \
+        vm_push(vm, vm->vm_false);                         \
     }                                                   \
                                                         \
     gc_unregister_root(vm->gc, (void **)&obj);          \

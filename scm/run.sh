@@ -49,5 +49,5 @@ echo
 echo
 
 if [ "$SAVE" == "" ] ; then
-#  rm $TMP
+  rm $TMP
 fi

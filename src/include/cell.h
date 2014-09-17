@@ -2,9 +2,9 @@
 #define _CELL_
 
 #include <inttypes.h>
+#include <stdbool.h>
 
 typedef int64_t vm_int;
-typedef uint8_t vm_bool;
 typedef uint32_t vm_char;
 
 typedef struct object object_type;
@@ -57,22 +57,24 @@ typedef struct library {
     vm_int func_count;
 } library_type;
 
+typedef union value {
+    vm_int integer;
+    pair_type pair;
+    bool boolean;
+    vm_char character;
+    string_type string;
+    vector_type vector;
+    closure_type closure;
+    library_type library;
+} value_type;
+
 /* define a memory object */
 struct object {
     cell_type type;
     
     /* what is actually stored in this
        memory location */
-    union {
-        vm_int integer;
-        pair_type pair;
-        vm_bool bool;
-        vm_char character;
-        string_type string;
-        vector_type vector;
-        closure_type closure;
-        library_type library;
-    } value;
+    value_type value;
 };
 
 #endif

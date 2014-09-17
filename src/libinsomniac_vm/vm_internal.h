@@ -50,8 +50,8 @@ struct vm_internal {
     /* some objects that we only need one instance of */
     object_type *empty; /* The empty object */
 
-    object_type *true; /* True and False objects */
-    object_type *false;
+    object_type *vm_true; /* True and False objects */
+    object_type *vm_false;
 
     gc_type_def types[CELL_MAX]; /* mapping between cell types and gc types */
     

@@ -51,12 +51,12 @@ void op_lit_empty(vm_internal_type *vm) {
 
 /* push a true object onto the stack */
 void op_lit_true(vm_internal_type *vm) {
-    vm_push(vm, vm->true);
+    vm_push(vm, vm->vm_true);
 }
 
 /* push a true object onto the stack */
 void op_lit_false(vm_internal_type *vm) {
-    vm_push(vm, vm->false);
+    vm_push(vm, vm->vm_false);
 }
 
 /* load a string litteral and push it onto the stack*/

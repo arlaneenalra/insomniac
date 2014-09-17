@@ -24,11 +24,11 @@ void vm_create(gc_type *gc, vm_type **vm_ret ) {
     /* setup unique objects */
     vm->empty = vm_alloc(vm, EMPTY);
 
-    vm->true = vm_alloc(vm, BOOL);
-    vm->true->value.bool = 1;
+    vm->vm_true = vm_alloc(vm, BOOL);
+    vm->vm_true->value.boolean = true;
     
-    vm->false = vm_alloc(vm, BOOL);
-    vm->false->value.bool = 0;
+    vm->vm_false = vm_alloc(vm, BOOL);
+    vm->vm_false->value.boolean = false;
 
     /* setup the stack */
     vm->stack_root = vm->empty;

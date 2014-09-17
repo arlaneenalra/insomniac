@@ -27,7 +27,9 @@ void op_import(vm_internal_type *vm) {
 
         /* load the library if it has not been loaded */
         if(!handle) {
-            handle = dlopen(obj->value.string.bytes, RTLD_NOW | RTLD_LOCAL | RTLD_DEEPBIND);
+            /* handle = dlopen(obj->value.string.bytes, RTLD_NOW | RTLD_LOCAL | RTLD_DEEPBIND); */
+            /* RTLD_DEEPBIND is not defined on osx ... */
+            handle = dlopen(obj->value.string.bytes, RTLD_NOW | RTLD_LOCAL);
         }
 
 

@@ -10,7 +10,7 @@ void hash_create(gc_type *gc, hash_fn fn,
     
     static gc_type_def hashtable_type_def = 0;
     static gc_type_def key_value_type_def = 0;
-    hash_internal_type *table;
+    hash_internal_type *table = 0;
     
     /* register the hashtable type with the gc */
     if(!hashtable_type_def) {
@@ -64,7 +64,7 @@ void hash_erase(hashtable_type *void_table, void *key) {
 /* retrieve the value bound to a key in the table */
 uint8_t hash_get(hashtable_type *void_table, void *key, void ** value) {
     key_value_type *kv = 0;
-    hash_internal_type *table=(hash_internal_type *)void_table;
+    hash_internal_type *table = (hash_internal_type *)void_table;
 
     kv = hash_find(table, key, READ);
 

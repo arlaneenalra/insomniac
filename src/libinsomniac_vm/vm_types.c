@@ -11,8 +11,13 @@ gc_type_def register_pair(gc_type *gc) {
     gc_type_def pair = 0;
 
     pair = gc_register_type(gc, sizeof(object_type));
-    gc_register_pointer(gc, pair, offsetof(object_type, value.pair.car));
-    gc_register_pointer(gc, pair, offsetof(object_type, value.pair.cdr));
+    gc_register_pointer(gc, pair,
+      offsetof(object_type, value) + offsetof(value_type, pair) +
+      offsetof(pair_type, car));
+
+    gc_register_pointer(gc, pair,
+      offsetof(object_type, value) + offsetof(value_type, pair) +
+      offsetof(pair_type, cdr));
 
 
     return pair;
@@ -23,7 +28,9 @@ gc_type_def register_string(gc_type *gc) {
     gc_type_def str = 0;
     
     str = gc_register_type(gc, sizeof(object_type));
-    gc_register_pointer(gc, str, offsetof(object_type, value.string.bytes));
+    gc_register_pointer(gc, str,
+      offsetof(object_type, value) + offsetof(value_type, string) +
+      offsetof(string_type, bytes));
     
     return str;
 }
@@ -33,7 +40,8 @@ gc_type_def register_closure(gc_type *gc) {
     gc_type_def closure = 0;
     
     closure = gc_register_type(gc, sizeof(object_type));
-    gc_register_pointer(gc, closure, offsetof(object_type, value.closure));
+    gc_register_pointer(gc, closure,
+      offsetof(object_type, value) + offsetof(value_type, closure));
     
     return closure;
 }
@@ -43,7 +51,8 @@ gc_type_def register_library(gc_type *gc) {
     gc_type_def library = 0;
     
     library = gc_register_type(gc, sizeof(object_type));
-    gc_register_pointer(gc, library, offsetof(object_type, value.library));
+    gc_register_pointer(gc, library,
+      offsetof(object_type, value) + offsetof(value_type, library));
     
     return library;
 }
@@ -55,7 +64,8 @@ gc_type_def register_vector(gc_type *gc) {
     
     vector = gc_register_type(gc, sizeof(object_type));
     gc_register_pointer(gc, vector,
-                        offsetof(object_type, value.vector.vector));
+      offsetof(object_type, value) + offsetof(value_type, vector) +
+      offsetof(vector_type, vector));
 
     return vector;
 }
@@ -109,9 +119,9 @@ gc_type_def create_vm_type(gc_type *gc) {
     gc_register_pointer(gc, vm_type_def,
                         offsetof(vm_internal_type, empty));
     gc_register_pointer(gc, vm_type_def, 
-                        offsetof(vm_internal_type, true));
+                        offsetof(vm_internal_type, vm_true));
     gc_register_pointer(gc, vm_type_def, 
-                        offsetof(vm_internal_type, false));
+                        offsetof(vm_internal_type, vm_false));
     gc_register_pointer(gc, vm_type_def, 
                         offsetof(vm_internal_type, symbol_table));
     gc_register_pointer(gc, vm_type_def,

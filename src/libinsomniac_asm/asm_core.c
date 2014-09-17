@@ -38,7 +38,7 @@ void asm_lit_char(buffer_type *buf, yyscan_t *scanner) {
 /* assemble a string literal */
 void asm_lit_string(buffer_type *buf, yyscan_t *scanner) {
     int empty = 1;
-    op_type token = 0;
+    int token = 0;
     
     /* get the next token */
     token = yylex(scanner);

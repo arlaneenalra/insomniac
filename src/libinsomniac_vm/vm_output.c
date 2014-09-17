@@ -106,7 +106,7 @@ void output_object(FILE *fout, object_type *obj) {
         break;
 
     case BOOL:
-        if(obj->value.bool) {
+        if(obj->value.boolean) {
             fprintf(fout, "#t");
         } else {
             fprintf(fout, "#f");

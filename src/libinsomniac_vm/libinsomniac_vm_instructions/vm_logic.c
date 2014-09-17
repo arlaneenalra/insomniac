@@ -25,7 +25,7 @@ void op_eq(vm_internal_type *vm) {
             result = obj1->value.integer == obj2->value.integer;
             break;
         case BOOL:
-            result = obj1->value.bool == obj2->value.bool;
+            result = obj1->value.boolean == obj2->value.boolean;
             break;
         case CHAR:
             result = obj1->value.character == obj2->value.character;
@@ -63,7 +63,7 @@ void op_not(vm_internal_type *vm) {
     }
 
     /* only #f is false */
-    if(obj->type == BOOL && !obj->value.bool) {
+    if(obj->type == BOOL && !obj->value.boolean) {
         vm_push(vm, vm->vm_true);
     } else {
         vm_push(vm, vm->vm_false);

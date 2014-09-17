@@ -11,7 +11,7 @@ void op_jnf(vm_internal_type *vm) {
     obj = vm_pop(vm);
 
     if(!(obj && obj->type == BOOL &&
-         !obj->value.bool)) {
+         !obj->value.boolean)) {
         vm->env->ip += target;
     }
 

@@ -2,9 +2,9 @@
 #define _CELL_
 
 #include <inttypes.h>
+#include <stdbool.h>
 
 typedef int64_t vm_int;
-typedef uint8_t vm_bool;
 typedef uint32_t vm_char;
 
 typedef struct object object_type;
@@ -66,7 +66,7 @@ struct object {
     union {
         vm_int integer;
         pair_type pair;
-        vm_bool bool;
+        bool boolean;
         vm_char character;
         string_type string;
         vector_type vector;

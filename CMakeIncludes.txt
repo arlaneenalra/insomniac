@@ -1,8 +1,5 @@
 
-#set(CMAKE_C_FLAGS "-Wall -g -O3 -fno-optimize-sibling-calls -std=gnu99 -pedantic -DDEBUG -lm")
-
 if(${CMAKE_C_COMPILER_ID} MATCHES "Clang")
-  #set(CMAKE_C_FLAGS "-Wall -g -std=c99 -pedantic -DDEBUG -D_POSIX_C_SOURCE")
   set(CMAKE_C_FLAGS "-Wall -Wextended-offsetof -g -std=c99 -pedantic -DDEBUG")
   set(CMAKE_SHARED_LINKER_FLAGS " -undefined dynamic_lookup -flat_namespace")
 else()

@@ -8,7 +8,7 @@
 /* Emit a boolean into our code stream */
 void emit_bool(compiler_core_type *compiler, int b) {
     char c = 't';
-    char str_buf[3];
+    char str_buf[4];
     size_t length = 0;
 
     /* if b is false, c should be f */

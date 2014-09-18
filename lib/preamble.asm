@@ -1,22 +1,4 @@
 ;;; Insomniac Preable code
-;;;        ;; setup scheme primitives
-;;;        call push-env
-;;;        dup ;; save this so we can bind it in the runtime env
-;;;
-;;;        ;; bind scheme primitives in the scheme env
-;;;        proc bind-scheme-primitives
-;;;        swap
-;;;        call call-in-env 
-;;;      
-;;;        ;; stack should be ( scheme -- )
-;;;        call push-env ;; this will be the runtime environment
-;;;        dup
-;;;
-;;;        ;; stack should be ( scheme runtime runtime -- )
-;;;        proc bind-runtime-env
-;;;        swap ;; stack should be ( scheme runtime bind-runtime runtime -- )
-;;;        call call-in-env 
-
 
         call push-env ;; scheme
         dup
@@ -31,9 +13,9 @@
         swap
         call call-in-env
 
-        ;; stack should be ( scheme runtime eval -- )
-        rot ;; ( eval scheme runtime -- )
-        rot ;; ( runtime eval scheme -- )
+        ;; stack should be ( scheme runtime alist -- )
+        rot ;; ( alist scheme runtime -- )
+        rot ;; ( runtime alist scheme -- )
         
         proc bind-scheme-primitives
         swap
@@ -75,6 +57,7 @@ bind-runtime-env:
         ()
         proc eval s"eval" cons cons
         proc define s"define" cons cons
+        proc scheme-lambda s"lambda" cons cons
 
         ;; ( ret alist -- )
         
@@ -84,33 +67,16 @@ bind-runtime-env:
         ;; Bind scheme primitives
         ;; expects ( alist ret -- )
 bind-scheme-primitives:
-        swap
-        
-        ;; bind special functions
-        ;;s"eval" bind
-bind-scheme-primitives-loop:
-
-        dup null?
-        jnf bind-scheme-normal
-
-        dup car ;; save list and get entry
-        
-        dup cdr swap car ;; ( rest value key -- )
-        bind
-        
-        cdr
-        jmp bind-scheme-primitives-loop
-
-bind-scheme-normal:
-        drop
 
         proc scheme-begin s"begin" bind
         proc scheme-cons s"cons" bind
         proc scheme-quote s"quote" bind
-        proc scheme-lambda s"lamdba" bind
+        ;; proc scheme-lambda s"lambda" bind
         
-        ;; no return, no swap
-        ret
+        ;; should have:
+        ;; ( alist ret -- )
+        proc bind-symbols
+        jin  ;; we let bind-symbols return for us
 
         ;; Bootstrap evaluator 
 eval:
@@ -188,6 +154,27 @@ define:
 define-in-env:
         rot bind ret
 
+        ;; Bind symbols into the current environment
+        ;; ( alist ret -- )
+bind-symbols:
+        swap
+        
+        ;; do the actual symbol binding
+bind-symbols-loop:
+        dup null?
+        jnf bind-symbols-loop-done
+
+        dup car
+        dup cdr swap car ;; (rest value key --)
+        bind
+
+        cdr ;; next entry
+        jmp bind-symbols-loop
+
+bind-symbols-loop-done:
+        drop ;; drop the empty list
+        ret
+
 ;;; Scheme runtime functions
 
         ;; begin - execute a list of s-expressions
@@ -233,13 +220,78 @@ scheme-cons:
 scheme-lambda:
         swap
 
-        dup cdr car ;; procedure body
-        car ;; argument names
+        dup ;; make a second copy of the lambda
 
+        car s"lambda-args" bind ;; bind arguments
+        
+        cdr s"lambda-body" bind ;; bind the body
+        
+        dup ;; return in this instance should be an env
+        s"lambda-scope" bind
 
-
+        ;; out put the procedure
+        proc scheme-lambda-binding-closure
+        
         swap
         ret
+
+        ;; Closure that binds the arguments to their locations
+        ;; and dumps the lambda body to begin
+        ;; ( arguments ret -- )
+scheme-lambda-binding-closure:
+        swap
+
+        () s"alist" bind ;; setup the new list
+        s"lambda-args" @ ;; retrieve the argument names
+
+        ;; ( arguments arg-names -- )
+slbc-alist-loop:
+        ;; are we at the end of the list?
+        dup null? jnf slbc-alist-done
+        
+        dup car ;; get the next argument
+
+        ;; ( arguments arg-names arg -- )
+        swap rot swap ;; ( arg-names arg arguments  -- )
+
+        dup car ;; get the next argument 
+        
+        swap rot swap ;; ( arg-names arguments value arg -- )
+
+        cons s"alist" @ swap cons ;; add pair to alist
+
+        s"alist" ! ;; update alist
+
+        ;; ( arg-names arguments -- )
+
+        cdr swap cdr ;; get the next argument
+        jmp slbc-alist-loop
+
+slbc-alist-done:
+        drop drop ;; get rid of the empty lists
+       
+        ;; bind a new child scheme-env
+        proc push-env
+        s"scheme-env" @ call_in ;; push env needs a call_in
+
+
+        ;; s"scheme-env" bind 
+        dup ;; ( ret child-env child-env -- )
+
+        s"alist" @ swap ;; ( ret child-env alist child-env -- )
+        proc bind-symbols
+        swap
+        call call-in-env
+        
+        s"scheme-env" bind ;; bind a new scheme-env
+        proc eval s"eval" bind
+
+        ;; ( ret child-env -- )
+        s"lambda-body" @
+        swap
+
+        proc scheme-begin
+        jin
 
         ;; User code entry point
         ;; This should leave a single list on the stack to 

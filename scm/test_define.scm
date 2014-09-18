@@ -1,10 +1,12 @@
 (begin 
-  1
-  #t
-  "Green"
-  '(1 2 3 )
-  '(4 5 6 )
-  (define x '(1 2 3))
-  (define y x)
-  y  
+  (define true 
+    (lambda (x y) x))
+  (define false
+    (lambda (x y) y))
+  
+  (define if
+    (lambda (test t f)
+      (test t f)))
+
+  (false #t (true #t #f))
 )

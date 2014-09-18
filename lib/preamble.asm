@@ -71,6 +71,7 @@ bind-scheme-primitives:
         proc scheme-begin s"begin" bind
         proc scheme-cons s"cons" bind
         proc scheme-quote s"quote" bind
+        proc scheme-dump-env s"dump-env" bind
         ;; proc scheme-lambda s"lambda" bind
         
         ;; should have:
@@ -78,7 +79,8 @@ bind-scheme-primitives:
         proc bind-symbols
         jin  ;; we let bind-symbols return for us
 
-        ;; Bootstrap evaluator 
+        ;; Bootstrap evaluator
+        ;; ( value ret -- )
 eval:
         swap ;; save return
 
@@ -91,6 +93,9 @@ eval:
 
         dup symbol?
         jnf eval-lookup-symbol-in-env
+
+        dup proc?
+        jnf eval-call
 
         ;; what ever we have is not something that should be 
         ;; eval'd panic!
@@ -252,11 +257,15 @@ slbc-alist-loop:
         dup car ;; get the next argument
 
         ;; ( arguments arg-names arg -- )
-        swap rot swap ;; ( arg-names arg arguments  -- )
+        ;;swap rot swap ;; ( arg-names arg arguments  -- )
+        rot rot ;; ( arg-names arg arguments  -- )
 
-        dup car ;; get the next argument 
+        dup car ;; get the next argument value
+        call eval ;; evaluate the value
         
-        swap rot swap ;; ( arg-names arguments value arg -- )
+        swap rot ;; (arg-names argumets arg value -- )
+
+        swap ;; ( arg-names arguments value arg -- )
 
         cons s"alist" @ swap cons ;; add pair to alist
 
@@ -285,13 +294,24 @@ slbc-alist-done:
         
         s"scheme-env" bind ;; bind a new scheme-env
         proc eval s"eval" bind
+        proc scheme-begin s"begin" bind
+        proc scheme-lambda s"lambda" bind
+        proc scheme-dump-env s"dump-env" bind
 
+        ;; Something is not righ here
         ;; ( ret child-env -- )
-        s"lambda-body" @
-        swap
+        s"lambda-body" @ s"begin" cons
+        call eval
 
-        proc scheme-begin
-        jin
+        swap
+        ret
+
+scheme-dump-env:
+        swap drop
+        proc scheme-dump-env
+
+        swap 
+        ret
 
         ;; User code entry point
         ;; This should leave a single list on the stack to 

@@ -6,7 +6,7 @@
   
   (define if
     (lambda (test t f)
-      (test t f)))
+      (dump-env)))
 
-  (false #t (true #t #f))
+  (if true #t #f)
 )

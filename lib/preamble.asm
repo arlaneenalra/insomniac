@@ -1,83 +1,43 @@
 ;;; Insomniac Preable code
 
-        call push-env ;; scheme
-        dup
-        call push-env ;; runtime
-        dup 
-        rot
+        ;; Setup bare environment
+        call push-env ;; bare
         
-        ;; setup runtime env
-        ;; stack should be ( scheme runtime scheme runtime -- )
-        dup ;; ( scheme runtime scheme runtime runtime -- )
-        proc bind-runtime-env
-        swap
-        call call-in-env
+        call bind-runtime-env
 
-        ;; stack should be ( scheme runtime alist -- )
-        rot ;; ( alist scheme runtime -- )
-        rot ;; ( runtime alist scheme -- )
-        
-        proc bind-scheme-primitives
-        swap
-        call call-in-env
-
-        ;; Stack should be ( runtime -- )
-         
-
-        ;; jump to entry point
-        jmp start
+        ;; if we return here, something went very wrong
+        "User code returned instead of calling exit!" out
+        #\newline out
+        jmp panic
 
 env:
         swap jin
 
 push-env:
-        proc env
+        proc env ;; I'm not sure this needs to be anything particular
 
 call-in-env:
         swap
         ret
 
-        ;; setup any global bindings needed by the runtime code
+        ;; Setup any global bindings needed by the runtime code
         ;; should have the scheme env as an argument
-        ;; expects ( scheme runtime ret -- eval )
+        ;; expects ( bare ret -- runtime )
 bind-runtime-env:
-        rot ;; ( ret scheme runtime -- )
-       
+        swap 
 
-        s"runtime-env" bind ;; bind the runtime env
+        s"bare-env" bind ;; bind the runtime env
 
-        ;; force a child env for scheme to protect 
-        ;; top level bindings
-        ;; ( ret scheme -- )
-        proc push-env
-        swap call_in
-        s"scheme-env" bind ;; bind the scheme env
-
-        ;; setup special bindings for certain scheme functions
-        ()
-        proc eval s"eval" cons cons
-        proc define s"define" cons cons
-        proc scheme-lambda s"lambda" cons cons
-
-        ;; ( ret alist -- )
-        
-        swap
-        ret
-
-        ;; Bind scheme primitives
-        ;; expects ( alist ret -- )
-bind-scheme-primitives:
+        proc eval s"eval" bind 
+        proc define s"define" bind
 
         proc scheme-begin s"begin" bind
         proc scheme-cons s"cons" bind
         proc scheme-quote s"quote" bind
         proc scheme-dump-env s"dump-env" bind
-        ;; proc scheme-lambda s"lambda" bind
-        
-        ;; should have:
-        ;; ( alist ret -- )
-        proc bind-symbols
-        jin  ;; we let bind-symbols return for us
+        proc scheme-lambda s"lambda" bind
+       
+        jmp start
 
         ;; Bootstrap evaluator
         ;; ( value ret -- )
@@ -86,78 +46,81 @@ eval:
 
         ;; check for things that self evaluate
         dup self?
-        jnf eval-self-eval
+        jnf eval-done
 
         dup pair? ;; check to see if the first element is a list
         jnf eval-scheme-call
 
         dup symbol?
-        jnf eval-lookup-symbol-in-env
+        jnf eval-lookup-symbol
 
-        dup proc?
-        jnf eval-call
+        dup proc? ;; for now, treat procedures as self-eval
+        jnf eval-done
 
         ;; what ever we have is not something that should be 
         ;; eval'd panic!
+        "Unknown object type in eval!" out
+        #\newline out
+
         jmp panic
-
-        ;; lookup a symbol in an environment
-eval-lookup-symbol-in-env:
-        proc eval-lookup-symbol
-
-        s"scheme-env" @
-        call call-in-env
-        
-        swap
-        ret
 
         ;; look up a symbol and leave its value on the stack
 eval-lookup-symbol:
-        swap @ swap
-        ret
+        @
+        jmp eval-done
 
 eval-scheme-call:
         dup cdr ;; pull out any arguments
-        
         swap car ;; pull out what's being called
+        
+        ;; ( ret args proc -- )
+        swap rot
+        ;; ( args ret proc -- )
 
         call eval ;; it wasn't a symbol, evaluate it
-
-eval-call: ;; Do an indirect call for the retrieved value
         
-        ;; s"scheme-env" @
-        ;; call call-in-env
-        
-        call_in ;; call the closure
-
-        swap
+        ;; jin
         ret
 
-eval-self-eval: ;; this object is self evaluatable
+eval-done:
 
         swap
         ret
 
         ;; define - the most basic form of define
+        ;; ( (sym . value) ret -- )
 define:
-        swap
+        dup ;; ( (sym . value) ret ret -- )
+
+        proc define-bind ;; ( ( sym . value ) ret ret def-bind -- )
+        swap adopt ;; setup the define call reflector
+        
+       
+        ;; ( (sym . value) ret def-bind -- )
+
+        ;; Return dumps us into the newly minted closure 
+        ;; with out creating a new environent 
+
+        ret
+
+        ;; Bind a symbol, used by define
+        ;; ( (sym . value) ret -- )
+define-bind:
+        swap 
 
         dup cdr car ;; ectract value
         call eval ;; evaluate it
-
+        
+        ;; ( ret (sym . value) value --)
         swap car  ;; get symbol to bind it to
 
-        proc define-in-env
-        s"scheme-env" @
-        call call-in-env
-       
+        bind ;; bind the symbol
+
+        ;;"Defined" out #\newline out
+        ;;proc env out #\newline out
+
         () swap
         ret
-        
-        ;; define a value in a particular env
-        ;; expects ( value symbol ret -- )
-define-in-env:
-        rot bind ret
 
         ;; Bind symbols into the current environment
         ;; ( alist ret -- )
@@ -183,13 +146,17 @@ bind-symbols-loop-done:
 ;;; Scheme runtime functions
 
         ;; begin - execute a list of s-expressions
+        ;; ( body ret -- )
 scheme-begin:
+        ;; make sure that eval works in the current env
+        ;; dup s"eval" @ swap adopt s"eval" bind
+
         swap
 
 scheme-begin-loop:
         dup car ;; pull first item out of list
-        ;; call eval ;; evaluate the current expression
-        s"eval" @ call_in
+        ;;s"eval" @ call_in
+        call eval
 
         ;; is this the last entry in the begin?
         swap cdr dup null?
@@ -223,6 +190,14 @@ scheme-cons:
 
         ;; Runtime lambda generator
 scheme-lambda:
+        swap
+        call scheme-lambda-push
+
+        swap
+        ret
+
+
+scheme-lambda-push:
         swap
 
         dup ;; make a second copy of the lambda
@@ -278,10 +253,17 @@ slbc-alist-loop:
 
 slbc-alist-done:
         drop drop ;; get rid of the empty lists
-       
+
         ;; bind a new child scheme-env
+        "CALLED" out
         proc push-env
-        s"scheme-env" @ call_in ;; push env needs a call_in
+        out
+        #\newline out
+
+        swap
+        ret
+        
+        ;;s"scheme-env" @ call_in ;; push env needs a call_in
 
 
         ;; s"scheme-env" bind 

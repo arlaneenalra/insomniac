@@ -93,6 +93,7 @@ void setup_instructions(vm_internal_type *vm) {
 
     /* procedure operations */
     vm->ops[OP_CALL] = &op_call;
+    vm->ops[OP_ADOPT] = &op_adopt;
     vm->ops[OP_PROC] = &op_proc;
     vm->ops[OP_RET] = &op_ret; /* jump indirect */
     vm->ops[OP_JIN] = &op_jin; /* jump indirect */

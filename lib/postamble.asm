@@ -1,30 +1,28 @@
 
 ;;; Postamble code
 ;;; This is what actually causes user code to run.
-;;; expects ( runtime user-code -- )
+;;; expects ( user-code -- )
+        s"CANARY" swap
 
-        swap ;; ( user-code runtime -- )
+        call eval
         
-        dup rot ;; ( runtime user-code runtime -- )
-
-        proc eval swap  ;; ( user-code eval runtime -- )
-        call call-in-env
-
         "Returned: " out
         out
         #\newline out
 
-        ;; ( runtime -- )
-        s"scheme-env"
-        swap
-        proc eval-lookup-symbol
-        swap
-        call call-in-env
 
-        out #\newline out
+        ;; ( runtime -- )
+        ;;s"scheme-env"
+        ;;swap
+        ;;proc eval-lookup-symbol
+        ;;swap
+        ;;call call-in-env
+
+        ;;out #\newline out
 
         call stack_dump
 
+        ;; Exit cleanly
         jmp exit
 
         ;; In the event of an error, dump the stack

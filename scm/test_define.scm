@@ -10,12 +10,13 @@
       (dump-env)
       (test t f)))
 
-  (display (true #t #f))
-  (display #\newline)
+  ;;(display (true #t #f))
+  ;;(display #\newline)
 
-  (display (false #t #f))
-  (display #\newline)
+  ;;(display (false #t #f))
+  ;;(display #\newline)
 
-  (display (false (false #\a #\b) #\c) )
+;;  (display (false #\a #\b) )
   (display #\newline)
+  (false (false #\a #\b) #\c)
 )

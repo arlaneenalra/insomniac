@@ -37,6 +37,7 @@ bind-runtime-env:
         proc scheme-dump-env s"dump-env" bind
         proc scheme-lambda s"lambda" bind
         proc scheme-display s"display" bind
+        proc scheme-depth s"depth" bind
 
         ;; Special Symobls
         proc push-env s"push-env" bind
@@ -349,6 +350,11 @@ scheme-display:
         out
         () swap
         ret
+
+scheme-depth:
+        swap
+        drop depth
+        swap ret
 
         ;; User code entry point
         ;; This should leave a single list on the stack to 

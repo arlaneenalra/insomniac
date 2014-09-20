@@ -179,7 +179,6 @@ scheme-begin:
 
 scheme-begin-loop:
         dup car ;; pull first item out of list
-        ;;s"eval" @ call_in
         call eval
 
         ;; is this the last entry in the begin?
@@ -243,9 +242,20 @@ scheme-lambda-push:
         ;; and dumps the lambda body to begin
         ;; ( arguments ret -- )
 scheme-lambda-binding-closure:
-        dup s"parent" bind ;; bind our parent so we have it handy
+
+        ;; make sure we're in a child of the base closure proc
+        ;; This is needed because eval doesn't call it does a ret
+        ;; or jin
+        call slbc-push-next
+slbc-push-next:
+        drop
+
+        dup dup s"parent" bind ;; bind our parent so we have it handy
         
         proc eval swap adopt s"p-eval" bind ;; setup an eval
+
+        ;; setup eval call trampoline
+        proc slbc-eval-trampoline swap adopt s"eval-trampoline" bind
 
         () s"alist" bind ;; setup the new list
         s"lambda-args" @ ;; retrieve the argument names
@@ -264,7 +274,7 @@ slbc-alist-loop:
         dup car ;; get the next argument value
 
         ;; evaluate the value in our parent context
-        s"p-eval" @ call_in
+        s"eval-trampoline" @ call_in
         
         swap rot ;; (arg-names argumets arg value -- )
 
@@ -281,6 +291,8 @@ slbc-alist-loop:
 
 slbc-alist-done:
         drop drop ;; get rid of the empty lists
+
+        "Args:" out s"alist" @ out #\newline out
 
         ;; bind a new child env
         s"push-env" @ s"parent" @ adopt
@@ -307,6 +319,15 @@ slbc-alist-done:
         
         ;; ( lambda-body ret alist eval bind-symbols -- )
         ret ;; return to bind-symbols
+
+        ;; We take a proc of this, adopt it to the same 
+        ;; env as the return closure, and use it while 
+        ;; evaluating arguments
+slbc-eval-trampoline:
+        swap
+        call slbc-alist-debug ;; eval 
+        swap 
+        ret
 
 slbc-alist-debug:
         "BIND" out #\newline out

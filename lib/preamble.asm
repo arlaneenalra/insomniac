@@ -1,203 +1,186 @@
 ;;; Insomniac Preable code
-;;;        ;; setup scheme primitives
-;;;        call push-env
-;;;        dup ;; save this so we can bind it in the runtime env
-;;;
-;;;        ;; bind scheme primitives in the scheme env
-;;;        proc bind-scheme-primitives
-;;;        swap
-;;;        call call-in-env 
-;;;      
-;;;        ;; stack should be ( scheme -- )
-;;;        call push-env ;; this will be the runtime environment
-;;;        dup
-;;;
-;;;        ;; stack should be ( scheme runtime runtime -- )
-;;;        proc bind-runtime-env
-;;;        swap ;; stack should be ( scheme runtime bind-runtime runtime -- )
-;;;        call call-in-env 
 
-
-        call push-env ;; scheme
-        dup
-        call push-env ;; runtime
-        dup 
-        rot
+        ;; Setup bare environment
+        call push-env ;; bare
         
-        ;; setup runtime env
-        ;; stack should be ( scheme runtime scheme runtime -- )
-        dup ;; ( scheme runtime scheme runtime runtime -- )
-        proc bind-runtime-env
-        swap
-        call call-in-env
+        call bind-runtime-env
 
-        ;; stack should be ( scheme runtime eval -- )
-        rot ;; ( eval scheme runtime -- )
-        rot ;; ( runtime eval scheme -- )
-        
-        proc bind-scheme-primitives
-        swap
-        call call-in-env
-
-        ;; Stack should be ( runtime -- )
-         
-
-        ;; jump to entry point
-        jmp start
+        ;; if we return here, something went very wrong
+        "User code returned instead of calling exit!" out
+        #\newline out
+        jmp panic
 
 env:
         swap jin
 
 push-env:
-        proc env
+        proc env ;; I'm not sure this needs to be anything particular
 
 call-in-env:
         swap
         ret
 
-        ;; setup any global bindings needed by the runtime code
+        ;; Setup any global bindings needed by the runtime code
         ;; should have the scheme env as an argument
-        ;; expects ( scheme runtime ret -- eval )
+        ;; expects ( bare ret -- runtime )
 bind-runtime-env:
-        rot ;; ( ret scheme runtime -- )
-       
+        swap 
 
-        s"runtime-env" bind ;; bind the runtime env
+        s"bare-env" bind ;; bind the runtime env
 
-        ;; force a child env for scheme to protect 
-        ;; top level bindings
-        ;; ( ret scheme -- )
-        proc push-env
-        swap call_in
-        s"scheme-env" bind ;; bind the scheme env
-
-        ;; setup special bindings for certain scheme functions
-        ()
-        proc eval s"eval" cons cons
-        proc define s"define" cons cons
-
-        ;; ( ret alist -- )
-        
-        swap
-        ret
-
-        ;; Bind scheme primitives
-        ;; expects ( alist ret -- )
-bind-scheme-primitives:
-        swap
-        
-        ;; bind special functions
-        ;;s"eval" bind
-bind-scheme-primitives-loop:
-
-        dup null?
-        jnf bind-scheme-normal
-
-        dup car ;; save list and get entry
-        
-        dup cdr swap car ;; ( rest value key -- )
-        bind
-        
-        cdr
-        jmp bind-scheme-primitives-loop
-
-bind-scheme-normal:
-        drop
+        proc eval s"eval" bind 
+        proc define s"define" bind
 
         proc scheme-begin s"begin" bind
         proc scheme-cons s"cons" bind
         proc scheme-quote s"quote" bind
-        proc scheme-lambda s"lamdba" bind
-        
-        ;; no return, no swap
-        ret
+        proc scheme-dump-env s"dump-env" bind
+        proc scheme-lambda s"lambda" bind
+        proc scheme-display s"display" bind
+        proc scheme-depth s"depth" bind
 
-        ;; Bootstrap evaluator 
+        ;; Special Symobls
+        proc push-env s"push-env" bind
+        proc bind-symbols s"bind-symbols" bind
+       
+        jmp start
+
+        ;; Bootstrap evaluator
+        ;; ( value ret -- )
 eval:
         swap ;; save return
 
         ;; check for things that self evaluate
         dup self?
-        jnf eval-self-eval
+        jnf eval-done
 
         dup pair? ;; check to see if the first element is a list
         jnf eval-scheme-call
 
         dup symbol?
-        jnf eval-lookup-symbol-in-env
+        jnf eval-lookup-symbol
+
+        dup proc? ;; for now, treat procedures as self-eval
+        jnf eval-done
 
         ;; what ever we have is not something that should be 
         ;; eval'd panic!
+        "Unknown object type in eval!" out
+        #\newline out
+
         jmp panic
-
-        ;; lookup a symbol in an environment
-eval-lookup-symbol-in-env:
-        proc eval-lookup-symbol
-
-        s"scheme-env" @
-        call call-in-env
-        
-        swap
-        ret
 
         ;; look up a symbol and leave its value on the stack
 eval-lookup-symbol:
-        swap @ swap
-        ret
+        @
+        jmp eval-done
 
 eval-scheme-call:
         dup cdr ;; pull out any arguments
-        
         swap car ;; pull out what's being called
-
-        call eval ;; it wasn't a symbol, evaluate it
-
-eval-call: ;; Do an indirect call for the retrieved value
         
-        ;; s"scheme-env" @
-        ;; call call-in-env
-        
-        call_in ;; call the closure
+        ;; ( ret args proc -- )
+        swap rot
+        ;; ( args ret proc -- )
 
-        swap
+        ;; is the Symbol a special form?
+        dup s"begin" eq
+        jnf eval-special
+
+        dup s"dump-env" eq
+        jnf eval-special
+
+        ;; dup s"if" eq
+        ;; jnf eval-special
+
+        dup s"display" eq
+        jnf eval-special
+
+        call eval ;; it was a symbol, evaluate it
+
         ret
 
-eval-self-eval: ;; this object is self evaluatable
+        ;; for certain forms, save environment
+eval-special:
+        call eval
+
+        jin
+
+eval-done:
 
         swap
         ret
 
         ;; define - the most basic form of define
+        ;; ( (sym . value) ret -- )
 define:
-        swap
+        dup ;; ( (sym . value) ret ret -- )
+
+        proc define-bind ;; ( ( sym . value ) ret ret def-bind -- )
+        swap adopt ;; setup the define call reflector
+        
+       
+        ;; ( (sym . value) ret def-bind -- )
+
+        ;; Return dumps us into the newly minted closure 
+        ;; with out creating a new environent 
+
+        ret
+
+        ;; Bind a symbol, used by define
+        ;; ( (sym . value) ret -- )
+define-bind:
+        swap 
 
         dup cdr car ;; ectract value
         call eval ;; evaluate it
-
+        
+        ;; ( ret (sym . value) value --)
         swap car  ;; get symbol to bind it to
 
-        proc define-in-env
-        s"scheme-env" @
-        call call-in-env
-       
+        bind ;; bind the symbol
+
+        ;;"Defined" out #\newline out
+        ;;proc env out #\newline out
+
         () swap
         ret
+
+        ;; Bind symbols into the current environment
+        ;; ( alist ret -- )
+bind-symbols:
+        swap
         
-        ;; define a value in a particular env
-        ;; expects ( value symbol ret -- )
-define-in-env:
-        rot bind ret
+        ;; do the actual symbol binding
+bind-symbols-loop:
+        dup null?
+        jnf bind-symbols-loop-done
+
+        dup car
+        dup cdr swap car ;; (rest value key --)
+        bind
+
+        cdr ;; next entry
+        jmp bind-symbols-loop
+
+bind-symbols-loop-done:
+        drop ;; drop empty list
+
+        ret
 
 ;;; Scheme runtime functions
 
         ;; begin - execute a list of s-expressions
+        ;; ( body ret -- )
 scheme-begin:
+        ;; make sure that eval works in the current env
+        ;; dup s"eval" @ swap adopt s"eval" bind
+
         swap
 
 scheme-begin-loop:
         dup car ;; pull first item out of list
-        ;; call eval ;; evaluate the current expression
-        s"eval" @ call_in
+        call eval
 
         ;; is this the last entry in the begin?
         swap cdr dup null?
@@ -231,15 +214,147 @@ scheme-cons:
 
         ;; Runtime lambda generator
 scheme-lambda:
+;;        swap
+        call scheme-lambda-push
+
+;;        swap
+;;        ret
+
+
+scheme-lambda-push:
+        drop  ;; get rid of extraneous ret
         swap
 
-        dup cdr car ;; procedure body
-        car ;; argument names
+        dup ;; make a second copy of the lambda
 
+        car s"lambda-args" bind ;; bind arguments
+        
+        cdr s"lambda-body" bind ;; bind the body
+        
+        dup ;; return in this instance should be an env
+        s"lambda-scope" bind
 
-
+        ;; out put the procedure
+        proc scheme-lambda-binding-closure
+        
         swap
         ret
+
+        ;; Closure that binds the arguments to their locations
+        ;; and dumps the lambda body to begin
+        ;; ( arguments ret -- )
+scheme-lambda-binding-closure:
+
+        ;; make sure we're in a child of the base closure proc
+        ;; This is needed because eval doesn't call it does a ret
+        ;; or jin
+        call slbc-push-next
+slbc-push-next:
+        drop
+
+        dup dup s"parent" bind ;; bind our parent so we have it handy
+        
+        proc eval swap adopt s"p-eval" bind ;; setup an eval
+
+        ;; setup eval call trampoline
+        proc slbc-eval-trampoline swap adopt s"eval-trampoline" bind
+
+        () s"alist" bind ;; setup the new list
+        s"lambda-args" @ ;; retrieve the argument names
+
+slbc-alist-loop:
+        ;; are we at the end of the list?
+        dup null? jnf slbc-alist-done
+        
+        dup car ;; get the next argument
+
+        ;; ( arguments arg-names arg -- )
+        ;;swap rot swap ;; ( arg-names arg arguments  -- )
+        rot rot ;; ( arg-names arg arguments  -- )
+
+        dup car ;; get the next argument value
+
+        ;; evaluate the value in our parent context
+        s"eval-trampoline" @ call_in
+        
+        swap rot ;; (arg-names argumets arg value -- )
+
+        swap ;; ( arg-names arguments value arg -- )
+
+        cons s"alist" @ swap cons ;; add pair to alist
+
+        s"alist" ! ;; update alist
+
+        ;; ( arg-names arguments -- )
+
+        cdr swap cdr ;; get the next argument
+        jmp slbc-alist-loop
+
+slbc-alist-done:
+        drop drop ;; get rid of the empty lists
+
+        ;; bind a new child env
+        s"push-env" @ s"parent" @ adopt
+        call_in
+
+        ;; bind symbols in the new env
+        dup s"bind-symbols" @ swap adopt
+        s"bind-in-env" bind
+
+        s"p-eval" @ swap adopt ;; setup eval call for child
+        ;; proc slbc-alist-debug swap adopt ;; setup eval call for child
+        
+        ;; Something is not righ here
+        ;; ( eval lambda-body -- )
+        s"lambda-body" @ s"begin" cons
+       
+        s"parent" @ ;; ( eval lambda-body ret -- )
+        swap  ;; ( eval ret lambda-body -- )
+        rot   ;; ( lambda-body eval ret -- )
+        swap ;; ( lambda-body ret eval -- )
+        
+        s"alist" @ ;; ( lambda-body ret eval alist -- ) 
+        swap s"bind-in-env" @ 
+       
+        ;; ( lambda-body ret alist eval bind-symbols -- )
+        ret ;; return to bind-symbols
+
+        ;; We take a proc of this, adopt it to the same 
+        ;; env as the return closure, and use it while 
+        ;; evaluating arguments
+slbc-eval-trampoline:
+        swap
+        ;; call slbc-alist-debug 
+        call eval
+        swap 
+        ret
+
+slbc-alist-debug:
+        "BIND" out #\newline out
+        call stack_dump
+        #\newline out
+        jmp eval
+
+scheme-dump-env:
+        swap drop
+        proc scheme-dump-env
+        out
+        ()
+        swap 
+        ret
+
+scheme-display:
+        swap
+        car
+        call eval
+        out
+        () swap
+        ret
+
+scheme-depth:
+        swap
+        drop depth
+        swap ret
 
         ;; User code entry point
         ;; This should leave a single list on the stack to 

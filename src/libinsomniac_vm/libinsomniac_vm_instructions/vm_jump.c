@@ -49,6 +49,50 @@ void op_call(vm_internal_type *vm) {
     vm->env->ip += target;
 }
 
+/* Rebind the parent of a proc to change the symbol look up
+ environment */
+void op_adopt(vm_internal_type *vm) {
+  object_type *child = 0;
+  object_type *parent = 0;
+  object_type *adopted = 0;
+  env_type *env = 0;
+  
+  gc_register_root(vm->gc, (void **)&child);
+  gc_register_root(vm->gc, (void **)&parent);
+  gc_register_root(vm->gc, (void **)&adopted);
+  gc_register_root(vm->gc, (void **)&env);
+
+  parent = vm_pop(vm);
+  child = vm_pop(vm);
+
+  if(!parent || parent->type != CLOSURE) {
+      throw(vm, "Attempt to adopt with non-closure", 1, parent);
+
+  } else if(!child || child->type != CLOSURE) {
+      throw(vm, "Attempt to adopt non-closure", 1, child);
+
+  } else {
+    adopted = vm_alloc(vm, CLOSURE);
+    
+    /* copy the child into the new closure */
+    clone_env(vm, (env_type **)&env, 
+      ((env_type *)child->value.closure));
+    
+    adopted->value.closure = env;
+
+    /* Setup adopted to use bindings/parent of parent */
+    env->parent = ((env_type *)parent->value.closure)->parent;
+    env->bindings = ((env_type *)parent->value.closure)->bindings;
+    
+    vm_push(vm, adopted);
+  }
+
+  gc_unregister_root(vm->gc, (void **)&env);
+  gc_unregister_root(vm->gc, (void **)&adopted);
+  gc_unregister_root(vm->gc, (void **)&child);
+  gc_unregister_root(vm->gc, (void **)&parent);
+}
+
 /* create a procedure reference based on target and leave it 
  on the stack*/
 void op_proc(vm_internal_type *vm) {

@@ -36,6 +36,7 @@ bind-runtime-env:
         proc scheme-quote s"quote" bind
         proc scheme-dump-env s"dump-env" bind
         proc scheme-lambda s"lambda" bind
+        proc scheme-display s"display" bind
 
         ;; Special Symobls
         proc push-env s"push-env" bind
@@ -83,6 +84,15 @@ eval-scheme-call:
 
         ;; is the Symbol a special form?
         dup s"begin" eq
+        jnf eval-special
+
+        dup s"dump-env" eq
+        jnf eval-special
+
+        dup s"if" eq
+        jnf eval-special
+
+        dup s"display" eq
         jnf eval-special
 
         call eval ;; it was a symbol, evaluate it
@@ -307,8 +317,17 @@ slbc-alist-debug:
 scheme-dump-env:
         swap drop
         proc scheme-dump-env
-
+        out
+        ()
         swap 
+        ret
+
+scheme-display:
+        swap
+        car
+        call eval
+        out
+        () swap
         ret
 
         ;; User code entry point

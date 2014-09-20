@@ -90,9 +90,6 @@ eval-scheme-call:
         dup s"dump-env" eq
         jnf eval-special
 
-        ;; dup s"if" eq
-        ;; jnf eval-special
-
         dup s"display" eq
         jnf eval-special
 
@@ -178,22 +175,43 @@ scheme-begin:
 
         swap
 
-scheme-begin-loop:
-        dup car ;; pull first item out of list
-        call eval
+        dup null?
+        jnf scheme-begin-empty
 
-        ;; is this the last entry in the begin?
-        swap cdr dup null?
-        jnf scheme-begin-done
-        
-        swap drop ;; throw away the intermediate returns
-        
+scheme-begin-loop:
+        "BEGIN:" out dup out #\newline out
+        dup cdr null? ;; are we on the next to last element?
+        jnf scheme-begin-tail
+
+        dup car 
+        ;;call eval
+        proc scb-next
+        s"eval" @
+        jin
+scb-next:
+
+        drop ;; throw away the intermediate returns
+        cdr ;; get the next entry 
         jmp scheme-begin-loop
 
-scheme-begin-done:
-        
-        drop ;; drop empty list
 
+        ;; tail call eval
+scheme-begin-tail:
+        car
+        
+        "TAIL:" out dup out #\newline out
+
+        ;;call scheme-dump-env
+        ;;drop
+
+        ;; jump here for an empty body
+scheme-begin-empty:
+        swap
+        
+        proc eval jin
+
+        call eval
+        
         swap
         ret
 
@@ -252,10 +270,10 @@ scheme-lambda-binding-closure:
 slbc-push-next:
         drop
 
-        dup dup s"parent" bind ;; bind our parent so we have it handy
-        
-        proc eval swap adopt s"p-eval" bind ;; setup an eval
+        () call scheme-dump-env drop
 
+        dup s"parent" bind ;; bind our parent so we have it handy
+        
         ;; setup eval call trampoline
         proc slbc-eval-trampoline swap adopt s"eval-trampoline" bind
 
@@ -301,8 +319,7 @@ slbc-alist-done:
         dup s"bind-symbols" @ swap adopt
         s"bind-in-env" bind
 
-        s"p-eval" @ swap adopt ;; setup eval call for child
-        ;; proc slbc-alist-debug swap adopt ;; setup eval call for child
+        s"eval" @ swap adopt ;; setup eval call for child
         
         ;; Something is not righ here
         ;; ( eval lambda-body -- )

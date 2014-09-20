@@ -27,7 +27,5 @@
   (display (if true #\@ #f))
   (display #\newline)
 
-  (dump-env)
-  (dump-env)
   ;; (tail-bomb tail-bomb)
 )

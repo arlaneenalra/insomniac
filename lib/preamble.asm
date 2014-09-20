@@ -81,11 +81,19 @@ eval-scheme-call:
         swap rot
         ;; ( args ret proc -- )
 
-        "EVAL:" out dup out #\newline out
+        ;; is the Symbol a special form?
+        dup s"begin" eq
+        jnf eval-special
+
         call eval ;; it was a symbol, evaluate it
- 
-        ;; jin
+
         ret
+
+        ;; for certain forms, save environment
+eval-special:
+        call eval
+
+        jin
 
 eval-done:
 
@@ -272,8 +280,8 @@ slbc-alist-done:
         dup s"bind-symbols" @ swap adopt
         s"bind-in-env" bind
 
-        ;;s"p-eval" @
-        proc slbc-alist-debug swap adopt ;; setup eval call for child
+        s"p-eval" @ swap adopt ;; setup eval call for child
+        ;; proc slbc-alist-debug swap adopt ;; setup eval call for child
         
         ;; Something is not righ here
         ;; ( eval lambda-body -- )
@@ -288,7 +296,6 @@ slbc-alist-done:
         swap s"bind-in-env" @ 
         
         ;; ( lambda-body ret alist eval bind-symbols -- )
-        call stack_dump
         ret ;; return to bind-symbols
 
 slbc-alist-debug:

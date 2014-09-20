@@ -89,8 +89,8 @@ eval-scheme-call:
         dup s"dump-env" eq
         jnf eval-special
 
-        dup s"if" eq
-        jnf eval-special
+        ;; dup s"if" eq
+        ;; jnf eval-special
 
         dup s"display" eq
         jnf eval-special
@@ -213,14 +213,15 @@ scheme-cons:
 
         ;; Runtime lambda generator
 scheme-lambda:
-        swap
+;;        swap
         call scheme-lambda-push
 
-        swap
-        ret
+;;        swap
+;;        ret
 
 
 scheme-lambda-push:
+        drop  ;; get rid of extraneous ret
         swap
 
         dup ;; make a second copy of the lambda
@@ -260,7 +261,6 @@ slbc-push-next:
         () s"alist" bind ;; setup the new list
         s"lambda-args" @ ;; retrieve the argument names
 
-        ;; ( arguments arg-names -- )
 slbc-alist-loop:
         ;; are we at the end of the list?
         dup null? jnf slbc-alist-done
@@ -292,8 +292,6 @@ slbc-alist-loop:
 slbc-alist-done:
         drop drop ;; get rid of the empty lists
 
-        "Args:" out s"alist" @ out #\newline out
-
         ;; bind a new child env
         s"push-env" @ s"parent" @ adopt
         call_in
@@ -316,7 +314,7 @@ slbc-alist-done:
         
         s"alist" @ ;; ( lambda-body ret eval alist -- ) 
         swap s"bind-in-env" @ 
-        
+       
         ;; ( lambda-body ret alist eval bind-symbols -- )
         ret ;; return to bind-symbols
 
@@ -325,7 +323,8 @@ slbc-alist-done:
         ;; evaluating arguments
 slbc-eval-trampoline:
         swap
-        call slbc-alist-debug ;; eval 
+        ;; call slbc-alist-debug 
+        call eval
         swap 
         ret
 

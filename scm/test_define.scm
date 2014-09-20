@@ -7,16 +7,17 @@
   
   (define if
     (lambda (test t f)
-      (dump-env)
       (test t f)))
 
-  ;;(display (true #t #f))
-  ;;(display #\newline)
+;;  (display (true #t #f))
+;;  (display #\newline)
 
-  ;;(display (false #t #f))
-  ;;(display #\newline)
+;;  (display (false #t #f))
+;;  (display #\newline)
 
-;;  (display (false #\a #\b) )
+;;  (display (false (false #\a #\b) #\c) )
+;;  (display #\newline)
+
+  (display (if true (if false #t #\@) #f))
   (display #\newline)
-  (false (false #\a #\b) #\c)
 )

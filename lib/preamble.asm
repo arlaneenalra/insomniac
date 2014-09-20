@@ -36,6 +36,10 @@ bind-runtime-env:
         proc scheme-quote s"quote" bind
         proc scheme-dump-env s"dump-env" bind
         proc scheme-lambda s"lambda" bind
+
+        ;; Special Symobls
+        proc push-env s"push-env" bind
+        proc bind-symbols s"bind-symbols" bind
        
         jmp start
 
@@ -77,8 +81,9 @@ eval-scheme-call:
         swap rot
         ;; ( args ret proc -- )
 
-        call eval ;; it wasn't a symbol, evaluate it
-        
+        "EVAL:" out dup out #\newline out
+        call eval ;; it was a symbol, evaluate it
+ 
         ;; jin
         ret
 
@@ -140,7 +145,8 @@ bind-symbols-loop:
         jmp bind-symbols-loop
 
 bind-symbols-loop-done:
-        drop ;; drop the empty list
+        drop ;; drop empty list
+
         ret
 
 ;;; Scheme runtime functions
@@ -219,7 +225,9 @@ scheme-lambda-push:
         ;; and dumps the lambda body to begin
         ;; ( arguments ret -- )
 scheme-lambda-binding-closure:
-        swap
+        dup s"parent" bind ;; bind our parent so we have it handy
+        
+        proc eval swap adopt s"p-eval" bind ;; setup an eval
 
         () s"alist" bind ;; setup the new list
         s"lambda-args" @ ;; retrieve the argument names
@@ -236,7 +244,9 @@ slbc-alist-loop:
         rot rot ;; ( arg-names arg arguments  -- )
 
         dup car ;; get the next argument value
-        call eval ;; evaluate the value
+
+        ;; evaluate the value in our parent context
+        s"p-eval" @ call_in
         
         swap rot ;; (arg-names argumets arg value -- )
 
@@ -254,39 +264,38 @@ slbc-alist-loop:
 slbc-alist-done:
         drop drop ;; get rid of the empty lists
 
-        ;; bind a new child scheme-env
-        "CALLED" out
-        proc push-env
-        out
-        #\newline out
+        ;; bind a new child env
+        s"push-env" @ s"parent" @ adopt
+        call_in
 
-        swap
-        ret
+        ;; bind symbols in the new env
+        dup s"bind-symbols" @ swap adopt
+        s"bind-in-env" bind
+
+        ;;s"p-eval" @
+        proc slbc-alist-debug swap adopt ;; setup eval call for child
         
-        ;;s"scheme-env" @ call_in ;; push env needs a call_in
-
-
-        ;; s"scheme-env" bind 
-        dup ;; ( ret child-env child-env -- )
-
-        s"alist" @ swap ;; ( ret child-env alist child-env -- )
-        proc bind-symbols
-        swap
-        call call-in-env
-        
-        s"scheme-env" bind ;; bind a new scheme-env
-        proc eval s"eval" bind
-        proc scheme-begin s"begin" bind
-        proc scheme-lambda s"lambda" bind
-        proc scheme-dump-env s"dump-env" bind
-
         ;; Something is not righ here
-        ;; ( ret child-env -- )
+        ;; ( eval lambda-body -- )
         s"lambda-body" @ s"begin" cons
-        call eval
+       
+        s"parent" @ ;; ( eval lambda-body ret -- )
+        swap  ;; ( eval ret lambda-body -- )
+        rot   ;; ( lambda-body eval ret -- )
+        swap ;; ( lambda-body ret eval -- )
+        
+        s"alist" @ ;; ( lambda-body ret eval alist -- ) 
+        swap s"bind-in-env" @ 
+        
+        ;; ( lambda-body ret alist eval bind-symbols -- )
+        call stack_dump
+        ret ;; return to bind-symbols
 
-        swap
-        ret
+slbc-alist-debug:
+        "BIND" out #\newline out
+        call stack_dump
+        #\newline out
+        jmp eval
 
 scheme-dump-env:
         swap drop

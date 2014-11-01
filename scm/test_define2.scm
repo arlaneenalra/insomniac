@@ -27,7 +27,11 @@
   (display (true #\@ #f))
   (display #\newline)
 
-  (display (if true #\@ #f))
+  (display
+    (if true
+      (quote (#\@))
+      (quote (undefined #f))))
+
   (display #\newline)
 
 ;;  (tail-bomb tail-bomb)

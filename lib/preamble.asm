@@ -96,8 +96,8 @@ eval-scheme-call:
         dup s"display" eq
         jnf eval-special
 
-        ;;dup s"lambda" eq
-        ;;jnf eval-lambda
+        dup s"lambda" eq
+        jnf eval-lambda
 
 
         call eval ;; it was a symbol, evaluate it
@@ -211,6 +211,11 @@ eval-begin-tail:
         car
         swap
         jmp eval
+        
+        ;;call eval
+        ;;swap
+        ;;ret
+
 
         ;; quote - return passed in arguments without processing
 scheme-quote:
@@ -264,6 +269,9 @@ slbc-push-next:
 
         dup s"parent" bind ;; bind our parent so we have it handy       
         
+
+        ;; TODO - This pattern breaks tail calls!
+
         ;; setup eval call trampoline
         proc slbc-eval-trampoline swap adopt s"eval-trampoline" bind
 

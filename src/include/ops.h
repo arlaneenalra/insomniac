@@ -89,6 +89,10 @@ typedef enum op {
     OP_IS_LIBRARY,
 
     OP_IS_SELF,
+
+    /* Internals functions that are likely useful in a real world 
+       application */
+    OP_GC_STATS,
     
     OP_MAX_INS /* must be the last instruction in list */
 } op_type;

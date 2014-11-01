@@ -35,6 +35,7 @@ bind-runtime-env:
         proc scheme-cons s"cons" bind
         proc scheme-quote s"quote" bind
         proc scheme-dump-env s"dump-env" bind
+        proc scheme-gc-stats s"gc-stats" bind
         proc scheme-lambda s"lambda" bind
         proc scheme-display s"display" bind
         proc scheme-depth s"depth" bind
@@ -375,8 +376,13 @@ scheme-dump-env:
         "ENV:" out #\newline out
         proc scheme-dump-env
         out
-        ()
-        swap 
+        () swap 
+        ret
+
+scheme-gc-stats:
+        swap drop
+        gc-stats
+        () swap
         ret
 
 scheme-display:

@@ -68,4 +68,7 @@ void op_bind(vm_internal_type *vm);
 void op_read(vm_internal_type *vm);
 void op_set(vm_internal_type *vm);
 
+/* internals instructions */
+void op_gc_stats(vm_internal_type *vm);
+
 #endif

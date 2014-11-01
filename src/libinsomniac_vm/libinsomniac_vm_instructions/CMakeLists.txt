@@ -18,6 +18,7 @@ add_library(insomniac_vm_instructions
   vm_io.c
   vm_library.c
   vm_locations.c
+  vm_internals.c
   )
 
 target_link_libraries(

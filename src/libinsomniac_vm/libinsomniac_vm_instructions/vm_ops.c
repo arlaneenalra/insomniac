@@ -117,5 +117,8 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_IS_EMPTY] = &op_is_empty;
     vm->ops[OP_IS_CLOSURE] = &op_is_closure;
     vm->ops[OP_IS_SELF] = &op_is_self;
+
+    /* internals operations */
+    vm->ops[OP_GC_STATS] = &op_gc_stats;
 }
 

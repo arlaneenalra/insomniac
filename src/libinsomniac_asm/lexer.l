@@ -104,6 +104,8 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "jmp"                   { BEGIN(EXPECT_TARGET);
                           return OP_JMP; }
 
+"gc-stats"              { return OP_GC_STATS; }
+
 <EXPECT_TARGET>{
 
      {LABEL}            { BEGIN(INITIAL);

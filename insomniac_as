@@ -129,3 +129,9 @@ symbol?
 
 self? ( a -- bool ) returns true if a is something that can be self evaluated and
                     false in other cases.
+
+Internals 
+
+These calls are used to examine/dump internal vm state
+
+gc-stats

@@ -30,7 +30,6 @@ bind-runtime-env:
 
         proc eval s"eval" bind 
         proc define s"define" bind
-        proc define s"if" bind
 
         proc scheme-cons s"cons" bind
         proc scheme-quote s"quote" bind

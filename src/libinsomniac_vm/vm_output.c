@@ -70,6 +70,7 @@ void output_vector(FILE *fout, object_type *vector) {
 
 /* display a given object to stdout */
 void output_object(FILE *fout, object_type *obj) {
+    env_type *env = 0;
     
     /* make sure we have an object */
     if(!obj) {
@@ -105,7 +106,7 @@ void output_object(FILE *fout, object_type *obj) {
         break;
 
     case BOOL:
-        if(obj->value.bool) {
+        if(obj->value.boolean) {
             fprintf(fout, "#t");
         } else {
             fprintf(fout, "#f");
@@ -113,8 +114,19 @@ void output_object(FILE *fout, object_type *obj) {
         break;
 
     case CLOSURE:
-        fprintf(fout, "<CLOSURE %p:%p>", (void *)obj,
-                (void *)obj->value.closure);
+        env = (env_type *)obj->value.closure;
+
+        fprintf(fout, "{");
+        while (env) {
+          fprintf(fout, "<CLOSURE %p:%p -> %p ", (void *)obj,
+                  (void *)env,
+                  (void *)env->parent);
+          hash_info(env->bindings);
+          fprintf(fout, ">\n");
+          env = env->parent;
+        }
+        fprintf(fout, "}");
+
         break;
 
     case LIBRARY:

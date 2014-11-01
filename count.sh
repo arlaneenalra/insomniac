@@ -4,7 +4,7 @@
 #echo
 
 echo "Source Statistics:"
-wc `find ./src ./asm -regextype posix-basic -iregex '.*\.\(asm\|scm\|h\|c\|y\|l\)' | grep -v 'test\/test_eyeball\|CMake\|build/'`
+wc `find ./src ./lib -type f | grep -v 'test\/test_eyeball\|CMake\|build/\|\.*.txt\|\.*.swp'` | sort -n 
 
 echo
 echo "Commit Count: " `git log | grep '^commit' | wc -l`

@@ -8,7 +8,7 @@ function abs_path {
 SAVE=$2
 
 if [ "$SAVE" == "" ] ; then
-  TMP=`mktemp`
+  TMP=`mktemp -t insomniac.XXXXXXXXXX`
 else 
   TMP=$(abs_path $SAVE)
 fi
@@ -16,7 +16,7 @@ fi
 SRC=$(abs_path $1)
 
 (
-  echo $TMP
+  echo "Temp :" $TMP 
 
   echo
   echo "Compiling ..."
@@ -48,6 +48,6 @@ SRC=$(abs_path $1)
 echo
 echo
 
-if [ "$SAVE" == "" ] ; then
+if [ "$SAVE" == "" ] && [ "$TMP" != "" ]  ; then
   rm $TMP
 fi

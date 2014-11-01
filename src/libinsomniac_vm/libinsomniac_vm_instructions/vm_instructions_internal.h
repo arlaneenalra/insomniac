@@ -43,6 +43,7 @@ void op_drop(vm_internal_type *vm);
 void op_jnf(vm_internal_type *vm);
 void op_jmp(vm_internal_type *vm);
 void op_call(vm_internal_type *vm);
+void op_adopt(vm_internal_type *vm);
 void op_proc(vm_internal_type *vm);
 void op_ret(vm_internal_type *vm);
 void op_jin(vm_internal_type *vm);
@@ -66,5 +67,8 @@ void op_asm(vm_internal_type *vm);
 void op_bind(vm_internal_type *vm);
 void op_read(vm_internal_type *vm);
 void op_set(vm_internal_type *vm);
+
+/* internals instructions */
+void op_gc_stats(vm_internal_type *vm);
 
 #endif

@@ -17,7 +17,6 @@ int main(int argc, char**argv) {
     gc_type *gc = gc_create(sizeof(object_type));
     char *code_str = 0;
     char *asm_str = 0;
-    size_t code_size = 0;
 
     /* needed to setup locale aware printf . . . 
        I need to do a great deal more research here */
@@ -35,7 +34,7 @@ int main(int argc, char**argv) {
 
     /* load and eval */
     (void)buffer_load_string(gc, argv[1], &code_str);
-    code_size = compile_string(gc, code_str, &asm_str);
+    (void)compile_string(gc, code_str, &asm_str);
     
     printf("%s", asm_str);
 

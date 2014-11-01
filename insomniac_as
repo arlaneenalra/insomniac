@@ -51,6 +51,9 @@ call ( -label- closure ) Converts the location following this
 proc ( -label- closure ) Creates a closure that begins execution at
                          the given label.
 
+adopt ( child parent -- adopted ) Creates a new closure that has the bindings
+                                  of the parent and the coderef of the child.
+
 jin ( closure -- ) Replace the executing code-ref with the one in 
                    the closure object on the stack.  This does not 
                    modify bindings in the current environment and 
@@ -106,6 +109,7 @@ Numberic comparisons
 
 not ( bool -- !bool) if false is on top of the stack, returns true,
                      otherwise false
+
 eq  ( a b -- a eq b) Simple equivalence operations works for most
                      primitive types and checks to see if complex
                      object references are the same object
@@ -126,3 +130,9 @@ symbol?
 
 self? ( a -- bool ) returns true if a is something that can be self evaluated and
                     false in other cases.
+
+Internals 
+
+These calls are used to examine/dump internal vm state
+
+gc-stats

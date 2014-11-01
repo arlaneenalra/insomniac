@@ -30,6 +30,7 @@ typedef enum op {
 
     /* jump operations Jumps are relative */
     OP_CALL, /* call the given target and leave return on stack */
+    OP_ADOPT, /* create a closure for the given target */
     OP_PROC, /* create a closure for the given target */
     OP_JMP, /* just a jump */
     OP_JNF, /* jump if not false */
@@ -88,6 +89,10 @@ typedef enum op {
     OP_IS_LIBRARY,
 
     OP_IS_SELF,
+
+    /* Internals functions that are likely useful in a real world 
+       application */
+    OP_GC_STATS,
     
     OP_MAX_INS /* must be the last instruction in list */
 } op_type;

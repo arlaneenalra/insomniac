@@ -16,7 +16,7 @@ void op_eq(vm_internal_type *vm) {
     /* make sure we have actual objects */
     if((!obj1 || !obj2)
        && (obj1->type != obj2->type)) {
-        vm_push(vm, vm->false);
+        vm_push(vm, vm->vm_false);
     } else {
         /* Do comparisons for special types */
 
@@ -25,7 +25,7 @@ void op_eq(vm_internal_type *vm) {
             result = obj1->value.integer == obj2->value.integer;
             break;
         case BOOL:
-            result = obj1->value.bool == obj2->value.bool;
+            result = obj1->value.boolean == obj2->value.boolean;
             break;
         case CHAR:
             result = obj1->value.character == obj2->value.character;
@@ -40,7 +40,7 @@ void op_eq(vm_internal_type *vm) {
         }
 
         /* push the result onto the stack */
-        vm_push(vm, result ? vm->true : vm->false);
+        vm_push(vm, result ? vm->vm_true : vm->vm_false);
     }
 
     
@@ -63,10 +63,10 @@ void op_not(vm_internal_type *vm) {
     }
 
     /* only #f is false */
-    if(obj->type == BOOL && !obj->value.bool) {
-        vm_push(vm, vm->true);
+    if(obj->type == BOOL && !obj->value.boolean) {
+        vm_push(vm, vm->vm_true);
     } else {
-        vm_push(vm, vm->false);
+        vm_push(vm, vm->vm_false);
     }
 
     gc_unregister_root(vm->gc, (void **)&obj);

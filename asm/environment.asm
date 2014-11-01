@@ -1,31 +1,28 @@
 ;;; Creating an evnironment object that can be passed around
 
         ;; Setup the empty environment
-        proc root-env
+        proc env
         s" root_env" bind
 
         ;; Funciton to make child environments
-        proc make-child
-        s" make_child" bind
-
-        proc eval
-        s" eval" bind
+        proc push-env
+        s" push_env" bind
 
         ;; call entry point to protect top level
         ;; bindings at run time
         call start
 
         ;; ( proc ret -- ) 
-root-env:
+env:
         ;;" - In Root - " out
         swap
         jin
 
-        ;; execute in root-env to create a child of that environment
+        ;; execute in env to create a child of that environment
         ;; and return it
-make-child:
+push-env:
 
-        proc root-env
+        proc env
 
         swap
         ret
@@ -39,16 +36,23 @@ start:
         1 s"B" bind
 
         ;; create our own child environment
-        s" make_child" @
-        s" root_env" @
-        call_in
+        ;; proc push-env ;; s" push_env" @
+        ;; s" root_env" @
+        ;; call_in
+        call push-env
 
         s"my-env" bind
 
         ;; create our own child environment
-        s" make_child" @
-        s" root_env" @
-        call_in
+        ;; proc push-env ;; s" push_env" @
+        ;; s" root_env" @
+        ;; call_in
+
+        ;; call push-env
+        proc push-env
+        s"my-env" @ call_in
+        ;; call eval
+
 
         s"my-env2" bind
         
@@ -61,15 +65,13 @@ start:
         ;; bind a value in the new environment
         proc test-env-bind
         s"my-env" @
-        s" eval" @
-        call_in
+        call eval
 
         
         ;; bind a value in the new environment
         proc test-env-bind2
         s"my-env2" @
-        s" eval" @
-        call_in
+        call eval
 
         #\newline out
 
@@ -79,8 +81,7 @@ start:
 
         proc test-env-read
         s"my-env" @
-        s" eval" @  
-        call_in
+        call eval
 
         "Reading Second Environment!"
         out
@@ -90,8 +91,7 @@ start:
 loop:   
         proc test-env-read
         s"my-env2" @
-        s" eval" @  
-        call_in
+        call eval
 
         1 -
         dup
@@ -105,8 +105,7 @@ done:
 
         proc test-env-read
         s"my-env" @
-        s" eval" @  
-        call_in
+        call eval
         
         jmp exit
 

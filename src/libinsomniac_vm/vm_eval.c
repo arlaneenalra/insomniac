@@ -28,7 +28,7 @@ object_type *vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref) {
             (*op_call)(vm);
         } else {
             /* Found undefined instruction */
-            printf("Undefined instruction! %zu:%i\n", vm->env->ip - 1, op_code);
+            fprintf(stderr, "Undefined instruction! %zu:%i\n", vm->env->ip - 1, op_code);
         }
 
     }

@@ -67,9 +67,9 @@ void fn_name(vm_internal_type *vm) {                    \
     }                                                   \
                                                         \
     if(num1->value.integer op num2->value.integer) {    \
-        result = vm->true;                              \
+        result = vm->vm_true;                              \
     } else {                                            \
-        result = vm->false;                             \
+        result = vm->vm_false;                             \
     }                                                   \
     vm_push(vm, result);                                \
                                                         \

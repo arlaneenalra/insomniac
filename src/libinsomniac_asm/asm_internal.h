@@ -20,6 +20,7 @@ typedef struct jump jump_type;
 struct jump {
     char *label;
     vm_int addr;
+    vm_int lineno;
 
     jump_type *next;
 };

@@ -92,6 +92,7 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 
 "restore"               { return OP_RESTORE; }
 
+"adopt"                 { return OP_ADOPT; }
 "proc"                  { BEGIN(EXPECT_TARGET);
                           return OP_PROC; }
 "call"                  { BEGIN(EXPECT_TARGET);
@@ -102,6 +103,8 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
                           return OP_JNF; }
 "jmp"                   { BEGIN(EXPECT_TARGET);
                           return OP_JMP; }
+
+"gc-stats"              { return OP_GC_STATS; }
 
 <EXPECT_TARGET>{
 

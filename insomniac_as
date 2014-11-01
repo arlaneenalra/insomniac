@@ -109,6 +109,7 @@ Numberic comparisons
 
 not ( bool -- !bool) if false is on top of the stack, returns true,
                      otherwise false
+
 eq  ( a b -- a eq b) Simple equivalence operations works for most
                      primitive types and checks to see if complex
                      object references are the same object

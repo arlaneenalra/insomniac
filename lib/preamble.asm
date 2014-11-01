@@ -31,18 +31,31 @@ bind-runtime-env:
         proc eval s"eval" bind 
         proc define s"define" bind
 
-        ;;proc scheme-begin s"begin" bind
         proc scheme-cons s"cons" bind
         proc scheme-quote s"quote" bind
-        proc scheme-dump-env s"dump-env" bind
-        proc scheme-gc-stats s"gc-stats" bind
         proc scheme-lambda s"lambda" bind
         proc scheme-display s"display" bind
         proc scheme-depth s"depth" bind
 
+        ;; math funcitons
+
+        proc scheme-add s"+" bind
+        proc scheme-sub s"-" bind
+        proc scheme-mul s"*" bind
+        proc scheme-div s"/" bind
+        proc scheme-mod s"%" bind
+        
+        proc scheme-gt s">" bind
+        proc scheme-lt s"<" bind
+
+        proc scheme-eq s"eq" bind
+
         ;; Special Symobls
         proc push-env s"push-env" bind
         proc bind-symbols s"bind-symbols" bind
+
+        proc scheme-dump-env s"dump-env" bind
+        proc scheme-gc-stats s"gc-stats" bind
        
         jmp start
 
@@ -241,7 +254,6 @@ eval-begin-loop: ;; ( ret body -- )
         dup car 
         call eval
 
-scb-next:
         drop ;; throw away the intermediate returns
         cdr ;; get the next entry 
         jmp eval-begin-loop
@@ -395,6 +407,49 @@ scheme-display:
 scheme-depth:
         swap
         drop depth
+        swap ret
+
+
+;;; Math functions
+
+scheme-add:
+        swap
+        dup car swap cdr car +
+        swap ret
+
+scheme-sub:
+        swap
+        dup car swap cdr car - 
+        swap ret
+
+scheme-mul:
+        swap
+        dup car swap cdr car * 
+        swap ret
+
+scheme-div:
+        swap
+        dup car swap cdr car / 
+        swap ret
+
+scheme-mod:
+        swap
+        dup car swap cdr car % 
+        swap ret
+
+scheme-gt:
+        swap
+        dup car swap cdr car > 
+        swap ret
+
+scheme-lt:
+        swap
+        dup car swap cdr car <
+        swap ret
+
+scheme-eq:
+        swap
+        dup car swap cdr car eq
         swap ret
 
         ;; User code entry point

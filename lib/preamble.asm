@@ -50,9 +50,6 @@ bind-runtime-env:
 eval:
         swap ;; save return
        
-        "EVAL:" out dup out #\newline out
-        () call scheme-dump-env drop
-
         ;; check for things that self evaluate
         dup self?
         jnf eval-done
@@ -79,8 +76,6 @@ eval-lookup-symbol:
         jmp eval-done
 
 eval-scheme-call: ;; ( ret call-list --)
-        ;; dup cdr ;; pull out any arguments
-        ;; swap car ;; pull out what's being called
         
         dup car ;; ( ret call-list proc-sym -- )
 
@@ -143,8 +138,6 @@ eval-args-loop-reverse: ;; (ret proc-sym args evaled-ags -- )
 
         ;; drop the now empty evaled-args list
 eval-args-loop-reverse-done: ;; (ret proc-sym args evaled-args -- )
-        "IN EVAL:" out #\newline out
-        call stack_dump
 
         drop swap
         
@@ -172,7 +165,6 @@ eval-args-done:
 eval-special:
         call eval
        
-        ;;() call scheme-dump-env drop
         jin
 
 eval-lambda:
@@ -212,11 +204,6 @@ define-bind:
 
         bind ;; bind the symbol
 
-        ;;"Defined" out #\newline out
-        ;;proc env out #\newline out
-        
-        () call scheme-dump-env drop
-
         () swap
         ret
 
@@ -225,8 +212,6 @@ define-bind:
 bind-symbols:
         swap
        
-        ;;dup "BINDING:" out out #\newline out
-
         ;; do the actual symbol binding
 bind-symbols-loop:
         dup null?
@@ -257,7 +242,6 @@ eval-begin:
         jnf eval-done
 
 eval-begin-loop: ;; ( ret body -- )
-        "BEGIN:" out dup out #\newline out
 
         dup cdr null? ;; are we on the next to last element?
         jnf eval-begin-tail
@@ -271,17 +255,11 @@ scb-next:
         jmp eval-begin-loop
 
 eval-begin-tail:
-        "TAIL:" out
 
         car
         swap
         jmp eval
         
-        ;;call eval
-        ;;swap
-        ;;ret
-
-
         ;; quote - return passed in arguments without processing
 scheme-quote:
         swap car swap
@@ -405,14 +383,6 @@ slbc-alist-done:
         ;; env as the return closure, and use it while 
         ;; evaluating arguments
 
-;; slbc-eval-trampoline:
-;;         swap
-;; 
-;;         call eval
-;;         swap 
-;;         ret
-;; 
-
 slbc-alist-debug:
         "BIND" out #\newline out
         call stack_dump
@@ -429,8 +399,6 @@ scheme-dump-env:
         ret
 
 scheme-display:
-        "IN DISPLAY:" out #\newline out
-        call stack_dump
         swap
         car
         out

@@ -5,7 +5,9 @@
   (define false
     (lambda (x y) y))
   
-  (define if ;; not the correct form of if
+  ;; the primitive eval implements if
+  ;; internally
+  (define my-if 
     (lambda (test t f)
       (test t f)))
 
@@ -29,7 +31,7 @@
   (display #\newline)
 
   (display
-    (if true
+    (my-if true
       (quote (#\@))
       (quote (undefined #f))))
 

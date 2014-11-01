@@ -30,5 +30,5 @@
   (display (if true #\@ #f))
   (display #\newline)
 
-  (tail-bomb tail-bomb)
+;;  (tail-bomb tail-bomb)
 )

@@ -154,22 +154,13 @@ eval-args-done:
         dup s"dump-env" eq
         jnf eval-special
 
-        dup s"lambda" eq
-        jnf eval-lambda
-
-
         call eval ;; it was a symbol, evaluate it
         ret
 
         ;; for certain forms, save environment
 eval-special:
         call eval
-       
         jin
-
-eval-lambda:
-        drop
-        jmp scheme-lambda
 
 eval-done:
         swap

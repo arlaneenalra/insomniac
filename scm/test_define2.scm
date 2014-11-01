@@ -9,12 +9,12 @@
     (lambda (test t f)
       (test t f)))
 
-  (define tail-bomb
-    (lambda (t)
-      (display #\newline)
-      (display (depth))
-      (t t)))
-
+;;  (define tail-bomb
+;;    (lambda (t)
+;;      (display #\newline)
+;;      (display (depth))
+;;      (t t)))
+;;
 ;;  (display (true #t #f))
 ;;  (display #\newline)
 
@@ -24,8 +24,9 @@
 ;;  (display (false (false #\a #\b) #\c) )
 ;;  (display #\newline)
 
-  (display (if true #\@ #f))
-  (display #\newline)
+  ;;(display (true #\@ #f))
+  ;;(display #\newline)
+  (if true #\@ #f))
 
   ;; (tail-bomb tail-bomb)
 )

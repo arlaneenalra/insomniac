@@ -142,7 +142,7 @@ void throw(vm_internal_type *vm, char *msg, int num, ...) {
     printf("Unhandled Exception: '%s'\n", msg);
     
     printf("Exception:\n");
-    output_object(stdout,exception);
+    output_object(stdout, exception);
 
     printf("\nCurrent Stack:\n");
     output_object(stdout, vm->stack_root);

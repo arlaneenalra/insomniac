@@ -84,13 +84,16 @@ eval-scheme-call:
         ;; ( args ret proc -- )
 
         ;; is the Symbol a special form?
-        dup s"begin" eq
-        jnf eval-special
+        ;; dup s"begin" eq
+        ;; jnf eval-special
 
         dup s"dump-env" eq
         jnf eval-special
 
         dup s"display" eq
+        jnf eval-special
+
+        dup s"lambda" eq
         jnf eval-special
 
         call eval ;; it was a symbol, evaluate it
@@ -100,7 +103,7 @@ eval-scheme-call:
         ;; for certain forms, save environment
 eval-special:
         call eval
-
+        
         jin
 
 eval-done:
@@ -147,7 +150,9 @@ define-bind:
         ;; ( alist ret -- )
 bind-symbols:
         swap
-        
+       
+        ;;dup "BINDING:" out out #\newline out
+
         ;; do the actual symbol binding
 bind-symbols-loop:
         dup null?
@@ -162,6 +167,9 @@ bind-symbols-loop:
 
 bind-symbols-loop-done:
         drop ;; drop empty list
+        
+        () call scheme-dump-env drop
+        dup "NEW-ENV" out out #\newline out
 
         ret
 
@@ -178,8 +186,9 @@ scheme-begin:
         dup null?
         jnf scheme-begin-empty
 
-scheme-begin-loop:
-        "BEGIN:" out dup out #\newline out
+scheme-begin-loop: ;; ( ret body -- )
+        ;; "BEGIN:" out dup out #\newline out
+
         dup cdr null? ;; are we on the next to last element?
         jnf scheme-begin-tail
 
@@ -188,21 +197,18 @@ scheme-begin-loop:
         proc scb-next
         s"eval" @
         jin
-scb-next:
 
+scb-next:
         drop ;; throw away the intermediate returns
         cdr ;; get the next entry 
         jmp scheme-begin-loop
 
-
-        ;; tail call eval
 scheme-begin-tail:
-        car
-        
-        "TAIL:" out dup out #\newline out
 
-        ;;call scheme-dump-env
-        ;;drop
+        car
+        swap
+        s"eval" @
+        jin
 
         ;; jump here for an empty body
 scheme-begin-empty:
@@ -243,6 +249,9 @@ scheme-lambda-push:
         drop  ;; get rid of extraneous ret
         swap
 
+        ;; "LAMBDA" out #\newline out
+        ;;call stack_dump
+
         dup ;; make a second copy of the lambda
 
         car s"lambda-args" bind ;; bind arguments
@@ -270,7 +279,7 @@ scheme-lambda-binding-closure:
 slbc-push-next:
         drop
 
-        () call scheme-dump-env drop
+        ;;() call scheme-dump-env drop
 
         dup s"parent" bind ;; bind our parent so we have it handy
         
@@ -310,6 +319,7 @@ slbc-alist-loop:
 
 slbc-alist-done:
         drop drop ;; get rid of the empty lists
+        
 
         ;; bind a new child env
         s"push-env" @ s"parent" @ adopt
@@ -319,18 +329,18 @@ slbc-alist-done:
         dup s"bind-symbols" @ swap adopt
         s"bind-in-env" bind
 
-        s"eval" @ swap adopt ;; setup eval call for child
+        s"begin" @ swap adopt ;; setup begin call for child
         
         ;; Something is not righ here
-        ;; ( eval lambda-body -- )
-        s"lambda-body" @ s"begin" cons
+        ;; ( begin lambda-body -- )
+        s"lambda-body"  @ 
        
-        s"parent" @ ;; ( eval lambda-body ret -- )
-        swap  ;; ( eval ret lambda-body -- )
-        rot   ;; ( lambda-body eval ret -- )
-        swap ;; ( lambda-body ret eval -- )
+        s"parent" @ ;; ( begin lambda-body ret -- )
+        swap  ;; ( begin ret lambda-body -- )
+        rot   ;; ( lambda-body begin ret -- )
+        swap ;; ( lambda-body ret begin -- )
         
-        s"alist" @ ;; ( lambda-body ret eval alist -- ) 
+        s"alist" @ ;; ( lambda-body ret begin alist -- ) 
         swap s"bind-in-env" @ 
        
         ;; ( lambda-body ret alist eval bind-symbols -- )
@@ -339,9 +349,9 @@ slbc-alist-done:
         ;; We take a proc of this, adopt it to the same 
         ;; env as the return closure, and use it while 
         ;; evaluating arguments
+
 slbc-eval-trampoline:
-        swap
-        ;; call slbc-alist-debug 
+        swap        
         call eval
         swap 
         ret
@@ -354,6 +364,7 @@ slbc-alist-debug:
 
 scheme-dump-env:
         swap drop
+        "ENV:" out #\newline out
         proc scheme-dump-env
         out
         ()

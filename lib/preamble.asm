@@ -78,10 +78,78 @@ eval-lookup-symbol:
         @
         jmp eval-done
 
-eval-scheme-call:
-        dup cdr ;; pull out any arguments
-        swap car ;; pull out what's being called
+eval-scheme-call: ;; ( ret call-list --)
+        ;; dup cdr ;; pull out any arguments
+        ;; swap car ;; pull out what's being called
         
+        dup car ;; ( ret call-list proc-sym -- )
+
+        dup s"quote" eq
+        jnf eval-no-eval-args
+
+        dup s"begin" eq
+        jnf eval-no-eval-args
+        
+        dup s"define" eq
+        jnf eval-no-eval-args
+
+        dup s"lambda" eq
+        jnf eval-no-eval-args
+
+        ;; setup for arguments eval
+        swap cdr ;; ( ret proc-sym args -- )
+        jmp eval-args-loop-setup
+
+        ;; do not evaluate the arguments
+eval-no-eval-args:
+        ;; ( ret call-list proc-sym -- )
+        swap cdr ;; ( ret proc-sym args -- )
+        swap ;; ( ret args proc-sym -- )
+
+        jmp eval-args-done
+        
+        ;; evaluate arguments
+eval-args-loop-setup: ;; ( ret proc-sym args -- )
+        () swap ;; ( ret proc-sym evaled-args args -- )
+
+eval-args-loop: ;; ( ret proc-sym evaled-args args -- )
+        dup null?
+        jnf eval-args-loop-reverse-setup
+
+        dup car ;; (ret proc-sym evaled-args args arg -- )
+        
+        call eval
+        
+        swap rot ;; (ret proc-sym args evaled-args arg -- )
+        cons ;; (ret proc-sym args evaled-args -- )
+        swap cdr   ;; move to next element
+        
+        jmp eval-args-loop
+
+eval-args-loop-reverse-setup:
+        swap
+      
+eval-args-loop-reverse: ;; (ret proc-sym args evaled-ags -- )
+        dup null?
+        jnf eval-args-loop-reverse-done
+
+        dup car ;; (ret proc-sym args evaled-args arg -- )
+
+        swap rot  ;; (ret proc-sym evaled-args args arg -- )
+        cons
+        swap cdr ;; move to next element
+        
+        jmp eval-args-loop-reverse
+
+        ;; drop the now empty evaled-args list
+eval-args-loop-reverse-done: ;; (ret proc-sym args evaled-args -- )
+        "IN EVAL:" out #\newline out
+        call stack_dump
+
+        drop swap
+        
+eval-args-done:
+
         ;; ( ret args proc -- )
         swap rot
         ;; ( args ret proc -- )
@@ -91,9 +159,6 @@ eval-scheme-call:
         jnf eval-begin
 
         dup s"dump-env" eq
-        jnf eval-special
-
-        dup s"display" eq
         jnf eval-special
 
         dup s"lambda" eq
@@ -267,13 +332,14 @@ scheme-lambda-binding-closure:
 slbc-push-next:
         drop
 
-        dup s"parent" bind ;; bind our parent so we have it handy       
+        ;;dup
+        s"parent" bind ;; bind our parent so we have it handy       
         
 
         ;; TODO - This pattern breaks tail calls!
 
         ;; setup eval call trampoline
-        proc slbc-eval-trampoline swap adopt s"eval-trampoline" bind
+        ;; proc slbc-eval-trampoline swap adopt s"eval-trampoline" bind
 
         () s"alist" bind ;; setup the new list
         s"lambda-args" @ ;; retrieve the argument names
@@ -291,7 +357,7 @@ slbc-alist-loop:
         dup car ;; get the next argument value
 
         ;; evaluate the value in our parent context
-        s"eval-trampoline" @ call_in
+        ;; s"eval-trampoline" @ call_in
         
         swap rot ;; (arg-names argumets arg value -- )
 
@@ -339,12 +405,13 @@ slbc-alist-done:
         ;; env as the return closure, and use it while 
         ;; evaluating arguments
 
-slbc-eval-trampoline:
-        swap
-
-        call eval
-        swap 
-        ret
+;; slbc-eval-trampoline:
+;;         swap
+;; 
+;;         call eval
+;;         swap 
+;;         ret
+;; 
 
 slbc-alist-debug:
         "BIND" out #\newline out
@@ -362,9 +429,10 @@ scheme-dump-env:
         ret
 
 scheme-display:
+        "IN DISPLAY:" out #\newline out
+        call stack_dump
         swap
         car
-        call eval
         out
         () swap
         ret

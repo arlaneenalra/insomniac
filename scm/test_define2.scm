@@ -29,6 +29,8 @@
 
   ;;(display (true #\@ #f))
   ;;(display #\newline)
+  (display "BOOOM--------------------------------------------")
+  (display #\newline)
   (display (if true #\@ #f))
   (display "BOO")
 

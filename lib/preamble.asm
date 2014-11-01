@@ -31,7 +31,7 @@ bind-runtime-env:
         proc eval s"eval" bind 
         proc define s"define" bind
 
-        proc scheme-begin s"begin" bind
+        ;;proc scheme-begin s"begin" bind
         proc scheme-cons s"cons" bind
         proc scheme-quote s"quote" bind
         proc scheme-dump-env s"dump-env" bind
@@ -49,6 +49,9 @@ bind-runtime-env:
         ;; ( value ret -- )
 eval:
         swap ;; save return
+       
+        "EVAL:" out dup out #\newline out
+        () call scheme-dump-env drop
 
         ;; check for things that self evaluate
         dup self?
@@ -84,8 +87,8 @@ eval-scheme-call:
         ;; ( args ret proc -- )
 
         ;; is the Symbol a special form?
-        ;; dup s"begin" eq
-        ;; jnf eval-special
+        dup s"begin" eq
+        jnf eval-begin
 
         dup s"dump-env" eq
         jnf eval-special
@@ -93,21 +96,25 @@ eval-scheme-call:
         dup s"display" eq
         jnf eval-special
 
-        dup s"lambda" eq
-        jnf eval-special
+        ;;dup s"lambda" eq
+        ;;jnf eval-lambda
+
 
         call eval ;; it was a symbol, evaluate it
-
         ret
 
         ;; for certain forms, save environment
 eval-special:
         call eval
-        
+       
+        ;;() call scheme-dump-env drop
         jin
 
-eval-done:
+eval-lambda:
+        drop
+        jmp scheme-lambda
 
+eval-done:
         swap
         ret
 
@@ -142,6 +149,8 @@ define-bind:
 
         ;;"Defined" out #\newline out
         ;;proc env out #\newline out
+        
+        () call scheme-dump-env drop
 
         () swap
         ret
@@ -168,59 +177,40 @@ bind-symbols-loop:
 bind-symbols-loop-done:
         drop ;; drop empty list
         
-        () call scheme-dump-env drop
-        dup "NEW-ENV" out out #\newline out
-
         ret
 
 ;;; Scheme runtime functions
 
         ;; begin - execute a list of s-expressions
-        ;; ( body ret -- )
-scheme-begin:
-        ;; make sure that eval works in the current env
-        ;; dup s"eval" @ swap adopt s"eval" bind
-
+        ;; ( body symbol -- )
+eval-begin:
+        drop ;; drop the symbol
         swap
 
+        ;; if we have an empty body do nothing
         dup null?
-        jnf scheme-begin-empty
+        jnf eval-done
 
-scheme-begin-loop: ;; ( ret body -- )
-        ;; "BEGIN:" out dup out #\newline out
+eval-begin-loop: ;; ( ret body -- )
+        "BEGIN:" out dup out #\newline out
 
         dup cdr null? ;; are we on the next to last element?
-        jnf scheme-begin-tail
+        jnf eval-begin-tail
 
         dup car 
-        ;;call eval
-        proc scb-next
-        s"eval" @
-        jin
+        call eval
 
 scb-next:
         drop ;; throw away the intermediate returns
         cdr ;; get the next entry 
-        jmp scheme-begin-loop
+        jmp eval-begin-loop
 
-scheme-begin-tail:
+eval-begin-tail:
+        "TAIL:" out
 
         car
         swap
-        s"eval" @
-        jin
-
-        ;; jump here for an empty body
-scheme-begin-empty:
-        swap
-        
-        proc eval jin
-
-        call eval
-        
-        swap
-        ret
-
+        jmp eval
 
         ;; quote - return passed in arguments without processing
 scheme-quote:
@@ -241,27 +231,20 @@ scheme-lambda:
 ;;        swap
         call scheme-lambda-push
 
-;;        swap
-;;        ret
 
 
 scheme-lambda-push:
-        drop  ;; get rid of extraneous ret
+        drop
         swap
 
-        ;; "LAMBDA" out #\newline out
-        ;;call stack_dump
 
         dup ;; make a second copy of the lambda
 
         car s"lambda-args" bind ;; bind arguments
         
-        cdr s"lambda-body" bind ;; bind the body
-        
-        dup ;; return in this instance should be an env
-        s"lambda-scope" bind
+        cdr s"begin" cons s"lambda-body" bind ;; bind the body
 
-        ;; out put the procedure
+        ;; output the procedure
         proc scheme-lambda-binding-closure
         
         swap
@@ -279,9 +262,7 @@ scheme-lambda-binding-closure:
 slbc-push-next:
         drop
 
-        ;;() call scheme-dump-env drop
-
-        dup s"parent" bind ;; bind our parent so we have it handy
+        dup s"parent" bind ;; bind our parent so we have it handy       
         
         ;; setup eval call trampoline
         proc slbc-eval-trampoline swap adopt s"eval-trampoline" bind
@@ -329,18 +310,18 @@ slbc-alist-done:
         dup s"bind-symbols" @ swap adopt
         s"bind-in-env" bind
 
-        s"begin" @ swap adopt ;; setup begin call for child
+        s"eval" @ swap adopt ;; setup eval call for child
         
-        ;; Something is not righ here
-        ;; ( begin lambda-body -- )
+        ;; Something is not right here
+        ;; ( eval lambda-body -- )
         s"lambda-body"  @ 
        
-        s"parent" @ ;; ( begin lambda-body ret -- )
-        swap  ;; ( begin ret lambda-body -- )
-        rot   ;; ( lambda-body begin ret -- )
-        swap ;; ( lambda-body ret begin -- )
+        s"parent" @ ;; ( eval lambda-body ret -- )
+        swap  ;; ( eval ret lambda-body -- )
+        rot   ;; ( lambda-body eval ret -- )
+        swap ;; ( lambda-body ret eval -- )
         
-        s"alist" @ ;; ( lambda-body ret begin alist -- ) 
+        s"alist" @ ;; ( lambda-body ret eval alist -- ) 
         swap s"bind-in-env" @ 
        
         ;; ( lambda-body ret alist eval bind-symbols -- )
@@ -351,7 +332,8 @@ slbc-alist-done:
         ;; evaluating arguments
 
 slbc-eval-trampoline:
-        swap        
+        swap
+
         call eval
         swap 
         ret

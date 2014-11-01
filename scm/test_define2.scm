@@ -7,7 +7,10 @@
   
   (define if ;; not the correct form of if
     (lambda (test t f)
+      (display "IF ")
+      (dump-env)
       (test t f)))
+      
 
 ;;  (define tail-bomb
 ;;    (lambda (t)
@@ -26,7 +29,8 @@
 
   ;;(display (true #\@ #f))
   ;;(display #\newline)
-  (if true #\@ #f))
+  (display (if true #\@ #f))
+  (display "BOO")
 
   ;; (tail-bomb tail-bomb)
 )

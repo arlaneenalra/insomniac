@@ -30,6 +30,7 @@ bind-runtime-env:
 
         proc eval s"eval" bind 
         proc define s"define" bind
+        proc define s"if" bind
 
         proc scheme-cons s"cons" bind
         proc scheme-quote s"quote" bind
@@ -105,6 +106,9 @@ eval-scheme-call: ;; ( ret call-list --)
         dup s"lambda" eq
         jnf eval-no-eval-args
 
+        dup s"if" eq
+        jnf eval-no-eval-args
+
         ;; setup for arguments eval
         swap cdr ;; ( ret proc-sym args -- )
         jmp eval-args-loop-setup
@@ -168,6 +172,9 @@ eval-args-done:
         dup s"dump-env" eq
         jnf eval-special
 
+        dup s"if" eq
+        jnf eval-if
+
         call eval ;; it was a symbol, evaluate it
         ret
 
@@ -179,6 +186,57 @@ eval-special:
 eval-done:
         swap
         ret
+
+        ;; very primitive version of if 
+eval-if:
+        drop ;; get rid of symbol
+        swap
+        
+        dup cdr
+        swap car
+        
+        call eval ;; evaluate test
+
+        jnf eval-if-true
+
+        ;; false case
+        cdr car
+        jmp eval-if-done
+
+eval-if-true:
+        car
+
+eval-if-done:
+        swap ;; ( case-to-eval ret -- )
+        jmp eval
+
+        ;; begin - execute a list of s-expressions
+        ;; ( body symbol -- )
+eval-begin:
+        drop ;; drop the symbol
+        swap
+
+        ;; if we have an empty body do nothing
+        dup null?
+        jnf eval-done
+
+eval-begin-loop: ;; ( ret body -- )
+
+        dup cdr null? ;; are we on the next to last element?
+        jnf eval-begin-tail
+
+        dup car 
+        call eval
+
+        drop ;; throw away the intermediate returns
+        cdr ;; get the next entry 
+        jmp eval-begin-loop
+
+eval-begin-tail:
+
+        car
+        swap
+        jmp eval
 
         ;; define - the most basic form of define
         ;; ( (sym . value) ret -- )
@@ -236,33 +294,6 @@ bind-symbols-loop-done:
 
 ;;; Scheme runtime functions
 
-        ;; begin - execute a list of s-expressions
-        ;; ( body symbol -- )
-eval-begin:
-        drop ;; drop the symbol
-        swap
-
-        ;; if we have an empty body do nothing
-        dup null?
-        jnf eval-done
-
-eval-begin-loop: ;; ( ret body -- )
-
-        dup cdr null? ;; are we on the next to last element?
-        jnf eval-begin-tail
-
-        dup car 
-        call eval
-
-        drop ;; throw away the intermediate returns
-        cdr ;; get the next entry 
-        jmp eval-begin-loop
-
-eval-begin-tail:
-
-        car
-        swap
-        jmp eval
         
         ;; quote - return passed in arguments without processing
 scheme-quote:

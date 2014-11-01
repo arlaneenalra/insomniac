@@ -52,7 +52,7 @@ proc ( -label- closure ) Creates a closure that begins execution at
                          the given label.
 
 adopt ( child parent -- adopted ) Creates a new closure that has the bindings
-                                  of the parent cand the coderef of the child.
+                                  of the parent and the coderef of the child.
 
 jin ( closure -- ) Replace the executing code-ref with the one in 
                    the closure object on the stack.  This does not 

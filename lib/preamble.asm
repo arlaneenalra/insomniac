@@ -379,16 +379,6 @@ slbc-alist-done:
         ;; ( lambda-body ret alist eval bind-symbols -- )
         ret ;; return to bind-symbols
 
-        ;; We take a proc of this, adopt it to the same 
-        ;; env as the return closure, and use it while 
-        ;; evaluating arguments
-
-slbc-alist-debug:
-        "BIND" out #\newline out
-        call stack_dump
-        #\newline out
-        jmp eval
-
 scheme-dump-env:
         swap drop
         "ENV:" out #\newline out

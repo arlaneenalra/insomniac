@@ -49,6 +49,14 @@ void emit_cons(compiler_core_type *compiler) {
     buffer_write(compiler->buf, (uint8_t *)cons, 5);
 }
 
+/* Emit a generic operations */
+void emit_op(compiler_core_type *compiler, char *str) {
+    int length = strlen(str);
+
+    buffer_write(compiler->buf, (uint8_t *)" ", 1);
+    buffer_write(compiler->buf, (uint8_t *)str, length);
+}
+
 /* Emit a fixnum string */
 void emit_fixnum(compiler_core_type *compiler, char *num) {
     int length = strlen(num);

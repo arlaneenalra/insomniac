@@ -8,7 +8,8 @@ find_package(FLEX)
 # flex generates a .h file, it would appear that no one handles this correctly
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/lexer.h)
 
-BISON_TARGET(PARSER scheme.y ${CMAKE_CURRENT_BINARY_DIR}/scheme.c)
+BISON_TARGET(PARSER scheme.y ${CMAKE_CURRENT_BINARY_DIR}/scheme.c
+  VERBOSE "bison.log")
 FLEX_TARGET(LEXER lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.c
   COMPILE_FLAGS "--header-file=${CMAKE_CURRENT_BINARY_DIR}/lexer.h")
 

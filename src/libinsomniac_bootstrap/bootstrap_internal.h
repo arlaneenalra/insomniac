@@ -47,6 +47,7 @@ void emit_cons(compiler_core_type *compiler);
 void emit_fixnum(compiler_core_type *compile, char *num);
 void emit_symbol(compiler_core_type *compile, char *sym);
 void emit_string(compiler_core_type *compile, char *str);
+void emit_op(compiler_core_type *compile, char *str);
 
 
 /* Scheme parser */

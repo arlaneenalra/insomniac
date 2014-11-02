@@ -31,8 +31,14 @@ void yyerror(compiler_core_type *compiler, void *scanner, char *s);
 
 %token FIXED_NUMBER
 %token FLOAT_NUMBER
+%token MATH_OPS
 
 %token AST_SYMBOL
+
+%token PRIM_DISPLAY
+%token PRIM_BEGIN
+%token PRIM_QUOTE
+%token PRIM_DEFINE
 
 %token SPEC_DEFINE
 
@@ -40,30 +46,50 @@ void yyerror(compiler_core_type *compiler, void *scanner, char *s);
 
 %%
 
-expression:
-    object         { YYACCEPT; }
+top_level:
+    expression     { YYACCEPT; }
   | END_OF_FILE    { /* end_of_file(compiler);*/ YYACCEPT; }
 
-vector_body:
-    object         { /*chain_state(compiler);*/ }
-  | object         { /*chain_state(compiler);*/ }
-    vector_body
+self_evaluating:
+    boolean
+  | CHAR_CONSTANT  { emit_char(compiler, yyget_text(scanner)); }
+  | string 
+  | number
 
-vector_end:
-    CLOSE_PAREN    { /* pop_state(compiler); add_empty_vector(compiler); */}
-  | vector_body
-    CLOSE_PAREN    { /*pop_state(compiler); add_vector(compiler);*/ }
+/* Matches all symbols
+   We have to list all of the special case symbols here too
+   or the compiler won't know how to handle them when it sees
+   them out of context. */
+symbol:
+    AST_SYMBOL
+  | PRIM_DISPLAY
+  | PRIM_BEGIN
+  | PRIM_QUOTE
+  | PRIM_DEFINE
+  
+literal:
+    quoted
+  | self_evaluating
 
-vector:
-    START_VECTOR   { /*push_state(compiler);*/ }
-    vector_end
+expression:
+    literal
+  | symbol         { /* compile to symbol lookup */
+                     emit_symbol(compiler, yyget_text(scanner));
+                     emit_op(compiler, "@");
+                   } 
+  | procedure_call
+
+datum:
+      literal
+    | symbol       { emit_symbol(compiler, yyget_text(scanner)); }
+    | list
    
 list_end:
     list_next    
     CLOSE_PAREN    { emit_empty(compiler); (void)pop_state(compiler); }
-  | list_next
+  | list_next      { emit_cons(compiler); push_state(compiler, CHAIN); } 
     DOT
-    object         { push_state(compiler, CHAIN); }
+    datum          { push_state(compiler, CHAIN); }
     CLOSE_PAREN    { (void)pop_state(compiler); }
   | CLOSE_PAREN    { emit_empty(compiler); (void)pop_state(compiler); }
 
@@ -72,19 +98,18 @@ list:
     list_end       
 
 list_next:
-    object         { emit_cons(compiler); push_state(compiler, CHAIN); }
+    datum          
+  | datum
+    list_next 
 
-  | object         { emit_cons(compiler); push_state(compiler, CHAIN); }
-    list_next      { }
+quoted:
+    QUOTE
+    datum
+  | OPEN_PAREN
+    PRIM_QUOTE
+    datum
+    CLOSE_PAREN
 
-quoted_list:
-    QUOTE          { emit_empty(compiler); push_state(compiler, PUSH); }
-    object         { 
-                     pop_state(compiler);
-                     emit_cons(compiler);
-                     emit_symbol(compiler, "quote");
-                     emit_cons(compiler);
-                   }
     
 boolean:
     TRUE_OBJ        { emit_bool(compiler, 1); }
@@ -102,18 +127,64 @@ string_end:
 string:
     DOUBLE_QUOTE
     string_end
-    
-object:
-    boolean
-  | CHAR_CONSTANT   { emit_char(compiler, yyget_text(scanner)); }
-  | string 
-  | AST_SYMBOL      { emit_symbol(compiler, yyget_text(scanner)); }
-  | number
-  | list
-  | quoted_list
-  | vector
+  
+/* Some basic math procedures */
+procedure_call:
+    OPEN_PAREN      { push_state(compiler, PUSH); }
+    primitive_procedures { (void)pop_state(compiler); }
 
+primitive_procedures:
+    math_calls
+  | display
+  | begin
+  | define
 
+display:
+    PRIM_DISPLAY
+    expression      { emit_op(compiler, "out"); emit_empty(compiler); }
+    CLOSE_PAREN
+
+define:
+  define_variable
+
+/* the most basic version of define */
+define_variable:
+  PRIM_DEFINE
+  symbol            {
+                      push_state(compiler, PUSH);
+                      emit_symbol(compiler, yyget_text(scanner));
+                      push_state(compiler, CHAIN);
+                    }
+  expression        { emit_op(compiler, "dup"); push_state(compiler, CHAIN); }
+  CLOSE_PAREN       { 
+                      pop_state(compiler);
+                      emit_op(compiler, "bind");
+                    }
+        
+begin:
+    PRIM_BEGIN
+    begin_end
+
+begin_body:
+    expression
+  | expression      { emit_op(compiler, "drop"); }
+    begin_body
+
+begin_end:
+    CLOSE_PAREN     { emit_empty(compiler); } 
+  | begin_body 
+    CLOSE_PAREN
+
+/* Inline mathematical calls */
+math_calls:
+    MATH_OPS        {
+                      emit_op(compiler, "swap");
+                      emit_op(compiler, yyget_text(scanner));
+                      push_state(compiler, CHAIN);
+                    } 
+    expression      { push_state(compiler, CHAIN); } 
+    expression      { push_state(compiler, CHAIN); } 
+    CLOSE_PAREN 
 %%
 
 void yyerror(compiler_core_type *compiler, void *scanner, char *s) {

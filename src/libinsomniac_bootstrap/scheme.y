@@ -93,18 +93,27 @@ datum:
     | procedure_call
    
 list_end:
-    list_next CLOSE_PAREN
-  | list_next DOT datum CLOSE_PAREN
-  | CLOSE_PAREN
+    list_next CLOSE_PAREN              {
+                                         EMIT_NEW($$, op, "()");
+                                         buffer_append($$, $1, -1);
+                                       }
+ 
+  | list_next DOT datum CLOSE_PAREN    {
+                                         NEW_BUF($$);
+                                         buffer_append($$, $3, -1);
+                                         buffer_append($$, $1, -1);
+                                       }
+  | CLOSE_PAREN                        { EMIT_NEW($$, op, "()"); }
 
 list:
     OPEN_PAREN list_end                { $$ = $2; }
 
 list_next:
-    datum                               
+    datum                              { EMIT($$, op, "cons"); } 
   | datum list_next                    {
-                                         $$ = $1; 
-                                         buffer_append($$, $2, -1); 
+                                         $$ = $2; 
+                                         buffer_append($$, $1, -1); 
+                                         EMIT($$, op, "cons");
                                        }
 
 quoted:
@@ -139,10 +148,11 @@ primitive_procedures:
   | if
 
 if:
-  PRIM_IF expression expression expression CLOSE_PAREN {
-                                                         $$ = $2;
-                                                         emit_if(compiler, $2, $3, $4);
-                                                       }
+    PRIM_IF expression expression
+    expression CLOSE_PAREN              {
+                                          $$ = $2;
+                                          emit_if(compiler, $2, $3, $4);
+                                        }
 
 display:
     PRIM_DISPLAY expression CLOSE_PAREN {

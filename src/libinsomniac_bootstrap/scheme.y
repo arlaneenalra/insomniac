@@ -94,7 +94,7 @@ datum:
       literal
     | symbol                           
     | list
-    | procedure_call
+//    | procedure_call
    
 list_end:
     list_next CLOSE_PAREN              {
@@ -134,11 +134,11 @@ number:
   | FLOAT_NUMBER
 
 string_end:
-    STRING_CONSTANT DOUBLE_QUOTE
-  | DOUBLE_QUOTE
+    STRING_CONSTANT DOUBLE_QUOTE  { EMIT_NEW($$, string, ""); }
+  | DOUBLE_QUOTE                  { EMIT_NEW($$, string, yyget_text(scanner)); }
 
 string:
-    DOUBLE_QUOTE string_end
+    DOUBLE_QUOTE string_end       { $$ = $2; }
   
 /* Some basic math procedures */
 procedure_call:

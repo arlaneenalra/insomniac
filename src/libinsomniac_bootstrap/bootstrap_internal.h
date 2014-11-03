@@ -24,6 +24,7 @@ void emit_bootstrap(compiler_core_type *compiler);
 void emit_op(buffer_type *buf, char *str);
 void emit_char(buffer_type *buf, char *str);
 void emit_fixnum(buffer_type *buf, char *str);
+void emit_string(buffer_type *buf, char *str);
 void emit_symbol(buffer_type *buf, char *str);
 void emit_boolean(buffer_type *buf, int b);
 

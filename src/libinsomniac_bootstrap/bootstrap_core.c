@@ -24,7 +24,7 @@ void emit_boolean(buffer_type *buf, int b) {
         c = 'f';
     }
 
-    length = sprintf(str_buf, " #%c", c);
+    length = snprintf(str_buf, 4, " #%c", c);
     buffer_write(buf, (uint8_t *)str_buf, length);
 }
 
@@ -47,20 +47,76 @@ void emit_fixnum(buffer_type *buf, char *num) {
 
 /* Emit a string */
 void emit_string(compiler_core_type *compiler, char *str) {
-  int length = strlen(str);
+    int length = strlen(str);
 
-  buffer_write(compiler->buf, (uint8_t *)" \"", 2);
-  buffer_write(compiler->buf, (uint8_t *)str, length);
-  buffer_write(compiler->buf, (uint8_t *)"\"", 1);
+    buffer_write(compiler->buf, (uint8_t *)" \"", 2);
+    buffer_write(compiler->buf, (uint8_t *)str, length);
+    buffer_write(compiler->buf, (uint8_t *)"\"", 1);
 }
 
 /* Emit a Symbol */
 void emit_symbol(buffer_type *buf, char *sym) {
-  int length = strlen(sym);
+    int length = strlen(sym);
 
-  buffer_write(buf, (uint8_t *)" s\"", 3);
-  buffer_write(buf, (uint8_t *)sym, length);
-  buffer_write(buf, (uint8_t *)"\"", 1);
+    buffer_write(buf, (uint8_t *)" s\"", 3);
+    buffer_write(buf, (uint8_t *)sym, length);
+    buffer_write(buf, (uint8_t *)"\"", 1);
+}
+
+/* Emit an If */
+void emit_if(compiler_core_type *compiler, buffer_type *test_buffer,
+  buffer_type *true_buffer, buffer_type *false_buffer) {
+  
+  buffer_type *true_label = 0;
+  buffer_type *done_label = 0;
+
+  gc_register_root(compiler->gc, &true_label);
+  gc_register_root(compiler->gc, &done_label);
+
+  gen_label(compiler, &true_label);
+  gen_label(compiler, &done_label);
+
+  /* <test> jnf true */
+  buffer_write(test_buffer, (uint8_t *)" jnf ", 5);
+  buffer_append(test_buffer, true_label, -1);
+  buffer_write(test_buffer, (uint8_t *) " ", 1);
+
+  /* <false> jmp done */
+  buffer_append(test_buffer, false_buffer, -1);
+
+  buffer_write(test_buffer, (uint8_t *)" jmp ", 5);
+  buffer_append(test_buffer, done_label, -1);
+  buffer_write(test_buffer, (uint8_t *) " ", 1);
+
+  /* true: */
+  buffer_append(test_buffer, true_label, -1);
+  buffer_write(test_buffer, (uint8_t *) ": ", 2);
+
+  /* <true> */ 
+  buffer_append(test_buffer, true_buffer, -1);
+  buffer_write(test_buffer, (uint8_t *) " ", 1);
+
+  /* done: */
+  buffer_append(test_buffer, done_label, -1);
+  buffer_write(test_buffer, (uint8_t *) ": ", 2);
+  
+  gc_unregister_root(compiler->gc, &done_label);
+  gc_unregister_root(compiler->gc, &true_label);
+}
+
+/* Make a label */
+void gen_label(compiler_core_type *compiler, buffer_type **buf) {
+    char c[22];
+    int written = 0;
+
+    buffer_create(compiler->gc, buf);
+    buffer_write(*buf, (uint8_t *)"_label_", 7);
+
+    /* Add an incrementing suffix to the label */
+    written = snprintf(c, 22, "%"PRIi64, compiler->label_index);
+    buffer_write(*buf, (uint8_t *)c, written); 
+    
+    compiler->label_index++;
 }
 
 /* Interface into the compiler internals */
@@ -73,6 +129,7 @@ size_t compile_string(gc_type *gc, char *str, char **asm_ref) {
     gc_register_root(gc, (void **)&compiler.buf);
 
     compiler.gc = gc;
+    compiler.label_index = 0;
     compiler.preamble = "lib/preamble.asm";
     compiler.postamble = "lib/postamble.asm";
 
@@ -103,3 +160,4 @@ size_t compile_string(gc_type *gc, char *str, char **asm_ref) {
 
     return length;
 }
+

@@ -13,10 +13,11 @@ struct compiler_core {
     char *preamble;
     char *postamble;
 
+    uint64_t label_index;
+
     /* The current output buffer */
     buffer_type *buf;
 };
-
 
 void emit_bootstrap(compiler_core_type *compiler);
 
@@ -26,10 +27,13 @@ void emit_fixnum(buffer_type *buf, char *str);
 void emit_symbol(buffer_type *buf, char *str);
 void emit_boolean(buffer_type *buf, int b);
 
+void emit_if(compiler_core_type *compiler, buffer_type *test_buffer,
+  buffer_type *true_buffer, buffer_type *false_buffer);
+
+void gen_label(compiler_core_type *compiler, buffer_type **buf);
+
 /* Scheme parser */
 int parse_internal(compiler_core_type *compiler, void *scanner);
-
-
 
 /* Define some macros to make the parser code easier */
 #define NEW_BUF(var) buffer_create(compiler->gc, &var)

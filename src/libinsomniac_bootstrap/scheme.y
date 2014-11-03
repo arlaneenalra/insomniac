@@ -139,7 +139,10 @@ primitive_procedures:
   | if
 
 if:
-  PRIM_IF expression expression expression CLOSE_PAREN
+  PRIM_IF expression expression expression CLOSE_PAREN {
+                                                         $$ = $2;
+                                                         emit_if(compiler, $2, $3, $4);
+                                                       }
 
 display:
     PRIM_DISPLAY expression CLOSE_PAREN {

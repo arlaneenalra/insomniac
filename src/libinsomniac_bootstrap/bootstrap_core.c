@@ -119,6 +119,63 @@ void emit_if(compiler_core_type *compiler, buffer_type *test_buffer,
   gc_unregister_root(compiler->gc, &true_label);
 }
 
+/* Emit framing code for a lambda */
+void emit_lambda(compiler_core_type *compiler, buffer_type *output,
+  buffer_type *formals, buffer_type *body) {
+
+  buffer_type *proc_label = 0;
+  buffer_type *skip_label = 0;
+
+  gc_register_root(compiler->gc, &proc_label);
+  gc_register_root(compiler->gc, &skip_label);
+
+  gen_label(compiler, &proc_label);
+  gen_label(compiler, &skip_label);
+
+  /* calling convention is ( args ret -- ) */
+
+  /* proc proc_label: */
+  buffer_write(output, (uint8_t *)" proc ", 6);
+  buffer_append(output, proc_label, -1);
+  emit_newline(output);
+
+  /* output a jump so we don't execute the lambda during
+     definition */
+
+  /* jmp skip_label */
+  buffer_write(output, (uint8_t *)" jmp ", 5);
+  buffer_append(output, skip_label, -1);
+  emit_newline(output);
+
+  /* proc_label: */
+  buffer_append(output, proc_label, -1);
+  buffer_write(output, (uint8_t *)":", 1);
+  emit_newline(output);
+
+  /* swap */
+  emit_op(output, "swap");
+
+  /* output formal binding code */
+  buffer_append(output, formals, -1);
+  emit_newline(output);
+
+  /* output body */
+  buffer_append(output, body, -1);
+  emit_newline(output);
+
+  /* swap ret */
+  emit_op(output, "swap ret");
+
+  /* skip_label: */
+  buffer_append(output, skip_label, -1);
+  buffer_write(output, (uint8_t *)":", 1);
+  emit_newline(output);
+
+
+  gc_unregister_root(compiler->gc, &skip_label);
+  gc_unregister_root(compiler->gc, &proc_label);
+}
+
 /* Make a label */
 void gen_label(compiler_core_type *compiler, buffer_type **buf) {
     char c[22];

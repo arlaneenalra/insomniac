@@ -1,20 +1,11 @@
-(begin
-  (define y 1)
-  (define x 2)
+(define func
+  (lambda x
+    (display x)
+    (display #\newline)))
 
-  (display
-    (if #f 'true (if (> x y) 'false-true 'false-false)))
+(func 1 )
+(func 1 2)
+(func 1 2 3)
+(func 1 2 3 4)
 
-  (display #\newline)
-
-  (display '(1 2 3 4))
-  (display #\newline)
-
-  (display '(1 2 3 . 4))
-  (display #\newline)
-
-  (display '(1 3 . ()))
-  (display #\newline)
-  (display '())
-)
 

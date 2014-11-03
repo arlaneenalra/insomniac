@@ -41,6 +41,7 @@ void yyerror(compiler_core_type *compiler, void *scanner, char *s);
 %token PRIM_BEGIN
 %token PRIM_QUOTE
 %token PRIM_DEFINE
+%token PRIM_LAMBDA
 %token PRIM_IF
 
 %token SPEC_DEFINE
@@ -68,11 +69,14 @@ symbol:
 
 symbol_types:
     AST_SYMBOL
-  | PRIM_DISPLAY
-  | PRIM_BEGIN
-  | PRIM_QUOTE
-  | PRIM_DEFINE
-  | MATH_OPS
+
+    /* for now, it's not directly possible to redefine these */
+//  | PRIM_DISPLAY
+//  | PRIM_BEGIN
+//  | PRIM_QUOTE
+//  | PRIM_DEFINE
+//  | PRIM_LAMBDA
+//  | MATH_OPS
   
 literal:
     quoted
@@ -146,6 +150,8 @@ primitive_procedures:
   | begin
   | define
   | if
+  | lambda
+  | user_call
 
 if:
     PRIM_IF expression expression
@@ -188,7 +194,7 @@ begin_end:
 
 /* Inline mathematical calls */
 math_calls:
-    math_call_op                          
+    math_call_op
     expression expression CLOSE_PAREN {
                                          $$ = $2;
                                          buffer_append($$, $3, -1);
@@ -197,11 +203,46 @@ math_calls:
 
 math_call_op:
     MATH_OPS                          { EMIT_NEW($$, op, yyget_text(scanner)); }
+
+/* call a user function */
+user_call:
+    expression user_call_end    {
+                                  $$ = $2; /* Setup call */
+                                  buffer_append($$, $1, -1); /* get procedure */
+                                  EMIT($$, op, "call_in");
+                                }
+
+user_call_end:
+    CLOSE_PAREN                 { EMIT_NEW($$, op, "()"); }
+  | user_call_body CLOSE_PAREN  {
+                                  EMIT_NEW($$, op, "()");
+                                  buffer_append($$, $1, -1);
+                                }
+
+user_call_body:
+    expression                  { EMIT($$, op, "cons"); }
+  | expression user_call_body   { 
+                                  $$ = $2;
+                                  buffer_append($$, $1, -1);
+                                  EMIT($$, op, "cons");
+                                }  
+
+/* A basic lambda expression */
+lambda:
+    PRIM_LAMBDA
+    lambda_formals
+    begin_end                         {
+                                        NEW_BUF($$);
+                                        emit_lambda(compiler, $$, $2, $3);
+                                      }
+
+lambda_formals:
+    symbol                            { EMIT($$, op, "bind"); }
 %%
 
 void yyerror(compiler_core_type *compiler, void *scanner, char *s) {
     (void)fprintf(stderr,"There was an error parsing %s on line %i\n", 
-                  s, yyget_lineno(scanner));
+                  s, yyget_lineno(scanner) + 1);
 }
 
 

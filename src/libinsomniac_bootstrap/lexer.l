@@ -42,6 +42,7 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 "begin"   { return PRIM_BEGIN;  }
 "quote"   { return PRIM_QUOTE; }
 "define"  { return PRIM_DEFINE; }
+"lambda"  { return PRIM_LAMBDA; }
 "if"      { return PRIM_IF; }
 
 {SIGNS}?{DIGITS}                       { return FIXED_NUMBER; }

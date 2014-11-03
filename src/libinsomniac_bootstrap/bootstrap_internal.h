@@ -30,6 +30,9 @@ void emit_boolean(buffer_type *buf, int b);
 void emit_if(compiler_core_type *compiler, buffer_type *test_buffer,
   buffer_type *true_buffer, buffer_type *false_buffer);
 
+void emit_lambda(compiler_core_type *compiler, buffer_type *output,
+  buffer_type *formals, buffer_type *body);
+  
 void gen_label(compiler_core_type *compiler, buffer_type **buf);
 
 /* Scheme parser */

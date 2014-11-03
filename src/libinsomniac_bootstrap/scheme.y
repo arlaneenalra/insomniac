@@ -231,13 +231,35 @@ user_call_body:
 lambda:
     PRIM_LAMBDA
     lambda_formals
-    begin_end                         {
-                                        NEW_BUF($$);
-                                        emit_lambda(compiler, $$, $2, $3);
-                                      }
+    begin_end                   {
+                                  NEW_BUF($$);
+                                  emit_lambda(compiler, $$, $2, $3);
+                                }
 
 lambda_formals:
-    symbol                            { EMIT($$, op, "bind"); }
+    symbol                      { EMIT($$, op, "bind"); }
+  | lambda_formals_list
+
+lambda_formals_list:
+    OPEN_PAREN CLOSE_PAREN      { EMIT_NEW($$, op, "drop"); } // ignore arguments}
+  | OPEN_PAREN lambda_formals_list_end   { $$ = $2; }
+
+lambda_formals_list_end:
+    symbol CLOSE_PAREN          {
+                                  // single binding
+                                  EMIT_NEW($$, op, "car");
+                                  buffer_append($$, $1, -1); // symbol
+                                  EMIT($$, op, "bind");
+                                }
+  | symbol lambda_formals_list_end {
+                                     EMIT_NEW($$, op, "dup car");
+                                     buffer_append($$, $1, -1);
+                                     EMIT($$, op, "bind cdr");
+                                     buffer_append($$, $2, -1);
+
+                                   }
+  | symbol DOT symbol CLOSE_PAREN
+
 %%
 
 void yyerror(compiler_core_type *compiler, void *scanner, char *s) {

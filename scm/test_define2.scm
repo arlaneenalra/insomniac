@@ -13,9 +13,9 @@
 
   (define tail-bomb
     (lambda (t)
-      (display (depth))
-      (display " ")
-      (gc-stats)
+      ;;(display (depth))
+      ;;(display " ")
+      ;;(gc-stats)
       (t t)))
 
   (display (true #t #f))
@@ -37,5 +37,5 @@
 
   (display #\newline)
 
-  (tail-bomb tail-bomb)
+;;  (tail-bomb tail-bomb)
 )

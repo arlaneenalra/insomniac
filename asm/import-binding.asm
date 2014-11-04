@@ -1,8 +1,8 @@
 
 
 ;;; Check import
-        ;; "src/libinsomniac_io/libinsomniac_io.so"
-        "../build/src/libinsomniac_io/libinsomniac_io.dylib"
+        "src/libinsomniac_io/libinsomniac_io.so"
+        ;;"../build/src/libinsomniac_io/libinsomniac_io.dylib"
         import
 
 bind_loop:

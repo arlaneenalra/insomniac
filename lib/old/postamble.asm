@@ -2,11 +2,9 @@
 ;;; Postamble code
 ;;; This is what actually causes user code to run.
 ;;; expects ( user-code -- )
+        s"CANARY" swap
 
-        #\newline out
-        #\newline out
-        "-----------------------------------" out
-        #\newline out
+        call eval
         
         "Returned: " out
         out

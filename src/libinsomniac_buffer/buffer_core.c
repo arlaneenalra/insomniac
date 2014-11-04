@@ -156,6 +156,11 @@ size_t buffer_append(buffer_type *buf_void, buffer_type *src_void, size_t length
     
     block = buf->head;
 
+    /* if size is set to -1, then look it via buffer_size */
+    if(length == -1) {
+      length = buffer_size(src_void);
+    }
+
     /* walk all blocks and copy them into the destination buffer */
     while((block != 0) && (offset < length)) {
 

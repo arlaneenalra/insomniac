@@ -1,6 +1,13 @@
 #include "vm_instructions_internal.h"
 
 
+/* a crude/quick test for tail calls, if primarily looks 
+   for a "swap ret" pair following a call */
+bool test_tail(vm_internal_type *vm) {
+  return vm_peek(vm, 0) == (uint8_t)OP_SWAP
+      && vm_peek(vm, 1) == (uint8_t)OP_RET;
+}
+
 /* jump if the top of stack is not false */
 void op_jnf(vm_internal_type *vm) {
     object_type *obj =0 ;
@@ -189,12 +196,16 @@ void op_call_in(vm_internal_type *vm) {
         throw(vm, "Attempt to jump to non-closure", 1, closure);
 
     } else {
-        /* allocate a new closure */
-        ret = vm_alloc(vm, CLOSURE);
+        if (!test_tail(vm)) {
+          /* allocate a new closure */
+          ret = vm_alloc(vm, CLOSURE);
 
-        /* save our current environment */
-        ret->value.closure = vm->env;
-        vm_push(vm, ret);
+          /* save our current environment */
+          ret->value.closure = vm->env;
+          vm_push(vm, ret);
+        } else {
+          op_swap(vm);
+        }
 
         /* clone the closures environment */
         clone_env(vm, &(vm->env), closure->value.closure);

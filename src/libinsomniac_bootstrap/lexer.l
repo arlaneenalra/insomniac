@@ -15,8 +15,9 @@
 DIGITS    [0-9]+
 EOL       \n|\r\n|\n\r|\r
 WS	  {EOL}|[[:blank:]]
-IDENT     [!$%&*+\-./:<=>?@^_~[:alnum:]]
+IDENT     [-!$%&*+\./:<=>?@^_~[:alnum:]]
 SIGNS     [-+]
+MATH      [-+*/%><]
 
 CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 
@@ -34,6 +35,16 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 "#f"      { return FALSE_OBJ; }
 
 {WS}*     /* Do nothing with white space */
+
+{MATH}    { return MATH_OPS; }
+
+"display" { return PRIM_DISPLAY; }
+"begin"   { return PRIM_BEGIN;  }
+"quote"   { return PRIM_QUOTE; }
+"define"  { return PRIM_DEFINE; }
+"lambda"  { return PRIM_LAMBDA; }
+"if"      { return PRIM_IF; }
+"set!"    { return PRIM_SET; }
 
 {SIGNS}?{DIGITS}                       { return FIXED_NUMBER; }
 {SIGNS}?({DIGITS}|nan|inf)?"."{DIGITS} { return FLOAT_NUMBER; }

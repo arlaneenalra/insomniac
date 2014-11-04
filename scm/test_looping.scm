@@ -12,5 +12,5 @@
           (display "Done")
           (display #\newline)))))
 
-  (loop 1000 loop)
+  (loop 400000 loop)
 )

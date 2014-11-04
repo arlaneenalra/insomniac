@@ -32,8 +32,8 @@
 
   (display
     (my-if true
-      (quote (#\@))
-      (quote (undefined #f))))
+      '(#\@)
+      '(undefined #f)))
 
   (display #\newline)
 

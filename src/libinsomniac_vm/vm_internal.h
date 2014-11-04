@@ -76,6 +76,9 @@ void throw(vm_internal_type *vm, char *msg, int num, ...);
 
 void vm_load_buf(vm_internal_type *vm, char *file, object_type **obj);
 
+/* return instruction at the given address */
+uint8_t vm_peek(vm_internal_type *vm, vm_int offset);
+
 void create_types(vm_internal_type *vm);
 gc_type_def create_vm_type(gc_type *gc);
 

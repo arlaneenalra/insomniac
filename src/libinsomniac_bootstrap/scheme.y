@@ -43,6 +43,7 @@ void yyerror(compiler_core_type *compiler, void *scanner, char *s);
 %token PRIM_DEFINE
 %token PRIM_LAMBDA
 %token PRIM_IF
+%token PRIM_SET
 
 %token SPEC_DEFINE
 
@@ -77,6 +78,8 @@ symbol_types:
 //  | PRIM_DEFINE
 //  | PRIM_LAMBDA
 //  | MATH_OPS
+//  | PRIM_IF
+//  | PRIM_SET
   
 literal:
     quoted
@@ -152,6 +155,7 @@ primitive_procedures:
   | define
   | if
   | lambda
+  | set
   | user_call
 
 if:
@@ -177,6 +181,14 @@ define_variable:
                                                buffer_append($$, $2, -1);
                                                EMIT($$, op, "bind ()");
                                              }
+
+/* Set the value of a location */
+set:
+  PRIM_SET symbol expression CLOSE_PAREN     {
+                                               $$ = $3; 
+                                               buffer_append($$, $2, -1);
+                                               EMIT($$, op, "! ()");
+                                             } 
 
 begin:
     PRIM_BEGIN begin_end   { $$ = $2; }
@@ -259,7 +271,15 @@ lambda_formals_list_end:
                                      buffer_append($$, $2, -1);
 
                                    }
-  | symbol DOT symbol CLOSE_PAREN
+  | symbol DOT symbol CLOSE_PAREN  {
+                                     // single binding
+                                     EMIT_NEW($$, op, "dup car");
+                                     buffer_append($$, $1, -1); // symbol
+                                     EMIT($$, op, "bind");
+                                     EMIT($$, op, "cdr");
+                                     buffer_append($$, $3, -1); // symbol
+                                     EMIT($$, op, "bind");
+                                   }
 
 %%
 

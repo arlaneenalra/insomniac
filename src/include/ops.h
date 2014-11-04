@@ -27,6 +27,7 @@ typedef enum op {
     OP_MAKE_VECTOR, /* create an empty vector */
     OP_VECTOR_SET, /* set a column in a given vector */
     OP_VECTOR_REF, /* read the index into a vector an put it on the stack */
+    OP_VECTOR_LENGTH, /* return the length of a vector */
 
     /* jump operations Jumps are relative */
     OP_CALL, /* call the given target and leave return on stack */

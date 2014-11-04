@@ -24,6 +24,7 @@ void op_not(vm_internal_type *vm);
 void op_make_vector(vm_internal_type *vm);
 void op_vector_set(vm_internal_type *vm);
 void op_vector_ref(vm_internal_type *vm);
+void op_vector_length(vm_internal_type *vm);
 
 /* list operations */
 void op_cons(vm_internal_type *vm);

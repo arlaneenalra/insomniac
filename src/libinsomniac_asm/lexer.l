@@ -51,6 +51,7 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "vector"                { return OP_MAKE_VECTOR; }
 "vec@"                  { return OP_VECTOR_REF; }
 "vec!"                  { return OP_VECTOR_SET; }
+"vec-len"               { return OP_VECTOR_LENGTH; }
 
 "out"                   { return OP_OUTPUT; }
 "read"                  { return OP_GETC; }

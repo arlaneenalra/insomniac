@@ -134,11 +134,12 @@ number:
   | FLOAT_NUMBER
 
 string_end:
-    STRING_CONSTANT DOUBLE_QUOTE  { EMIT_NEW($$, string, ""); }
-  | DOUBLE_QUOTE                  { EMIT_NEW($$, string, yyget_text(scanner)); }
+    STRING_CONSTANT               { EMIT_NEW($$, string, yyget_text(scanner)); }
+
 
 string:
-    DOUBLE_QUOTE string_end       { $$ = $2; }
+    DOUBLE_QUOTE string_end DOUBLE_QUOTE      { $$ = $2; }
+  | DOUBLE_QUOTE DOUBLE_QUOTE     { EMIT_NEW($$, string, ""); } 
   
 /* Some basic math procedures */
 procedure_call:

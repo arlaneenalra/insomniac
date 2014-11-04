@@ -1,4 +1,5 @@
-(define func (lambda (x y z) z))
+(define func
+  (lambda (x y z) z))
 
 (display (func 1 2 3))
 

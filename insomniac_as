@@ -72,6 +72,11 @@ call_in ( closure1 -- closure2 ) Converts the location following this
                                  on the stack and enters the initial
                                  closure.
 
+                                 NOTE: If the vm sees "call_in swap ret"
+                                 in the instruction stream, call_in is 
+                                 treated as a tail call and does not return
+                                 as normal.
+
 slurp ( file -- string ) A crude routine to load a file into a string
                          and leave the entire thing on the stack. This
                          should not be used outside of the bootstrap

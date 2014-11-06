@@ -167,7 +167,7 @@ include:
   string_body DOUBLE_QUOTE
   CLOSE_PAREN                {
                                NEW_BUF($$);
-                               setup_include(compiler, &$$, $3);
+                               setup_include(compiler, $$, $3);
                              }
 
 if:

@@ -195,7 +195,7 @@ void gen_label(compiler_core_type *compiler, buffer_type **buf) {
 /* Pushes a new file into the lexer's input stream while preserving
  * the existing stream. */
 void setup_include(compiler_core_type* compiler,
-  buffer_type **buf, buffer_type *file) {
+  buffer_type *buf, buffer_type *file) {
     char *include_comment = ";; Included From: ";
     FILE *include_file = 0;
     char *file_name = 0;
@@ -208,9 +208,9 @@ void setup_include(compiler_core_type* compiler,
     gc_alloc(compiler->gc, 0, length, (void **)&file_name);
     length = buffer_read(file, (uint8_t *)file_name, length);
 
-    buffer_write(*buf, (uint8_t *)include_comment, strlen(include_comment));
-    buffer_write(*buf, (uint8_t *)file_name, length);
-    emit_newline(*buf);
+    buffer_write(buf, (uint8_t *)include_comment, strlen(include_comment));
+    buffer_write(buf, (uint8_t *)file_name, length);
+    emit_newline(buf);
  
     include_file = fopen(file_name, "r");
 

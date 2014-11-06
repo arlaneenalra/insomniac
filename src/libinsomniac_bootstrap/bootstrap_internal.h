@@ -40,7 +40,7 @@ void emit_lambda(compiler_core_type *compiler, buffer_type *output,
 void gen_label(compiler_core_type *compiler, buffer_type **buf);
 
 void setup_include(compiler_core_type* compiler,
-  buffer_type **buf, buffer_type *file);
+  buffer_type *buf, buffer_type *file);
 
 /* Scheme parser */
 int parse_internal(compiler_core_type *compiler, void *scanner);

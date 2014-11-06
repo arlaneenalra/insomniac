@@ -1,9 +1,8 @@
-
 #include "bootstrap_internal.h"
 #include "scheme.h"
 #include "lexer.h"
 
-#include <stdio.h>
+#include <errno.h>
 
 /* Add a new line to the output buffer stream */
 void emit_newline(buffer_type *buf) {
@@ -56,11 +55,12 @@ void emit_fixnum(buffer_type *buf, char *num) {
 }
 
 /* Emit a string */
-void emit_string(buffer_type *buf, char *str) {
-    int length = strlen(str);
+/* This uses a buffer as there are strings we need without decoration i.e
+   for includes ... */
+void emit_string(buffer_type *buf, buffer_type *str) {
 
     buffer_write(buf, (uint8_t *)" \"", 2);
-    buffer_write(buf, (uint8_t *)str, length);
+    buffer_append(buf, str, -1);
     buffer_write(buf, (uint8_t *)"\"", 1);
     emit_newline(buf);
 }
@@ -191,10 +191,47 @@ void gen_label(compiler_core_type *compiler, buffer_type **buf) {
     compiler->label_index++;
 }
 
+/* Setup Include */
+/* Pushes a new file into the lexer's input stream while preserving
+ * the existing stream. */
+void setup_include(compiler_core_type* compiler,
+  buffer_type **buf, buffer_type *file) {
+    char *include_comment = ";; Included From: ";
+    FILE *include_file = 0;
+    char *file_name = 0;
+    size_t length = 0;
+    
+    gc_register_root(compiler->gc, (void **)&file_name);
+
+    /* Extract parsed filename */
+    length = buffer_size(file);
+    gc_alloc(compiler->gc, 0, length, (void **)&file_name);
+    length = buffer_read(file, (uint8_t *)file_name, length);
+
+    buffer_write(*buf, (uint8_t *)include_comment, strlen(include_comment));
+    buffer_write(*buf, (uint8_t *)file_name, length);
+    emit_newline(*buf);
+ 
+    include_file = fopen(file_name, "r");
+
+    if ( !include_file ) {
+        // TODO: Add file name tracking to compiler so we can 
+        // report what file include failed in.
+       
+        (void)fprintf(stderr, "Error %i!", errno);
+        parse_error(compiler, compiler->scanner,
+          "Unable to open include file!");
+    } else {
+        parse_push_state(compiler, include_file);
+    }
+       
+    gc_unregister_root(compiler->gc, (void **)&file_name);
+}
+
 /* Interface into the compiler internals */
 // TODO: Make compiler code work like the other libraries
 size_t compile_string(gc_type *gc, char *str, char **asm_ref) {
-    yyscan_t scanner =0;
+    //yyscan_t scanner =0;
     size_t length = 0;
     compiler_core_type compiler;
 
@@ -208,17 +245,17 @@ size_t compile_string(gc_type *gc, char *str, char **asm_ref) {
     buffer_create(gc, &compiler.buf);
 
     /* Actually parse the input stream. */
-    yylex_init(&scanner);
-    yy_scan_string(str, scanner);
+    yylex_init(&compiler.scanner);
+    yy_scan_string(str, compiler.scanner);
 
     /* TODO: Need a better way to handle GC than leaking */
     gc_protect(compiler.gc);
     
-    parse_internal(&compiler, scanner);
+    parse_internal(&compiler, compiler.scanner);
     
     gc_protect(compiler.gc);
 
-    yylex_destroy(scanner);
+    yylex_destroy(compiler.scanner);
 
     /* Add appropriate bootstraping code */
     emit_bootstrap(&compiler);

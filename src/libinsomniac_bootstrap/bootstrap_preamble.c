@@ -39,3 +39,4 @@ void emit_bootstrap(compiler_core_type *compiler) {
 
   gc_unregister_root(gc, (void **)&buf);
 }
+

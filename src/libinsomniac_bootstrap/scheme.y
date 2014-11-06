@@ -2,13 +2,11 @@
 /* %define api.pure */
 
 %{
-#include <stdio.h>
 #include "bootstrap_internal.h"
 #include "scheme.h"
 #include "lexer.h"
 
-void yyerror(compiler_core_type *compiler, void *scanner, char *s); 
-
+#define yyerror parse_error
 %}
 
 %parse-param {compiler_core_type *compiler}
@@ -45,6 +43,7 @@ void yyerror(compiler_core_type *compiler, void *scanner, char *s);
 %token PRIM_IF
 %token PRIM_SET
 
+%token PRIM_INCLUDE
 %token SPEC_DEFINE
 
 %token END_OF_FILE
@@ -136,12 +135,16 @@ number:
     FIXED_NUMBER                  { EMIT_NEW($$, fixnum, yyget_text(scanner)); }
   | FLOAT_NUMBER
 
-string_end:
-    STRING_CONSTANT               { EMIT_NEW($$, string, yyget_text(scanner)); }
+string_body:
+    STRING_CONSTANT              {
+                                   NEW_BUF($$);
+                                   char *str = yyget_text(scanner);
+                                   buffer_write($$, (uint8_t *)str, strlen(str));
+                                 }
 
 
 string:
-    DOUBLE_QUOTE string_end DOUBLE_QUOTE      { $$ = $2; }
+    DOUBLE_QUOTE string_body DOUBLE_QUOTE  { EMIT_NEW($$, string, $2); }
   | DOUBLE_QUOTE DOUBLE_QUOTE     { EMIT_NEW($$, string, ""); } 
   
 /* Some basic math procedures */
@@ -157,6 +160,15 @@ primitive_procedures:
   | lambda
   | set
   | user_call
+  | include
+
+include:
+  PRIM_INCLUDE DOUBLE_QUOTE
+  string_body DOUBLE_QUOTE
+  CLOSE_PAREN                {
+                               NEW_BUF($$);
+                               setup_include(compiler, &$$, $3);
+                             }
 
 if:
     PRIM_IF expression expression
@@ -283,8 +295,8 @@ lambda_formals_list_end:
 
 %%
 
-void yyerror(compiler_core_type *compiler, void *scanner, char *s) {
-    (void)fprintf(stderr,"There was an error parsing %s on line %i\n", 
+void parse_error(compiler_core_type *compiler, void *scanner, char *s) {
+    (void)fprintf(stderr,"There was an error parsing '%s' on line %i\n", 
                   s, yyget_lineno(scanner) + 1);
 }
 
@@ -297,3 +309,5 @@ int parse_internal(compiler_core_type *compiler, void *scanner) {
 
     return ret_val;
 }
+
+

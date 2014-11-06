@@ -20,6 +20,41 @@ scheme-gc-stats:
         () swap
         ret
 
+;; Import a dll and return a handle and bindings
+;; param list: ( <path-to-dll> )
+;; return: ( bindings . library )
+scheme-import:
+        swap
+        car
+        import ;; ( library  bindings -- )
+        
+        cons
+        swap ret
+
+;; Call a function from an external dll
+;; param list: (library func argument ... )
+;; return: any
+scheme-call-ext:
+        swap
+       
+        dup 
+        ;; get arguments
+        cdr cdr
+
+        swap dup
+
+        ;; get library
+        car
+
+        swap dup
+
+        ;; get function
+        cdr car
+        
+        ;; call the function
+        call_ext
+                
+        swap ret
 
 user-entry:
         drop ;; drop return address, we won't need it
@@ -29,5 +64,8 @@ user-entry:
 
         proc scheme-depth s"depth" bind
         proc scheme-gc-stats s"gc-stats" bind
+        proc scheme-import s"import" bind
+        proc scheme-call-ext s"call-ext" bind
+
 _main:
 

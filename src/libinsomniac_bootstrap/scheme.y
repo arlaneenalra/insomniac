@@ -38,13 +38,16 @@
 %token PRIM_DISPLAY
 %token PRIM_BEGIN
 %token PRIM_QUOTE
-%token PRIM_DEFINE
 %token PRIM_LAMBDA
 %token PRIM_IF
 %token PRIM_SET
 
 %token PRIM_INCLUDE
 %token SPEC_DEFINE
+
+%token PRIM_DEFINE
+%token PRIM_DEFINE_DYNAMIC
+%token PRIM_ASM
 
 %token END_OF_FILE
 
@@ -56,7 +59,7 @@ top_level:
 
 self_evaluating:
     boolean
-  | CHAR_CONSTANT                       { EMIT_NEW($$, char, yyget_text(scanner)); }
+  | CHAR_CONSTANT                 { EMIT_NEW($$, char, yyget_text(scanner)); }
   | string 
   | number
 
@@ -65,20 +68,9 @@ self_evaluating:
    or the compiler won't know how to handle them when it sees
    them out of context. */
 symbol:
-  symbol_types                         { EMIT_NEW($$, symbol, yyget_text(scanner)); }
+    AST_SYMBOL                    { EMIT_NEW($$, symbol, yyget_text(scanner)); }
 
-symbol_types:
-    AST_SYMBOL
 
-    /* for now, it's not directly possible to redefine these */
-//  | PRIM_DISPLAY
-//  | PRIM_BEGIN
-//  | PRIM_QUOTE
-//  | PRIM_DEFINE
-//  | PRIM_LAMBDA
-//  | MATH_OPS
-//  | PRIM_IF
-//  | PRIM_SET
   
 literal:
     quoted
@@ -142,10 +134,9 @@ string_body:
                                    buffer_write($$, (uint8_t *)str, strlen(str));
                                  }
 
-
 string:
     DOUBLE_QUOTE string_body DOUBLE_QUOTE  { EMIT_NEW($$, string, $2); }
-  | DOUBLE_QUOTE DOUBLE_QUOTE     { EMIT_NEW($$, string, ""); } 
+  | DOUBLE_QUOTE DOUBLE_QUOTE     { NEW_BUF($$); EMIT_NEW($$, string, $$); } 
   
 /* Some basic math procedures */
 procedure_call:
@@ -161,12 +152,49 @@ primitive_procedures:
   | set
   | user_call
   | include
+  | asm
+
+asm:
+    PRIM_ASM asm_end CLOSE_PAREN    { $$ = $2; }
+
+asm_end:
+    raw_asm                         { $$ = $1; }
+  | raw_asm asm_end                 {
+                                      NEW_BUF($$);
+                                      buffer_append($$, $1, -1);
+                                      buffer_append($$, $2, -1);
+                                    }
+
+raw_asm:
+    asm_types                  {
+                                  NEW_BUF($$);
+                                  char *str = yyget_text(scanner);
+                                  EMIT($$, op, str);
+                               }
+  | self_evaluating
+  | OPEN_PAREN CLOSE_PAREN     { EMIT_NEW($$, op, "()"); }
+  | OPEN_PAREN expression CLOSE_PAREN {
+                                        $$ = $2;
+                                      }
+
+asm_types:
+    AST_SYMBOL
+  | PRIM_DISPLAY
+  | PRIM_BEGIN
+  | PRIM_QUOTE
+  | PRIM_LAMBDA
+  | PRIM_IF
+  | PRIM_SET
+  | PRIM_DEFINE
+  | PRIM_DEFINE_DYNAMIC
+  | PRIM_ASM
+  | MATH_OPS
 
 include:
   PRIM_INCLUDE DOUBLE_QUOTE
   string_body DOUBLE_QUOTE
   CLOSE_PAREN                {
-                               NEW_BUF($$);
+                               EMIT_NEW($$, op, "() ;; UGH!");
                                setup_include(compiler, $$, $3);
                              }
 
@@ -184,11 +212,18 @@ display:
                                         }
 
 define:
-  define_variable
+    define_variable
+  | define_dynamic
 
 /* the most basic version of define */
 define_variable:
   PRIM_DEFINE symbol expression CLOSE_PAREN  {
+                                               $$ = $3; 
+                                               buffer_append($$, $2, -1);
+                                               EMIT($$, op, "bind ()");
+                                             }
+define_dynamic:
+  PRIM_DEFINE_DYNAMIC expression expression CLOSE_PAREN  {
                                                $$ = $3; 
                                                buffer_append($$, $2, -1);
                                                EMIT($$, op, "bind ()");

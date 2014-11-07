@@ -17,6 +17,8 @@ void say_something(vm_type *vm, gc_type *gc) {
 
     vm_output_object(stdout, obj);
 
+    vm_push(vm, vm_alloc(vm, EMPTY));
+
     gc_unregister_root(gc, (void **)&obj);
 }
 

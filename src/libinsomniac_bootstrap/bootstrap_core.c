@@ -134,10 +134,6 @@ void emit_lambda(compiler_core_type *compiler, buffer_type *output,
 
   /* calling convention is ( args ret -- ) */
 
-  /* proc proc_label: */
-  buffer_write(output, (uint8_t *)" proc ", 6);
-  buffer_append(output, proc_label, -1);
-  emit_newline(output);
 
   /* output a jump so we don't execute the lambda during
      definition */
@@ -171,6 +167,11 @@ void emit_lambda(compiler_core_type *compiler, buffer_type *output,
   buffer_write(output, (uint8_t *)":", 1);
   emit_newline(output);
 
+  /* proc proc_label: */
+  buffer_write(output, (uint8_t *)" proc ", 6);
+  buffer_append(output, proc_label, -1);
+  emit_newline(output);
+  emit_newline(output);
 
   gc_unregister_root(compiler->gc, &skip_label);
   gc_unregister_root(compiler->gc, &proc_label);

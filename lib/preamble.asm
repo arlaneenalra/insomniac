@@ -20,52 +20,33 @@ scheme-gc-stats:
         () swap
         ret
 
-;; Import a dll and return a handle and bindings
-;; param list: ( <path-to-dll> )
-;; return: ( bindings . library )
-scheme-import:
+;; CAR, CDR and friends
+scheme-car:
         swap
-        car
-        import ;; ( library  bindings -- )
-        
-        cons
+        car car
         swap ret
 
-;; Call a function from an external dll
-;; param list: (library func argument ... )
-;; return: any
-scheme-call-ext:
+scheme-cdr:
         swap
-       
-        dup 
-        ;; get arguments
-        cdr cdr
-
-        swap dup
-
-        ;; get library
-        car
-
-        swap dup
-
-        ;; get function
-        cdr car
-        
-        ;; call the function
-        call_ext
-                
+        car cdr
         swap ret
+
+;; The arguments should already have had cons applied ;)
+scheme-cons:
+        ret
 
 user-entry:
         drop ;; drop return address, we won't need it
 
-        s"initial-environment" bind ;; bind the initial environment
+        s"null-environment" bind ;; bind the initial environment
         proc env s"bootstrap-environment" bind ;; the current env
 
         proc scheme-depth s"depth" bind
         proc scheme-gc-stats s"gc-stats" bind
-        proc scheme-import s"import" bind
-        proc scheme-call-ext s"call-ext" bind
+
+        proc scheme-car s"car" bind
+        proc scheme-cdr s"cdr" bind
+        proc scheme-cons s"cons" bind
 
 _main:
 

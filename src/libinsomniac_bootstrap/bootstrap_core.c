@@ -3,6 +3,7 @@
 #include "lexer.h"
 
 #include <errno.h>
+#include <assert.h>
 
 /* Add a new line to the output buffer stream */
 void emit_newline(buffer_type *buf) {
@@ -10,11 +11,24 @@ void emit_newline(buffer_type *buf) {
     buffer_write(buf, (uint8_t *)newline, strlen(newline));
 }
 
+/* Add indention to ASM */
+void emit_indent(buffer_type *buf) {
+    char *indent = "        ";
+    buffer_write(buf, (uint8_t *)indent, 8);
+}
+
+/* Write a coment into the instruction buffer */
+void emit_comment(buffer_type *buf, char *str) {
+    buffer_write(buf, (uint8_t *)";; ", 3);
+    buffer_write(buf, (uint8_t *)str, strlen(str));
+    emit_newline(buf);
+}
+
 /* Emit a generic operations */
 void emit_op(buffer_type *buf, char *str) {
     int length = strlen(str);
 
-    buffer_write(buf, (uint8_t *)" ", 1);
+    emit_indent(buf);
     buffer_write(buf, (uint8_t *)str, length);
     emit_newline(buf);
 }
@@ -30,7 +44,8 @@ void emit_boolean(buffer_type *buf, int b) {
         c = 'f';
     }
 
-    length = snprintf(str_buf, 4, " #%c", c);
+    length = snprintf(str_buf, 4, "#%c", c);
+    emit_indent(buf);
     buffer_write(buf, (uint8_t *)str_buf, length);
     emit_newline(buf);
 }
@@ -39,6 +54,7 @@ void emit_boolean(buffer_type *buf, int b) {
 void emit_char(buffer_type *buf, char *c) {
     char *prefix = " #\\";
 
+    emit_indent(buf);
     buffer_write(buf, (uint8_t *)prefix, 3);
     buffer_write(buf, (uint8_t *)c, strlen(c));
     emit_newline(buf);
@@ -49,7 +65,7 @@ void emit_char(buffer_type *buf, char *c) {
 void emit_fixnum(buffer_type *buf, char *num) {
     int length = strlen(num);
 
-    buffer_write(buf, (uint8_t *)" ", 1);
+    emit_indent(buf);
     buffer_write(buf, (uint8_t *)num, length);
     emit_newline(buf);
 }
@@ -59,7 +75,8 @@ void emit_fixnum(buffer_type *buf, char *num) {
    for includes ... */
 void emit_string(buffer_type *buf, buffer_type *str) {
 
-    buffer_write(buf, (uint8_t *)" \"", 2);
+    emit_indent(buf);
+    buffer_write(buf, (uint8_t *)"\"", 1);
     buffer_append(buf, str, -1);
     buffer_write(buf, (uint8_t *)"\"", 1);
     emit_newline(buf);
@@ -69,9 +86,44 @@ void emit_string(buffer_type *buf, buffer_type *str) {
 void emit_symbol(buffer_type *buf, char *sym) {
     int length = strlen(sym);
 
-    buffer_write(buf, (uint8_t *)" s\"", 3);
+    emit_indent(buf);
+    buffer_write(buf, (uint8_t *)"s\"", 2);
     buffer_write(buf, (uint8_t *)sym, length);
     buffer_write(buf, (uint8_t *)"\"", 1);
+    emit_newline(buf);
+}
+
+/* Emit a jmp/call/proc/jnf instruction */
+void emit_jump_label(buffer_type *buf, op_type type, buffer_type *label) {
+    char *c = 0;
+
+    switch (type) {
+      case OP_CALL:
+          c = "call";
+          break;
+
+      case OP_PROC:
+          c = "proc";
+          break;
+
+      case OP_JMP:
+          c = "jmp";
+          break;
+
+      case OP_JNF:
+          c = "jnf";
+          break;
+
+      default:
+          fprintf(stderr, "op_type not a known jump instruction %i", type);
+          assert(0);
+    }
+
+    /* Output the jmp */
+    emit_indent(buf);
+    buffer_write(buf, (uint8_t*)c, strlen(c));
+    buffer_write(buf, (uint8_t*)" ", 1);
+    buffer_append(buf, label, -1);
     emit_newline(buf);
 }
 
@@ -88,19 +140,24 @@ void emit_if(compiler_core_type *compiler, buffer_type *test_buffer,
   gen_label(compiler, &true_label);
   gen_label(compiler, &done_label);
 
+
   /* <test> jnf true */
-  buffer_write(test_buffer, (uint8_t *)" jnf ", 5);
+  /*buffer_write(test_buffer, (uint8_t *)"jnf ", 5);
   buffer_append(test_buffer, true_label, -1);
-  emit_newline(test_buffer);
+  emit_newline(test_buffer);*/
+  emit_comment(test_buffer, "If TEST");
+  emit_jump_label(test_buffer, OP_JNF, true_label);
 
   /* <false> jmp done */
   buffer_append(test_buffer, false_buffer, -1);
 
-  buffer_write(test_buffer, (uint8_t *)" jmp ", 5);
+  emit_jump_label(test_buffer, OP_JMP, done_label);
+  /*buffer_write(test_buffer, (uint8_t *)" jmp ", 5);
   buffer_append(test_buffer, done_label, -1);
-  emit_newline(test_buffer);
+  emit_newline(test_buffer);*/
 
   /* true: */
+  emit_comment(test_buffer, "If TRUE");
   buffer_append(test_buffer, true_label, -1);
   buffer_write(test_buffer, (uint8_t *) ":", 1);
   emit_newline(test_buffer);
@@ -110,9 +167,12 @@ void emit_if(compiler_core_type *compiler, buffer_type *test_buffer,
   emit_newline(test_buffer);
  
   /* done: */
+  emit_comment(test_buffer, "If DONE");
   buffer_append(test_buffer, done_label, -1);
   buffer_write(test_buffer, (uint8_t *) ":", 1);
   emit_newline(test_buffer);
+  
+  emit_comment(test_buffer, "END IF");
 
   
   gc_unregister_root(compiler->gc, &done_label);
@@ -197,7 +257,7 @@ void gen_label(compiler_core_type *compiler, buffer_type **buf) {
  * the existing stream. */
 void setup_include(compiler_core_type* compiler,
   buffer_type *buf, buffer_type *file) {
-    char *include_comment = ";; Included From: ";
+    char *include_comment = "Included From:";
     FILE *include_file = 0;
     char *file_name = 0;
     size_t length = 0;
@@ -209,9 +269,11 @@ void setup_include(compiler_core_type* compiler,
     gc_alloc(compiler->gc, 0, length, (void **)&file_name);
     length = buffer_read(file, (uint8_t *)file_name, length);
 
-    buffer_write(buf, (uint8_t *)include_comment, strlen(include_comment));
-    buffer_write(buf, (uint8_t *)file_name, length);
-    emit_newline(buf);
+    //buffer_write(buf, (uint8_t *)include_comment, strlen(include_comment));
+    //buffer_write(buf, (uint8_t *)file_name, length);
+    //emit_newline(buf);
+    emit_comment(buf, include_comment);
+    emit_comment(buf, file_name);
  
     include_file = fopen(file_name, "r");
 

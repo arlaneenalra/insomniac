@@ -3,6 +3,7 @@
 
 #include <gc.h>
 #include <buffer.h>
+#include <ops.h>
 #include <stdio.h>
 
 typedef struct compiler_core compiler_core_type;
@@ -23,8 +24,12 @@ struct compiler_core {
 };
 
 void emit_bootstrap(compiler_core_type *compiler);
+void emit_newline(buffer_type *buf);
+void emit_indent(buffer_type *buf);
+void emit_coment(buffer_type *buf, char *str);
 
 void emit_op(buffer_type *buf, char *str);
+void emit_jump_label(buffer_type *buf, op_type type, buffer_type *label);
 void emit_char(buffer_type *buf, char *str);
 void emit_fixnum(buffer_type *buf, char *str);
 void emit_string(buffer_type *buf, buffer_type *str);

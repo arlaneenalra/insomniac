@@ -26,7 +26,7 @@ struct compiler_core {
 void emit_bootstrap(compiler_core_type *compiler);
 void emit_newline(buffer_type *buf);
 void emit_indent(buffer_type *buf);
-void emit_coment(buffer_type *buf, char *str);
+void emit_comment(buffer_type *buf, char *str);
 
 void emit_op(buffer_type *buf, char *str);
 void emit_jump_label(buffer_type *buf, op_type type, buffer_type *label);

@@ -6,6 +6,19 @@
 #include <ops.h>
 #include <stdio.h>
 
+/* Denotes the AST NODE types */
+typedef enum ast_entry {
+  AST_EXPRESSION
+} ast_entry_type;
+
+/* Top Level Ast Entry */
+typedef struct ast_expression ast_expression_type;
+
+struct ast_expression {
+  ast_entry_type type;
+
+};
+
 typedef struct compiler_core compiler_core_type;
 
 struct compiler_core {
@@ -19,11 +32,11 @@ struct compiler_core {
 
     uint64_t label_index;
 
-    /* The current output buffer */
-    buffer_type *buf;
+    /* The current ast tree */
+    ast_expression_type *tree;
 };
 
-void emit_bootstrap(compiler_core_type *compiler);
+void emit_bootstrap(compiler_core_type *compiler, buffer_type *buf);
 void emit_newline(buffer_type *buf);
 void emit_indent(buffer_type *buf);
 void emit_comment(buffer_type *buf, char *str);

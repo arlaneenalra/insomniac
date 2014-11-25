@@ -1,6 +1,6 @@
 #include "bootstrap_internal.h"
-#include "scheme.h"
-#include "lexer.h"
+
+#include <string.h>
 
 /* Add a new line to the output buffer stream */
 void emit_newline(buffer_type *buf) {

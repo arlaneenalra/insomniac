@@ -13,7 +13,8 @@
 %parse-param {void *scanner} 
 %lex-param {void *scanner} 
 
-%define api.value.type { buffer_type * }
+//%define api.value.type { buffer_type * }
+%define api.value.type { ast_expression_type * }
 
 %token OPEN_PAREN
 %token START_VECTOR
@@ -54,12 +55,12 @@
 %%
 
 top_level:
-  begin_body  { buffer_append(compiler->buf, $1, -1); }
+  begin_body  { }
   END_OF_FILE { YYACCEPT; }
 
 self_evaluating:
     boolean
-  | CHAR_CONSTANT                 { EMIT_NEW($$, char, yyget_text(scanner)); }
+  | CHAR_CONSTANT                 {  }
   | string 
   | number
 
@@ -68,7 +69,7 @@ self_evaluating:
    or the compiler won't know how to handle them when it sees
    them out of context. */
 symbol:
-    AST_SYMBOL                    { EMIT_NEW($$, symbol, yyget_text(scanner)); }
+    AST_SYMBOL                    {  }
 
 
   
@@ -79,10 +80,7 @@ literal:
 expression:
     literal
   | procedure_call
-  | symbol                             {
-                                         $$ = $1; 
-                                         EMIT($$, op, "@");
-                                       }
+  | symbol                        { } 
 
 datum:
       literal
@@ -91,56 +89,41 @@ datum:
 //    | procedure_call
    
 list_end:
-    list_next CLOSE_PAREN              {
-                                         EMIT_NEW($$, op, "()");
-                                         buffer_append($$, $1, -1);
-                                       }
+    list_next CLOSE_PAREN              { }
  
-  | list_next DOT datum CLOSE_PAREN    {
-                                         NEW_BUF($$);
-                                         buffer_append($$, $3, -1);
-                                         buffer_append($$, $1, -1);
-                                       }
-  | CLOSE_PAREN                        { EMIT_NEW($$, op, "()"); }
+  | list_next DOT datum CLOSE_PAREN    { }
+  | CLOSE_PAREN                        { }
 
 list:
-    OPEN_PAREN list_end                { $$ = $2; }
+    OPEN_PAREN list_end                { }
 
 list_next:
-    datum                              { EMIT($$, op, "cons"); } 
-  | datum list_next                    {
-                                         $$ = $2; 
-                                         buffer_append($$, $1, -1); 
-                                         EMIT($$, op, "cons");
-                                       }
+    datum                              { } 
+  | datum list_next                    { }
 
 quoted:
-    QUOTE datum                             { $$ = $2; }
-  | OPEN_PAREN PRIM_QUOTE datum CLOSE_PAREN { $$ = $3; }
+    QUOTE datum                             {  }
+  | OPEN_PAREN PRIM_QUOTE datum CLOSE_PAREN {  }
 
     
 boolean:
-    TRUE_OBJ                      { EMIT_NEW($$, boolean, 1); }
-  | FALSE_OBJ                     { EMIT_NEW($$, boolean, 0); }
+    TRUE_OBJ                      {  }
+  | FALSE_OBJ                     {  }
 
 number:
-    FIXED_NUMBER                  { EMIT_NEW($$, fixnum, yyget_text(scanner)); }
+    FIXED_NUMBER                  {  }
   | FLOAT_NUMBER
 
 string_body:
-    STRING_CONSTANT              {
-                                   NEW_BUF($$);
-                                   char *str = yyget_text(scanner);
-                                   buffer_write($$, (uint8_t *)str, strlen(str));
-                                 }
+    STRING_CONSTANT              { }
 
 string:
-    DOUBLE_QUOTE string_body DOUBLE_QUOTE  { EMIT_NEW($$, string, $2); }
-  | DOUBLE_QUOTE DOUBLE_QUOTE     { NEW_BUF($$); EMIT_NEW($$, string, $$); } 
+    DOUBLE_QUOTE string_body DOUBLE_QUOTE  { }
+  | DOUBLE_QUOTE DOUBLE_QUOTE     {  } 
   
 /* Some basic math procedures */
 procedure_call:
-    OPEN_PAREN primitive_procedures  { $$ = $2; }
+    OPEN_PAREN primitive_procedures  {  }
 
 primitive_procedures:
     math_calls
@@ -155,27 +138,17 @@ primitive_procedures:
   | asm
 
 asm:
-    PRIM_ASM asm_end CLOSE_PAREN    { $$ = $2; }
+    PRIM_ASM asm_end CLOSE_PAREN    {  }
 
 asm_end:
-    raw_asm                         { $$ = $1; }
-  | raw_asm asm_end                 {
-                                      NEW_BUF($$);
-                                      buffer_append($$, $1, -1);
-                                      buffer_append($$, $2, -1);
-                                    }
+    raw_asm                         {  }
+  | raw_asm asm_end                 { }
 
 raw_asm:
-    asm_types                  {
-                                  NEW_BUF($$);
-                                  char *str = yyget_text(scanner);
-                                  EMIT($$, op, str);
-                               }
+    asm_types                  { }
   | self_evaluating
-  | OPEN_PAREN CLOSE_PAREN     { EMIT_NEW($$, op, "()"); }
-  | OPEN_PAREN expression CLOSE_PAREN {
-                                        $$ = $2;
-                                      }
+  | OPEN_PAREN CLOSE_PAREN     { }
+  | OPEN_PAREN expression CLOSE_PAREN { }
 
 asm_types:
     AST_SYMBOL
@@ -193,23 +166,14 @@ asm_types:
 include:
   PRIM_INCLUDE DOUBLE_QUOTE
   string_body DOUBLE_QUOTE
-  CLOSE_PAREN                {
-                               EMIT_NEW($$, op, "() ;; UGH!");
-                               setup_include(compiler, $$, $3);
-                             }
+  CLOSE_PAREN                { }
 
 if:
     PRIM_IF expression expression
-    expression CLOSE_PAREN              {
-                                          $$ = $2;
-                                          emit_if(compiler, $2, $3, $4);
-                                        }
+    expression CLOSE_PAREN              { }
 
 display:
-    PRIM_DISPLAY expression CLOSE_PAREN {
-                                          $$ = $2;
-                                          EMIT($$, op, "out ()");
-                                        }
+    PRIM_DISPLAY expression CLOSE_PAREN { }
 
 define:
     define_variable
@@ -217,36 +181,21 @@ define:
 
 /* the most basic version of define */
 define_variable:
-  PRIM_DEFINE symbol expression CLOSE_PAREN  {
-                                               $$ = $3; 
-                                               buffer_append($$, $2, -1);
-                                               EMIT($$, op, "bind ()");
-                                             }
+  PRIM_DEFINE symbol expression CLOSE_PAREN  { }
+
 define_dynamic:
-  PRIM_DEFINE_DYNAMIC expression expression CLOSE_PAREN  {
-                                               $$ = $3; 
-                                               buffer_append($$, $2, -1);
-                                               EMIT($$, op, "bind ()");
-                                             }
+  PRIM_DEFINE_DYNAMIC expression expression CLOSE_PAREN  { }
 
 /* Set the value of a location */
 set:
-  PRIM_SET symbol expression CLOSE_PAREN     {
-                                               $$ = $3; 
-                                               buffer_append($$, $2, -1);
-                                               EMIT($$, op, "! ()");
-                                             } 
+  PRIM_SET symbol expression CLOSE_PAREN     { } 
 
 begin:
-    PRIM_BEGIN begin_end   { $$ = $2; }
+    PRIM_BEGIN begin_end   {  }
 
 begin_body:
     expression             
-  | expression begin_body  { 
-                              $$ = $1;
-                              EMIT($$, op, "drop");
-                              buffer_append($$, $2, -1);
-                           } 
+  | expression begin_body  { } 
 
 begin_end:
     CLOSE_PAREN
@@ -255,78 +204,41 @@ begin_end:
 /* Inline mathematical calls */
 math_calls:
     math_call_op
-    expression expression CLOSE_PAREN {
-                                         $$ = $2;
-                                         buffer_append($$, $3, -1);
-                                         buffer_append($$, $1, -1);
-                                      }
+    expression expression CLOSE_PAREN { }
 
 math_call_op:
-    MATH_OPS                          { EMIT_NEW($$, op, yyget_text(scanner)); }
+    MATH_OPS                          { }
 
 /* call a user function */
 user_call:
-    expression user_call_end    {
-                                  $$ = $2; /* Setup call */
-                                  buffer_append($$, $1, -1); /* get procedure */
-                                  EMIT($$, op, "call_in");
-                                }
+    expression user_call_end    { }
 
 user_call_end:
-    CLOSE_PAREN                 { EMIT_NEW($$, op, "()"); }
-  | user_call_body CLOSE_PAREN  {
-                                  EMIT_NEW($$, op, "()");
-                                  buffer_append($$, $1, -1);
-                                }
+    CLOSE_PAREN                 { }
+  | user_call_body CLOSE_PAREN  { }
 
 user_call_body:
-    expression                  { EMIT($$, op, "cons"); }
-  | expression user_call_body   { 
-                                  $$ = $2;
-                                  buffer_append($$, $1, -1);
-                                  EMIT($$, op, "cons");
-                                }  
+    expression                  { }
+  | expression user_call_body   { }  
 
 /* A basic lambda expression */
 lambda:
     PRIM_LAMBDA
     lambda_formals
-    begin_end                   {
-                                  NEW_BUF($$);
-                                  emit_lambda(compiler, $$, $2, $3);
-                                }
+    begin_end                   { }
 
 lambda_formals:
-    symbol                      { EMIT($$, op, "bind"); }
+    symbol                      { }
   | lambda_formals_list
 
 lambda_formals_list:
-    OPEN_PAREN CLOSE_PAREN      { EMIT_NEW($$, op, "drop"); } // ignore arguments}
-  | OPEN_PAREN lambda_formals_list_end   { $$ = $2; }
+    OPEN_PAREN CLOSE_PAREN      {  } // ignore arguments}
+  | OPEN_PAREN lambda_formals_list_end   {  }
 
 lambda_formals_list_end:
-    symbol CLOSE_PAREN          {
-                                  // single binding
-                                  EMIT_NEW($$, op, "car");
-                                  buffer_append($$, $1, -1); // symbol
-                                  EMIT($$, op, "bind");
-                                }
-  | symbol lambda_formals_list_end {
-                                     EMIT_NEW($$, op, "dup car");
-                                     buffer_append($$, $1, -1);
-                                     EMIT($$, op, "bind cdr");
-                                     buffer_append($$, $2, -1);
-
-                                   }
-  | symbol DOT symbol CLOSE_PAREN  {
-                                     // single binding
-                                     EMIT_NEW($$, op, "dup car");
-                                     buffer_append($$, $1, -1); // symbol
-                                     EMIT($$, op, "bind");
-                                     EMIT($$, op, "cdr");
-                                     buffer_append($$, $3, -1); // symbol
-                                     EMIT($$, op, "bind");
-                                   }
+    symbol CLOSE_PAREN          { }
+  | symbol lambda_formals_list_end { }
+  | symbol DOT symbol CLOSE_PAREN  { }
 
 %%
 

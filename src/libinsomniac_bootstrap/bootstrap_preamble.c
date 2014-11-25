@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 /*  Emit preamble code needed to boot strap the scheme system */
-void emit_bootstrap(compiler_core_type *compiler) {
+void emit_bootstrap(compiler_core_type *compiler, buffer_type *out_buf) {
   gc_type *gc = compiler->gc;
   size_t count = 0;
   buffer_type *buf = 0;
@@ -22,7 +22,7 @@ void emit_bootstrap(compiler_core_type *compiler) {
   }
 
   /* append the compiled compiled code to the temp buffer */
-  buffer_append(buf, compiler->buf, buffer_size(compiler->buf));
+  buffer_append(buf, out_buf, buffer_size(out_buf));
 
   /* load the post amble */
   if (compiler->postamble) {
@@ -35,7 +35,7 @@ void emit_bootstrap(compiler_core_type *compiler) {
   }
 
   /* replace the compiler buffer with the new one */
-  compiler->buf = buf;
+  out_buf = buf;
 
   gc_unregister_root(gc, (void **)&buf);
 }

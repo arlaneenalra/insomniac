@@ -28,7 +28,6 @@ gc_type_def create_stream_type(gc_type *gc) {
   gc_type_def type = 0;
 
   type = gc_register_type(gc, sizeof(ins_stream_type));
-  
   /* we only need to register the head */
   gc_register_pointer(gc, type, offsetof(ins_stream_type, head));
 
@@ -40,7 +39,6 @@ gc_type_def create_node_type(gc_type *gc) {
   gc_type_def type = 0;
 
   type = gc_register_type(gc, sizeof(ins_node_type));
-  
   gc_register_pointer(gc, type, offsetof(ins_node_type, next));
 
   /* Add other fields here */
@@ -48,6 +46,15 @@ gc_type_def create_node_type(gc_type *gc) {
   return type;
 }
 
+/* Instruction Stream type setup */
+gc_type_def create_compiler_type(gc_type *gc) {
+  gc_type_def type = 0;
+
+  type = gc_register_type(gc, sizeof(compiler_core_type));
+  gc_register_pointer(gc, type, offsetof(compiler_core_type, stream));
+
+  return type;
+}
 
 /* Setup Include */
 /* Pushes a new file into the lexer's input stream while preserving
@@ -88,60 +95,66 @@ void setup_include(compiler_core_type* compiler,
     gc_unregister_root(compiler->gc, (void **)&file_name);
 }
 
-/* Interface into the compiler internals */
-// TODO: Make compiler code work like the other libraries
-size_t compile_string(gc_type *gc, char *str, char **asm_ref) {
-    //yyscan_t scanner =0;
-    size_t length = 0;
-    compiler_core_type compiler;
-    buffer_type *buf = 0;
-
+/* Create an instance of the compiler */
+void compiler_create(gc_type *gc, compiler_type **comp_void) {
+    compiler_core_type *compiler = 0;
     static gc_type_def stream_gc_type = 0;
     static gc_type_def node_gc_type = 0;
-
-    gc_register_root(gc, (void **)&buf);
-    gc_register_root(gc, (void **)&compiler.stream);
+    static gc_type_def compiler_gc_type = 0;
 
     // setup gc types
-    if (!stream_gc_type) {
+    if (!compiler_gc_type) {
+      compiler_gc_type = create_compiler_type(gc);
       stream_gc_type = create_stream_type(gc);
       node_gc_type = create_node_type(gc);
     }
 
-    compiler.gc = gc;
-    compiler.label_index = 0;
-    compiler.preamble = "lib/preamble.asm";
-    compiler.postamble = "lib/postamble.asm";
+    gc_register_root(gc, (void **)&compiler);
 
-    compiler.stream_gc_type = stream_gc_type;
-    compiler.node_gc_type = node_gc_type;
+    /* create a compiler instance */
+    gc_alloc_type(gc, 0, compiler_gc_type, (void **)&compiler);
 
-    buffer_create(gc, &buf);
+    compiler->gc = gc;
+    compiler->label_index = 0;
+    compiler->preamble = "lib/preamble.asm";
+    compiler->postamble = "lib/postamble.asm";
+
+    /* setup gc types */
+    compiler->stream_gc_type = stream_gc_type;
+    compiler->node_gc_type = node_gc_type;
+
+    *comp_void = compiler;
+
+    gc_unregister_root(gc, (void **)&compiler);
+}
+
+/* Interface into the compiler internals */
+// TODO: Make compiler code work like the other libraries
+void compile_string(compiler_type *comp_void, char *str) {
+    compiler_core_type *compiler = (compiler_core_type *)comp_void; 
 
     /* Actually parse the input stream. */
-    yylex_init(&compiler.scanner);
-    yy_scan_string(str, compiler.scanner);
+    yylex_init(&(compiler->scanner));
+    yy_scan_string(str, compiler->scanner);
 
     /* TODO: Need a better way to handle GC than leaking */
-    gc_protect(compiler.gc);
+    gc_protect(compiler->gc);
     
-    parse_internal(&compiler, compiler.scanner);
+    parse_internal(compiler, compiler->scanner);
     
-    gc_protect(compiler.gc);
+    gc_unprotect(compiler->gc);
 
-    yylex_destroy(compiler.scanner);
+    yylex_destroy(compiler->scanner);
+}
+
+/* Convert an instruction stream into assembly */
+void compiler_code_gen(compiler_type *comp_void, buffer_type * buf,
+  bool bootstrap) {
+    compiler_core_type *compiler = (compiler_core_type *)comp_void;
 
     /* Add appropriate bootstraping code */
-    emit_bootstrap(&compiler, buf);
-
-    /* Convert the output buffer back to a string. */
-    length = buffer_size(buf);
-    gc_alloc(gc, 0, length, (void **)asm_ref);
-    length = buffer_read(buf, (uint8_t *)*asm_ref, length);
-    
-    gc_unregister_root(gc, (void **)&compiler.stream);
-    gc_unregister_root(gc, (void **)&buf);
-
-    return length;
+    if (bootstrap) {
+      emit_bootstrap(compiler, buf);
+    }
 }
 

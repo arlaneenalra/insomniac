@@ -3,6 +3,7 @@
 
 #include <gc.h>
 #include <buffer.h>
+#include <bootstrap.h>
 #include <ops.h>
 #include <stdio.h>
 

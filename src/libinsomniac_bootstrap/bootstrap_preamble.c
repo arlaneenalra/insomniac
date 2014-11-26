@@ -36,7 +36,7 @@ void emit_bootstrap(compiler_core_type *compiler, buffer_type *out_buf) {
 
   /* replace the compiler buffer with the new one */
   /* out_buf = buf; */
-  buffer_reset(out_buf);
+  /* buffer_reset(out_buf); */
 
   buffer_append(out_buf, buf, -1);
 

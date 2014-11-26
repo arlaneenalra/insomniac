@@ -254,7 +254,6 @@ int parse_internal(compiler_core_type *compiler, void *scanner) {
     
     ret_val = yyparse(compiler, scanner);
 
-
     return ret_val;
 }
 

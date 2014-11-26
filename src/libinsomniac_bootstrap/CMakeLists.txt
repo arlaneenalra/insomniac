@@ -22,6 +22,7 @@ add_library(insomniac_bootstrap
   bootstrap_preamble.c
   bootstrap_emit.c
   bootstrap_emit_formatting.c
+  bootstrap_stream.c
   ${BISON_PARSER_OUTPUTS} 
   ${FLEX_LEXER_OUTPUTS})
 

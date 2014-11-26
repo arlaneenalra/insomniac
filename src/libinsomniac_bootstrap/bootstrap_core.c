@@ -24,7 +24,7 @@ void gen_label(compiler_core_type *compiler, buffer_type **buf) {
 /* Setup gc types */
 
 /* Instruction Stream type setup */
-gc_type_def create_stream_type(gc_type *gc) {
+gc_type_def register_stream_type(gc_type *gc) {
   gc_type_def type = 0;
 
   type = gc_register_type(gc, sizeof(ins_stream_type));
@@ -35,11 +35,13 @@ gc_type_def create_stream_type(gc_type *gc) {
 }
 
 /* setup an instruction node */
-gc_type_def create_node_type(gc_type *gc) {
+gc_type_def register_node_literal_type(gc_type *gc) {
   gc_type_def type = 0;
 
   type = gc_register_type(gc, sizeof(ins_node_type));
   gc_register_pointer(gc, type, offsetof(ins_node_type, next));
+  gc_register_pointer(gc, type, offsetof(ins_node_type, value) +
+    offsetof(node_value_type, literal));
 
   /* Add other fields here */
 
@@ -47,7 +49,7 @@ gc_type_def create_node_type(gc_type *gc) {
 }
 
 /* Instruction Stream type setup */
-gc_type_def create_compiler_type(gc_type *gc) {
+gc_type_def register_compiler_type(gc_type *gc) {
   gc_type_def type = 0;
 
   type = gc_register_type(gc, sizeof(compiler_core_type));
@@ -99,14 +101,14 @@ void setup_include(compiler_core_type* compiler,
 void compiler_create(gc_type *gc, compiler_type **comp_void) {
     compiler_core_type *compiler = 0;
     static gc_type_def stream_gc_type = 0;
-    static gc_type_def node_gc_type = 0;
+    static gc_type_def node_literal_gc_type = 0;
     static gc_type_def compiler_gc_type = 0;
 
     // setup gc types
     if (!compiler_gc_type) {
-      compiler_gc_type = create_compiler_type(gc);
-      stream_gc_type = create_stream_type(gc);
-      node_gc_type = create_node_type(gc);
+      compiler_gc_type = register_compiler_type(gc);
+      stream_gc_type = register_stream_type(gc);
+      node_literal_gc_type = register_node_literal_type(gc);
     }
 
     gc_register_root(gc, (void **)&compiler);
@@ -121,7 +123,8 @@ void compiler_create(gc_type *gc, compiler_type **comp_void) {
 
     /* setup gc types */
     compiler->stream_gc_type = stream_gc_type;
-    compiler->node_gc_type = node_gc_type;
+
+    compiler->node_types[STREAM_LITERAL] = node_literal_gc_type;
 
     *comp_void = compiler;
 
@@ -152,8 +155,11 @@ void compiler_code_gen(compiler_type *comp_void, buffer_type * buf,
   bool bootstrap) {
     compiler_core_type *compiler = (compiler_core_type *)comp_void;
 
+    // TODO: Actually walk the instrcution stream! 
+
     /* Add appropriate bootstraping code */
     if (bootstrap) {
+      /* TODO: Split bootstrap up into pre and post amble functions */
       emit_bootstrap(compiler, buf);
     }
 }

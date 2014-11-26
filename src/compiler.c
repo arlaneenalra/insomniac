@@ -27,6 +27,7 @@ void usage(options_type *opts) {
     exit(-1);
 }
 
+/* A very crude cli options parser */
 void parse_options (int argc, char **argv, options_type *opts) {
     int i = 1;
     char *arg = 0;
@@ -37,7 +38,6 @@ void parse_options (int argc, char **argv, options_type *opts) {
     if (argc < 2 || argc > 3) {
        usage(opts);
     }
-
 
     while (i < argc) {
         arg = argv[i];

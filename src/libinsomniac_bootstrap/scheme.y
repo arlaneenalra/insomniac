@@ -55,7 +55,7 @@
 %%
 
 top_level:
-  begin_body  { }
+  begin_body  { compiler->stream = $$; }
   END_OF_FILE { YYACCEPT; }
 
 self_evaluating:
@@ -108,8 +108,8 @@ quoted:
 
     
 boolean:
-    TRUE_OBJ                      {  }
-  | FALSE_OBJ                     {  }
+    TRUE_OBJ                      { STREAM_NEW($$, boolean, 1); }
+  | FALSE_OBJ                     { STREAM_NEW($$, boolean, 0); }
 
 number:
     FIXED_NUMBER                  {  }

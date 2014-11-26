@@ -6,23 +6,30 @@
 #include <ops.h>
 #include <stdio.h>
 
-/* Denotes the AST NODE types */
-typedef enum ast_entry {
-  AST_EXPRESSION
-} ast_entry_type;
 
-/* Top Level Ast Entry */
-typedef struct ast_expression ast_expression_type;
+/* An individual instructions */
+typedef struct ins_node ins_node_type;
 
-struct ast_expression {
-  ast_entry_type type;
+struct ins_node {
+  ins_node_type *next;
+};
 
+/* A stream of instructions */
+typedef struct ins_stream ins_stream_type;
+
+struct ins_stream {
+  ins_node_type *head;
+  ins_node_type *tail;
 };
 
 typedef struct compiler_core compiler_core_type;
 
 struct compiler_core {
     gc_type *gc;
+
+    /* internal types */
+    gc_type_def stream_gc_type;
+    gc_type_def node_gc_type;
 
     /* path to preamble and postamble code */
     char *preamble;
@@ -32,8 +39,8 @@ struct compiler_core {
 
     uint64_t label_index;
 
-    /* The current ast tree */
-    ast_expression_type *tree;
+    /* The current instruction stream */
+    ins_stream_type *stream;
 };
 
 void emit_bootstrap(compiler_core_type *compiler, buffer_type *buf);

@@ -21,6 +21,34 @@ void gen_label(compiler_core_type *compiler, buffer_type **buf) {
     compiler->label_index++;
 }
 
+/* Setup gc types */
+
+/* Instruction Stream type setup */
+gc_type_def create_stream_type(gc_type *gc) {
+  gc_type_def type = 0;
+
+  type = gc_register_type(gc, sizeof(ins_stream_type));
+  
+  /* we only need to register the head */
+  gc_register_pointer(gc, type, offsetof(ins_stream_type, head));
+
+  return type;
+}
+
+/* setup an instruction node */
+gc_type_def create_node_type(gc_type *gc) {
+  gc_type_def type = 0;
+
+  type = gc_register_type(gc, sizeof(ins_node_type));
+  
+  gc_register_pointer(gc, type, offsetof(ins_node_type, next));
+
+  /* Add other fields here */
+
+  return type;
+}
+
+
 /* Setup Include */
 /* Pushes a new file into the lexer's input stream while preserving
  * the existing stream. */
@@ -68,13 +96,25 @@ size_t compile_string(gc_type *gc, char *str, char **asm_ref) {
     compiler_core_type compiler;
     buffer_type *buf = 0;
 
+    static gc_type_def stream_gc_type = 0;
+    static gc_type_def node_gc_type = 0;
+
     gc_register_root(gc, (void **)&buf);
-    gc_register_root(gc, (void **)&compiler.tree);
+    gc_register_root(gc, (void **)&compiler.stream);
+
+    // setup gc types
+    if (!stream_gc_type) {
+      stream_gc_type = create_stream_type(gc);
+      node_gc_type = create_node_type(gc);
+    }
 
     compiler.gc = gc;
     compiler.label_index = 0;
     compiler.preamble = "lib/preamble.asm";
     compiler.postamble = "lib/postamble.asm";
+
+    compiler.stream_gc_type = stream_gc_type;
+    compiler.node_gc_type = node_gc_type;
 
     buffer_create(gc, &buf);
 
@@ -98,9 +138,8 @@ size_t compile_string(gc_type *gc, char *str, char **asm_ref) {
     length = buffer_size(buf);
     gc_alloc(gc, 0, length, (void **)asm_ref);
     length = buffer_read(buf, (uint8_t *)*asm_ref, length);
-    printf(";; Size: %i \n\n", length);
     
-    gc_unregister_root(gc, (void **)&compiler.tree);
+    gc_unregister_root(gc, (void **)&compiler.stream);
     gc_unregister_root(gc, (void **)&buf);
 
     return length;

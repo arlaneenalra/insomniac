@@ -14,7 +14,7 @@
 %lex-param {void *scanner} 
 
 //%define api.value.type { buffer_type * }
-%define api.value.type { ast_expression_type * }
+%define api.value.type { ins_stream_type * }
 
 %token OPEN_PAREN
 %token START_VECTOR
@@ -68,6 +68,7 @@ self_evaluating:
    We have to list all of the special case symbols here too
    or the compiler won't know how to handle them when it sees
    them out of context. */
+
 symbol:
     AST_SYMBOL                    {  }
 

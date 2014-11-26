@@ -22,7 +22,7 @@ void emit_bootstrap(compiler_core_type *compiler, buffer_type *out_buf) {
   }
 
   /* append the compiled compiled code to the temp buffer */
-  buffer_append(buf, out_buf, buffer_size(out_buf));
+  buffer_append(buf, out_buf, -1);
 
   /* load the post amble */
   if (compiler->postamble) {
@@ -35,7 +35,10 @@ void emit_bootstrap(compiler_core_type *compiler, buffer_type *out_buf) {
   }
 
   /* replace the compiler buffer with the new one */
-  out_buf = buf;
+  /* out_buf = buf; */
+  buffer_reset(out_buf);
+
+  buffer_append(out_buf, buf, -1);
 
   gc_unregister_root(gc, (void **)&buf);
 }

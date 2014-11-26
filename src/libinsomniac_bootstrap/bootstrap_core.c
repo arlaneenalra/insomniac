@@ -98,6 +98,7 @@ size_t compile_string(gc_type *gc, char *str, char **asm_ref) {
     length = buffer_size(buf);
     gc_alloc(gc, 0, length, (void **)asm_ref);
     length = buffer_read(buf, (uint8_t *)*asm_ref, length);
+    printf(";; Size: %i \n\n", length);
     
     gc_unregister_root(gc, (void **)&compiler.tree);
     gc_unregister_root(gc, (void **)&buf);

@@ -15,11 +15,10 @@ typedef struct compiler_core compiler_core_type;
 typedef enum node {
     STREAM_LITERAL,
     STREAM_SYMBOL,
+    STREAM_OP,
     
     STREAM_QUOTED,
-
     STREAM_LOAD,
-
     STREAM_ASM,
 
     NODE_MAX
@@ -103,11 +102,15 @@ void stream_create(compiler_core_type *compiler, ins_stream_type **stream);
 void stream_concat(ins_stream_type *stream, ins_stream_type *source);
 void stream_append(ins_stream_type *stream, ins_node_type *node);
 
+/* Nodes that hold a stream of instructions */
 void stream_load(compiler_core_type *compiler,
+  ins_stream_type *stream, ins_stream_type *body);
+void stream_asm(compiler_core_type *compiler,
   ins_stream_type *stream, ins_stream_type *body);
 void stream_quoted(compiler_core_type *compiler,
   ins_stream_type *stream, ins_stream_type *body);
 
+/* Special Literals */
 void stream_boolean(compiler_core_type *compiler,
   ins_stream_type *stream, int b);
 void stream_char(compiler_core_type *compiler,
@@ -125,8 +128,8 @@ void stream_bare(compiler_core_type *compiler,
 #define stream_literal(comp, stream, num)  \
   stream_bare(comp, stream, STREAM_LITERAL, num)
 
-#define stream_asm(comp, stream, num)  \
-  stream_bare(comp, stream, STREAM_ASM, num)
+#define stream_op(comp, stream, num)  \
+  stream_bare(comp, stream, STREAM_OP, num)
 
 /* Scheme parser */
 int parse_internal(compiler_core_type *compiler, void *scanner);

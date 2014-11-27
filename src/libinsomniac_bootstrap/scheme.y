@@ -133,7 +133,7 @@ string:
   
 /* Some basic math procedures */
 procedure_call:
-    OPEN_PAREN primitive_procedures  {  }
+    OPEN_PAREN primitive_procedures  { $$ = $2; }
 
 primitive_procedures:
     math_calls
@@ -148,17 +148,20 @@ primitive_procedures:
   | asm
 
 asm:
-    PRIM_ASM asm_end CLOSE_PAREN    {  }
+    PRIM_ASM asm_end CLOSE_PAREN    { STREAM_NEW($$, asm, $2); }
 
 asm_end:
-    raw_asm                         {  }
-  | raw_asm asm_end                 { }
+    raw_asm                         { $$ = $1; }
+  | raw_asm asm_end                 {
+                                      $$ = $1;
+                                      stream_concat($$, $2);
+                                    }
 
 raw_asm:
-    asm_types                  { }
+    asm_types                  { STREAM_NEW($$, op, yyget_text(scanner)); }
   | self_evaluating
-  | OPEN_PAREN CLOSE_PAREN     { }
-  | OPEN_PAREN expression CLOSE_PAREN { }
+  | OPEN_PAREN CLOSE_PAREN     { STREAM_NEW($$, literal, "()"); }
+  | OPEN_PAREN expression CLOSE_PAREN { $$ = $2; }
 
 asm_types:
     AST_SYMBOL
@@ -207,7 +210,7 @@ begin_body:
     expression              
   | expression begin_body  {
                              $$ = $1;
-                             STREAM($$, asm, "drop"); 
+                             STREAM($$, op, "drop"); 
                              stream_concat($$, $2);
                            }
 

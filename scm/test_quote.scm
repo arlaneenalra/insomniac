@@ -4,3 +4,4 @@
 '()
 read-me
 #t
+(asm out #\newline out)

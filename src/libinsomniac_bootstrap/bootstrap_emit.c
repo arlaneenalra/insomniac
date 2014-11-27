@@ -196,7 +196,7 @@ void emit_stream(buffer_type *buf, ins_stream_type *tree) {
     switch (head->type) {
       case STREAM_LITERAL:
       case STREAM_SYMBOL:
-      case STREAM_ASM: /* ASM should be on it's own */
+      case STREAM_OP: /* ASM should be on it's own */
         emit_literal(buf, head);
         break;
 
@@ -204,6 +204,12 @@ void emit_stream(buffer_type *buf, ins_stream_type *tree) {
         emit_comment(buf, "--Quoted Start--");
         emit_quoted(buf, head->value.stream);
         emit_comment(buf, "--Quoted End--");
+        break;
+
+      case STREAM_ASM:
+        emit_comment(buf, "--Raw ASM Start--");
+        emit_quoted(buf, head->value.stream);
+        emit_comment(buf, "--Raw ASM End--");
         break;
 
       case STREAM_LOAD:

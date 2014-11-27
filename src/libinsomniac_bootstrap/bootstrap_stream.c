@@ -101,6 +101,9 @@ BUILD_SINGLE_STREAM(quoted, STREAM_QUOTED)
 /* Load from symbol node */
 BUILD_SINGLE_STREAM(load, STREAM_LOAD)
 
+/* Raw assembly code */
+BUILD_SINGLE_STREAM(asm, STREAM_ASM)
+
 /* Build a boolean literal */
 void stream_boolean(compiler_core_type *compiler,
   ins_stream_type *stream, int b) {

@@ -49,7 +49,7 @@ gc_type_def register_node_literal_type(gc_type *gc) {
 }
 
 /* setup an quoted/list node */
-gc_type_def register_node_quoted_type(gc_type *gc) {
+gc_type_def register_node_single_type(gc_type *gc) {
   gc_type_def type = 0;
 
   type = gc_register_type(gc, sizeof(ins_node_type));
@@ -114,7 +114,7 @@ void compiler_create(gc_type *gc, compiler_type **comp_void) {
     compiler_core_type *compiler = 0;
     static gc_type_def stream_gc_type = 0;
     static gc_type_def node_literal_gc_type = 0;
-    static gc_type_def node_quoted_gc_type = 0;
+    static gc_type_def node_single_gc_type = 0;
     static gc_type_def compiler_gc_type = 0;
 
     // setup gc types
@@ -122,7 +122,7 @@ void compiler_create(gc_type *gc, compiler_type **comp_void) {
       compiler_gc_type = register_compiler_type(gc);
       stream_gc_type = register_stream_type(gc);
       node_literal_gc_type = register_node_literal_type(gc);
-      node_quoted_gc_type = register_node_quoted_type(gc);
+      node_single_gc_type = register_node_single_type(gc);
     }
 
     gc_register_root(gc, (void **)&compiler);
@@ -140,7 +140,10 @@ void compiler_create(gc_type *gc, compiler_type **comp_void) {
 
     compiler->node_types[STREAM_LITERAL] = node_literal_gc_type;
     compiler->node_types[STREAM_SYMBOL] = node_literal_gc_type;
-    compiler->node_types[STREAM_QUOTED] = node_quoted_gc_type;
+
+    compiler->node_types[STREAM_QUOTED] = node_single_gc_type;
+    compiler->node_types[STREAM_LOAD] = node_single_gc_type;
+    compiler->node_types[STREAM_ASM] = node_single_gc_type;
 
     *comp_void = compiler;
 

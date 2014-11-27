@@ -91,7 +91,7 @@ datum:
    
 list_end:
     list_next CLOSE_PAREN              {
-                                         STREAM_NEW($$, bare, "()");
+                                         STREAM_NEW($$, literal, "()");
                                          stream_concat($$, $1);
                                        }
  
@@ -99,7 +99,7 @@ list_end:
                                          $$ = $3;
                                          stream_concat($$, $1);
                                        }
-  | CLOSE_PAREN                        { STREAM_NEW($$, bare, "()"); }
+  | CLOSE_PAREN                        { STREAM_NEW($$, literal, "()"); }
 
 list:
     OPEN_PAREN list_end                { $$ = $2; }
@@ -121,8 +121,8 @@ boolean:
   | FALSE_OBJ                     { STREAM_NEW($$, boolean, 0); }
 
 number:                           
-    FIXED_NUMBER                  { STREAM_NEW($$, fixnum, yyget_text(scanner)); }
-  | FLOAT_NUMBER                  { STREAM_NEW($$, fixnum, yyget_text(scanner)); } 
+    FIXED_NUMBER                { STREAM_NEW($$, literal, yyget_text(scanner)); }
+  | FLOAT_NUMBER                { STREAM_NEW($$, literal, yyget_text(scanner)); } 
 
 string_body:
     STRING_CONSTANT               { STREAM_NEW($$, string, yyget_text(scanner)); }
@@ -205,7 +205,11 @@ begin:
 
 begin_body:
     expression              
-  | expression begin_body  { $$ = $1; stream_concat($1, $2); } 
+  | expression begin_body  {
+                             $$ = $1;
+                             STREAM($$, asm, "drop"); 
+                             stream_concat($$, $2);
+                           }
 
 begin_end:
     CLOSE_PAREN

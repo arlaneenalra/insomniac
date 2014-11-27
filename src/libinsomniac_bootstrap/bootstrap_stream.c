@@ -70,6 +70,31 @@ void stream_create(compiler_core_type *compiler, ins_stream_type **stream) {
     gc_alloc_type(compiler->gc, 0, compiler->stream_gc_type, (void **)stream);
 }
 
+/* Build a bare asm instruction/literal */
+void stream_bare(compiler_core_type *compiler, ins_stream_type *stream,
+  node_type type, char *lit) {
+
+    ins_node_type *ins_node = 0;
+    size_t length = 0;
+
+    gc_register_root(compiler->gc, (void **)&ins_node);
+
+    stream_alloc_node(compiler, type, &ins_node);
+
+    /* generate the literal string */
+    length = strlen(lit) + 1;
+    gc_alloc(compiler->gc, 0, length,
+      (void **) &(ins_node->value.literal));
+
+    strncpy(ins_node->value.literal, lit, length);
+
+    /* add the boolean to our instruction stream */
+    stream_append(stream, ins_node);
+    
+    gc_unregister_root(compiler->gc, (void **)&ins_node);
+}
+
+
 /* Quoted list node */
 BUILD_SINGLE_STREAM(quoted, STREAM_QUOTED)
 
@@ -95,30 +120,6 @@ void stream_boolean(compiler_core_type *compiler,
     /* generate the literal string */
     gc_alloc(compiler->gc, 0, 4, (void **) &(ins_node->value.literal));
     snprintf(ins_node->value.literal, 4, "#%c", c);
-
-    /* add the boolean to our instruction stream */
-    stream_append(stream, ins_node);
-    
-    gc_unregister_root(compiler->gc, (void **)&ins_node);
-}
-
-/* Build a Bare literals */
-void stream_bare(compiler_core_type *compiler,
-  ins_stream_type *stream, char *lit) {
-
-    ins_node_type *ins_node = 0;
-    size_t length = 0;
-
-    gc_register_root(compiler->gc, (void **)&ins_node);
-
-    stream_alloc_node(compiler, STREAM_LITERAL, &ins_node);
-
-    /* generate the literal string */
-    length = strlen(lit) + 1;
-    gc_alloc(compiler->gc, 0, length,
-      (void **) &(ins_node->value.literal));
-
-    strncpy(ins_node->value.literal, lit, length);
 
     /* add the boolean to our instruction stream */
     stream_append(stream, ins_node);

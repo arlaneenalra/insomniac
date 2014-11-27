@@ -20,6 +20,8 @@ typedef enum node {
 
     STREAM_LOAD,
 
+    STREAM_ASM,
+
     NODE_MAX
 } node_type;
 
@@ -101,9 +103,6 @@ void stream_create(compiler_core_type *compiler, ins_stream_type **stream);
 void stream_concat(ins_stream_type *stream, ins_stream_type *source);
 void stream_append(ins_stream_type *stream, ins_node_type *node);
 
-void stream_bare(compiler_core_type *compiler,
-  ins_stream_type *stream, char *num);
-
 void stream_load(compiler_core_type *compiler,
   ins_stream_type *stream, ins_stream_type *body);
 void stream_quoted(compiler_core_type *compiler,
@@ -120,8 +119,14 @@ void stream_symbol(compiler_core_type *compiler,
   ins_stream_type *stream, char *str);
 
 /* These are identical to bare */
-#define stream_fixnum stream_bare
+void stream_bare(compiler_core_type *compiler,
+  ins_stream_type *stream, node_type type, char *str);
 
+#define stream_literal(comp, stream, num)  \
+  stream_bare(comp, stream, STREAM_LITERAL, num)
+
+#define stream_asm(comp, stream, num)  \
+  stream_bare(comp, stream, STREAM_ASM, num)
 
 /* Scheme parser */
 int parse_internal(compiler_core_type *compiler, void *scanner);

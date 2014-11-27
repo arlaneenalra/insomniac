@@ -196,6 +196,7 @@ void emit_stream(buffer_type *buf, ins_stream_type *tree) {
     switch (head->type) {
       case STREAM_LITERAL:
       case STREAM_SYMBOL:
+      case STREAM_ASM: /* ASM should be on it's own */
         emit_literal(buf, head);
         break;
 

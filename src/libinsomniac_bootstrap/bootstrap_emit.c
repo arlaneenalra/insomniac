@@ -41,16 +41,6 @@ void emit_char(buffer_type *buf, char *c) {
     emit_newline(buf);
 }
 
-
-/* Emit a fixnum string */
-void emit_fixnum(buffer_type *buf, char *num) {
-    int length = strlen(num);
-
-    emit_indent(buf);
-    buffer_write(buf, (uint8_t *)num, length);
-    emit_newline(buf);
-}
-
 /* Emit a string */
 /* This uses a buffer as there are strings we need without decoration i.e
    for includes ... */

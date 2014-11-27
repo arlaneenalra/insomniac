@@ -112,7 +112,7 @@ boolean:
   | FALSE_OBJ                     { STREAM_NEW($$, boolean, 0); }
 
 number:
-    FIXED_NUMBER                  {  }
+    FIXED_NUMBER                  { STREAM_NEW($$, fixnum, yyget_text(scanner)); }
   | FLOAT_NUMBER
 
 string_body:

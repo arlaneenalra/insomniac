@@ -1,5 +1,6 @@
 #include "bootstrap_internal.h"
 
+#include <string.h>
 #include <assert.h>
 
 /* Allocate a new instruction node */
@@ -70,6 +71,30 @@ void stream_boolean(compiler_core_type *compiler,
     /* generate the literal string */
     gc_alloc(compiler->gc, 0, 4, (void **) &(ins_node->value.literal));
     snprintf(ins_node->value.literal, 4, "#%c", c);
+
+    /* add the boolean to our instruction stream */
+    stream_append(stream, ins_node);
+    
+    gc_unregister_root(compiler->gc, (void **)&ins_node);
+}
+
+/* Build a fixnum literal */
+void stream_fixnum(compiler_core_type *compiler,
+  ins_stream_type *stream, char *num) {
+
+    ins_node_type *ins_node = 0;
+    size_t length = 0;
+
+    gc_register_root(compiler->gc, (void **)&ins_node);
+
+    stream_alloc_node(compiler, STREAM_LITERAL, &ins_node);
+
+    /* generate the literal string */
+    length = strlen(num) + 1;
+    gc_alloc(compiler->gc, 0, length,
+      (void **) &(ins_node->value.literal));
+
+    strncpy(ins_node->value.literal, num, length);
 
     /* add the boolean to our instruction stream */
     stream_append(stream, ins_node);

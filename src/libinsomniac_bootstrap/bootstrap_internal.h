@@ -97,7 +97,11 @@ void stream_create(compiler_core_type *compiler, ins_stream_type **stream);
 void stream_concat(ins_stream_type *stream, ins_stream_type *source);
 void stream_append(ins_stream_type *stream, ins_node_type *node);
 
-void stream_boolean(compiler_core_type *compiler, ins_stream_type *stream, int b);
+void stream_boolean(compiler_core_type *compiler,
+  ins_stream_type *stream, int b);
+void stream_fixnum(compiler_core_type *compiler,
+  ins_stream_type *stream, char *num);
+
 
 /* Scheme parser */
 int parse_internal(compiler_core_type *compiler, void *scanner);

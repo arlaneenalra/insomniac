@@ -2,6 +2,5 @@
 'sasd
 '(a 1 . 2)
 '()
-read-me
 #t
 (asm out #\newline out)

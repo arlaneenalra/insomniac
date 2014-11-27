@@ -1,6 +1,8 @@
 #f
 #f
 #t
+#\newline
+#\c
 "abcdefg"
 s"asdbasdf"
 #f

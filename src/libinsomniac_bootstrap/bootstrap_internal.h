@@ -7,20 +7,26 @@
 #include <ops.h>
 #include <stdio.h>
 
+typedef struct ins_stream ins_stream_type;
+typedef struct ins_node ins_node_type;
+typedef struct compiler_core compiler_core_type;
+
 /* The different kinds of instruction nodes */
 typedef enum node {
     STREAM_LITERAL,
     STREAM_SYMBOL,
+    
+    STREAM_QUOTED,
 
     NODE_MAX
 } node_type;
 
 typedef union {
     char *literal;
+    ins_stream_type *stream;
 } node_value_type;
 
 /* An individual instructions */
-typedef struct ins_node ins_node_type;
 
 struct ins_node {
     node_type type;
@@ -34,14 +40,12 @@ struct ins_node {
 };
 
 /* A stream of instructions */
-typedef struct ins_stream ins_stream_type;
 
 struct ins_stream {
     ins_node_type *head;
     ins_node_type *tail;
 };
 
-typedef struct compiler_core compiler_core_type;
 
 struct compiler_core {
     gc_type *gc;
@@ -68,6 +72,7 @@ void emit_bootstrap(compiler_core_type *compiler, buffer_type *buf);
 
 void emit_stream(buffer_type *buf, ins_stream_type *tree);
 void emit_literal(buffer_type *buf, ins_node_type *ins);
+void emit_quoted(buffer_type *buf, ins_stream_type *tree);
 
 void emit_newline(buffer_type *buf);
 void emit_indent(buffer_type *buf);
@@ -75,11 +80,7 @@ void emit_comment(buffer_type *buf, char *str);
 
 void emit_op(buffer_type *buf, char *str);
 void emit_jump_label(buffer_type *buf, op_type type, buffer_type *label);
-void emit_char(buffer_type *buf, char *str);
-void emit_fixnum(buffer_type *buf, char *str);
-void emit_string(buffer_type *buf, buffer_type *str);
-void emit_symbol(buffer_type *buf, char *str);
-void emit_boolean(buffer_type *buf, int b);
+
 
 void emit_if(compiler_core_type *compiler, buffer_type *test_buffer,
   buffer_type *true_buffer, buffer_type *false_buffer);
@@ -98,15 +99,24 @@ void stream_create(compiler_core_type *compiler, ins_stream_type **stream);
 void stream_concat(ins_stream_type *stream, ins_stream_type *source);
 void stream_append(ins_stream_type *stream, ins_node_type *node);
 
+void stream_bare(compiler_core_type *compiler,
+  ins_stream_type *stream, char *num);
+
+void stream_quoted(compiler_core_type *compiler,
+  ins_stream_type *stream, ins_stream_type *body);
+
 void stream_boolean(compiler_core_type *compiler,
   ins_stream_type *stream, int b);
-void stream_fixnum(compiler_core_type *compiler,
-  ins_stream_type *stream, char *num);
+void stream_char(compiler_core_type *compiler,
+  ins_stream_type *stream, char *str);
+
 void stream_string(compiler_core_type *compiler,
   ins_stream_type *stream, char *str);
 void stream_symbol(compiler_core_type *compiler,
   ins_stream_type *stream, char *str);
 
+/* These are identical to bare */
+#define stream_fixnum stream_bare
 
 
 /* Scheme parser */

@@ -14,56 +14,6 @@ void emit_op(buffer_type *buf, char *str) {
     emit_newline(buf);
 }
 
-/* Emit a boolean into our code stream */
-void emit_boolean(buffer_type *buf, int b) {
-    char c = 't';
-    char str_buf[4];
-    size_t length = 0;
-
-    /* if b is false, c should be f */
-    if(!b) {
-        c = 'f';
-    }
-
-    length = snprintf(str_buf, 4, "#%c", c);
-    emit_indent(buf);
-    buffer_write(buf, (uint8_t *)str_buf, length);
-    emit_newline(buf);
-}
-
-/* Emit a character constanct */
-void emit_char(buffer_type *buf, char *c) {
-    char *prefix = " #\\";
-
-    emit_indent(buf);
-    buffer_write(buf, (uint8_t *)prefix, 3);
-    buffer_write(buf, (uint8_t *)c, strlen(c));
-    emit_newline(buf);
-}
-
-/* Emit a string */
-/* This uses a buffer as there are strings we need without decoration i.e
-   for includes ... */
-void emit_string(buffer_type *buf, buffer_type *str) {
-
-    emit_indent(buf);
-    buffer_write(buf, (uint8_t *)"\"", 1);
-    buffer_append(buf, str, -1);
-    buffer_write(buf, (uint8_t *)"\"", 1);
-    emit_newline(buf);
-}
-
-/* Emit a Symbol */
-void emit_symbol(buffer_type *buf, char *sym) {
-    int length = strlen(sym);
-
-    emit_indent(buf);
-    buffer_write(buf, (uint8_t *)"s\"", 2);
-    buffer_write(buf, (uint8_t *)sym, length);
-    buffer_write(buf, (uint8_t *)"\"", 1);
-    emit_newline(buf);
-}
-
 /* Emit a jmp/call/proc/jnf instruction */
 void emit_jump_label(buffer_type *buf, op_type type, buffer_type *label) {
     char *c = 0;
@@ -213,6 +163,26 @@ void emit_literal(buffer_type *buf, ins_node_type *ins) {
   emit_op(buf, ins->value.literal);
 }
 
+/* Emit a quoted structure */
+void emit_quoted(buffer_type *buf, ins_stream_type *tree) {
+  ins_node_type *head = tree->head;
+  bool is_list = false;
+
+  /* Loop through all the nodes in the quoted object */
+  while (head) {
+    emit_literal(buf, head);
+
+    if (is_list) {
+      emit_op(buf, "cons");
+    }
+
+    head = head->next;
+    
+    /* If we get to a second iteration, then we have a quoted list */
+    is_list = true;
+  }
+}
+
 /* Walk an instruction stream and write it to the buffer in 'pretty' form */
 void emit_stream(buffer_type *buf, ins_stream_type *tree) {
   ins_node_type *head = 0;
@@ -227,6 +197,12 @@ void emit_stream(buffer_type *buf, ins_stream_type *tree) {
       case STREAM_LITERAL:
       case STREAM_SYMBOL:
         emit_literal(buf, head);
+        break;
+
+      case STREAM_QUOTED:
+        emit_comment(buf, "--Quoted Start--");
+        emit_quoted(buf, head->value.stream);
+        emit_comment(buf, "--Quoted End--");
         break;
 
       default:

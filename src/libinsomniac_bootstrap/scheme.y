@@ -60,7 +60,7 @@ top_level:
 
 self_evaluating:
     boolean
-  | CHAR_CONSTANT                 {  }
+  | CHAR_CONSTANT                 { STREAM_NEW($$, char, yyget_text(scanner)); }
   | string 
   | number
 
@@ -70,12 +70,12 @@ self_evaluating:
    them out of context. */
 
 symbol:
-    AST_SYMBOL                   { STREAM_NEW($$, symbol, yyget_text(scanner)); } 
+    AST_SYMBOL                   
 
 
   
 literal:
-    quoted
+    quoted                        { STREAM_NEW($$, quoted, $1); } 
   | self_evaluating 
 
 expression:
@@ -85,35 +85,44 @@ expression:
 
 datum:
       literal
-    | symbol                           
+    | symbol                      { STREAM_NEW($$, symbol, yyget_text(scanner)); }         
     | list
 //    | procedure_call
    
 list_end:
-    list_next CLOSE_PAREN              { }
+    list_next CLOSE_PAREN              {
+                                         STREAM_NEW($$, bare, "()");
+                                         stream_concat($$, $1);
+                                       }
  
-  | list_next DOT datum CLOSE_PAREN    { }
-  | CLOSE_PAREN                        { }
+  | list_next DOT datum CLOSE_PAREN    {
+                                         $$ = $3;
+                                         stream_concat($$, $1);
+                                       }
+  | CLOSE_PAREN                        { STREAM_NEW($$, bare, "()"); }
 
 list:
-    OPEN_PAREN list_end                { }
+    OPEN_PAREN list_end                { $$ = $2; }
 
 list_next:
-    datum                              { } 
-  | datum list_next                    { }
+    datum                                 
+  | datum list_next                    {
+                                         $$ = $2;
+                                         stream_concat($$, $1);
+                                       }
 
 quoted:
-    QUOTE datum                             {  }
-  | OPEN_PAREN PRIM_QUOTE datum CLOSE_PAREN {  }
+    QUOTE datum                             { $$ = $2; }
+  | OPEN_PAREN PRIM_QUOTE datum CLOSE_PAREN { $$ = $3; }
 
     
 boolean:
     TRUE_OBJ                      { STREAM_NEW($$, boolean, 1); }
   | FALSE_OBJ                     { STREAM_NEW($$, boolean, 0); }
 
-number:
+number:                           
     FIXED_NUMBER                  { STREAM_NEW($$, fixnum, yyget_text(scanner)); }
-  | FLOAT_NUMBER
+  | FLOAT_NUMBER                  { STREAM_NEW($$, fixnum, yyget_text(scanner)); } 
 
 string_body:
     STRING_CONSTANT               { STREAM_NEW($$, string, yyget_text(scanner)); }

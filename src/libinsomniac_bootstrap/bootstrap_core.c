@@ -125,6 +125,7 @@ void compiler_create(gc_type *gc, compiler_type **comp_void) {
     compiler->stream_gc_type = stream_gc_type;
 
     compiler->node_types[STREAM_LITERAL] = node_literal_gc_type;
+    compiler->node_types[STREAM_SYMBOL] = node_literal_gc_type;
 
     *comp_void = compiler;
 

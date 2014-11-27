@@ -225,6 +225,7 @@ void emit_stream(buffer_type *buf, ins_stream_type *tree) {
     /* Process each instruction in the stream */
     switch (head->type) {
       case STREAM_LITERAL:
+      case STREAM_SYMBOL:
         emit_literal(buf, head);
         break;
 

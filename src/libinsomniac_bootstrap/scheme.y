@@ -70,7 +70,7 @@ self_evaluating:
    them out of context. */
 
 symbol:
-    AST_SYMBOL                    {  }
+    AST_SYMBOL                   { STREAM_NEW($$, symbol, yyget_text(scanner)); } 
 
 
   
@@ -81,7 +81,7 @@ literal:
 expression:
     literal
   | procedure_call
-  | symbol                        { } 
+  | symbol                         
 
 datum:
       literal
@@ -116,11 +116,11 @@ number:
   | FLOAT_NUMBER
 
 string_body:
-    STRING_CONSTANT              { }
+    STRING_CONSTANT               { STREAM_NEW($$, string, yyget_text(scanner)); }
 
 string:
-    DOUBLE_QUOTE string_body DOUBLE_QUOTE  { }
-  | DOUBLE_QUOTE DOUBLE_QUOTE     {  } 
+    DOUBLE_QUOTE string_body DOUBLE_QUOTE  { $$ = $2; }
+  | DOUBLE_QUOTE DOUBLE_QUOTE     { STREAM_NEW($$, string, ""); }
   
 /* Some basic math procedures */
 procedure_call:

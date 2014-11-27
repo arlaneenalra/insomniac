@@ -10,6 +10,7 @@
 /* The different kinds of instruction nodes */
 typedef enum node {
     STREAM_LITERAL,
+    STREAM_SYMBOL,
 
     NODE_MAX
 } node_type;
@@ -101,6 +102,11 @@ void stream_boolean(compiler_core_type *compiler,
   ins_stream_type *stream, int b);
 void stream_fixnum(compiler_core_type *compiler,
   ins_stream_type *stream, char *num);
+void stream_string(compiler_core_type *compiler,
+  ins_stream_type *stream, char *str);
+void stream_symbol(compiler_core_type *compiler,
+  ins_stream_type *stream, char *str);
+
 
 
 /* Scheme parser */

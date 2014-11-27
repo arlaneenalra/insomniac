@@ -26,7 +26,10 @@ struct ins_node {
 
     node_value_type value;
 
+    /* Instructions are kept in a bi-directional linked-list to support
+       back tracking in the optimizer */
     ins_node_type *next;
+    ins_node_type *prev;
 };
 
 /* A stream of instructions */
@@ -61,6 +64,10 @@ struct compiler_core {
 };
 
 void emit_bootstrap(compiler_core_type *compiler, buffer_type *buf);
+
+void emit_stream(buffer_type *buf, ins_stream_type *tree);
+void emit_literal(buffer_type *buf, ins_node_type *ins);
+
 void emit_newline(buffer_type *buf);
 void emit_indent(buffer_type *buf);
 void emit_comment(buffer_type *buf, char *str);
@@ -86,6 +93,10 @@ void setup_include(compiler_core_type* compiler,
 
 /* Instruction Stream builder routines */
 void stream_create(compiler_core_type *compiler, ins_stream_type **stream);
+
+void stream_concat(ins_stream_type *stream, ins_stream_type *source);
+void stream_append(ins_stream_type *stream, ins_node_type *node);
+
 void stream_boolean(compiler_core_type *compiler, ins_stream_type *stream, int b);
 
 /* Scheme parser */

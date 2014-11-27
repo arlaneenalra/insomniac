@@ -55,8 +55,8 @@
 %%
 
 top_level:
-  begin_body  { compiler->stream = $$; }
-  END_OF_FILE { YYACCEPT; }
+  begin_body                      { stream_concat(compiler->stream, $1); }  
+  END_OF_FILE                     { YYACCEPT; }
 
 self_evaluating:
     boolean

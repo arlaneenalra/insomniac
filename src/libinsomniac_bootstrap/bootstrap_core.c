@@ -128,6 +128,9 @@ void compiler_create(gc_type *gc, compiler_type **comp_void) {
 
     *comp_void = compiler;
 
+    /* Add a stream route to the compiler object */
+    stream_create(compiler, &(compiler->stream));
+
     gc_unregister_root(gc, (void **)&compiler);
 }
 
@@ -155,7 +158,8 @@ void compiler_code_gen(compiler_type *comp_void, buffer_type * buf,
   bool bootstrap) {
     compiler_core_type *compiler = (compiler_core_type *)comp_void;
 
-    // TODO: Actually walk the instrcution stream! 
+    /* Walk the instruction stream and output it to our buffer */
+    emit_stream(buf, compiler->stream);
 
     /* Add appropriate bootstraping code */
     if (bootstrap) {

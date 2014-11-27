@@ -218,3 +218,32 @@ void emit_lambda(compiler_core_type *compiler, buffer_type *output,
   gc_unregister_root(compiler->gc, &proc_label);
 }
 
+/* Given a literal instrcution node, output it to our buffer */
+void emit_literal(buffer_type *buf, ins_node_type *ins) {
+  emit_op(buf, ins->value.literal);
+}
+
+/* Walk an instruction stream and write it to the buffer in 'pretty' form */
+void emit_stream(buffer_type *buf, ins_stream_type *tree) {
+  ins_node_type *head = 0;
+
+  if (tree) { 
+    head = tree->head;
+  }
+
+  while (head) {
+    /* Process each instruction in the stream */
+    switch (head->type) {
+      case STREAM_LITERAL:
+        emit_literal(buf, head);
+        break;
+
+      default:
+        fprintf(stderr, "Unknown instructions type %i in stream!\n", head->type);
+        break;
+    }
+
+    head = head->next;
+  }
+}
+

@@ -18,6 +18,8 @@ typedef enum node {
     
     STREAM_QUOTED,
 
+    STREAM_LOAD,
+
     NODE_MAX
 } node_type;
 
@@ -102,6 +104,8 @@ void stream_append(ins_stream_type *stream, ins_node_type *node);
 void stream_bare(compiler_core_type *compiler,
   ins_stream_type *stream, char *num);
 
+void stream_load(compiler_core_type *compiler,
+  ins_stream_type *stream, ins_stream_type *body);
 void stream_quoted(compiler_core_type *compiler,
   ins_stream_type *stream, ins_stream_type *body);
 

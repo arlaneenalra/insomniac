@@ -3,6 +3,24 @@
 #include <string.h>
 #include <assert.h>
 
+#define BUILD_SINGLE_STREAM(name, type)                     \
+void stream_##name(compiler_core_type *compiler,            \
+  ins_stream_type *stream, ins_stream_type *body) {         \
+                                                            \
+    ins_node_type *ins_node = 0;                            \
+                                                            \
+    gc_register_root(compiler->gc, (void **)&ins_node);     \
+                                                            \
+    stream_alloc_node(compiler, type, &ins_node);           \
+                                                            \
+    ins_node->value.stream = body;                          \
+                                                            \
+    /* add the boolean to our instruction stream */         \
+    stream_append(stream, ins_node);                        \
+                                                            \
+    gc_unregister_root(compiler->gc, (void **)&ins_node);   \
+}                                                           
+
 /* Allocate a new instruction node */
 void stream_alloc_node(compiler_core_type *compiler, node_type type,
   ins_node_type **node) {
@@ -52,23 +70,11 @@ void stream_create(compiler_core_type *compiler, ins_stream_type **stream) {
     gc_alloc_type(compiler->gc, 0, compiler->stream_gc_type, (void **)stream);
 }
 
-/* Output a quoted list node */
-void stream_quoted(compiler_core_type *compiler,
-  ins_stream_type *stream, ins_stream_type *body) {
+/* Quoted list node */
+BUILD_SINGLE_STREAM(quoted, STREAM_QUOTED)
 
-    ins_node_type *ins_node = 0;
-
-    gc_register_root(compiler->gc, (void **)&ins_node);
-
-    stream_alloc_node(compiler, STREAM_QUOTED, &ins_node);
-
-    ins_node->value.stream = body;
-
-    /* add the boolean to our instruction stream */
-    stream_append(stream, ins_node);
-    
-    gc_unregister_root(compiler->gc, (void **)&ins_node);
-}
+/* Load from symbol node */
+BUILD_SINGLE_STREAM(load, STREAM_LOAD)
 
 /* Build a boolean literal */
 void stream_boolean(compiler_core_type *compiler,

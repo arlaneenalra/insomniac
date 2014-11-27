@@ -205,6 +205,12 @@ void emit_stream(buffer_type *buf, ins_stream_type *tree) {
         emit_comment(buf, "--Quoted End--");
         break;
 
+      case STREAM_LOAD:
+        /* Simple load form symbol operation */
+        emit_stream(buf, head->value.stream);
+        emit_op(buf, "@");
+        break;
+
       default:
         fprintf(stderr, "Unknown instructions type %i in stream!\n", head->type);
         break;

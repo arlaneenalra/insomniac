@@ -70,7 +70,7 @@ self_evaluating:
    them out of context. */
 
 symbol:
-    AST_SYMBOL                   
+    AST_SYMBOL                    { STREAM_NEW($$, symbol, yyget_text(scanner)); }
 
 
   
@@ -81,11 +81,11 @@ literal:
 expression:
     literal
   | procedure_call
-  | symbol                         
+  | symbol                        { STREAM_NEW($$, load, $1); } 
 
 datum:
       literal
-    | symbol                      { STREAM_NEW($$, symbol, yyget_text(scanner)); }         
+    | symbol
     | list
 //    | procedure_call
    

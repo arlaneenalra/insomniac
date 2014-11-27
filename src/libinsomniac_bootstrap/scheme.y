@@ -195,8 +195,8 @@ begin:
     PRIM_BEGIN begin_end   {  }
 
 begin_body:
-    expression             
-  | expression begin_body  { } 
+    expression              
+  | expression begin_body  { $$ = $1; stream_concat($1, $2); } 
 
 begin_end:
     CLOSE_PAREN

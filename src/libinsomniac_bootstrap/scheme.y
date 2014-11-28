@@ -224,7 +224,7 @@ user_call_end:
 
 user_call_body:
     expression                  { $$ = $1; }
-  | expression user_call_body   { $$ = $1; stream_concat($1, $2); }  
+  | expression user_call_body   { $$ = $2; stream_concat($2, $1); }  
 
 /* A basic lambda expression */
 lambda:

@@ -1,4 +1,7 @@
 (begin
+  (define display
+    (lambda (x) (asm (x) out ())))
+
   (define true 
     (lambda (x y) x))
 
@@ -37,5 +40,5 @@
 
   (display #\newline)
 
-  (tail-bomb tail-bomb)
+  ;; (tail-bomb tail-bomb)
 )

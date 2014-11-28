@@ -1,8 +1,7 @@
 (begin
-  (define add
-    (lambda (x y ) (+ x y)))
+  (define true
+    (lambda (x y) x))
 
-  (add 1 (add 3 4))
-
+  (true 1 2)
 )
 

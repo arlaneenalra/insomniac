@@ -211,8 +211,6 @@ void emit_stream(buffer_type *buf, ins_stream_type *tree) {
     head = tree->head;
   }
 
-  emit_comment(buf, "--Begin Start--");
-
   while (head) {
     /* Set to true if the node pushes to the stack */
     pushed = false;
@@ -228,7 +226,7 @@ void emit_stream(buffer_type *buf, ins_stream_type *tree) {
 
       case STREAM_QUOTED:
         emit_comment(buf, "--Quoted Start--");
-        emit_single(buf, head->value.stream);
+        emit_quoted(buf, head->value.stream);
         emit_comment(buf, "--Quoted End--");
         pushed = true;
         break;
@@ -241,23 +239,18 @@ void emit_stream(buffer_type *buf, ins_stream_type *tree) {
 
       case STREAM_LOAD:
         /* Simple load form symbol operation */
-        emit_comment(buf, "--Load Start--");
         emit_stream(buf, head->value.stream);
         emit_op(buf, "@");
-        emit_comment(buf, "--Load End--");
         pushed = true;
         break;
 
       case STREAM_BIND:
-        emit_comment(buf, "--Bind Start--");
         emit_double(buf, head, "bind");
-        emit_comment(buf, "--Bind End--");
         break;
 
       case STREAM_STORE:
-        emit_comment(buf, "--Store Start--");
         emit_double(buf, head, "!");
-        emit_comment(buf, "--Store End--");
+
         break;
 
       default:
@@ -273,7 +266,5 @@ void emit_stream(buffer_type *buf, ins_stream_type *tree) {
       emit_op(buf, "drop");
     }
   }
-  
-  emit_comment(buf, "--Begin End--");
 }
 

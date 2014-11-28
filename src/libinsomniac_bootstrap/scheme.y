@@ -36,7 +36,6 @@
 
 %token AST_SYMBOL
 
-%token PRIM_DISPLAY
 %token PRIM_BEGIN
 %token PRIM_QUOTE
 %token PRIM_LAMBDA
@@ -136,7 +135,6 @@ procedure_call:
 
 primitive_procedures:
     math_calls
-  | display
   | begin
   | define
   | if
@@ -164,7 +162,6 @@ raw_asm:
 
 asm_types:
     AST_SYMBOL
-  | PRIM_DISPLAY
   | PRIM_BEGIN
   | PRIM_QUOTE
   | PRIM_LAMBDA
@@ -174,19 +171,16 @@ asm_types:
   | PRIM_ASM
   | MATH_OPS
 
+two_args:
+    expression expression                  { STREAM_NEW($$, two_arg, $1, $2); }
+
 include:                   // TODO: comeback to this
     PRIM_INCLUDE DOUBLE_QUOTE
     string_body DOUBLE_QUOTE
     CLOSE_PAREN                { }
 
 if:
-    PRIM_IF expression if_body CLOSE_PAREN { STREAM_NEW($$, if, $2, $3); }
-
-if_body:
-    expression expression                  { STREAM_NEW($$, if, $1, $2); }
-
-display:
-    PRIM_DISPLAY expression CLOSE_PAREN { }
+    PRIM_IF expression two_args CLOSE_PAREN { STREAM_NEW($$, if, $2, $3); }
 
 define:
     define_variable
@@ -215,11 +209,10 @@ begin_end:
 
 /* Inline mathematical calls */
 math_calls:
-    math_call_op
-    expression expression CLOSE_PAREN { }
+    math_call_op two_args CLOSE_PAREN { STREAM_NEW($$, math, $1, $2); }
 
 math_call_op:
-    MATH_OPS                          { }
+    MATH_OPS                          { STREAM_NEW($$, op, yyget_text(scanner)); }
 
 /* call a user function */
 user_call:

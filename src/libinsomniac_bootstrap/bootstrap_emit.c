@@ -264,6 +264,13 @@ void emit_stream(compiler_core_type *compiler, buffer_type *buf, ins_stream_type
         pushed = true;
         break;
 
+      case STREAM_MATH:
+        emit_double(compiler, buf,
+          head->value.two.stream2->head,
+          head->value.two.stream1->head->value.literal);
+        pushed = true;
+        break;
+
       case STREAM_BIND:
         emit_double(compiler, buf, head, "bind");
         break;

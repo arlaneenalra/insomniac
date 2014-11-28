@@ -1,9 +1,4 @@
 (begin 
-
-  (if #t
-    true
-    (if #f true false)
-  )
-
+  (define x (+ (- 12 10)  21))
 )
 

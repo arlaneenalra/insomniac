@@ -166,7 +166,10 @@ void compiler_create(gc_type *gc, compiler_type **comp_void) {
 
     compiler->node_types[STREAM_BIND] = node_double_gc_type;
     compiler->node_types[STREAM_LOAD] = node_double_gc_type;
+    
+    compiler->node_types[STREAM_TWO_ARG] = node_double_gc_type;
     compiler->node_types[STREAM_IF] = node_double_gc_type;
+    compiler->node_types[STREAM_MATH] = node_double_gc_type;
 
     *comp_void = compiler;
 

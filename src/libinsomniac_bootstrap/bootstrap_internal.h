@@ -26,7 +26,9 @@ typedef enum node {
     STREAM_BIND,
     STREAM_STORE,
 
+    STREAM_TWO_ARG,
     STREAM_IF,
+    STREAM_MATH,
 
     NODE_MAX
 } node_type;
@@ -140,8 +142,9 @@ BUILD_SINGLE_SIGNATURE(load);
 BUILD_DOUBLE_SIGNATURE(bind);
 BUILD_DOUBLE_SIGNATURE(store);
 
+BUILD_DOUBLE_SIGNATURE(two_arg);
 BUILD_DOUBLE_SIGNATURE(if);
-BUILD_DOUBLE_SIGNATURE(if_body);
+BUILD_DOUBLE_SIGNATURE(math);
 
 /* Special Literals */
 void stream_boolean(compiler_core_type *compiler,

@@ -38,7 +38,6 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 
 {MATH}    { return MATH_OPS; }
 
-"display" { return PRIM_DISPLAY; }
 "begin"   { return PRIM_BEGIN;  }
 "quote"   { return PRIM_QUOTE; }
 "define"  { return PRIM_DEFINE; }

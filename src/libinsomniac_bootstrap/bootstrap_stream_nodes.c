@@ -47,6 +47,7 @@ BUILD_SINGLE_STREAM(asm_stream, STREAM_ASM_STREAM)
 /* Double stream nodes */
 BUILD_DOUBLE_STREAM(bind, STREAM_BIND)
 BUILD_DOUBLE_STREAM(store, STREAM_STORE)
+BUILD_DOUBLE_STREAM(if, STREAM_IF)
 
 
 //TODO: These can probably be re-written as a macro

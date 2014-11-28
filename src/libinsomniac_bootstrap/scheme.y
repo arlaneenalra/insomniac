@@ -47,7 +47,6 @@
 %token SPEC_DEFINE
 
 %token PRIM_DEFINE
-%token PRIM_DEFINE_DYNAMIC
 %token PRIM_ASM
 
 %token END_OF_FILE
@@ -172,7 +171,6 @@ asm_types:
   | PRIM_IF
   | PRIM_SET
   | PRIM_DEFINE
-  | PRIM_DEFINE_DYNAMIC
   | PRIM_ASM
   | MATH_OPS
 
@@ -182,22 +180,20 @@ include:                   // TODO: comeback to this
     CLOSE_PAREN                { }
 
 if:
-    PRIM_IF expression expression
-    expression CLOSE_PAREN              { }
+    PRIM_IF expression if_body CLOSE_PAREN { STREAM_NEW($$, if, $2, $3); }
+
+if_body:
+    expression expression                  { STREAM_NEW($$, if, $1, $2); }
 
 display:
     PRIM_DISPLAY expression CLOSE_PAREN { }
 
 define:
     define_variable
-  | define_dynamic
 
 /* the most basic version of define */
 define_variable:
   PRIM_DEFINE symbol expression CLOSE_PAREN  { STREAM_NEW($$, bind, $3, $2); }
-
-define_dynamic:
-  PRIM_DEFINE_DYNAMIC expression expression CLOSE_PAREN  { }
 
 /* Set the value of a location */
 set:

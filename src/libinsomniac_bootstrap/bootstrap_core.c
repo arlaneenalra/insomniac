@@ -166,6 +166,7 @@ void compiler_create(gc_type *gc, compiler_type **comp_void) {
 
     compiler->node_types[STREAM_BIND] = node_double_gc_type;
     compiler->node_types[STREAM_LOAD] = node_double_gc_type;
+    compiler->node_types[STREAM_IF] = node_double_gc_type;
 
     *comp_void = compiler;
 
@@ -200,7 +201,7 @@ void compiler_code_gen(compiler_type *comp_void, buffer_type * buf,
     compiler_core_type *compiler = (compiler_core_type *)comp_void;
 
     /* Walk the instruction stream and output it to our buffer */
-    emit_stream(buf, compiler->stream);
+    emit_stream(compiler, buf, compiler->stream);
 
     /* Add appropriate bootstraping code */
     if (bootstrap) {

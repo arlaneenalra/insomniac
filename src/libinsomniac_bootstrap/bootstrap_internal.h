@@ -26,6 +26,8 @@ typedef enum node {
     STREAM_BIND,
     STREAM_STORE,
 
+    STREAM_IF,
+
     NODE_MAX
 } node_type;
 
@@ -86,23 +88,22 @@ struct compiler_core {
 
 void emit_bootstrap(compiler_core_type *compiler, buffer_type *buf);
 
-void emit_stream(buffer_type *buf, ins_stream_type *tree);
+void emit_stream(compiler_core_type *compiler, buffer_type *buf, ins_stream_type *tree);
 void emit_literal(buffer_type *buf, ins_node_type *ins);
 void emit_quoted(buffer_type *buf, ins_stream_type *tree);
 
-void emit_asm(buffer_type *buf, ins_stream_type *tree);
-void emit_double(buffer_type *buf, ins_node_type *node, char *op);
+void emit_asm(compiler_core_type *compiler, buffer_type *buf, ins_stream_type *tree);
+void emit_double(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *node, char *op);
+void emit_if(compiler_core_type *compiler, buffer_type *buf, ins_node_type *tree);
 
 void emit_newline(buffer_type *buf);
 void emit_indent(buffer_type *buf);
 void emit_comment(buffer_type *buf, char *str);
+void emit_label(buffer_type *buf, buffer_type *label);
 
 void emit_op(buffer_type *buf, char *str);
 void emit_jump_label(buffer_type *buf, op_type type, buffer_type *label);
-
-
-void emit_if(compiler_core_type *compiler, buffer_type *test_buffer,
-  buffer_type *true_buffer, buffer_type *false_buffer);
 
 void emit_lambda(compiler_core_type *compiler, buffer_type *output,
   buffer_type *formals, buffer_type *body);
@@ -138,6 +139,9 @@ BUILD_SINGLE_SIGNATURE(load);
 /* Nodes that hold two streams */
 BUILD_DOUBLE_SIGNATURE(bind);
 BUILD_DOUBLE_SIGNATURE(store);
+
+BUILD_DOUBLE_SIGNATURE(if);
+BUILD_DOUBLE_SIGNATURE(if_body);
 
 /* Special Literals */
 void stream_boolean(compiler_core_type *compiler,

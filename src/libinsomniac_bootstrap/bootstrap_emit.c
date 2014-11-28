@@ -14,6 +14,14 @@ void emit_op(buffer_type *buf, char *str) {
     emit_newline(buf);
 }
 
+/* Emit a label */
+void emit_label(buffer_type *buf, buffer_type *label) {
+
+  buffer_append(buf, label, -1);
+  buffer_write(buf, (uint8_t *) ":", 1);
+  emit_newline(buf);
+}
+
 /* Emit a jmp/call/proc/jnf instruction */
 void emit_jump_label(buffer_type *buf, op_type type, buffer_type *label) {
     char *c = 0;
@@ -49,11 +57,12 @@ void emit_jump_label(buffer_type *buf, op_type type, buffer_type *label) {
 }
 
 /* Emit an If */
-void emit_if(compiler_core_type *compiler, buffer_type *test_buffer,
-  buffer_type *true_buffer, buffer_type *false_buffer) {
+void emit_if(compiler_core_type *compiler, buffer_type *buf, ins_node_type *node) {
   
   buffer_type *true_label = 0;
   buffer_type *done_label = 0;
+
+  ins_node_type *body = node->value.two.stream2->head; /* If body streams */
 
   gc_register_root(compiler->gc, &true_label);
   gc_register_root(compiler->gc, &done_label);
@@ -61,39 +70,34 @@ void emit_if(compiler_core_type *compiler, buffer_type *test_buffer,
   gen_label(compiler, &true_label);
   gen_label(compiler, &done_label);
 
+  emit_comment(buf, "--If Start--");
+  emit_stream(compiler, buf, node->value.two.stream1);
 
-  /* <test> jnf true */
-  /*buffer_write(test_buffer, (uint8_t *)"jnf ", 5);
-  buffer_append(test_buffer, true_label, -1);
-  emit_newline(test_buffer);*/
-  emit_comment(test_buffer, "If TEST");
-  emit_jump_label(test_buffer, OP_JNF, true_label);
+  emit_comment(buf, "--If Test--");
+  emit_jump_label(buf, OP_JNF, true_label);
 
-  /* <false> jmp done */
-  buffer_append(test_buffer, false_buffer, -1);
+  /* <false> */
+  emit_stream(compiler, buf, body->value.two.stream2);
 
-  emit_jump_label(test_buffer, OP_JMP, done_label);
-  /*buffer_write(test_buffer, (uint8_t *)" jmp ", 5);
-  buffer_append(test_buffer, done_label, -1);
-  emit_newline(test_buffer);*/
+  /* jmp done */
+  emit_jump_label(buf, OP_JMP, done_label);
 
   /* true: */
-  emit_comment(test_buffer, "If TRUE");
-  buffer_append(test_buffer, true_label, -1);
-  buffer_write(test_buffer, (uint8_t *) ":", 1);
-  emit_newline(test_buffer);
+  emit_comment(buf, "--If true--");
+  emit_label(buf, true_label);
  
   /* <true> */ 
-  buffer_append(test_buffer, true_buffer, -1);
-  emit_newline(test_buffer);
+  emit_stream(compiler, buf, body->value.two.stream1);
+  //buffer_append(test_buffer, true_buffer, -1);
+  //emit_newline(test_buffer);
  
   /* done: */
-  emit_comment(test_buffer, "If DONE");
-  buffer_append(test_buffer, done_label, -1);
-  buffer_write(test_buffer, (uint8_t *) ":", 1);
-  emit_newline(test_buffer);
+  emit_comment(buf, "--If Done--");
+
+  /* emit label */
+  emit_label(buf, done_label);
   
-  emit_comment(test_buffer, "END IF");
+  emit_comment(buf, "--If End--");
 
   
   gc_unregister_root(compiler->gc, &done_label);
@@ -184,7 +188,7 @@ void emit_quoted(buffer_type *buf, ins_stream_type *tree) {
 }
 
 /* Emit a single stream structure */
-void emit_asm(buffer_type *buf, ins_stream_type *tree) {
+void emit_asm(compiler_core_type *compiler, buffer_type *buf, ins_stream_type *tree) {
   ins_node_type *head = tree->head;
 
   /* Loop through all the nodes in the single object */
@@ -192,7 +196,7 @@ void emit_asm(buffer_type *buf, ins_stream_type *tree) {
     switch (head->type) {
       case STREAM_ASM_STREAM:
         emit_comment(buf, "----Escape ASM Start----");
-        emit_stream(buf, head->value.stream);
+        emit_stream(compiler, buf, head->value.stream);
         emit_comment(buf, "----Escape ASM End----");
         break;
 
@@ -204,15 +208,16 @@ void emit_asm(buffer_type *buf, ins_stream_type *tree) {
   }
 }
 /* Output dual instruction stream ops */
-void emit_double(buffer_type *buf, ins_node_type *node, char *op) {
+void emit_double(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *node, char *op) {
 
-  emit_stream(buf, node->value.two.stream1);
-  emit_stream(buf, node->value.two.stream2);
+  emit_stream(compiler, buf, node->value.two.stream1);
+  emit_stream(compiler, buf, node->value.two.stream2);
   emit_op(buf, op);
 }
 
 /* Walk an instruction stream and write it to the buffer in 'pretty' form */
-void emit_stream(buffer_type *buf, ins_stream_type *tree) {
+void emit_stream(compiler_core_type *compiler, buffer_type *buf, ins_stream_type *tree) {
   ins_node_type *head = 0;
   bool pushed = false; 
 
@@ -243,24 +248,28 @@ void emit_stream(buffer_type *buf, ins_stream_type *tree) {
 
       case STREAM_ASM:
         emit_comment(buf, "--Raw ASM Start--");
-        emit_asm(buf, head->value.stream);
+        emit_asm(compiler, buf, head->value.stream);
         emit_comment(buf, "--Raw ASM End--");
         break;
 
       case STREAM_LOAD:
         /* Simple load form symbol operation */
-        emit_stream(buf, head->value.stream);
+        emit_stream(compiler, buf, head->value.stream);
         emit_op(buf, "@");
         pushed = true;
         break;
 
+      case STREAM_IF:
+        emit_if(compiler, buf, head);
+        pushed = true;
+        break;
+
       case STREAM_BIND:
-        emit_double(buf, head, "bind");
+        emit_double(compiler, buf, head, "bind");
         break;
 
       case STREAM_STORE:
-        emit_double(buf, head, "!");
-
+        emit_double(compiler, buf, head, "!");
         break;
 
       default:

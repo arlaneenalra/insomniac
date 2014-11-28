@@ -40,5 +40,5 @@
 
   (display #\newline)
 
-  ;; (tail-bomb tail-bomb)
+  (tail-bomb tail-bomb)
 )

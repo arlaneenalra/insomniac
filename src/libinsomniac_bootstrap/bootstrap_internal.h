@@ -18,10 +18,9 @@ typedef enum node {
     STREAM_OP,
     
     STREAM_QUOTED,
+    STREAM_LOAD,
     STREAM_ASM,
     STREAM_ASM_STREAM,
-    
-    STREAM_LOAD,
 
     STREAM_BIND,
     STREAM_STORE,

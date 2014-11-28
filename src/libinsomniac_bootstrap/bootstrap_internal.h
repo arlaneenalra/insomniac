@@ -21,14 +21,24 @@ typedef enum node {
     STREAM_ASM,
     
     STREAM_LOAD,
+
     STREAM_BIND,
+    STREAM_STORE,
 
     NODE_MAX
 } node_type;
 
+typedef struct two_stream two_stream_type;
+
+struct two_stream {
+    ins_stream_type *stream1;
+    ins_stream_type *stream2;
+};
+
 typedef union {
     char *literal;
     ins_stream_type *stream;
+    two_stream_type two;
 } node_value_type;
 
 /* An individual instructions */
@@ -79,6 +89,9 @@ void emit_stream(buffer_type *buf, ins_stream_type *tree);
 void emit_literal(buffer_type *buf, ins_node_type *ins);
 void emit_quoted(buffer_type *buf, ins_stream_type *tree);
 
+void emit_single(buffer_type *buf, ins_stream_type *tree);
+void emit_double(buffer_type *buf, ins_node_type *node, char *op);
+
 void emit_newline(buffer_type *buf);
 void emit_indent(buffer_type *buf);
 void emit_comment(buffer_type *buf, char *str);
@@ -109,13 +122,20 @@ void stream_alloc_node(compiler_core_type *compiler, node_type type,
 
 #define BUILD_SINGLE_SIGNATURE(name) \
 void stream_##name(compiler_core_type *compiler, ins_stream_type *stream, \
-  ins_stream_type *body)
+  ins_stream_type *arg1)
+
+#define BUILD_DOUBLE_SIGNATURE(name) \
+void stream_##name(compiler_core_type *compiler, ins_stream_type *stream, \
+  ins_stream_type *arg1, ins_stream_type *arg2)
 
 /* Nodes that hold a stream of instructions */
 BUILD_SINGLE_SIGNATURE(asm);
 BUILD_SINGLE_SIGNATURE(quoted);
 BUILD_SINGLE_SIGNATURE(load);
-BUILD_SINGLE_SIGNATURE(bind);
+
+/* Nodes that hold two streams */
+BUILD_DOUBLE_SIGNATURE(bind);
+BUILD_DOUBLE_SIGNATURE(store);
 
 /* Special Literals */
 void stream_boolean(compiler_core_type *compiler,

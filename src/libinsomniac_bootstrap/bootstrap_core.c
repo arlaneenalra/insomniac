@@ -48,7 +48,7 @@ gc_type_def register_node_literal_type(gc_type *gc) {
   return type;
 }
 
-/* setup an quoted/list node */
+/* setup an single instruction stream node */
 gc_type_def register_node_single_type(gc_type *gc) {
   gc_type_def type = 0;
 
@@ -60,7 +60,22 @@ gc_type_def register_node_single_type(gc_type *gc) {
   return type;
 }
 
-/* Instruction Stream type setup */
+/* setup an two instruction stream node */ 
+gc_type_def register_node_double_type(gc_type *gc) {
+  gc_type_def type = 0;
+
+  type = gc_register_type(gc, sizeof(ins_node_type));
+  gc_register_pointer(gc, type, offsetof(ins_node_type, next));
+
+  gc_register_pointer(gc, type, offsetof(ins_node_type, value) +
+    offsetof(node_value_type, two) + offsetof(two_stream_type, stream1));
+  gc_register_pointer(gc, type, offsetof(ins_node_type, value) +
+    offsetof(node_value_type, two) + offsetof(two_stream_type, stream2));
+
+  return type;
+}
+
+/* Compiler core type  */
 gc_type_def register_compiler_type(gc_type *gc) {
   gc_type_def type = 0;
 
@@ -115,6 +130,7 @@ void compiler_create(gc_type *gc, compiler_type **comp_void) {
     static gc_type_def stream_gc_type = 0;
     static gc_type_def node_literal_gc_type = 0;
     static gc_type_def node_single_gc_type = 0;
+    static gc_type_def node_double_gc_type = 0;
     static gc_type_def compiler_gc_type = 0;
 
     // setup gc types
@@ -123,6 +139,7 @@ void compiler_create(gc_type *gc, compiler_type **comp_void) {
       stream_gc_type = register_stream_type(gc);
       node_literal_gc_type = register_node_literal_type(gc);
       node_single_gc_type = register_node_single_type(gc);
+      node_double_gc_type = register_node_double_type(gc);
     }
 
     gc_register_root(gc, (void **)&compiler);
@@ -140,10 +157,14 @@ void compiler_create(gc_type *gc, compiler_type **comp_void) {
 
     compiler->node_types[STREAM_LITERAL] = node_literal_gc_type;
     compiler->node_types[STREAM_SYMBOL] = node_literal_gc_type;
+    compiler->node_types[STREAM_OP] = node_literal_gc_type;
 
     compiler->node_types[STREAM_QUOTED] = node_single_gc_type;
     compiler->node_types[STREAM_LOAD] = node_single_gc_type;
     compiler->node_types[STREAM_ASM] = node_single_gc_type;
+
+    compiler->node_types[STREAM_BIND] = node_double_gc_type;
+    compiler->node_types[STREAM_LOAD] = node_double_gc_type;
 
     *comp_void = compiler;
 

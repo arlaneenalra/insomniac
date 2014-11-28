@@ -194,23 +194,22 @@ define:
 
 /* the most basic version of define */
 define_variable:
-  PRIM_DEFINE symbol expression CLOSE_PAREN  { }
+  PRIM_DEFINE symbol expression CLOSE_PAREN  { STREAM_NEW($$, bind, $3, $2); }
 
 define_dynamic:
   PRIM_DEFINE_DYNAMIC expression expression CLOSE_PAREN  { }
 
 /* Set the value of a location */
 set:
-  PRIM_SET symbol expression CLOSE_PAREN     { } 
+  PRIM_SET symbol expression CLOSE_PAREN     { STREAM_NEW($$, store, $3, $2); } 
 
 begin:
-    PRIM_BEGIN begin_end   {  }
+    PRIM_BEGIN begin_end   { $$ = $2; }
 
 begin_body:
     expression              
   | expression begin_body  {
                              $$ = $1;
-                             STREAM($$, op, "drop"); 
                              stream_concat($$, $2);
                            }
 

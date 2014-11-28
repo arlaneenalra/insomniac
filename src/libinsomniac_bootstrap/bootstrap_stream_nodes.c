@@ -12,7 +12,7 @@ BUILD_SINGLE_SIGNATURE(name) {                              \
                                                             \
     stream_alloc_node(compiler, type, &ins_node);           \
                                                             \
-    ins_node->value.stream = body;                          \
+    ins_node->value.stream = arg1;                          \
                                                             \
     /* add the boolean to our instruction stream */         \
     stream_append(stream, ins_node);                        \
@@ -20,12 +20,35 @@ BUILD_SINGLE_SIGNATURE(name) {                              \
     gc_unregister_root(compiler->gc, (void **)&ins_node);   \
 }                                                           
 
+#define BUILD_DOUBLE_STREAM(name, type)                     \
+BUILD_DOUBLE_SIGNATURE(name) {                              \
+                                                            \
+    ins_node_type *ins_node = 0;                            \
+                                                            \
+    gc_register_root(compiler->gc, (void **)&ins_node);     \
+                                                            \
+    stream_alloc_node(compiler, type, &ins_node);           \
+                                                            \
+    ins_node->value.two.stream1 = arg1;                     \
+    ins_node->value.two.stream2 = arg2;                     \
+                                                            \
+    /* add the boolean to our instruction stream */         \
+    stream_append(stream, ins_node);                        \
+                                                            \
+    gc_unregister_root(compiler->gc, (void **)&ins_node);   \
+}                                                           
 
 /* Single stream nodes */
 BUILD_SINGLE_STREAM(quoted, STREAM_QUOTED)
 BUILD_SINGLE_STREAM(load, STREAM_LOAD)
-BUILD_SINGLE_STREAM(bind, STREAM_BIND)
 BUILD_SINGLE_STREAM(asm, STREAM_ASM)
+
+/* Double stream nodes */
+BUILD_DOUBLE_STREAM(bind, STREAM_BIND)
+BUILD_DOUBLE_STREAM(store, STREAM_STORE)
+
+
+//TODO: These can probably be re-written as a macro
 
 /* Build a bare asm instruction/literal */
 void stream_bare(compiler_core_type *compiler, ins_stream_type *stream,

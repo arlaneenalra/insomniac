@@ -183,39 +183,81 @@ void emit_quoted(buffer_type *buf, ins_stream_type *tree) {
   }
 }
 
+/* Emit a single stream structure */
+void emit_single(buffer_type *buf, ins_stream_type *tree) {
+  ins_node_type *head = tree->head;
+
+  /* Loop through all the nodes in the single object */
+  while (head) {
+    emit_literal(buf, head);
+    head = head->next;
+  }
+}
+/* Output dual instruction stream ops */
+void emit_double(buffer_type *buf, ins_node_type *node, char *op) {
+
+  emit_stream(buf, node->value.two.stream1);
+  emit_stream(buf, node->value.two.stream2);
+  emit_op(buf, op);
+}
+
 /* Walk an instruction stream and write it to the buffer in 'pretty' form */
 void emit_stream(buffer_type *buf, ins_stream_type *tree) {
   ins_node_type *head = 0;
+  bool pushed = false; 
+
 
   if (tree) { 
     head = tree->head;
   }
 
+  emit_comment(buf, "--Begin Start--");
+
   while (head) {
+    /* Set to true if the node pushes to the stack */
+    pushed = false;
+
     /* Process each instruction in the stream */
     switch (head->type) {
       case STREAM_LITERAL:
       case STREAM_SYMBOL:
       case STREAM_OP: /* ASM should be on it's own */
         emit_literal(buf, head);
+        pushed = true;
         break;
 
       case STREAM_QUOTED:
         emit_comment(buf, "--Quoted Start--");
-        emit_quoted(buf, head->value.stream);
+        emit_single(buf, head->value.stream);
         emit_comment(buf, "--Quoted End--");
+        pushed = true;
         break;
 
       case STREAM_ASM:
         emit_comment(buf, "--Raw ASM Start--");
-        emit_quoted(buf, head->value.stream);
+        emit_single(buf, head->value.stream);
         emit_comment(buf, "--Raw ASM End--");
         break;
 
       case STREAM_LOAD:
         /* Simple load form symbol operation */
+        emit_comment(buf, "--Load Start--");
         emit_stream(buf, head->value.stream);
         emit_op(buf, "@");
+        emit_comment(buf, "--Load End--");
+        pushed = true;
+        break;
+
+      case STREAM_BIND:
+        emit_comment(buf, "--Bind Start--");
+        emit_double(buf, head, "bind");
+        emit_comment(buf, "--Bind End--");
+        break;
+
+      case STREAM_STORE:
+        emit_comment(buf, "--Store Start--");
+        emit_double(buf, head, "!");
+        emit_comment(buf, "--Store End--");
         break;
 
       default:
@@ -224,6 +266,14 @@ void emit_stream(buffer_type *buf, ins_stream_type *tree) {
     }
 
     head = head->next;
+
+    /* We treat a stream like a begin block, only the
+       last node can leave something on the stack. */
+    if (head && pushed) {
+      emit_op(buf, "drop");
+    }
   }
+  
+  emit_comment(buf, "--Begin End--");
 }
 

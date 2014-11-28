@@ -191,10 +191,49 @@ void emit_lambda(compiler_core_type *compiler, buffer_type *buf,
   gc_unregister_root(compiler->gc, &proc_label);
 }
 
+/* Build a function call */
+void emit_call(compiler_core_type *compiler, buffer_type *buf, ins_node_type *call) {
+  ins_node_type *head = 0;
+  bool pushed = false;
+
+  emit_comment(buf, "--Call Start--");
+  emit_comment(buf, "--Call - Args --");
+
+  /* Arugments are always a list */
+  emit_op(buf, "()");
+
+  /* Walk arguments and evaluate them */
+  head = call->value.two.stream2->head;
+  while (head) {
+    emit_comment(buf, "----Arg Start ----");
+    pushed = emit_node(compiler, buf, head);
+    emit_comment(buf, "----Arg End----");
+  
+    /* Always take a slot */
+    if (!pushed) {
+      emit_op(buf, "()");
+    }
+
+    emit_op(buf, "cons");
+    head = head->next;
+  }
+
+  
+  emit_comment(buf, "--Call - Callable --");
+  emit_stream(compiler, buf, call->value.two.stream1);
+
+  // TODO: tail call opts 
+  emit_op(buf, "call_in");
+
+  emit_comment(buf, "--Call End--");
+
+}
+
 /* Given a literal instrcution node, output it to our buffer */
 void emit_literal(buffer_type *buf, ins_node_type *ins) {
   emit_op(buf, ins->value.literal);
 }
+
 
 /* Emit a quoted structure */
 void emit_quoted(buffer_type *buf, ins_stream_type *tree) {
@@ -203,7 +242,20 @@ void emit_quoted(buffer_type *buf, ins_stream_type *tree) {
 
   /* Loop through all the nodes in the quoted object */
   while (head) {
-    emit_literal(buf, head);
+    switch (head->type) {
+      case STREAM_QUOTED:
+        emit_quoted(buf, head->value.stream);
+        break;
+
+      case STREAM_LITERAL:
+      case STREAM_SYMBOL:
+        emit_literal(buf, head);
+        break;
+
+      default:
+        fprintf(stderr, "Unknown instructions type %i in stream!\n", head->type);
+        break; 
+    }
 
     if (is_list) {
       emit_op(buf, "cons");
@@ -245,6 +297,78 @@ void emit_double(compiler_core_type *compiler, buffer_type *buf,
   emit_op(buf, op);
 }
 
+/* Decide how to output an expressione element */
+bool emit_node(compiler_core_type *compiler, buffer_type *buf, ins_node_type *head) {
+  bool pushed = false;
+
+  /* Process each instruction in the stream */
+  switch (head->type) {
+    case STREAM_LITERAL:
+    case STREAM_SYMBOL:
+    case STREAM_OP: /* ASM should be on it's own */
+      emit_literal(buf, head);
+      pushed = true;
+      break;
+
+    case STREAM_QUOTED:
+      emit_comment(buf, "--Quoted Start--");
+      emit_quoted(buf, head->value.stream);
+      emit_comment(buf, "--Quoted End--");
+      pushed = true;
+      break;
+
+    case STREAM_ASM:
+      emit_comment(buf, "--Raw ASM Start--");
+      emit_asm(compiler, buf, head->value.stream);
+      emit_comment(buf, "--Raw ASM End--");
+      break;
+
+    case STREAM_LOAD:
+      /* Simple load form symbol operation */
+      emit_stream(compiler, buf, head->value.stream);
+      emit_op(buf, "@");
+      pushed = true;
+      break;
+
+    case STREAM_IF:
+      emit_if(compiler, buf, head);
+      pushed = true;
+      break;
+
+    case STREAM_MATH:
+      emit_double(compiler, buf,
+        head->value.two.stream2->head,
+        head->value.two.stream1->head->value.literal);
+      pushed = true;
+      break;
+
+    case STREAM_LAMBDA:
+      emit_lambda(compiler, buf, head);
+      pushed = true;
+      break;
+
+    case STREAM_CALL:
+      // TODO: Add tail call handling here
+      emit_call(compiler, buf, head);
+      pushed = true;
+      break;
+
+    case STREAM_BIND:
+      emit_double(compiler, buf, head, "bind");
+      break;
+
+    case STREAM_STORE:
+      emit_double(compiler, buf, head, "!");
+      break;
+
+    default:
+      fprintf(stderr, "Unknown instructions type %i in stream!\n", head->type);
+      break;
+  }
+
+  return pushed;
+}
+
 /* Walk an instruction stream and write it to the buffer in 'pretty' form */
 void emit_stream(compiler_core_type *compiler, buffer_type *buf, ins_stream_type *tree) {
   ins_node_type *head = 0;
@@ -257,66 +381,7 @@ void emit_stream(compiler_core_type *compiler, buffer_type *buf, ins_stream_type
 
   while (head) {
     /* Set to true if the node pushes to the stack */
-    pushed = false;
-
-    /* Process each instruction in the stream */
-    switch (head->type) {
-      case STREAM_LITERAL:
-      case STREAM_SYMBOL:
-      case STREAM_OP: /* ASM should be on it's own */
-        emit_literal(buf, head);
-        pushed = true;
-        break;
-
-      case STREAM_QUOTED:
-        emit_comment(buf, "--Quoted Start--");
-        emit_quoted(buf, head->value.stream);
-        emit_comment(buf, "--Quoted End--");
-        pushed = true;
-        break;
-
-      case STREAM_ASM:
-        emit_comment(buf, "--Raw ASM Start--");
-        emit_asm(compiler, buf, head->value.stream);
-        emit_comment(buf, "--Raw ASM End--");
-        break;
-
-      case STREAM_LOAD:
-        /* Simple load form symbol operation */
-        emit_stream(compiler, buf, head->value.stream);
-        emit_op(buf, "@");
-        pushed = true;
-        break;
-
-      case STREAM_IF:
-        emit_if(compiler, buf, head);
-        pushed = true;
-        break;
-
-      case STREAM_MATH:
-        emit_double(compiler, buf,
-          head->value.two.stream2->head,
-          head->value.two.stream1->head->value.literal);
-        pushed = true;
-        break;
-
-      case STREAM_LAMBDA:
-        emit_lambda(compiler, buf, head);
-        pushed = true;
-        break;
-
-      case STREAM_BIND:
-        emit_double(compiler, buf, head, "bind");
-        break;
-
-      case STREAM_STORE:
-        emit_double(compiler, buf, head, "!");
-        break;
-
-      default:
-        fprintf(stderr, "Unknown instructions type %i in stream!\n", head->type);
-        break;
-    }
+    pushed = emit_node(compiler, buf, head); 
 
     head = head->next;
 

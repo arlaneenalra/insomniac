@@ -100,7 +100,7 @@ list_end:
   | CLOSE_PAREN                        { STREAM_NEW($$, literal, "()"); }
 
 list:
-    OPEN_PAREN list_end                { $$ = $2; }
+    OPEN_PAREN list_end                { STREAM_NEW($$, quoted, $2); }
 
 list_next:
     datum                                 
@@ -216,15 +216,15 @@ math_call_op:
 
 /* call a user function */
 user_call:
-    expression user_call_end    { }
+    expression user_call_end    { STREAM_NEW($$, call, $1, $2); }
 
 user_call_end:
-    CLOSE_PAREN                 { }
-  | user_call_body CLOSE_PAREN  { }
+    CLOSE_PAREN                 { NEW_STREAM($$); }
+  | user_call_body CLOSE_PAREN  { $$ = $1; }
 
 user_call_body:
-    expression                  { }
-  | expression user_call_body   { }  
+    expression                  { $$ = $1; }
+  | expression user_call_body   { $$ = $1; stream_concat($1, $2); }  
 
 /* A basic lambda expression */
 lambda:

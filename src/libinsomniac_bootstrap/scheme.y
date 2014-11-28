@@ -230,20 +230,30 @@ user_call_body:
 lambda:
     PRIM_LAMBDA
     lambda_formals
-    begin_end                   { STREAM_NEW($$, lambda, $1, $2); }
+    begin_end                   { STREAM_NEW($$, lambda, $2, $3); }
 
-lambda_formals:
-    symbol                      {  }
+lambda_formals:                 /* if formals ends in a () it's a fixed list
+                                   otherwise the it's a variadic formals list */
+    symbol
   | lambda_formals_list
 
 lambda_formals_list:
     OPEN_PAREN CLOSE_PAREN      { NEW_STREAM($$); } /* ignore arguments */
-  | OPEN_PAREN lambda_formals_list_end   {  }
+  | OPEN_PAREN lambda_formals_list_end   { $$ = $2; }
 
 lambda_formals_list_end:
-    symbol CLOSE_PAREN          { $$ = $1; }
-  | symbol lambda_formals_list_end { }
-  | symbol DOT symbol CLOSE_PAREN  { }
+    symbol CLOSE_PAREN             {
+                                     /* End of a list */
+                                     $$ = $1; STREAM($$, literal, "()");
+                                   }
+  | symbol lambda_formals_list_end {
+                                     /* Add an element in the middle of a list */
+                                     $$ = $1; stream_concat($$, $2); 
+                                   }
+  | symbol DOT symbol CLOSE_PAREN  {
+                                     /* Last element takes rest */
+                                     $$ = $1; stream_concat($$, $3);
+                                   }
 
 %%
 

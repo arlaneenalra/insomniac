@@ -110,7 +110,7 @@ void emit_op(buffer_type *buf, char *str);
 void emit_jump_label(buffer_type *buf, op_type type, buffer_type *label);
 
 void emit_lambda(compiler_core_type *compiler, buffer_type *output,
-  buffer_type *formals, buffer_type *body);
+  ins_node_type *node);
   
 void gen_label(compiler_core_type *compiler, buffer_type **buf);
 

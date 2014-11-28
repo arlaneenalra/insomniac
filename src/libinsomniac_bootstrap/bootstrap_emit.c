@@ -103,8 +103,12 @@ void emit_if(compiler_core_type *compiler, buffer_type *buf, ins_node_type *node
 }
 
 /* Emit framing code for a lambda */
-void emit_lambda(compiler_core_type *compiler, buffer_type *output,
-  buffer_type *formals, buffer_type *body) {
+void emit_lambda(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *node) {
+
+  ins_stream_type *formals = 0; /* Part of the tree, so don't need to watch it. */
+  ins_node_type *formal_node = 0;
+  bool bind_rest = false;
 
   buffer_type *proc_label = 0;
   buffer_type *skip_label = 0;
@@ -117,44 +121,71 @@ void emit_lambda(compiler_core_type *compiler, buffer_type *output,
 
   /* calling convention is ( args ret -- ) */
 
-
-  /* output a jump so we don't execute the lambda during
-     definition */
-
   /* jmp skip_label */
-  buffer_write(output, (uint8_t *)" jmp ", 5);
-  buffer_append(output, skip_label, -1);
-  emit_newline(output);
-
+  emit_jump_label(buf, OP_JMP, skip_label);
+ 
   /* proc_label: */
-  buffer_append(output, proc_label, -1);
-  buffer_write(output, (uint8_t *)":", 1);
-  emit_newline(output);
+  emit_label(buf, proc_label);
 
-  /* swap */
-  emit_op(output, "swap");
+  /* swap  -- flip args and return */
+  emit_op(buf, "swap");
 
   /* output formal binding code */
-  buffer_append(output, formals, -1);
-  emit_newline(output);
+  emit_comment(buf, "-- Formals --");
+  formals = node->value.two.stream1;
+
+  /* If there are no formals, drop the arguments */
+  formal_node = formals->head;
+
+  /* Loop until we're at the end of the list we're looking at a () */
+  while (formal_node && formal_node->type != STREAM_LITERAL) {
+    
+    /* If we see the end of the list here, we're binding anything left in the 
+       arguments list to this symbol. */
+    bind_rest = (formal_node && formal_node->next == 0);
+
+    emit_comment(buf, "----");
+
+    if (bind_rest) {
+      /* If we have a single node, bind everything to it. */
+      if (formal_node->next) {
+        emit_op(buf, "cdr");
+      }
+    } else {
+      emit_op(buf, "dup");
+      emit_op(buf, "car");
+    }
+
+    emit_literal(buf, formal_node);
+    
+    emit_op(buf, "bind");
+
+    formal_node = formal_node->next;
+
+    /* If we're at the last node or binding the rest, don't cdr */
+    if (!bind_rest && formal_node && formal_node->type != STREAM_LITERAL) {
+      emit_op(buf, "cdr");
+    }
+  }
+
+  /* Drop the () at the end of the arguments list */
+  emit_comment(buf, "----");
+  if (!bind_rest) {
+    emit_op(buf, "drop");
+  }
 
   /* output body */
-  buffer_append(output, body, -1);
-  emit_newline(output);
+  emit_comment(buf, "-- Body --");
+  emit_stream(compiler, buf, node->value.two.stream2);
 
   /* swap ret */
-  emit_op(output, "swap ret");
+  emit_op(buf, "swap ret");
 
   /* skip_label: */
-  buffer_append(output, skip_label, -1);
-  buffer_write(output, (uint8_t *)":", 1);
-  emit_newline(output);
+  emit_label(buf, skip_label);
 
   /* proc proc_label: */
-  buffer_write(output, (uint8_t *)" proc ", 6);
-  buffer_append(output, proc_label, -1);
-  emit_newline(output);
-  emit_newline(output);
+  emit_jump_label(buf, OP_PROC, proc_label);
 
   gc_unregister_root(compiler->gc, &skip_label);
   gc_unregister_root(compiler->gc, &proc_label);
@@ -266,6 +297,11 @@ void emit_stream(compiler_core_type *compiler, buffer_type *buf, ins_stream_type
         emit_double(compiler, buf,
           head->value.two.stream2->head,
           head->value.two.stream1->head->value.literal);
+        pushed = true;
+        break;
+
+      case STREAM_LAMBDA:
+        emit_lambda(compiler, buf, head);
         pushed = true;
         break;
 

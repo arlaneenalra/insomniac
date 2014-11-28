@@ -184,12 +184,22 @@ void emit_quoted(buffer_type *buf, ins_stream_type *tree) {
 }
 
 /* Emit a single stream structure */
-void emit_single(buffer_type *buf, ins_stream_type *tree) {
+void emit_asm(buffer_type *buf, ins_stream_type *tree) {
   ins_node_type *head = tree->head;
 
   /* Loop through all the nodes in the single object */
   while (head) {
-    emit_literal(buf, head);
+    switch (head->type) {
+      case STREAM_ASM_STREAM:
+        emit_comment(buf, "----Escape ASM Start----");
+        emit_stream(buf, head->value.stream);
+        emit_comment(buf, "----Escape ASM End----");
+        break;
+
+      default:
+        emit_literal(buf, head);
+        break;
+    }
     head = head->next;
   }
 }
@@ -233,7 +243,7 @@ void emit_stream(buffer_type *buf, ins_stream_type *tree) {
 
       case STREAM_ASM:
         emit_comment(buf, "--Raw ASM Start--");
-        emit_single(buf, head->value.stream);
+        emit_asm(buf, head->value.stream);
         emit_comment(buf, "--Raw ASM End--");
         break;
 

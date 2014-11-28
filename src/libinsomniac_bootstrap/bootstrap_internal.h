@@ -19,6 +19,7 @@ typedef enum node {
     
     STREAM_QUOTED,
     STREAM_ASM,
+    STREAM_ASM_STREAM,
     
     STREAM_LOAD,
 
@@ -89,7 +90,7 @@ void emit_stream(buffer_type *buf, ins_stream_type *tree);
 void emit_literal(buffer_type *buf, ins_node_type *ins);
 void emit_quoted(buffer_type *buf, ins_stream_type *tree);
 
-void emit_single(buffer_type *buf, ins_stream_type *tree);
+void emit_asm(buffer_type *buf, ins_stream_type *tree);
 void emit_double(buffer_type *buf, ins_node_type *node, char *op);
 
 void emit_newline(buffer_type *buf);
@@ -130,6 +131,7 @@ void stream_##name(compiler_core_type *compiler, ins_stream_type *stream, \
 
 /* Nodes that hold a stream of instructions */
 BUILD_SINGLE_SIGNATURE(asm);
+BUILD_SINGLE_SIGNATURE(asm_stream);
 BUILD_SINGLE_SIGNATURE(quoted);
 BUILD_SINGLE_SIGNATURE(load);
 

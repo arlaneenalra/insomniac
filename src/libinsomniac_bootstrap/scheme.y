@@ -161,7 +161,7 @@ raw_asm:
     asm_types                  { STREAM_NEW($$, op, yyget_text(scanner)); }
   | self_evaluating
   | OPEN_PAREN CLOSE_PAREN     { STREAM_NEW($$, literal, "()"); }
-  | OPEN_PAREN expression CLOSE_PAREN { $$ = $2; }
+  | OPEN_PAREN expression CLOSE_PAREN { STREAM_NEW($$, asm_stream, $2); }
 
 asm_types:
     AST_SYMBOL

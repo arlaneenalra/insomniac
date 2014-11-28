@@ -30,6 +30,8 @@ typedef enum node {
     STREAM_IF,
     STREAM_MATH,
 
+    STREAM_LAMBDA,
+
     NODE_MAX
 } node_type;
 
@@ -145,6 +147,9 @@ BUILD_DOUBLE_SIGNATURE(store);
 BUILD_DOUBLE_SIGNATURE(two_arg);
 BUILD_DOUBLE_SIGNATURE(if);
 BUILD_DOUBLE_SIGNATURE(math);
+
+/* Lambda Stuff */
+BUILD_DOUBLE_SIGNATURE(lambda);
 
 /* Special Literals */
 void stream_boolean(compiler_core_type *compiler,

@@ -52,6 +52,9 @@ BUILD_DOUBLE_STREAM(two_arg, STREAM_TWO_ARG)
 BUILD_DOUBLE_STREAM(if, STREAM_IF)
 BUILD_DOUBLE_STREAM(math, STREAM_MATH)
 
+/* lambda parts */
+BUILD_DOUBLE_STREAM(lambda, STREAM_LAMBDA)
+
 
 //TODO: These can probably be re-written as a macro
 

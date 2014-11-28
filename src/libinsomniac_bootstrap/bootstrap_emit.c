@@ -88,8 +88,6 @@ void emit_if(compiler_core_type *compiler, buffer_type *buf, ins_node_type *node
  
   /* <true> */ 
   emit_stream(compiler, buf, body->value.two.stream1);
-  //buffer_append(test_buffer, true_buffer, -1);
-  //emit_newline(test_buffer);
  
   /* done: */
   emit_comment(buf, "--If Done--");

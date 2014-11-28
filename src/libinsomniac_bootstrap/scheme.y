@@ -230,18 +230,18 @@ user_call_body:
 lambda:
     PRIM_LAMBDA
     lambda_formals
-    begin_end                   { }
+    begin_end                   { STREAM_NEW($$, lambda, $1, $2); }
 
 lambda_formals:
-    symbol                      { }
+    symbol                      {  }
   | lambda_formals_list
 
 lambda_formals_list:
-    OPEN_PAREN CLOSE_PAREN      {  } // ignore arguments}
+    OPEN_PAREN CLOSE_PAREN      { NEW_STREAM($$); } /* ignore arguments */
   | OPEN_PAREN lambda_formals_list_end   {  }
 
 lambda_formals_list_end:
-    symbol CLOSE_PAREN          { }
+    symbol CLOSE_PAREN          { $$ = $1; }
   | symbol lambda_formals_list_end { }
   | symbol DOT symbol CLOSE_PAREN  { }
 

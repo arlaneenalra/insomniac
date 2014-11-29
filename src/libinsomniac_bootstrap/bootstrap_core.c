@@ -88,26 +88,13 @@ gc_type_def register_compiler_type(gc_type *gc) {
 /* Setup Include */
 /* Pushes a new file into the lexer's input stream while preserving
  * the existing stream. */
-void setup_include(compiler_core_type* compiler,
-  buffer_type *buf, buffer_type *file) {
+void setup_include(compiler_core_type* compiler, ins_stream_type *arg) {
 
-  char *include_comment = "Included From:";
   FILE *include_file = 0;
   char *file_name = 0;
-  size_t length = 0;
   
-  gc_register_root(compiler->gc, (void **)&file_name);
-
-  /* Extract parsed filename */
-  length = buffer_size(file);
-  gc_alloc(compiler->gc, 0, length, (void **)&file_name);
-  length = buffer_read(file, (uint8_t *)file_name, length);
-
-  //buffer_write(buf, (uint8_t *)include_comment, strlen(include_comment));
-  //buffer_write(buf, (uint8_t *)file_name, length);
-  //emit_newline(buf);
-  emit_comment(buf, include_comment);
-  emit_comment(buf, file_name);
+  /* Get the file name for this node */
+  file_name = arg->head->value.literal;
 
   include_file = fopen(file_name, "r");
 
@@ -115,14 +102,13 @@ void setup_include(compiler_core_type* compiler,
     // TODO: Add file name tracking to compiler so we can 
     // report what file include failed in.
    
-    (void)fprintf(stderr, "Error %i!", errno);
+    (void)fprintf(stderr, "Error %i! Incliding '%s'", errno, file_name);
     parse_error(compiler, compiler->scanner,
       "Unable to open include file!");
   } else {
     parse_push_state(compiler, include_file);
   }
-     
-  gc_unregister_root(compiler->gc, (void **)&file_name);
+
 }
 
 /* Create an instance of the compiler */
@@ -158,6 +144,7 @@ void compiler_create(gc_type *gc, compiler_type **comp_void) {
 
   compiler->node_types[STREAM_LITERAL] = node_literal_gc_type;
   compiler->node_types[STREAM_SYMBOL] = node_literal_gc_type;
+  compiler->node_types[STREAM_STRING] = node_literal_gc_type;
   compiler->node_types[STREAM_OP] = node_literal_gc_type;
 
   compiler->node_types[STREAM_QUOTED] = node_single_gc_type;

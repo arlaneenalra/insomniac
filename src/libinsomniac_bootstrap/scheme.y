@@ -174,10 +174,13 @@ asm_types:
 two_args:
     expression expression                  { STREAM_NEW($$, two_arg, $1, $2); }
 
-include:                   // TODO: comeback to this
+include: /* Only single arg include and is effectively an empty node. */ 
     PRIM_INCLUDE DOUBLE_QUOTE
     string_body DOUBLE_QUOTE
-    CLOSE_PAREN                { }
+    CLOSE_PAREN                {
+                                 NEW_STREAM($$);
+                                 setup_include(compiler, $3);
+                               }
 
 if:
     PRIM_IF expression two_args CLOSE_PAREN { STREAM_NEW($$, if, $2, $3); }

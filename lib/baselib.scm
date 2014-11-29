@@ -5,6 +5,9 @@
 ;; Define type tests
 (begin
 
+(define display
+    (lambda (x) (asm (x) out ())))
+
 (define fixnum?
   (lambda (x) (asm (x) fixnum?)))
 

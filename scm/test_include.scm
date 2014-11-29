@@ -1,3 +1,5 @@
+(include "/home/jules/code/scheme_projects/insomniac/scm/lib/baselib.scm")
+
 (display "Before Include")
 (display #\newline)
 

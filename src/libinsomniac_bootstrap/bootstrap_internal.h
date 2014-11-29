@@ -15,6 +15,7 @@ typedef struct compiler_core compiler_core_type;
 typedef enum node {
     STREAM_LITERAL,
     STREAM_SYMBOL,
+    STREAM_STRING,
     STREAM_OP,
     
     STREAM_QUOTED,
@@ -92,12 +93,18 @@ struct compiler_core {
 
 void emit_bootstrap(compiler_core_type *compiler, buffer_type *buf);
 
-bool emit_node(compiler_core_type *compiler, buffer_type *buf, ins_node_type *head);
-void emit_stream(compiler_core_type *compiler, buffer_type *buf, ins_stream_type *tree);
+bool emit_node(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *head);
+void emit_stream(compiler_core_type *compiler, buffer_type *buf,
+  ins_stream_type *tree);
+
 void emit_literal(buffer_type *buf, ins_node_type *ins);
+void emit_string(buffer_type *buf, ins_node_type *ins);
+
 void emit_quoted(buffer_type *buf, ins_stream_type *tree);
 
-void emit_asm(compiler_core_type *compiler, buffer_type *buf, ins_stream_type *tree);
+void emit_asm(compiler_core_type *compiler, buffer_type *buf,
+  ins_stream_type *tree);
 void emit_double(compiler_core_type *compiler, buffer_type *buf,
   ins_node_type *node, char *op);
 void emit_if(compiler_core_type *compiler, buffer_type *buf, ins_node_type *tree);
@@ -112,12 +119,12 @@ void emit_jump_label(buffer_type *buf, op_type type, buffer_type *label);
 
 void emit_lambda(compiler_core_type *compiler, buffer_type *output,
   ins_node_type *node);
-void emit_call(compiler_core_type *compiler, buffer_type *buf, ins_node_type *call);
+void emit_call(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *call);
   
 void gen_label(compiler_core_type *compiler, buffer_type **buf);
 
-void setup_include(compiler_core_type* compiler,
-  buffer_type *buf, buffer_type *file);
+void setup_include(compiler_core_type* compiler, ins_stream_type *arg);
 
 /* Instruction Stream builder routines */
 void stream_create(compiler_core_type *compiler, ins_stream_type **stream);
@@ -160,14 +167,15 @@ void stream_boolean(compiler_core_type *compiler,
 void stream_char(compiler_core_type *compiler,
   ins_stream_type *stream, char *str);
 
-void stream_string(compiler_core_type *compiler,
-  ins_stream_type *stream, char *str);
 void stream_symbol(compiler_core_type *compiler,
   ins_stream_type *stream, char *str);
 
 /* These are identical to bare */
 void stream_bare(compiler_core_type *compiler,
   ins_stream_type *stream, node_type type, char *str);
+
+#define stream_string(comp, stream, num)  \
+  stream_bare(comp, stream, STREAM_STRING, num)
 
 #define stream_literal(comp, stream, num)  \
   stream_bare(comp, stream, STREAM_LITERAL, num)

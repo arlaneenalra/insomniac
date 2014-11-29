@@ -234,6 +234,16 @@ void emit_literal(buffer_type *buf, ins_node_type *ins) {
   emit_op(buf, ins->value.literal);
 }
 
+/* Output a string to the asm buffer */
+void emit_string(buffer_type *buf, ins_node_type *ins) {
+  char *quote = "\"";
+
+  emit_indent(buf);
+  buffer_write(buf, (uint8_t*)quote, 1); 
+  buffer_write(buf, (uint8_t*)ins->value.literal, strlen(ins->value.literal));
+  buffer_write(buf, (uint8_t*)quote, 1); 
+  emit_newline(buf);
+}
 
 /* Emit a quoted structure */
 void emit_quoted(buffer_type *buf, ins_stream_type *tree) {
@@ -307,6 +317,11 @@ bool emit_node(compiler_core_type *compiler, buffer_type *buf, ins_node_type *he
     case STREAM_SYMBOL:
     case STREAM_OP: /* ASM should be on it's own */
       emit_literal(buf, head);
+      pushed = true;
+      break;
+
+    case STREAM_STRING:
+      emit_string(buf, head);
       pushed = true;
       break;
 

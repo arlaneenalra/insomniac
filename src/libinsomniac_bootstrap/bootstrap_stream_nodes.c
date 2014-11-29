@@ -133,30 +133,6 @@ void stream_char(compiler_core_type *compiler,
     gc_unregister_root(compiler->gc, (void **)&ins_node);
 }
 
-/* Add a string literal */
-void stream_string(compiler_core_type *compiler,
-  ins_stream_type *stream, char *str) {
-
-    ins_node_type *ins_node = 0;
-    size_t length = 0;
-
-    gc_register_root(compiler->gc, (void **)&ins_node);
-
-    stream_alloc_node(compiler, STREAM_LITERAL, &ins_node);
-
-    /* generate the literal string */
-    length = strlen(str) + 3;
-    gc_alloc(compiler->gc, 0, length,
-      (void **) &(ins_node->value.literal));
-
-    snprintf(ins_node->value.literal, length, "\"%s\"", str);
-
-    /* add the boolean to our instruction stream */
-    stream_append(stream, ins_node);
-    
-    gc_unregister_root(compiler->gc, (void **)&ins_node);
-}
-
 /* Add a symbol */
 void stream_symbol(compiler_core_type *compiler,
   ins_stream_type *stream, char *str) {

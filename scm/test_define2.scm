@@ -1,6 +1,5 @@
 (begin
-  (define display
-    (lambda (x) (asm (x) out ())))
+  (include "lib/baselib.scm")
 
   (define true 
     (lambda (x y) x))

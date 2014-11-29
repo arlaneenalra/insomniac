@@ -52,6 +52,18 @@ void buffer_create(gc_type *gc, buffer_type **buf_ret) {
     gc_unprotect(gc);
 }
 
+/* Empty the given buffer and free space allocated to it. */
+void buffer_reset(buffer_type *buf_void) {
+  buffer_internal_type *buf= (buffer_internal_type *)buf_void;
+
+  /* Empty contents of buffer */
+  buf->used = 0;
+
+  /* Buffers always have at least one allocated block */
+  buf->head = buf->tail;
+  buf->head->next = 0;
+}
+
 /* allocate a new buffer block and place it at the head of the list */
 void buffer_push(buffer_internal_type *buf) {
     block_type *new_tail = 0;

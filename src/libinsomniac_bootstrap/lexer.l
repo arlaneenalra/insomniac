@@ -38,11 +38,9 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 
 {MATH}    { return MATH_OPS; }
 
-"display" { return PRIM_DISPLAY; }
 "begin"   { return PRIM_BEGIN;  }
 "quote"   { return PRIM_QUOTE; }
 "define"  { return PRIM_DEFINE; }
-"define-dynamic" { return PRIM_DEFINE_DYNAMIC; }
 "lambda"  { return PRIM_LAMBDA; }
 "if"      { return PRIM_IF; }
 "set!"    { return PRIM_SET; }

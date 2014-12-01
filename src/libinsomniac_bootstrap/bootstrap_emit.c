@@ -57,7 +57,8 @@ void emit_jump_label(buffer_type *buf, op_type type, buffer_type *label) {
 }
 
 /* Emit an If */
-void emit_if(compiler_core_type *compiler, buffer_type *buf, ins_node_type *node) {
+void emit_if(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *node, bool allow_tail_call) {
   
   buffer_type *true_label = 0;
   buffer_type *done_label = 0;
@@ -71,13 +72,14 @@ void emit_if(compiler_core_type *compiler, buffer_type *buf, ins_node_type *node
   gen_label(compiler, &done_label);
 
   emit_comment(buf, "--If Start--");
-  emit_stream(compiler, buf, node->value.two.stream1);
+  emit_comment(buf, "--If Test Start --");
+  emit_stream(compiler, buf, node->value.two.stream1, false);
+  emit_comment(buf, "--If Test End --");
 
-  emit_comment(buf, "--If Test--");
   emit_jump_label(buf, OP_JNF, true_label);
 
   /* <false> */
-  emit_stream(compiler, buf, body->value.two.stream2);
+  emit_stream(compiler, buf, body->value.two.stream2, allow_tail_call);
 
   /* jmp done */
   emit_jump_label(buf, OP_JMP, done_label);
@@ -87,7 +89,7 @@ void emit_if(compiler_core_type *compiler, buffer_type *buf, ins_node_type *node
   emit_label(buf, true_label);
  
   /* <true> */ 
-  emit_stream(compiler, buf, body->value.two.stream1);
+  emit_stream(compiler, buf, body->value.two.stream1, allow_tail_call);
  
   /* done: */
   emit_comment(buf, "--If Done--");
@@ -176,9 +178,11 @@ void emit_lambda(compiler_core_type *compiler, buffer_type *buf,
 
   /* output body */
   emit_comment(buf, "-- Body --");
-  emit_stream(compiler, buf, node->value.two.stream2);
+  emit_stream(compiler, buf, node->value.two.stream2, true);
 
   /* swap ret */
+  // TODO Add a check for tail call to avoid garbage instructions in the 
+  // stream
   emit_op(buf, "swap ret");
 
   /* skip_label: */
@@ -192,7 +196,8 @@ void emit_lambda(compiler_core_type *compiler, buffer_type *buf,
 }
 
 /* Build a function call */
-void emit_call(compiler_core_type *compiler, buffer_type *buf, ins_node_type *call) {
+void emit_call(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *call, bool tail_call) {
   ins_node_type *head = 0;
   bool pushed = false;
 
@@ -205,9 +210,7 @@ void emit_call(compiler_core_type *compiler, buffer_type *buf, ins_node_type *ca
   /* Walk arguments and evaluate them */
   head = call->value.two.stream2->head;
   while (head) {
-    emit_comment(buf, "----Arg Start ----");
-    pushed = emit_node(compiler, buf, head);
-    emit_comment(buf, "----Arg End----");
+    pushed = emit_node(compiler, buf, head, false);
   
     /* Always take a slot */
     if (!pushed) {
@@ -220,10 +223,16 @@ void emit_call(compiler_core_type *compiler, buffer_type *buf, ins_node_type *ca
 
   
   emit_comment(buf, "--Call - Callable --");
-  emit_stream(compiler, buf, call->value.two.stream1);
+  emit_stream(compiler, buf, call->value.two.stream1, false);
 
-  // TODO: tail call opts 
-  emit_op(buf, "call_in");
+  /* Rely on a vm level hack to make tail calls work */
+  if (tail_call) {
+    /* TODO:  This should be an explicit instruciton rather than an
+     * matched hueristic in the vm */
+    emit_op(buf, "call_in swap ret");
+  } else {
+    emit_op(buf, "call_in");
+  }
 
   emit_comment(buf, "--Call End--");
 
@@ -287,7 +296,7 @@ void emit_asm(compiler_core_type *compiler, buffer_type *buf, ins_stream_type *t
     switch (head->type) {
       case STREAM_ASM_STREAM:
         emit_comment(buf, "----Escape ASM Start----");
-        emit_stream(compiler, buf, head->value.stream);
+        emit_stream(compiler, buf, head->value.stream, false);
         emit_comment(buf, "----Escape ASM End----");
         break;
 
@@ -302,13 +311,14 @@ void emit_asm(compiler_core_type *compiler, buffer_type *buf, ins_stream_type *t
 void emit_double(compiler_core_type *compiler, buffer_type *buf,
   ins_node_type *node, char *op) {
 
-  emit_stream(compiler, buf, node->value.two.stream1);
-  emit_stream(compiler, buf, node->value.two.stream2);
+  emit_stream(compiler, buf, node->value.two.stream1, false);
+  emit_stream(compiler, buf, node->value.two.stream2, false);
   emit_op(buf, op);
 }
 
 /* Decide how to output an expressione element */
-bool emit_node(compiler_core_type *compiler, buffer_type *buf, ins_node_type *head) {
+bool emit_node(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *head, bool allow_tail_call) {
   bool pushed = false;
 
   /* Process each instruction in the stream */
@@ -340,13 +350,13 @@ bool emit_node(compiler_core_type *compiler, buffer_type *buf, ins_node_type *he
 
     case STREAM_LOAD:
       /* Simple load form symbol operation */
-      emit_stream(compiler, buf, head->value.stream);
+      emit_stream(compiler, buf, head->value.stream, false);
       emit_op(buf, "@");
       pushed = true;
       break;
 
     case STREAM_IF:
-      emit_if(compiler, buf, head);
+      emit_if(compiler, buf, head, allow_tail_call);
       pushed = true;
       break;
 
@@ -364,7 +374,7 @@ bool emit_node(compiler_core_type *compiler, buffer_type *buf, ins_node_type *he
 
     case STREAM_CALL:
       // TODO: Add tail call handling here
-      emit_call(compiler, buf, head);
+      emit_call(compiler, buf, head, allow_tail_call && !head->next);
       pushed = true;
       break;
 
@@ -385,7 +395,8 @@ bool emit_node(compiler_core_type *compiler, buffer_type *buf, ins_node_type *he
 }
 
 /* Walk an instruction stream and write it to the buffer in 'pretty' form */
-void emit_stream(compiler_core_type *compiler, buffer_type *buf, ins_stream_type *tree) {
+void emit_stream(compiler_core_type *compiler, buffer_type *buf,
+  ins_stream_type *tree, bool allow_tail_call) {
   ins_node_type *head = 0;
   bool pushed = false; 
 
@@ -396,7 +407,7 @@ void emit_stream(compiler_core_type *compiler, buffer_type *buf, ins_stream_type
 
   while (head) {
     /* Set to true if the node pushes to the stack */
-    pushed = emit_node(compiler, buf, head); 
+    pushed = emit_node(compiler, buf, head, allow_tail_call && !(head->next)); 
 
     head = head->next;
 

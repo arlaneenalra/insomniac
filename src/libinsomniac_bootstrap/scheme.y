@@ -13,7 +13,6 @@
 %parse-param {void *scanner} 
 %lex-param {void *scanner} 
 
-//%define api.value.type { buffer_type * }
 %define api.value.type { ins_stream_type * }
 
 %token OPEN_PAREN
@@ -187,14 +186,24 @@ if:
 
 define:
     define_variable
+  | define_lambda
+
 
 /* the most basic version of define */
 define_variable:
-  PRIM_DEFINE symbol expression CLOSE_PAREN  { STREAM_NEW($$, bind, $3, $2); }
+    PRIM_DEFINE symbol expression CLOSE_PAREN  { STREAM_NEW($$, bind, $3, $2); }
+
+define_lambda:
+    PRIM_DEFINE OPEN_PAREN
+    symbol define_lambda_body                  { STREAM_NEW($$, bind, $4, $3); }
+
+define_lambda_body:
+    lambda_formals_list_end 
+    begin_end                                  { STREAM_NEW($$, lambda, $1, $2); }
 
 /* Set the value of a location */
 set:
-  PRIM_SET symbol expression CLOSE_PAREN     { STREAM_NEW($$, store, $3, $2); } 
+    PRIM_SET symbol expression CLOSE_PAREN     { STREAM_NEW($$, store, $3, $2); } 
 
 begin:
     PRIM_BEGIN begin_end   { $$ = $2; }
@@ -238,11 +247,11 @@ lambda:
 lambda_formals:                 /* if formals ends in a () it's a fixed list
                                    otherwise the it's a variadic formals list */
     symbol
-  | lambda_formals_list
+  | OPEN_PAREN lambda_formals_list { $$ = $2; }
 
 lambda_formals_list:
-    OPEN_PAREN CLOSE_PAREN      { NEW_STREAM($$); } /* ignore arguments */
-  | OPEN_PAREN lambda_formals_list_end   { $$ = $2; }
+    CLOSE_PAREN                    { NEW_STREAM($$); } /* ignore arguments */
+  | lambda_formals_list_end        { $$ = $1; }
 
 lambda_formals_list_end:
     symbol CLOSE_PAREN             {

@@ -38,6 +38,7 @@ typedef enum op {
     OP_RET, /* return to closure on stack */
     OP_JIN, /* jump into coderef of clsure on the stack */
     OP_CALL_IN, /* call to closure on stack */
+    OP_TAIL_CALL_IN, /* call to closure on stack without adding a return. */
 
     OP_CONTINUE, /* an exception handling routine for the current environment */
     OP_RESTORE, /* restore the current exception handler when done handling exceptions */

@@ -124,12 +124,15 @@ void op_call_ext(vm_internal_type *vm) {
     ext_call_type func_ptr = 0;
 
     vm_int func = 0;
+    vm_int depth = 0;
 
     gc_register_root(vm->gc, (void **)&obj);
     gc_register_root(vm->gc, (void **)&lib);
 
     obj = vm_pop(vm);
     lib = vm_pop(vm);
+
+    depth = vm->depth; /* Save depth before call */
 
     if(!obj || !lib || obj->type != FIXNUM || lib->type != LIBRARY) {
         throw(vm, "Invalid arguments to call_ext", 2, obj, lib);
@@ -145,6 +148,11 @@ void op_call_ext(vm_internal_type *vm) {
             func_ptr = ((binding_type *)lib->value.library.functions)[func].func;
             (*func_ptr)(vm, vm->gc);
         }
+    }
+
+    /* Make sure that something was returned */
+    if (vm->depth != depth) {
+      throw(vm, "Stack uneven after call_ext", 0 );
     }
 
     gc_unregister_root(vm->gc, (void **)&lib);

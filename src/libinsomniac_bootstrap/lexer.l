@@ -38,13 +38,15 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 
 {MATH}    { return MATH_OPS; }
 
-"display" { return PRIM_DISPLAY; }
 "begin"   { return PRIM_BEGIN;  }
 "quote"   { return PRIM_QUOTE; }
 "define"  { return PRIM_DEFINE; }
 "lambda"  { return PRIM_LAMBDA; }
 "if"      { return PRIM_IF; }
 "set!"    { return PRIM_SET; }
+
+"include" { return PRIM_INCLUDE; }
+"asm"     { return PRIM_ASM; }
 
 {SIGNS}?{DIGITS}                       { return FIXED_NUMBER; }
 {SIGNS}?({DIGITS}|nan|inf)?"."{DIGITS} { return FLOAT_NUMBER; }
@@ -70,10 +72,26 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 [;].*     /* Eat comments */
 #!r6rs    /* Treat this as a comment */      
 
-<<EOF>>   { return END_OF_FILE; }
+<<EOF>>   {
+            yypop_buffer_state(yyscanner);
+
+            if( !YY_CURRENT_BUFFER) {
+              return END_OF_FILE;
+            }
+
+          }
 %%
 
 char * get_text(void * scanner) {
 	return yyget_text(scanner);
 }
+
+/* Push the current lexer state on the stack and replace it with the included
+   file. */
+void parse_push_state(compiler_core_type *compiler, FILE *file) {
+    yypush_buffer_state(
+      yy_create_buffer(file, YY_BUF_SIZE, compiler->scanner), compiler->scanner);
+
+}
+
 

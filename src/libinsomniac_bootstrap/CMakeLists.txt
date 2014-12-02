@@ -20,6 +20,10 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 add_library(insomniac_bootstrap
   bootstrap_core.c
   bootstrap_preamble.c
+  bootstrap_emit.c
+  bootstrap_emit_formatting.c
+  bootstrap_stream.c
+  bootstrap_stream_nodes.c
   ${BISON_PARSER_OUTPUTS} 
   ${FLEX_LEXER_OUTPUTS})
 

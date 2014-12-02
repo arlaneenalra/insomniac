@@ -20,14 +20,33 @@ scheme-gc-stats:
         () swap
         ret
 
+;; CAR, CDR and friends
+scheme-car:
+        swap
+        car car
+        swap ret
+
+scheme-cdr:
+        swap
+        car cdr
+        swap ret
+
+;; The arguments should already have had cons applied ;)
+scheme-cons:
+        ret
 
 user-entry:
         drop ;; drop return address, we won't need it
 
-        s"initial-environment" bind ;; bind the initial environment
+        s"null-environment" bind ;; bind the initial environment
         proc env s"bootstrap-environment" bind ;; the current env
 
         proc scheme-depth s"depth" bind
         proc scheme-gc-stats s"gc-stats" bind
+
+        proc scheme-car s"car" bind
+        proc scheme-cdr s"cdr" bind
+        proc scheme-cons s"cons" bind
+
 _main:
 

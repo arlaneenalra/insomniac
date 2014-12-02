@@ -1,235 +1,207 @@
-
 #include "bootstrap_internal.h"
 #include "scheme.h"
 #include "lexer.h"
 
-#include <stdio.h>
+#include <errno.h>
+#include <assert.h>
 
-/* Add a new line to the output buffer stream */
-void emit_newline(buffer_type *buf) {
-    char *newline = "\n";
-    buffer_write(buf, (uint8_t *)newline, strlen(newline));
-}
-
-/* Emit a generic operations */
-void emit_op(buffer_type *buf, char *str) {
-    int length = strlen(str);
-
-    buffer_write(buf, (uint8_t *)" ", 1);
-    buffer_write(buf, (uint8_t *)str, length);
-    emit_newline(buf);
-}
-
-/* Emit a boolean into our code stream */
-void emit_boolean(buffer_type *buf, int b) {
-    char c = 't';
-    char str_buf[4];
-    size_t length = 0;
-
-    /* if b is false, c should be f */
-    if(!b) {
-        c = 'f';
-    }
-
-    length = snprintf(str_buf, 4, " #%c", c);
-    buffer_write(buf, (uint8_t *)str_buf, length);
-    emit_newline(buf);
-}
-
-/* Emit a character constanct */
-void emit_char(buffer_type *buf, char *c) {
-    char *prefix = " #\\";
-
-    buffer_write(buf, (uint8_t *)prefix, 3);
-    buffer_write(buf, (uint8_t *)c, strlen(c));
-    emit_newline(buf);
-}
-
-
-/* Emit a fixnum string */
-void emit_fixnum(buffer_type *buf, char *num) {
-    int length = strlen(num);
-
-    buffer_write(buf, (uint8_t *)" ", 1);
-    buffer_write(buf, (uint8_t *)num, length);
-    emit_newline(buf);
-}
-
-/* Emit a string */
-void emit_string(buffer_type *buf, char *str) {
-    int length = strlen(str);
-
-    buffer_write(buf, (uint8_t *)" \"", 2);
-    buffer_write(buf, (uint8_t *)str, length);
-    buffer_write(buf, (uint8_t *)"\"", 1);
-    emit_newline(buf);
-}
-
-/* Emit a Symbol */
-void emit_symbol(buffer_type *buf, char *sym) {
-    int length = strlen(sym);
-
-    buffer_write(buf, (uint8_t *)" s\"", 3);
-    buffer_write(buf, (uint8_t *)sym, length);
-    buffer_write(buf, (uint8_t *)"\"", 1);
-    emit_newline(buf);
-}
-
-/* Emit an If */
-void emit_if(compiler_core_type *compiler, buffer_type *test_buffer,
-  buffer_type *true_buffer, buffer_type *false_buffer) {
-  
-  buffer_type *true_label = 0;
-  buffer_type *done_label = 0;
-
-  gc_register_root(compiler->gc, &true_label);
-  gc_register_root(compiler->gc, &done_label);
-
-  gen_label(compiler, &true_label);
-  gen_label(compiler, &done_label);
-
-  /* <test> jnf true */
-  buffer_write(test_buffer, (uint8_t *)" jnf ", 5);
-  buffer_append(test_buffer, true_label, -1);
-  emit_newline(test_buffer);
-
-  /* <false> jmp done */
-  buffer_append(test_buffer, false_buffer, -1);
-
-  buffer_write(test_buffer, (uint8_t *)" jmp ", 5);
-  buffer_append(test_buffer, done_label, -1);
-  emit_newline(test_buffer);
-
-  /* true: */
-  buffer_append(test_buffer, true_label, -1);
-  buffer_write(test_buffer, (uint8_t *) ":", 1);
-  emit_newline(test_buffer);
- 
-  /* <true> */ 
-  buffer_append(test_buffer, true_buffer, -1);
-  emit_newline(test_buffer);
- 
-  /* done: */
-  buffer_append(test_buffer, done_label, -1);
-  buffer_write(test_buffer, (uint8_t *) ":", 1);
-  emit_newline(test_buffer);
-
-  
-  gc_unregister_root(compiler->gc, &done_label);
-  gc_unregister_root(compiler->gc, &true_label);
-}
-
-/* Emit framing code for a lambda */
-void emit_lambda(compiler_core_type *compiler, buffer_type *output,
-  buffer_type *formals, buffer_type *body) {
-
-  buffer_type *proc_label = 0;
-  buffer_type *skip_label = 0;
-
-  gc_register_root(compiler->gc, &proc_label);
-  gc_register_root(compiler->gc, &skip_label);
-
-  gen_label(compiler, &proc_label);
-  gen_label(compiler, &skip_label);
-
-  /* calling convention is ( args ret -- ) */
-
-  /* proc proc_label: */
-  buffer_write(output, (uint8_t *)" proc ", 6);
-  buffer_append(output, proc_label, -1);
-  emit_newline(output);
-
-  /* output a jump so we don't execute the lambda during
-     definition */
-
-  /* jmp skip_label */
-  buffer_write(output, (uint8_t *)" jmp ", 5);
-  buffer_append(output, skip_label, -1);
-  emit_newline(output);
-
-  /* proc_label: */
-  buffer_append(output, proc_label, -1);
-  buffer_write(output, (uint8_t *)":", 1);
-  emit_newline(output);
-
-  /* swap */
-  emit_op(output, "swap");
-
-  /* output formal binding code */
-  buffer_append(output, formals, -1);
-  emit_newline(output);
-
-  /* output body */
-  buffer_append(output, body, -1);
-  emit_newline(output);
-
-  /* swap ret */
-  emit_op(output, "swap ret");
-
-  /* skip_label: */
-  buffer_append(output, skip_label, -1);
-  buffer_write(output, (uint8_t *)":", 1);
-  emit_newline(output);
-
-
-  gc_unregister_root(compiler->gc, &skip_label);
-  gc_unregister_root(compiler->gc, &proc_label);
-}
 
 /* Make a label */
 void gen_label(compiler_core_type *compiler, buffer_type **buf) {
-    char c[22];
-    int written = 0;
+  char c[22];
+  int written = 0;
 
-    buffer_create(compiler->gc, buf);
-    buffer_write(*buf, (uint8_t *)"_label_", 7);
+  buffer_create(compiler->gc, buf);
+  buffer_write(*buf, (uint8_t *)"_label_", 7);
 
-    /* Add an incrementing suffix to the label */
-    written = snprintf(c, 22, "%"PRIi64, compiler->label_index);
-    buffer_write(*buf, (uint8_t *)c, written); 
-    
-    compiler->label_index++;
+  /* Add an incrementing suffix to the label */
+  written = snprintf(c, 22, "%"PRIi64, compiler->label_index);
+  buffer_write(*buf, (uint8_t *)c, written); 
+  
+  compiler->label_index++;
+}
+
+/* Setup gc types */
+
+/* Instruction Stream type setup */
+gc_type_def register_stream_type(gc_type *gc) {
+  gc_type_def type = 0;
+
+  type = gc_register_type(gc, sizeof(ins_stream_type));
+  /* we only need to register the head */
+  gc_register_pointer(gc, type, offsetof(ins_stream_type, head));
+
+  return type;
+}
+
+/* Setup a literal node */
+gc_type_def register_node_literal_type(gc_type *gc) {
+  gc_type_def type = 0;
+
+  type = gc_register_type(gc, sizeof(ins_node_type));
+  gc_register_pointer(gc, type, offsetof(ins_node_type, next));
+  gc_register_pointer(gc, type, offsetof(ins_node_type, value) +
+    offsetof(node_value_type, literal));
+
+  /* Add other fields here */
+
+  return type;
+}
+
+/* setup an single instruction stream node */
+gc_type_def register_node_single_type(gc_type *gc) {
+  gc_type_def type = 0;
+
+  type = gc_register_type(gc, sizeof(ins_node_type));
+  gc_register_pointer(gc, type, offsetof(ins_node_type, next));
+  gc_register_pointer(gc, type, offsetof(ins_node_type, value) +
+    offsetof(node_value_type, stream));
+
+  return type;
+}
+
+/* setup an two instruction stream node */ 
+gc_type_def register_node_double_type(gc_type *gc) {
+  gc_type_def type = 0;
+
+  type = gc_register_type(gc, sizeof(ins_node_type));
+  gc_register_pointer(gc, type, offsetof(ins_node_type, next));
+
+  gc_register_pointer(gc, type, offsetof(ins_node_type, value) +
+    offsetof(node_value_type, two) + offsetof(two_stream_type, stream1));
+  gc_register_pointer(gc, type, offsetof(ins_node_type, value) +
+    offsetof(node_value_type, two) + offsetof(two_stream_type, stream2));
+
+  return type;
+}
+
+/* Compiler core type  */
+gc_type_def register_compiler_type(gc_type *gc) {
+  gc_type_def type = 0;
+
+  type = gc_register_type(gc, sizeof(compiler_core_type));
+  gc_register_pointer(gc, type, offsetof(compiler_core_type, stream));
+
+  return type;
+}
+
+/* Setup Include */
+/* Pushes a new file into the lexer's input stream while preserving
+ * the existing stream. */
+void setup_include(compiler_core_type* compiler, ins_stream_type *arg) {
+
+  FILE *include_file = 0;
+  char *file_name = 0;
+  
+  /* Get the file name for this node */
+  file_name = arg->head->value.literal;
+
+  include_file = fopen(file_name, "r");
+
+  if ( !include_file ) {
+    // TODO: Add file name tracking to compiler so we can 
+    // report what file include failed in.
+   
+    (void)fprintf(stderr, "Error %i! Incliding '%s'", errno, file_name);
+    parse_error(compiler, compiler->scanner,
+      "Unable to open include file!");
+  } else {
+    parse_push_state(compiler, include_file);
+  }
+
+}
+
+/* Create an instance of the compiler */
+void compiler_create(gc_type *gc, compiler_type **comp_void) {
+  compiler_core_type *compiler = 0;
+  static gc_type_def stream_gc_type = 0;
+  static gc_type_def node_literal_gc_type = 0;
+  static gc_type_def node_single_gc_type = 0;
+  static gc_type_def node_double_gc_type = 0;
+  static gc_type_def compiler_gc_type = 0;
+
+  // setup gc types
+  if (!compiler_gc_type) {
+    compiler_gc_type = register_compiler_type(gc);
+    stream_gc_type = register_stream_type(gc);
+    node_literal_gc_type = register_node_literal_type(gc);
+    node_single_gc_type = register_node_single_type(gc);
+    node_double_gc_type = register_node_double_type(gc);
+  }
+
+  gc_register_root(gc, (void **)&compiler);
+
+  /* create a compiler instance */
+  gc_alloc_type(gc, 0, compiler_gc_type, (void **)&compiler);
+
+  compiler->gc = gc;
+  compiler->label_index = 0;
+  compiler->preamble = "lib/preamble.asm";
+  compiler->postamble = "lib/postamble.asm";
+
+  /* setup gc types */
+  compiler->stream_gc_type = stream_gc_type;
+
+  compiler->node_types[STREAM_LITERAL] = node_literal_gc_type;
+  compiler->node_types[STREAM_SYMBOL] = node_literal_gc_type;
+  compiler->node_types[STREAM_STRING] = node_literal_gc_type;
+  compiler->node_types[STREAM_OP] = node_literal_gc_type;
+
+  compiler->node_types[STREAM_QUOTED] = node_single_gc_type;
+  compiler->node_types[STREAM_LOAD] = node_single_gc_type;
+  compiler->node_types[STREAM_ASM] = node_single_gc_type;
+  compiler->node_types[STREAM_ASM_STREAM] = node_single_gc_type;
+
+  compiler->node_types[STREAM_BIND] = node_double_gc_type;
+  compiler->node_types[STREAM_STORE] = node_double_gc_type;
+  
+  compiler->node_types[STREAM_TWO_ARG] = node_double_gc_type;
+  compiler->node_types[STREAM_IF] = node_double_gc_type;
+  compiler->node_types[STREAM_MATH] = node_double_gc_type;
+  
+  compiler->node_types[STREAM_LAMBDA] = node_double_gc_type;
+  compiler->node_types[STREAM_CALL] = node_double_gc_type;
+
+  *comp_void = compiler;
+
+  /* Add a stream route to the compiler object */
+  stream_create(compiler, &(compiler->stream));
+
+  gc_unregister_root(gc, (void **)&compiler);
 }
 
 /* Interface into the compiler internals */
 // TODO: Make compiler code work like the other libraries
-size_t compile_string(gc_type *gc, char *str, char **asm_ref) {
-    yyscan_t scanner =0;
-    size_t length = 0;
-    compiler_core_type compiler;
+void compile_string(compiler_type *comp_void, char *str) {
+  compiler_core_type *compiler = (compiler_core_type *)comp_void; 
 
-    gc_register_root(gc, (void **)&compiler.buf);
+  /* Actually parse the input stream. */
+  yylex_init(&(compiler->scanner));
+  yy_scan_string(str, compiler->scanner);
 
-    compiler.gc = gc;
-    compiler.label_index = 0;
-    compiler.preamble = "lib/preamble.asm";
-    compiler.postamble = "lib/postamble.asm";
+  /* TODO: Need a better way to handle GC than leaking */
+  gc_protect(compiler->gc);
+  
+  parse_internal(compiler, compiler->scanner);
+  
+  gc_unprotect(compiler->gc);
 
-    buffer_create(gc, &compiler.buf);
+  yylex_destroy(compiler->scanner);
+}
 
-    /* Actually parse the input stream. */
-    yylex_init(&scanner);
-    yy_scan_string(str, scanner);
+/* Convert an instruction stream into assembly */
+void compiler_code_gen(compiler_type *comp_void, buffer_type * buf,
+  bool bootstrap) {
+  
+  compiler_core_type *compiler = (compiler_core_type *)comp_void;
 
-    /* TODO: Need a better way to handle GC than leaking */
-    gc_protect(compiler.gc);
-    
-    parse_internal(&compiler, scanner);
-    
-    gc_protect(compiler.gc);
+  /* Walk the instruction stream and output it to our buffer */
+  emit_stream(compiler, buf, compiler->stream, false);
 
-    yylex_destroy(scanner);
-
-    /* Add appropriate bootstraping code */
-    emit_bootstrap(&compiler);
-
-    /* Convert the output buffer back to a string. */
-    length = buffer_size(compiler.buf);
-    gc_alloc(gc, 0, length, (void **)asm_ref);
-    length = buffer_read(compiler.buf, (uint8_t *)*asm_ref, length);
-    
-    gc_unregister_root(gc, (void **)&compiler.buf);
-
-    return length;
+  /* Add appropriate bootstraping code */
+  if (bootstrap) {
+    /* TODO: Split bootstrap up into pre and post amble functions */
+    emit_bootstrap(compiler, buf);
+  }
 }
 

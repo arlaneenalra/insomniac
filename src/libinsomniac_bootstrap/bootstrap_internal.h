@@ -94,9 +94,9 @@ struct compiler_core {
 void emit_bootstrap(compiler_core_type *compiler, buffer_type *buf);
 
 bool emit_node(compiler_core_type *compiler, buffer_type *buf,
-  ins_node_type *head);
+  ins_node_type *head, bool allow_tail_call);
 void emit_stream(compiler_core_type *compiler, buffer_type *buf,
-  ins_stream_type *tree);
+  ins_stream_type *tree, bool allow_tail_call);
 
 void emit_literal(buffer_type *buf, ins_node_type *ins);
 void emit_string(buffer_type *buf, ins_node_type *ins);
@@ -107,7 +107,8 @@ void emit_asm(compiler_core_type *compiler, buffer_type *buf,
   ins_stream_type *tree);
 void emit_double(compiler_core_type *compiler, buffer_type *buf,
   ins_node_type *node, char *op);
-void emit_if(compiler_core_type *compiler, buffer_type *buf, ins_node_type *tree);
+void emit_if(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *tree, bool allow_tail_call);
 
 void emit_newline(buffer_type *buf);
 void emit_indent(buffer_type *buf);
@@ -120,7 +121,7 @@ void emit_jump_label(buffer_type *buf, op_type type, buffer_type *label);
 void emit_lambda(compiler_core_type *compiler, buffer_type *output,
   ins_node_type *node);
 void emit_call(compiler_core_type *compiler, buffer_type *buf,
-  ins_node_type *call);
+  ins_node_type *call, bool tail_call);
   
 void gen_label(compiler_core_type *compiler, buffer_type **buf);
 

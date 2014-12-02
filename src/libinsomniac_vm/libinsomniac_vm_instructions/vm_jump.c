@@ -1,13 +1,6 @@
 #include "vm_instructions_internal.h"
 
 
-/* a crude/quick test for tail calls, if primarily looks 
-   for a "swap ret" pair following a call */
-bool test_tail(vm_internal_type *vm) {
-  return vm_peek(vm, 0) == (uint8_t)OP_SWAP
-      && vm_peek(vm, 1) == (uint8_t)OP_RET;
-}
-
 /* jump if the top of stack is not false */
 void op_jnf(vm_internal_type *vm) {
     object_type *obj =0 ;
@@ -196,16 +189,12 @@ void op_call_in(vm_internal_type *vm) {
         throw(vm, "Attempt to jump to non-closure", 1, closure);
 
     } else {
-        if (!test_tail(vm)) {
-          /* allocate a new closure */
-          ret = vm_alloc(vm, CLOSURE);
+        /* allocate a new closure */
+        ret = vm_alloc(vm, CLOSURE);
 
-          /* save our current environment */
-          ret->value.closure = vm->env;
-          vm_push(vm, ret);
-        } else {
-          op_swap(vm);
-        }
+        /* save our current environment */
+        ret->value.closure = vm->env;
+        vm_push(vm, ret);
 
         /* clone the closures environment */
         clone_env(vm, &(vm->env), closure->value.closure);
@@ -217,7 +206,28 @@ void op_call_in(vm_internal_type *vm) {
     gc_unregister_root(vm->gc, (void **)&closure);
 }
 
+/* tail call indirect operation */
+void op_tail_call_in(vm_internal_type *vm) {
+    object_type *closure = 0;
+    
+    gc_register_root(vm->gc, (void **)&closure);
+    
+    closure = vm_pop(vm);
 
+    if(!closure || closure->type != CLOSURE) {
+        throw(vm, "Attempt to jump to non-closure", 1, closure);
+
+    } else {
+        op_swap(vm);
+
+        /* clone the closures environment */
+        clone_env(vm, &(vm->env), closure->value.closure);
+        /* create a child environment */
+        push_env(vm);
+    }
+
+    gc_unregister_root(vm->gc, (void **)&closure);
+}
 /* Exception Handling code */
 
 /* set the exception handler for the current 

@@ -33,6 +33,9 @@ vec@ ( index vector -- obj ) Takes an index and vector and
                                 index
 vec! ( index obj vector -- ) Takes an index, object, and vector and
                                 stores the object at the given index
+vec-len ( vector -- size)    Takes a vector as an argument and returns
+                                the vectors length.
+
 jmp  ( -label- ) Jumps to given label
 jnf  ( obj -label- ) Jumps to the given label if obj is not false
 

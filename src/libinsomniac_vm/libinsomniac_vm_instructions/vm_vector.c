@@ -21,6 +21,29 @@ void op_make_vector(vm_internal_type *vm) {
     gc_unprotect(vm->gc);
 }
 
+/* return the lenght of a vector */
+void op_vector_length(vm_internal_type *vm) {
+    object_type *obj = 0;
+    object_type *length = 0;
+
+    gc_register_root(vm->gc, (void **)&obj);
+    gc_register_root(vm->gc, (void **)&length);
+    
+    obj = vm_pop(vm);
+
+    if (!obj || obj->type != VECTOR) {
+      throw(vm, "Attempt to read vector length of non-vector!", 1, obj);
+    }
+
+    length = vm_alloc(vm, FIXNUM);
+    length->value.integer = obj->value.vector.length;
+
+    vm_push(vm, length);
+
+    gc_unregister_root(vm->gc, (void **)&length);
+    gc_unregister_root(vm->gc, (void **)&obj);
+}
+
 /* set an element in a vector */
 void op_vector_set(vm_internal_type *vm) {
     object_type *vector = 0;

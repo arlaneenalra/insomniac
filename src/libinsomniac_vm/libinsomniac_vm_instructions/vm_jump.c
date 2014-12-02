@@ -206,7 +206,28 @@ void op_call_in(vm_internal_type *vm) {
     gc_unregister_root(vm->gc, (void **)&closure);
 }
 
+/* tail call indirect operation */
+void op_tail_call_in(vm_internal_type *vm) {
+    object_type *closure = 0;
+    
+    gc_register_root(vm->gc, (void **)&closure);
+    
+    closure = vm_pop(vm);
 
+    if(!closure || closure->type != CLOSURE) {
+        throw(vm, "Attempt to jump to non-closure", 1, closure);
+
+    } else {
+        op_swap(vm);
+
+        /* clone the closures environment */
+        clone_env(vm, &(vm->env), closure->value.closure);
+        /* create a child environment */
+        push_env(vm);
+    }
+
+    gc_unregister_root(vm->gc, (void **)&closure);
+}
 /* Exception Handling code */
 
 /* set the exception handler for the current 

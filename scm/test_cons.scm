@@ -1,1 +1,7 @@
-(quote (1 2 3 4 5 ))
+(begin
+  (define true
+    (lambda (x y) x))
+
+  (true 1 2)
+)
+

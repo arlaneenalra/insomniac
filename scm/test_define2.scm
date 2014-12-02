@@ -1,4 +1,6 @@
 (begin
+  (include "lib/baselib.scm")
+
   (define true 
     (lambda (x y) x))
 
@@ -32,8 +34,8 @@
 
   (display
     (my-if true
-      (quote (#\@))
-      (quote (undefined #f))))
+      '(#\@)
+      '(undefined #f)))
 
   (display #\newline)
 

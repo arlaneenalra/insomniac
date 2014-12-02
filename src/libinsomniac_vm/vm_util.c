@@ -8,6 +8,17 @@
 #include <unistd.h>
 
 
+/* return the instruction/byte at the given address */
+uint8_t vm_peek(vm_internal_type *vm, vm_int offset) {
+  vm_int addr = vm->env->ip + offset;
+
+  if (addr > vm->env->length) {
+    return OP_NOP;
+  }
+
+  return vm->env->code_ref[addr];
+}
+
 /* create a list of pairs */
 object_type *cons(vm_type *vm_void, object_type *car, object_type *cdr) {
     vm_internal_type *vm=(vm_internal_type *)vm_void;

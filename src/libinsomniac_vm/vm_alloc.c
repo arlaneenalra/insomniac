@@ -5,9 +5,12 @@ object_type *vm_alloc(vm_type *vm_void, cell_type type) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
     object_type *obj=0;
 
+    if (type == EMPTY && vm->empty) {
+      return vm->empty;
+    }
+
     /* Allocate an object using the GC type system */
     gc_alloc_type(vm->gc, 0, vm->types[type], (void **)&obj);
-    
     obj->type=type;
 
     return obj; 

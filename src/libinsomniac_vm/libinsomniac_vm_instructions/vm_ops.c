@@ -95,9 +95,11 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_CALL] = &op_call;
     vm->ops[OP_ADOPT] = &op_adopt;
     vm->ops[OP_PROC] = &op_proc;
-    vm->ops[OP_RET] = &op_ret; /* jump indirect */
+    vm->ops[OP_RET] = &op_ret; /* return */
     vm->ops[OP_JIN] = &op_jin; /* jump indirect */
-    vm->ops[OP_CALL_IN] = &op_call_in; /* jump indirect */
+    vm->ops[OP_CALL_IN] = &op_call_in; /* call indirect */
+    vm->ops[OP_TAIL_CALL_IN] = &op_tail_call_in;
+
 
     vm->ops[OP_IMPORT] = &op_import; /* dlopen a dll */
     vm->ops[OP_CALL_EXT] = &op_call_ext; /* call an imported function */

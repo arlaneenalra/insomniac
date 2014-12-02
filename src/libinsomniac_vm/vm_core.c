@@ -79,6 +79,8 @@ object_type *vm_pop(vm_type *vm_void) {
 
     /* return 0 if the stack is empty */
     if(vm->stack_root->type == EMPTY) {
+        fprintf(stderr, "Stack Under Run!\n");
+        assert(0);        
         return 0;
     }
 

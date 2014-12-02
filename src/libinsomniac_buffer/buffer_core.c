@@ -52,6 +52,18 @@ void buffer_create(gc_type *gc, buffer_type **buf_ret) {
     gc_unprotect(gc);
 }
 
+/* Empty the given buffer and free space allocated to it. */
+void buffer_reset(buffer_type *buf_void) {
+  buffer_internal_type *buf= (buffer_internal_type *)buf_void;
+
+  /* Empty contents of buffer */
+  buf->used = 0;
+
+  /* Buffers always have at least one allocated block */
+  buf->head = buf->tail;
+  buf->head->next = 0;
+}
+
 /* allocate a new buffer block and place it at the head of the list */
 void buffer_push(buffer_internal_type *buf) {
     block_type *new_tail = 0;
@@ -155,6 +167,11 @@ size_t buffer_append(buffer_type *buf_void, buffer_type *src_void, size_t length
     size_t copy_amount = 0;
     
     block = buf->head;
+
+    /* if size is set to -1, then look it via buffer_size */
+    if(length == -1) {
+      length = buffer_size(src_void);
+    }
 
     /* walk all blocks and copy them into the destination buffer */
     while((block != 0) && (offset < length)) {

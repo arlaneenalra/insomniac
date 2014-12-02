@@ -51,8 +51,6 @@ gc_type_def register_library(gc_type *gc) {
     gc_type_def library = 0;
     
     library = gc_register_type(gc, sizeof(object_type));
-    gc_register_pointer(gc, library,
-      offsetof(object_type, value) + offsetof(value_type, library));
     
     return library;
 }

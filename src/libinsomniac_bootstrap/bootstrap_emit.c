@@ -72,9 +72,7 @@ void emit_if(compiler_core_type *compiler, buffer_type *buf,
   gen_label(compiler, &done_label);
 
   emit_comment(buf, "--If Start--");
-  emit_comment(buf, "--If Test Start --");
   emit_stream(compiler, buf, node->value.two.stream1, false);
-  emit_comment(buf, "--If Test End --");
 
   emit_jump_label(buf, OP_JNF, true_label);
 
@@ -202,7 +200,6 @@ void emit_call(compiler_core_type *compiler, buffer_type *buf,
   bool pushed = false;
 
   emit_comment(buf, "--Call Start--");
-  emit_comment(buf, "--Call - Args --");
 
   /* Arugments are always a list */
   emit_op(buf, "()");
@@ -222,13 +219,10 @@ void emit_call(compiler_core_type *compiler, buffer_type *buf,
   }
 
   
-  emit_comment(buf, "--Call - Callable --");
   emit_stream(compiler, buf, call->value.two.stream1, false);
 
   /* Rely on a vm level hack to make tail calls work */
   if (tail_call) {
-    /* TODO:  This should be an explicit instruciton rather than an
-     * matched hueristic in the vm */
     emit_op(buf, "tail_call_in");
   } else {
     emit_op(buf, "call_in");
@@ -259,6 +253,8 @@ void emit_quoted(buffer_type *buf, ins_stream_type *tree) {
   ins_node_type *head = tree->head;
   bool is_list = false;
 
+  emit_comment(buf, "--Quoted Start--");
+
   /* Loop through all the nodes in the quoted object */
   while (head) {
     switch (head->type) {
@@ -285,11 +281,15 @@ void emit_quoted(buffer_type *buf, ins_stream_type *tree) {
     /* If we get to a second iteration, then we have a quoted list */
     is_list = true;
   }
+
+  emit_comment(buf, "--Quoted End--");
 }
 
 /* Emit a single stream structure */
 void emit_asm(compiler_core_type *compiler, buffer_type *buf, ins_stream_type *tree) {
   ins_node_type *head = tree->head;
+
+  emit_comment(buf, "--Raw ASM Start--");
 
   /* Loop through all the nodes in the single object */
   while (head) {
@@ -306,7 +306,9 @@ void emit_asm(compiler_core_type *compiler, buffer_type *buf, ins_stream_type *t
     }
     head = head->next;
   }
+  emit_comment(buf, "--Raw ASM End--");
 }
+
 /* Output dual instruction stream ops */
 void emit_double(compiler_core_type *compiler, buffer_type *buf,
   ins_node_type *node, char *op) {
@@ -336,16 +338,12 @@ bool emit_node(compiler_core_type *compiler, buffer_type *buf,
       break;
 
     case STREAM_QUOTED:
-      emit_comment(buf, "--Quoted Start--");
       emit_quoted(buf, head->value.stream);
-      emit_comment(buf, "--Quoted End--");
       pushed = true;
       break;
 
     case STREAM_ASM:
-      emit_comment(buf, "--Raw ASM Start--");
       emit_asm(compiler, buf, head->value.stream);
-      emit_comment(buf, "--Raw ASM End--");
       break;
 
     case STREAM_LOAD:
@@ -373,7 +371,6 @@ bool emit_node(compiler_core_type *compiler, buffer_type *buf,
       break;
 
     case STREAM_CALL:
-      // TODO: Add tail call handling here
       emit_call(compiler, buf, head, allow_tail_call && !head->next);
       pushed = true;
       break;

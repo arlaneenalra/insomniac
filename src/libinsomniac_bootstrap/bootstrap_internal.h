@@ -199,9 +199,9 @@ void parse_push_state(compiler_core_type *compiler, FILE *file);
 #define NEW_STREAM(var) stream_create(compiler, &var)
 
 #define STREAM(var, type, ...) \
-  stream_##type(compiler, var, ##__VA_ARGS__)
+  stream_##type(compiler, var, __VA_ARGS__)
 
 #define STREAM_NEW(var, type, ...) NEW_STREAM(var); \
-  STREAM(var, type, ##__VA_ARGS__);
+  STREAM(var, type, __VA_ARGS__);
 
 #endif

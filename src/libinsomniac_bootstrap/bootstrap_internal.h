@@ -191,11 +191,6 @@ void parse_error(compiler_core_type *compiler, void *scanner, char *s);
 void parse_push_state(compiler_core_type *compiler, FILE *file);
 
 /* Define some macros to make the parser code easier */
-/*#define NEW_BUF(var) buffer_create(compiler->gc, &var)
-
-#define EMIT(var, type, op) emit_##type(var, op)
-#define EMIT_NEW(var, type, op) NEW_BUF(var); EMIT(var, type, op);*/
-
 #define NEW_STREAM(var) stream_create(compiler, &var)
 
 #define STREAM(var, type, ...) \

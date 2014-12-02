@@ -20,10 +20,11 @@ struct options {
   char *exe;
   char *filename;
   bool pre_post_amble;
+  bool include_baselib;
 };
 
 void usage(options_type *opts) {
-    fprintf(stderr, "Usage: %s [--no-pre] <file.scm>\n", opts->exe);
+    fprintf(stderr, "Usage: %s [--no-pre] [--no-baselib] <file.scm>\n", opts->exe);
     exit(-1);
 }
 
@@ -44,6 +45,8 @@ void parse_options (int argc, char **argv, options_type *opts) {
 
         if (strcmp(arg, "--no-pre") == 0 ) {
           opts->pre_post_amble = false;
+        } else if(strcmp(arg, "--no-baselib") == 0 ) {
+          opts->include_baselib = false;
         } else {
           opts->filename = arg;
         }
@@ -57,7 +60,7 @@ void parse_options (int argc, char **argv, options_type *opts) {
 }
 
 int main(int argc, char**argv) {
-    options_type opts = { 0, 0, true };
+    options_type opts = { 0, 0, true, true };
     gc_type *gc = gc_create(sizeof(object_type));
     size_t length = 0;
     char *code_str = 0;
@@ -81,7 +84,7 @@ int main(int argc, char**argv) {
 
     /* load and compiler */
     (void)buffer_load_string(gc, opts.filename, &code_str);
-    compile_string(compiler, code_str);
+    compile_string(compiler, code_str, opts.include_baselib);
 
     /* Generate code */
     buffer_create(gc, &asm_buf);

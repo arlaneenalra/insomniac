@@ -1,6 +1,5 @@
 
 (begin
-  (include "lib/baselib.scm")
 
   (define tail-bomb
     (lambda (t n)

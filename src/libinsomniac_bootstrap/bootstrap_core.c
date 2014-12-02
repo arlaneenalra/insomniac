@@ -172,8 +172,9 @@ void compiler_create(gc_type *gc, compiler_type **comp_void) {
 
 /* Interface into the compiler internals */
 // TODO: Make compiler code work like the other libraries
-void compile_string(compiler_type *comp_void, char *str) {
-  compiler_core_type *compiler = (compiler_core_type *)comp_void; 
+void compile_string(compiler_type *comp_void, char *str, bool include_baselib) {
+  compiler_core_type *compiler = (compiler_core_type *)comp_void;
+  ins_stream_type *baselib = 0; /* TODO: should be gc root */
 
   /* Actually parse the input stream. */
   yylex_init(&(compiler->scanner));
@@ -181,6 +182,12 @@ void compile_string(compiler_type *comp_void, char *str) {
 
   /* TODO: Need a better way to handle GC than leaking */
   gc_protect(compiler->gc);
+
+  /* Inject include for base library */
+  if (include_baselib) {
+    STREAM_NEW(baselib, string, "lib/baselib.scm");
+    setup_include(compiler, baselib); 
+  }
   
   parse_internal(compiler, compiler->scanner);
   

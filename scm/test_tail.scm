@@ -14,5 +14,5 @@
         (t t (- n 1)))))
 
 
-  (display (tail-bomb tail-bomb 100))
+  (display (tail-bomb tail-bomb 1000000))
 )

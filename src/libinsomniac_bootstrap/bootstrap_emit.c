@@ -229,7 +229,7 @@ void emit_call(compiler_core_type *compiler, buffer_type *buf,
   if (tail_call) {
     /* TODO:  This should be an explicit instruciton rather than an
      * matched hueristic in the vm */
-    emit_op(buf, "call_in swap ret");
+    emit_op(buf, "tail_call_in");
   } else {
     emit_op(buf, "call_in");
   }

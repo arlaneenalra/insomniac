@@ -77,6 +77,11 @@ call_in ( closure1 -- closure2 ) Converts the location following this
                                  treated as a tail call and does not return
                                  as normal.
 
+tail_call_in (ret args closure1 -- ) pops closure 1 off the stack, swaps ret and
+                                     args and then does a call to closure 1 (i.e.
+                                     new env ) but does not leave a return on the
+                                     stack.
+
 slurp ( file -- string ) A crude routine to load a file into a string
                          and leave the entire thing on the stack. This
                          should not be used outside of the bootstrap

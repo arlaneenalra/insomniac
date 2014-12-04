@@ -2,6 +2,7 @@
 %option always-interactive
 %option yylineno
 %option nounput noinput
+%option extra-type="compiler_core_type *"
 
 %{
 #include "bootstrap_internal.h"
@@ -74,6 +75,8 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 
 <<EOF>>   {
             yypop_buffer_state(yyscanner);
+
+            yyget_extra(yyscanner)->include_depth--;
 
             if( !YY_CURRENT_BUFFER) {
               return END_OF_FILE;

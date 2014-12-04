@@ -7,6 +7,9 @@
 #include <ops.h>
 #include <stdio.h>
 
+/* Define the maximum include depth that we will support */
+#define MAX_INCLUDE_DEPTH 64 
+
 typedef struct ins_stream ins_stream_type;
 typedef struct ins_node ins_node_type;
 typedef struct compiler_core compiler_core_type;
@@ -78,10 +81,12 @@ struct compiler_core {
     gc_type_def node_types[NODE_MAX];
 
 
-
     /* path to preamble and postamble code */
     char *preamble;
     char *postamble;
+
+    int include_depth;
+    char **include_stack;
 
     void *scanner;
 

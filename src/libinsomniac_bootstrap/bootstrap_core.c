@@ -2,9 +2,27 @@
 #include "scheme.h"
 #include "lexer.h"
 
+#include <limits.h>
+#include <stdlib.h>
+
 #include <errno.h>
 #include <assert.h>
+#include <libgen.h>
 
+/* Add an include path to the include stack */
+void push_include_path(compiler_core_type *compiler, char *file_name) {
+  char *new_include_path = 0;
+
+  /* Setup the include search path */
+  new_include_path = dirname(file_name);
+  
+  compiler->include_depth++;
+
+  gc_alloc(compiler->gc, 0, strlen(new_include_path) + 1,
+    (void **)&(compiler->include_stack[compiler->include_depth]));
+
+  strcpy(compiler->include_stack[compiler->include_depth], new_include_path);
+}
 
 /* Make a label */
 void gen_label(compiler_core_type *compiler, buffer_type **buf) {
@@ -81,6 +99,7 @@ gc_type_def register_compiler_type(gc_type *gc) {
 
   type = gc_register_type(gc, sizeof(compiler_core_type));
   gc_register_pointer(gc, type, offsetof(compiler_core_type, stream));
+  gc_register_pointer(gc, type, offsetof(compiler_core_type, include_stack));
 
   return type;
 }
@@ -92,23 +111,54 @@ void setup_include(compiler_core_type* compiler, ins_stream_type *arg) {
 
   FILE *include_file = 0;
   char *file_name = 0;
-  
+  char *new_include_path = 0;
+  char new_file_name[PATH_MAX];
+  char raw_file_name[PATH_MAX];
+  size_t length = 0;
+
   /* Get the file name for this node */
   file_name = arg->head->value.literal;
 
-  include_file = fopen(file_name, "r");
+  /* Unless the file starts with a / look for it in the current include directory */
+  if (file_name[0] == '/' || compiler->include_depth < 0) {
+    include_file = fopen(file_name, "r");
+  } else {
+    /* setup include path */
+    new_include_path = compiler->include_stack[compiler->include_depth];
+    
+    /* add 1 for null and 1 for / */
+    length = strlen(new_include_path) + strlen(file_name) + 2;
+
+    if (length > PATH_MAX) {
+      (void)fprintf(stderr, "Error %i! Including '%s' - Search path to long: %zi characters\n",
+        errno, file_name, length);
+      parse_error(compiler, compiler->scanner,
+        "Unable to open include file!");
+      assert(0);
+    }
+  
+    /* Assmeble the new filename */
+    strcpy(raw_file_name, new_include_path);
+    strcat(raw_file_name, "/");
+    strcat(raw_file_name, file_name);
+
+    /* Resolve the path so it makes sense later */
+    file_name = realpath(raw_file_name, new_file_name);
+
+    include_file = fopen(file_name, "r");
+  }
 
   if ( !include_file ) {
     // TODO: Add file name tracking to compiler so we can 
     // report what file include failed in.
    
-    (void)fprintf(stderr, "Error %i! Incliding '%s'", errno, file_name);
+    (void)fprintf(stderr, "Error %i! Including '%s'\n", errno, file_name);
     parse_error(compiler, compiler->scanner,
       "Unable to open include file!");
   } else {
     parse_push_state(compiler, include_file);
+    push_include_path(compiler, file_name);
   }
-
 }
 
 /* Create an instance of the compiler */
@@ -167,20 +217,69 @@ void compiler_create(gc_type *gc, compiler_type **comp_void) {
   /* Add a stream route to the compiler object */
   stream_create(compiler, &(compiler->stream));
 
+  /* Add the include stack array */
+  // TODO: Look at statically allocating this 
+  compiler->include_depth = -1;
+  gc_alloc_pointer_array(gc, 0, MAX_INCLUDE_DEPTH, (void **)&(compiler->include_stack));
+
   gc_unregister_root(gc, (void **)&compiler);
 }
 
-/* Interface into the compiler internals */
-// TODO: Make compiler code work like the other libraries
-void compile_string(compiler_type *comp_void, char *str) {
-  compiler_core_type *compiler = (compiler_core_type *)comp_void; 
+/* Compile a string */
+void compile_string(compiler_type *comp_void, char *str, bool include_baselib) {
+  compiler_core_type *compiler = (compiler_core_type *)comp_void;
+  ins_stream_type *baselib = 0; /* TODO: should be gc root */
 
   /* Actually parse the input stream. */
-  yylex_init(&(compiler->scanner));
+  yylex_init_extra(compiler, &(compiler->scanner));
   yy_scan_string(str, compiler->scanner);
 
   /* TODO: Need a better way to handle GC than leaking */
   gc_protect(compiler->gc);
+
+  /* Inject include for base library */
+  if (include_baselib) {
+    STREAM_NEW(baselib, string, "lib/baselib.scm");
+    setup_include(compiler, baselib); 
+  }
+  
+  parse_internal(compiler, compiler->scanner);
+  
+  gc_unprotect(compiler->gc);
+
+  yylex_destroy(compiler->scanner);
+}
+
+/* Compile a file */
+void compile_file(compiler_type *comp_void, char *file_name, bool include_baselib) {
+  compiler_core_type *compiler = (compiler_core_type *)comp_void;
+  ins_stream_type *baselib = 0; /* TODO: should be gc root */
+  FILE *in = 0;
+
+  /* Actually parse the input stream. */
+  yylex_init_extra(compiler, &(compiler->scanner));
+
+  in = fopen(file_name, "r");
+  if (!in) {
+    (void)fprintf(stderr, "Error %i while attempting to open '%s'\n",
+      errno, file_name);
+      assert(0);
+  }
+
+  //yyset_in(in, compiler->scanner);
+  yy_switch_to_buffer(
+    yy_create_buffer(in, YY_BUF_SIZE, compiler->scanner), compiler->scanner);
+
+  push_include_path(compiler, file_name);
+
+  /* TODO: Need a better way to handle GC than leaking */
+  gc_protect(compiler->gc);
+
+  /* Inject include for base library */
+  if (include_baselib) {
+    STREAM_NEW(baselib, string, "lib/baselib.scm");
+    setup_include(compiler, baselib); 
+  }
   
   parse_internal(compiler, compiler->scanner);
   

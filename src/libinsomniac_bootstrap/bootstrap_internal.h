@@ -7,6 +7,9 @@
 #include <ops.h>
 #include <stdio.h>
 
+/* Define the maximum include depth that we will support */
+#define MAX_INCLUDE_DEPTH 64 
+
 typedef struct ins_stream ins_stream_type;
 typedef struct ins_node ins_node_type;
 typedef struct compiler_core compiler_core_type;
@@ -78,10 +81,12 @@ struct compiler_core {
     gc_type_def node_types[NODE_MAX];
 
 
-
     /* path to preamble and postamble code */
     char *preamble;
     char *postamble;
+
+    int include_depth;
+    char **include_stack;
 
     void *scanner;
 
@@ -191,11 +196,6 @@ void parse_error(compiler_core_type *compiler, void *scanner, char *s);
 void parse_push_state(compiler_core_type *compiler, FILE *file);
 
 /* Define some macros to make the parser code easier */
-/*#define NEW_BUF(var) buffer_create(compiler->gc, &var)
-
-#define EMIT(var, type, op) emit_##type(var, op)
-#define EMIT_NEW(var, type, op) NEW_BUF(var); EMIT(var, type, op);*/
-
 #define NEW_STREAM(var) stream_create(compiler, &var)
 
 #define STREAM(var, type, ...) \

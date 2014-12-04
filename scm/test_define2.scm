@@ -1,5 +1,4 @@
 (begin
-  (include "lib/baselib.scm")
 
   (define true 
     (lambda (x y) x))

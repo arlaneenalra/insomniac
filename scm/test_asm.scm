@@ -1,4 +1,3 @@
-(include "lib/baselib.scm")
 
 (define x '())
 (define y #t)

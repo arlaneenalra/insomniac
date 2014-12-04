@@ -20,10 +20,11 @@ struct options {
   char *exe;
   char *filename;
   bool pre_post_amble;
+  bool include_baselib;
 };
 
 void usage(options_type *opts) {
-    fprintf(stderr, "Usage: %s [--no-pre] <file.scm>\n", opts->exe);
+    fprintf(stderr, "Usage: %s [--no-pre] [--no-baselib] <file.scm>\n", opts->exe);
     exit(-1);
 }
 
@@ -35,7 +36,7 @@ void parse_options (int argc, char **argv, options_type *opts) {
     opts->exe = argv[0];
 
     /* check for file argument */
-    if (argc < 2 || argc > 3) {
+    if (argc < 2 || argc > 4) {
        usage(opts);
     }
 
@@ -44,6 +45,8 @@ void parse_options (int argc, char **argv, options_type *opts) {
 
         if (strcmp(arg, "--no-pre") == 0 ) {
           opts->pre_post_amble = false;
+        } else if(strcmp(arg, "--no-baselib") == 0 ) {
+          opts->include_baselib = false;
         } else {
           opts->filename = arg;
         }
@@ -57,10 +60,10 @@ void parse_options (int argc, char **argv, options_type *opts) {
 }
 
 int main(int argc, char**argv) {
-    options_type opts = { 0, 0, true };
+    options_type opts = { 0, 0, true, true };
     gc_type *gc = gc_create(sizeof(object_type));
     size_t length = 0;
-    char *code_str = 0;
+    //char *code_str = 0;
     char *asm_str = 0;
     compiler_type *compiler = 0;
     buffer_type *asm_buf = 0;
@@ -72,7 +75,7 @@ int main(int argc, char**argv) {
     parse_options(argc, argv, &opts);
 
     /* make this a root to the garbage collector */
-    gc_register_root(gc, (void **)&code_str);
+    //gc_register_root(gc, (void **)&code_str);
     gc_register_root(gc, (void **)&asm_str);
     gc_register_root(gc, (void **)&asm_buf);
     gc_register_root(gc, (void **)&compiler);
@@ -80,8 +83,9 @@ int main(int argc, char**argv) {
     compiler_create(gc, &compiler);
 
     /* load and compiler */
-    (void)buffer_load_string(gc, opts.filename, &code_str);
-    compile_string(compiler, code_str);
+    /*(void)buffer_load_string(gc, opts.filename, &code_str);
+    compile_string(compiler, code_str, opts.include_baselib);*/
+    compile_file(compiler, opts.filename, opts.include_baselib);
 
     /* Generate code */
     buffer_create(gc, &asm_buf);
@@ -99,7 +103,7 @@ int main(int argc, char**argv) {
     gc_unregister_root(gc, (void **)&compiler);
     gc_unregister_root(gc, (void **)&asm_buf);
     gc_unregister_root(gc, (void **)&asm_str);
-    gc_unregister_root(gc, (void **)&code_str);
+    //gc_unregister_root(gc, (void **)&code_str);
     gc_destroy(gc);
 
     return 0;

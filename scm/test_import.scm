@@ -1,4 +1,3 @@
-(include "lib/baselib.scm")
 
 ;; Setup functions to bind a dynamic library
 (define import-factory

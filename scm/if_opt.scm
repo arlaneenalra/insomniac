@@ -6,7 +6,6 @@
     (if val
       (display "true")
       (display "false"))
-    (display #\newline)
-    ))
+    (newline)))
 
 (testie #t)

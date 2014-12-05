@@ -198,7 +198,7 @@ define_lambda:
     symbol define_lambda_body                  { STREAM_NEW($$, bind, $4, $3); }
 
 define_lambda_body:
-    lambda_formals_list_end 
+    lambda_formals_list 
     begin_end                                  { STREAM_NEW($$, lambda, $1, $2); }
 
 /* Set the value of a location */
@@ -270,8 +270,8 @@ lambda_formals_list_end:
 %%
 
 void parse_error(compiler_core_type *compiler, void *scanner, char *s) {
-    (void)fprintf(stderr,"There was an error parsing '%s' on line %i\n", 
-                  s, yyget_lineno(scanner) + 1);
+    (void)fprintf(stderr,"There was an error parsing '%s' on line %i near: '%s'\n", 
+                  s, yyget_lineno(scanner) + 1, yyget_text(scanner));
 }
 
 

@@ -5,19 +5,21 @@
 ;; Define type tests
 (begin
 
-(define (display x) (asm (x) out ()))
-
-(include "predicates.scm")
-
 ;; Functions needed for base test library
 ;;
-;; display
+;; (x) display
 ;; write
 ;; equal?
 ;; for-each
 ;; let
-;; newline
+;; (x) newline
 ;; set!
 ;; define-macro --- maybe
 ;; 
+
+(define (display x) (asm (x) out ()))
+(define (newline) (asm #\newline out ()))
+
+(include "predicates.scm")
+
 )

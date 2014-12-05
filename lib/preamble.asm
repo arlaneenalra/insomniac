@@ -31,6 +31,14 @@ scheme-cdr:
         car cdr
         swap ret
 
+scheme-set!:
+        swap
+        dup car car ;; symbol
+        swap cdr car ;; value
+        !
+        ()
+        swap ret
+
 ;; The arguments should already have had cons applied ;)
 scheme-cons:
         ret
@@ -47,6 +55,6 @@ user-entry:
         proc scheme-car s"car" bind
         proc scheme-cdr s"cdr" bind
         proc scheme-cons s"cons" bind
-
+        proc scheme-set! s"set!" bind
 _main:
 

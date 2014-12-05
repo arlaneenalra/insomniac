@@ -10,10 +10,10 @@
 ;; (x) display
 ;; write
 ;; equal?
-;; for-each
+; for-each
 ;; let
 ;; (x) newline
-;; set!
+;; (x) set!
 ;; define-macro --- maybe
 ;; 
 

@@ -17,4 +17,6 @@ TODO:
 
 * VM code recreates gc types every time that a vm is instance is created.  This needs to be rectified.
 
+* Rework compiler to produce CPS style code (begin, etc)
+
 

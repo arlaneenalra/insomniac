@@ -5,6 +5,8 @@ function abs_path {
   (cd "$(dirname '$1')" &>/dev/null && printf "%s/%s" "$(pwd)" "${1##*/}")
 }
 
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
 SAVE=$2
 
 if [ "$SAVE" == "" ] ; then
@@ -15,27 +17,37 @@ fi
 
 SRC=$(realpath $1)
 
-echo "Temp :" $TMP 
+(
+  cd $DIR
 
-echo
-echo "Compiling ..."
-echo
+  echo "Temp :" $TMP 
 
-build/src/insc $SRC > $TMP
+  echo
+  echo "Compiling ..."
+  echo
 
-EXIT=$?
+  build/src/insc $SRC > $TMP
 
-if [ "$EXIT" != "0" ] ; then
-  exit $EXIT 
-fi
+  EXIT=$?
+
+  if [ "$EXIT" != "0" ] ; then
+    exit $EXIT 
+  fi
 
 
-echo
-echo
-echo "Running ..."
-echo
+  echo
+  echo
+  echo "Running ..."
+  echo
 
-build/src/insomniac $TMP
+  build/src/insomniac $TMP
+
+  EXIT=$?
+
+  if [ "$EXIT" != "0" ] ; then
+    exit $EXIT 
+  fi
+)
 
 EXIT=$?
 
@@ -47,7 +59,7 @@ if [ "$SAVE" == "" ] && [ "$TMP" != "" ]  ; then
 fi
 
 if [ "$EXIT" != "0" ] ; then
-  echo "Exit status" $EXIT
+  echo "Exit status:" $EXIT
   exit $EXIT 
 fi
 

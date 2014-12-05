@@ -6,6 +6,7 @@
 #include <bootstrap.h>
 #include <ops.h>
 #include <stdio.h>
+#include <limits.h>
 
 /* Define the maximum include depth that we will support */
 #define MAX_INCLUDE_DEPTH 64 
@@ -80,10 +81,7 @@ struct compiler_core {
     gc_type_def stream_gc_type;
     gc_type_def node_types[NODE_MAX];
 
-
-    /* path to preamble and postamble code */
-    char *preamble;
-    char *postamble;
+    char home[PATH_MAX];
 
     int include_depth;
     char **include_stack;

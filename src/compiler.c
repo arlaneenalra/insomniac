@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include <limits.h>
+#include <libgen.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -63,10 +65,12 @@ int main(int argc, char**argv) {
     options_type opts = { 0, 0, true, true };
     gc_type *gc = gc_create(sizeof(object_type));
     size_t length = 0;
-    //char *code_str = 0;
     char *asm_str = 0;
     compiler_type *compiler = 0;
     buffer_type *asm_buf = 0;
+    char realpath_buf[PATH_MAX];
+    char compiler_home[PATH_MAX];
+
 
     /* needed to setup locale aware printf . . . 
        I need to do a great deal more research here */
@@ -74,17 +78,18 @@ int main(int argc, char**argv) {
 
     parse_options(argc, argv, &opts);
 
+    /* Attempt to get the default home of our compiler */
+    strcpy(compiler_home, dirname(realpath(opts.exe, realpath_buf)));
+
     /* make this a root to the garbage collector */
     //gc_register_root(gc, (void **)&code_str);
     gc_register_root(gc, (void **)&asm_str);
     gc_register_root(gc, (void **)&asm_buf);
     gc_register_root(gc, (void **)&compiler);
 
-    compiler_create(gc, &compiler);
+    compiler_create(gc, &compiler, compiler_home);
 
     /* load and compiler */
-    /*(void)buffer_load_string(gc, opts.filename, &code_str);
-    compile_string(compiler, code_str, opts.include_baselib);*/
     compile_file(compiler, opts.filename, opts.include_baselib);
 
     /* Generate code */

@@ -21,5 +21,6 @@
 (define (newline) (asm #\newline out ()))
 
 (include "predicates.scm")
+(include "lists.scm")
 
 )

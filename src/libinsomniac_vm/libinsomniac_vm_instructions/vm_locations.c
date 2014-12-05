@@ -118,3 +118,22 @@ void op_set(vm_internal_type *vm) {
     gc_unregister_root(vm->gc, (void **)&value);
     gc_unregister_root(vm->gc, (void **)&key);    
 }
+
+void op_set_exit(vm_internal_type *vm) {
+    object_type *value = 0;
+
+    gc_register_root(vm->gc, (void **)&value);
+
+    value = vm_pop(vm);
+
+    /* make sure the key is a symbol */
+    if(!value  || value->type != FIXNUM) {
+        throw(vm, "Attempt to set non-number exit status", 1, value);
+        
+    } else {
+        vm->exit_status = value->value.integer;
+    }
+
+    gc_unregister_root(vm->gc, (void **)&value);
+}
+

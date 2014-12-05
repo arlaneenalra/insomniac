@@ -92,6 +92,7 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "not"                   { return OP_NOT; }
 
 "restore"               { return OP_RESTORE; }
+"set-exit"              { return OP_SET_EXIT; }
 
 "adopt"                 { return OP_ADOPT; }
 "proc"                  { BEGIN(EXPECT_TARGET);

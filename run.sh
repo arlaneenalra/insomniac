@@ -13,37 +13,31 @@ else
   TMP=$(abs_path $SAVE)
 fi
 
-SRC=$(abs_path $1)
+SRC=$(realpath $1)
 
-(
-  echo "Temp :" $TMP 
+echo "Temp :" $TMP 
 
-  echo
-  echo "Compiling ..."
-  echo
+echo
+echo "Compiling ..."
+echo
 
-  # the compiler needs to know where to find it's preamble
-  (
-    cd ../build
-    src/insc $SRC > $TMP
-  )
+build/src/insc $SRC > $TMP
 
-  EXIT=$?
+EXIT=$?
 
-  if [ "$EXIT" != "0" ] ; then
-    echo $EXIT
-    exit $EXIT 
-  fi
+if [ "$EXIT" != "0" ] ; then
+  exit $EXIT 
+fi
 
 
-  echo
-  echo
-  echo "Running ..."
-  echo
+echo
+echo
+echo "Running ..."
+echo
 
-  ../build/src/insomniac $TMP
+build/src/insomniac $TMP
 
-)
+EXIT=$?
 
 echo
 echo
@@ -51,3 +45,9 @@ echo
 if [ "$SAVE" == "" ] && [ "$TMP" != "" ]  ; then
   rm $TMP
 fi
+
+if [ "$EXIT" != "0" ] ; then
+  echo "Exit status" $EXIT
+  exit $EXIT 
+fi
+

@@ -2,7 +2,7 @@
 
 
 /* Evaluate the given object using the provided vm instance */
-object_type *vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref) {
+int vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
     uint8_t op_code = 0; /* op code for instructions */
     fn_type op_call = 0; /* function actually called */
@@ -33,5 +33,5 @@ object_type *vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref) {
 
     }
 
-    return vm->stack_root;
+    return vm->exit_status;
 }

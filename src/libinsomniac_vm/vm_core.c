@@ -34,6 +34,8 @@ void vm_create(gc_type *gc, vm_type **vm_ret ) {
     vm->stack_root = vm->empty;
     vm->depth = 0;
 
+    vm->exit_status = 0;
+
     /* setup a symbol table */
     hash_create_string(gc, &(vm->symbol_table));
 

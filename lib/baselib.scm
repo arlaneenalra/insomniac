@@ -20,6 +20,12 @@
 (define (display x) (asm (x) out ()))
 (define (newline) (asm #\newline out ()))
 
+;; very very crude eq?
+(define (eq? a b) (asm (a) (b) eq))
+(define eqv? eq?)
+
+(define (not a) (if a #f #t))
+
 (include "predicates.scm")
 (include "lists.scm")
 

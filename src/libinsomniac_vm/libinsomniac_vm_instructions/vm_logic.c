@@ -31,7 +31,7 @@ void op_eq(vm_internal_type *vm) {
             result = obj1->value.character == obj2->value.character;
             break;
         case STRING:
-            result = strcmp(obj1->value.string.bytes,
+            result = !strcmp(obj1->value.string.bytes,
                             obj2->value.string.bytes);
             break;
         default:

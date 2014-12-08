@@ -92,6 +92,8 @@ typedef enum op {
 
     OP_IS_SELF,
 
+    OP_SET_EXIT,
+
     /* Internals functions that are likely useful in a real world 
        application */
     OP_GC_STATS,

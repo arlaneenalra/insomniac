@@ -11,8 +11,8 @@ fi
 cd $TARGET
 
 # setup some needed directories
-if [ ! -x "lib" ] ; then
-  ln -s ../lib lib
+if [ ! -x "src/lib" ] ; then
+  ln -s ../../lib src/lib
 fi
 
 # check for homebrewed bison packaged with braindead xcode

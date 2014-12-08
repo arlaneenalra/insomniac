@@ -132,8 +132,7 @@ void setup_include(compiler_core_type* compiler, ins_stream_type *arg) {
     if (length > PATH_MAX) {
       (void)fprintf(stderr, "Error %i! Including '%s' - Search path to long: %zi characters\n",
         errno, file_name, length);
-      parse_error(compiler, compiler->scanner,
-        "Unable to open include file!");
+      parse_error(compiler, compiler->scanner, "Unable to open include file!");
       assert(0);
     }
   
@@ -152,9 +151,8 @@ void setup_include(compiler_core_type* compiler, ins_stream_type *arg) {
     // TODO: Add file name tracking to compiler so we can 
     // report what file include failed in.
    
-    (void)fprintf(stderr, "Error %i! Including '%s'\n", errno, file_name);
-    parse_error(compiler, compiler->scanner,
-      "Unable to open include file!");
+    (void)fprintf(stderr, "Error %i! Including '%s'\n", errno, raw_file_name);
+    parse_error(compiler, compiler->scanner, "Unable to open include file!'");
   } else {
     parse_push_state(compiler, include_file);
     push_include_path(compiler, file_name);
@@ -162,7 +160,7 @@ void setup_include(compiler_core_type* compiler, ins_stream_type *arg) {
 }
 
 /* Create an instance of the compiler */
-void compiler_create(gc_type *gc, compiler_type **comp_void) {
+void compiler_create(gc_type *gc, compiler_type **comp_void, char *compiler_home) {
   compiler_core_type *compiler = 0;
   static gc_type_def stream_gc_type = 0;
   static gc_type_def node_literal_gc_type = 0;
@@ -186,8 +184,9 @@ void compiler_create(gc_type *gc, compiler_type **comp_void) {
 
   compiler->gc = gc;
   compiler->label_index = 0;
-  compiler->preamble = "lib/preamble.asm";
-  compiler->postamble = "lib/postamble.asm";
+  /*compiler->preamble = "lib/preamble.asm";
+  compiler->postamble = "lib/postamble.asm";*/
+  strcpy(compiler->home, compiler_home);
 
   /* setup gc types */
   compiler->stream_gc_type = stream_gc_type;
@@ -229,6 +228,7 @@ void compiler_create(gc_type *gc, compiler_type **comp_void) {
 void compile_string(compiler_type *comp_void, char *str, bool include_baselib) {
   compiler_core_type *compiler = (compiler_core_type *)comp_void;
   ins_stream_type *baselib = 0; /* TODO: should be gc root */
+  char path[PATH_MAX];
 
   /* Actually parse the input stream. */
   yylex_init_extra(compiler, &(compiler->scanner));
@@ -239,7 +239,10 @@ void compile_string(compiler_type *comp_void, char *str, bool include_baselib) {
 
   /* Inject include for base library */
   if (include_baselib) {
-    STREAM_NEW(baselib, string, "lib/baselib.scm");
+    strcpy(path, compiler->home);
+    strcat(path, "/lib/baselib.scm");
+
+    STREAM_NEW(baselib, string, path);
     setup_include(compiler, baselib); 
   }
   
@@ -255,6 +258,7 @@ void compile_file(compiler_type *comp_void, char *file_name, bool include_baseli
   compiler_core_type *compiler = (compiler_core_type *)comp_void;
   ins_stream_type *baselib = 0; /* TODO: should be gc root */
   FILE *in = 0;
+  char path[PATH_MAX];
 
   /* Actually parse the input stream. */
   yylex_init_extra(compiler, &(compiler->scanner));
@@ -276,8 +280,12 @@ void compile_file(compiler_type *comp_void, char *file_name, bool include_baseli
   gc_protect(compiler->gc);
 
   /* Inject include for base library */
+  /* Inject include for base library */
   if (include_baselib) {
-    STREAM_NEW(baselib, string, "lib/baselib.scm");
+    strcpy(path, compiler->home);
+    strcat(path, "/lib/baselib.scm");
+
+    STREAM_NEW(baselib, string, path);
     setup_include(compiler, baselib); 
   }
   

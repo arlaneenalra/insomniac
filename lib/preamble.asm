@@ -43,6 +43,12 @@ scheme-set!:
 scheme-cons:
         ret
 
+scheme-emergency-exit:
+        drop ;; drop return
+        car set-exit ;; set the exit status
+
+        jmp panic ;; panic
+
 user-entry:
         drop ;; drop return address, we won't need it
 
@@ -51,6 +57,7 @@ user-entry:
 
         proc scheme-depth s"depth" bind
         proc scheme-gc-stats s"gc-stats" bind
+        proc scheme-emergency-exit s"emergency-exit" bind
 
         proc scheme-car s"car" bind
         proc scheme-cdr s"cdr" bind

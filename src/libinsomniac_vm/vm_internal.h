@@ -64,6 +64,8 @@ struct vm_internal {
     /* current execution state */
     gc_type_def env_type;
     env_type *env;
+
+    int exit_status;
 };
 
 /* construct a new pair */

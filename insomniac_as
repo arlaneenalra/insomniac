@@ -149,3 +149,4 @@ Internals
 These calls are used to examine/dump internal vm state
 
 gc-stats
+

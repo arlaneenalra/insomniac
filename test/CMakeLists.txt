@@ -19,3 +19,5 @@ target_link_libraries(test_hash
 
 
 add_test(TestHash ${CMAKE_CURRENT_BIN_DIR}/test_hash)
+add_test(TestSCMeq? ${PROJECT_SOURCE_DIR}/run.sh
+  ${PROJECT_SOURCE_DIR}/test/test_eq.scm)

@@ -26,7 +26,7 @@ SRC=$(realpath $1)
   echo "Compiling ..."
   echo
 
-  build/src/insc $SRC > $TMP
+  build/src/insc $SRC $TMP
 
   EXIT=$?
 

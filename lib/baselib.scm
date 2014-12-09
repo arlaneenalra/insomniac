@@ -28,5 +28,6 @@
 
 (include "predicates.scm")
 (include "lists.scm")
+(include "vectors.scm")
 
 )

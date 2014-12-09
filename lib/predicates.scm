@@ -10,8 +10,6 @@
 
 (define (string? x) (asm (x) string?))
 
-(define (vector? x) (asm (x) vector?))
-
 (define (pair? x) (asm (x) pair?))
 
 (define (null? x) (asm (x) null?))

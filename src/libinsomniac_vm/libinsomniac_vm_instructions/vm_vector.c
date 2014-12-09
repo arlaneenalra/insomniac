@@ -53,9 +53,9 @@ void op_vector_set(vm_internal_type *vm) {
 
     gc_protect(vm->gc);
 
-    obj_index = vm_pop(vm);
-    obj = vm_pop(vm);
     vector = vm_pop(vm);
+    obj = vm_pop(vm);
+    obj_index = vm_pop(vm);
 
     assert(obj_index && obj_index->type == FIXNUM);
     
@@ -79,8 +79,8 @@ void op_vector_ref(vm_internal_type *vm) {
 
     gc_protect(vm->gc);
 
-    obj_index = vm_pop(vm);
     vector = vm_pop(vm);
+    obj_index = vm_pop(vm);
 
     assert(obj_index && obj_index->type == FIXNUM);
     

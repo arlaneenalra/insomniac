@@ -27,14 +27,38 @@
 
 
 ;; Create a vector object of a given size
-(define make-vector
-  (lambda args
-    (define (make-vector-prim k) (asm (k) vector))
+(define (make-vector . args)
+  (define (make-vector-prim k) (asm (k) vector))
 
-    ;; create the vector
-    (vector-fill! (make-vector-prim (car args))
-                  (if (eq? 2 (length args))
-                    (car (cdr args))
-                    '()))))
+  ;; create the vector
+  (vector-fill! (make-vector-prim (car args))
+                (if (eq? 2 (length args))
+                  (car (cdr args))
+                  '())))
 
+;; Convert the given list into a vector
+(define (list->vector list)
+  (define vec 
+    (make-vector (length list)))
+
+  (define (inner list index)
+    (if (null? list)
+	vec
+	(begin
+	  (vector-set! vec index (car list))
+	  (inner (cdr list) (+ 1 index)))))
+  (inner list 0))
+
+
+;; Convert a vector to a list
+(define (vector->list vec)
+  (define (inner list index)
+    (if (>= index (vector-length vec))
+	(reverse list)
+	(inner (cons (vector-ref vec index) list) (+ 1 index))))
+  (inner '() 0))
+
+;; Create a vector containing the passed in arguments
+(define (vector . list)
+  (list->vector list))
 

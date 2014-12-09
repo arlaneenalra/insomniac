@@ -270,9 +270,10 @@ lambda_formals_list_end:
                                      /* Add an element in the middle of a list */
                                      $$ = $1; stream_concat($$, $2); 
                                    }
-  | symbol DOT symbol CLOSE_PAREN  {
+  | DOT symbol CLOSE_PAREN         {
                                      /* Last element takes rest */
-                                     $$ = $1; stream_concat($$, $3);
+                                     //stream_concat($$, $2);
+                                     $$ = $2;
                                    }
 
 %%

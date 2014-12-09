@@ -87,7 +87,7 @@ void op_vector_ref(vm_internal_type *vm) {
     index = obj_index->value.integer;
 
     assert(vector && vector->type == VECTOR &&
-           vector->value.vector.length >= index);
+           vector->value.vector.length > index);
 
     /* do the read */
     obj = vector->value.vector.vector[index];

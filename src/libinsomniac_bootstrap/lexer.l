@@ -18,7 +18,7 @@ EOL       \n|\r\n|\n\r|\r
 WS	  {EOL}|[[:blank:]]
 IDENT     [-!$%&*+\./:<=>?@^_~[:alnum:]]
 SIGNS     [-+]
-MATH      [-+*/%><]
+MATH      [-+*/%><=]
 
 CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 

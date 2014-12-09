@@ -26,7 +26,10 @@
 
 (define (not a) (if a #f #t))
 
+(include "math.scm")
+
 (include "predicates.scm")
+
 (include "lists.scm")
 (include "vectors.scm")
 

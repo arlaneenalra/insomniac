@@ -17,4 +17,18 @@
 (vector-set! my-vec 3 #\c)
 
 (expect-true "Verify vector-set! and vector-ref"
-             (lambda () (eq? #\c (vector-ref my-vec 3)))) 
+             (lambda () (eq? #\c (vector-ref my-vec 3))))
+
+(define filled-vec (make-vector 30 #\d))
+
+(define (check-vec vec value depth)
+  (if (= 0 depth)
+    #t
+    (if (eq? value (vector-ref vec depth))
+      (check-vec vec value (- depth 1))
+      #f)))
+
+(expect-true "Verify two argument make-vector"
+             (lambda ()
+               (check-vec filled-vec #\d
+                          (- (vector-length filled-vec) 1))))

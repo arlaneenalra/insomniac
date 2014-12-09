@@ -182,7 +182,15 @@ include: /* Only single arg include and is effectively an empty node. */
                                }
 
 if:
-    PRIM_IF expression two_args CLOSE_PAREN { STREAM_NEW($$, if, $2, $3); }
+    PRIM_IF expression if_end                  { STREAM_NEW($$, if, $2, $3); }
+
+if_end:
+    two_args CLOSE_PAREN                       { $$ = $1; }
+  | expression CLOSE_PAREN                     { /* Handle (if arg true) */
+                                                 STREAM_NEW($$, two_arg, $1, 0);
+                                                 STREAM_NEW(($$->head->value.two.stream2),
+                                                  literal, "()");
+                                               }
 
 define:
     define_variable

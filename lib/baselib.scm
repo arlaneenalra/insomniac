@@ -26,6 +26,9 @@
 
 (define (not a) (if a #f #t))
 
+;; For cond
+(define else #t)
+
 (include "math.scm")
 
 (include "predicates.scm")

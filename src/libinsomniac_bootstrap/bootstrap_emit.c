@@ -55,6 +55,58 @@ void emit_jump_label(buffer_type *buf, op_type type, buffer_type *label) {
     buffer_append(buf, label, -1);
     emit_newline(buf);
 }
+/* Emit a cond expression */
+void emit_cond(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *node, bool allow_tail_call) {
+  
+  buffer_type *next_label = 0;
+  buffer_type *done_label = 0;
+
+  ins_node_type *clause = 0;
+
+  gc_register_root(compiler->gc, &next_label);
+  gc_register_root(compiler->gc, &done_label);
+
+  gen_label(compiler, &done_label);
+
+  emit_comment(buf, "--Cond Start--");
+
+  clause = node->value.stream->head;
+
+  while (clause) {
+    node = clause->value.stream->head;
+
+    emit_comment(buf, "----Cond Clause----");
+
+    /* Emit the test */
+    emit_stream(compiler, buf, node->value.two.stream1, false); 
+
+    emit_op(buf, "not");
+    gen_label(compiler, &next_label);
+    emit_jump_label(buf, OP_JNF, next_label);
+
+    /* Emit the body */
+    emit_stream(compiler, buf, node->value.two.stream2, allow_tail_call);
+
+    /* Emit jump to end */
+    emit_jump_label(buf, OP_JMP, done_label);
+
+    emit_label(buf, next_label);
+
+    clause = clause->next;
+  }
+ 
+  emit_comment(buf, "--Cond Fall-Through--");
+  
+  /* In the event no case matches, follow our defined stack discipline */
+  emit_op(buf, "()");
+
+  emit_label(buf, done_label);
+  emit_comment(buf, "--Cond End--"); 
+
+  gc_unregister_root(compiler->gc, &next_label);
+  gc_unregister_root(compiler->gc, &done_label);
+}
 
 /* Emit an If */
 void emit_if(compiler_core_type *compiler, buffer_type *buf,
@@ -350,6 +402,11 @@ bool emit_node(compiler_core_type *compiler, buffer_type *buf,
       /* Simple load form symbol operation */
       emit_stream(compiler, buf, head->value.stream, false);
       emit_op(buf, "@");
+      pushed = true;
+      break;
+
+    case STREAM_COND:
+      emit_cond(compiler, buf, head, allow_tail_call);
       pushed = true;
       break;
 

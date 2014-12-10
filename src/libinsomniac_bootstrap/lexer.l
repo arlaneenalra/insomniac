@@ -18,7 +18,7 @@ EOL       \n|\r\n|\n\r|\r
 WS	  {EOL}|[[:blank:]]
 IDENT     [-!$%&*+\./:<=>?@^_~[:alnum:]]
 SIGNS     [-+]
-MATH      [-+*/%><]
+MATH      [-+*/%><=]
 
 CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 
@@ -43,8 +43,10 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 "quote"   { return PRIM_QUOTE; }
 "define"  { return PRIM_DEFINE; }
 "lambda"  { return PRIM_LAMBDA; }
-"if"      { return PRIM_IF; }
 "set!"    { return PRIM_SET; }
+
+"if"      { return PRIM_IF; }
+"cond"    { return PRIM_COND; }
 
 "include" { return PRIM_INCLUDE; }
 "asm"     { return PRIM_ASM; }

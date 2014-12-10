@@ -32,6 +32,7 @@ typedef enum node {
 
     STREAM_TWO_ARG,
     STREAM_IF,
+    STREAM_COND,
     STREAM_MATH,
 
     STREAM_LAMBDA,
@@ -110,6 +111,9 @@ void emit_asm(compiler_core_type *compiler, buffer_type *buf,
   ins_stream_type *tree);
 void emit_double(compiler_core_type *compiler, buffer_type *buf,
   ins_node_type *node, char *op);
+
+void emit_cond(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *tree, bool allow_tail_call);
 void emit_if(compiler_core_type *compiler, buffer_type *buf,
   ins_node_type *tree, bool allow_tail_call);
 
@@ -152,6 +156,8 @@ BUILD_SINGLE_SIGNATURE(asm);
 BUILD_SINGLE_SIGNATURE(asm_stream);
 BUILD_SINGLE_SIGNATURE(quoted);
 BUILD_SINGLE_SIGNATURE(load);
+
+BUILD_SINGLE_SIGNATURE(cond);
 
 /* Nodes that hold two streams */
 BUILD_DOUBLE_SIGNATURE(bind);

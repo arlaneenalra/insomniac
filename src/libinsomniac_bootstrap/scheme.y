@@ -38,8 +38,10 @@
 %token PRIM_BEGIN
 %token PRIM_QUOTE
 %token PRIM_LAMBDA
-%token PRIM_IF
 %token PRIM_SET
+
+%token PRIM_IF
+%token PRIM_COND
 
 %token PRIM_INCLUDE
 %token SPEC_DEFINE
@@ -142,6 +144,7 @@ primitive_procedures:
   | user_call
   | include
   | asm
+  | cond
 
 asm:
     PRIM_ASM asm_end CLOSE_PAREN    { STREAM_NEW($$, asm, $2); }
@@ -169,6 +172,7 @@ asm_types:
   | PRIM_DEFINE
   | PRIM_ASM
   | MATH_OPS
+  | PRIM_COND
 
 two_args:
     expression expression                  { STREAM_NEW($$, two_arg, $1, $2); }
@@ -182,7 +186,29 @@ include: /* Only single arg include and is effectively an empty node. */
                                }
 
 if:
-    PRIM_IF expression two_args CLOSE_PAREN { STREAM_NEW($$, if, $2, $3); }
+    PRIM_IF expression if_end                  { STREAM_NEW($$, if, $2, $3); }
+
+if_end:
+    two_args CLOSE_PAREN                       { $$ = $1; }
+  | expression CLOSE_PAREN                     { /* Handle (if arg true) */
+                                                 STREAM_NEW($$, two_arg, $1, 0);
+                                                 STREAM_NEW(($$->head->value.two.stream2),
+                                                  literal, "()");
+                                               }
+
+cond:
+    PRIM_COND cond_clause_list                 { STREAM_NEW($$, cond, $2); }
+
+cond_clause:
+    OPEN_PAREN expression begin_end            { STREAM_NEW($$, two_arg, $2, $3); }
+
+cond_clause_list_end:
+    cond_clause                                { STREAM_NEW($$, cond, $1); }
+  | cond_clause cond_clause_list_end           { STREAM_NEW($$, cond, $1);  stream_concat($$, $2); }
+
+cond_clause_list:
+    CLOSE_PAREN
+  | cond_clause_list_end CLOSE_PAREN
 
 define:
     define_variable
@@ -210,10 +236,7 @@ begin:
 
 begin_body:
     expression              
-  | expression begin_body  {
-                             $$ = $1;
-                             stream_concat($$, $2);
-                           }
+  | expression begin_body  { $$ = $1; stream_concat($$, $2); }
 
 begin_end:
     CLOSE_PAREN
@@ -262,9 +285,10 @@ lambda_formals_list_end:
                                      /* Add an element in the middle of a list */
                                      $$ = $1; stream_concat($$, $2); 
                                    }
-  | symbol DOT symbol CLOSE_PAREN  {
+  | DOT symbol CLOSE_PAREN         {
                                      /* Last element takes rest */
-                                     $$ = $1; stream_concat($$, $3);
+                                     //stream_concat($$, $2);
+                                     $$ = $2;
                                    }
 
 %%

@@ -53,9 +53,9 @@ void op_vector_set(vm_internal_type *vm) {
 
     gc_protect(vm->gc);
 
-    obj_index = vm_pop(vm);
-    obj = vm_pop(vm);
     vector = vm_pop(vm);
+    obj = vm_pop(vm);
+    obj_index = vm_pop(vm);
 
     assert(obj_index && obj_index->type == FIXNUM);
     
@@ -79,15 +79,15 @@ void op_vector_ref(vm_internal_type *vm) {
 
     gc_protect(vm->gc);
 
-    obj_index = vm_pop(vm);
     vector = vm_pop(vm);
+    obj_index = vm_pop(vm);
 
     assert(obj_index && obj_index->type == FIXNUM);
     
     index = obj_index->value.integer;
 
     assert(vector && vector->type == VECTOR &&
-           vector->value.vector.length >= index);
+           vector->value.vector.length > index);
 
     /* do the read */
     obj = vector->value.vector.vector[index];

@@ -3,7 +3,6 @@
 ;;;
 
 ;; Define type tests
-(begin
 
 ;; Functions needed for base test library
 ;;
@@ -24,7 +23,7 @@
 (define (eq? a b) (asm (a) (b) eq))
 (define eqv? eq?)
 
-(define (not a) (if a #f #t))
+(define (cons car cdr) (asm (cdr) (car) cons))
 
 ;; For cond
 (define else #t)
@@ -33,7 +32,8 @@
 
 (include "predicates.scm")
 
+(include "boolean.scm")
+
 (include "lists.scm")
 (include "vectors.scm")
 
-)

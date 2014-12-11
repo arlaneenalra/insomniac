@@ -23,8 +23,6 @@
 (define (eq? a b) (asm (a) (b) eq))
 (define eqv? eq?)
 
-(define (cons car cdr) (asm (cdr) (car) cons))
-
 ;; For cond
 (define else #t)
 

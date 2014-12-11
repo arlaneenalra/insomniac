@@ -396,6 +396,7 @@ bool emit_node(compiler_core_type *compiler, buffer_type *buf,
 
     case STREAM_ASM:
       emit_asm(compiler, buf, head->value.stream);
+      pushed = true;
       break;
 
     case STREAM_LOAD:
@@ -470,6 +471,10 @@ void emit_stream(compiler_core_type *compiler, buffer_type *buf,
     if (head && pushed) {
       emit_op(buf, "drop");
     }
+  }
+
+  if (!pushed) {
+    emit_op(buf, "()");
   }
 }
 

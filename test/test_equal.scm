@@ -44,8 +44,8 @@
  (cdr (cdr (cdr cycle-c))))
 
 ((lambda (cycle-c-tail)
-   (set-cdr! cycle-c-tail a))
- (cdr (cdr (cdr cycle-c))))
+   (set-car! cycle-c-tail a))
+ (car (car (car cycle-c-a))))
 
 ;; Test cases
 (expect-true "Two nulls"
@@ -109,13 +109,11 @@
 (expect-true "Equivalent double cycle, transitive"
              (lambda () (equal? cycle-b-a cycle-a-a)))
 
-;;; Something is wrong with these tests
-;;;
-;;; (expect-false "Different double cycle"
-;;;               (lambda () (equal? cycle-c-a cycle-a-a)))
-;;; 
-;;; (expect-false "Different double cycle, transitive"
-;;;               (lambda () (equal? cycle-a-a cycle-c-a)))
+(expect-false "Different double cycle"
+              (lambda () (equal? cycle-c-a cycle-a-a)))
+ 
+(expect-false "Different double cycle, transitive"
+              (lambda () (equal? cycle-a-a cycle-c-a)))
 
 (expect-true "Same Vectors"
              (lambda () (equal? vec-a vec-a)))

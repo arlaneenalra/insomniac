@@ -57,9 +57,8 @@
             
 ;; Check a pair of vectors for equality 
 (define (equal-vector? x y)
-  (let ((x (vector->list x))
-    (y (vector->list y)))
-    (equal-pair? x y)))
+  (equal-pair? (vector->list x)
+               (vector->list y)))
        
   
 ;; Deep equality checking

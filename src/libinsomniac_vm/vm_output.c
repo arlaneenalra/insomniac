@@ -3,6 +3,7 @@
 void output_pair(FILE *fout, object_type *pair) {
     int flag = 0;
     object_type *car = 0;
+    int length = 0;
 
     fprintf(fout, "(");
     
@@ -21,8 +22,9 @@ void output_pair(FILE *fout, object_type *pair) {
         output_object(fout, car);
 
         flag = 1;
+        length ++;
 
-    } while(pair && pair->type == PAIR);
+    } while(pair && pair->type == PAIR && length < OUTPUT_MAX_LENGTH);
 
 
     /* print a . if need one */
@@ -71,7 +73,17 @@ void output_vector(FILE *fout, object_type *vector) {
 /* display a given object to stdout */
 void output_object(FILE *fout, object_type *obj) {
     env_type *env = 0;
+    static int depth = 0;
     
+
+    depth++;
+
+    if (depth >= OUTPUT_MAX_DEPTH) {
+      fprintf(fout, " ...");
+      depth--;
+      return;
+    }
+
     /* make sure we have an object */
     if(!obj) {
         fprintf(fout, "<nil>");
@@ -138,4 +150,6 @@ void output_object(FILE *fout, object_type *obj) {
         fprintf(fout, "<Unkown Object %p>", (void *)obj);
         break;
     }
+
+    depth--;
 }

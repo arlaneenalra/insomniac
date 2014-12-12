@@ -20,7 +20,7 @@ depth ( -- depth ) How deep is the stack?
 
 sym    ( str -- sym ) Takes a string and makes it into a symbol
 
-cons   ( car cdr -- (car . cdr) ) Takes the top two stack entries and
+cons   ( cdr car -- (car . cdr) ) Takes the top two stack entries and
                                   makes them into a pair
 car    ( pair -- car ) Return the car of the pair
 cdr    ( pair -- cdr ) Return the cdr of the pair

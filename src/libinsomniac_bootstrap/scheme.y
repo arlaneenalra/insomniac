@@ -43,6 +43,9 @@
 %token PRIM_IF
 %token PRIM_COND
 
+%token PRIM_AND
+%token PRIM_OR
+
 %token PRIM_INCLUDE
 %token SPEC_DEFINE
 
@@ -145,6 +148,8 @@ primitive_procedures:
   | include
   | asm
   | cond
+  | and
+  | or
 
 asm:
     PRIM_ASM asm_end CLOSE_PAREN    { STREAM_NEW($$, asm, $2); }
@@ -173,6 +178,8 @@ asm_types:
   | PRIM_ASM
   | MATH_OPS
   | PRIM_COND
+  | PRIM_AND
+  | PRIM_OR
 
 two_args:
     expression expression                  { STREAM_NEW($$, two_arg, $1, $2); }
@@ -195,6 +202,20 @@ if_end:
                                                  STREAM_NEW(($$->head->value.two.stream2),
                                                   literal, "()");
                                                }
+
+and:
+    PRIM_AND boolean_end                       { STREAM_NEW($$, and, $2); }
+
+or:
+    PRIM_OR boolean_end                        { STREAM_NEW($$, or, $2); }
+
+boolean_body:
+    expression 
+  | expression boolean_body                    { $$ = $1; stream_concat($$, $2); }
+
+boolean_end:
+    CLOSE_PAREN
+  | boolean_body CLOSE_PAREN
 
 cond:
     PRIM_COND cond_clause_list                 { STREAM_NEW($$, cond, $2); }

@@ -10,6 +10,8 @@
 ;;(testie #t)
 ;;
 
+;;(display 123)
+
 (display
   (cond
     ((> -1 0) "first")
@@ -17,3 +19,8 @@
     (else "else"))
 )
 
+
+(define (boom) (asm 1234))
+
+(define boom-2 
+  (lambda () (asm 1234)))

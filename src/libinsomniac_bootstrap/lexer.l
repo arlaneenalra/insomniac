@@ -48,6 +48,9 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 "if"      { return PRIM_IF; }
 "cond"    { return PRIM_COND; }
 
+"and"     { return PRIM_AND; }
+"or"      { return PRIM_OR; }
+
 "include" { return PRIM_INCLUDE; }
 "asm"     { return PRIM_ASM; }
 

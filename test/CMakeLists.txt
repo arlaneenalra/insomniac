@@ -19,8 +19,15 @@ target_link_libraries(test_hash
 
 
 add_test(TestHash ${CMAKE_CURRENT_BIN_DIR}/test_hash)
+
+add_test(TestSCMBools ${PROJECT_SOURCE_DIR}/run.sh
+  ${PROJECT_SOURCE_DIR}/test/test_bools.scm)
+
 add_test(TestSCMeq? ${PROJECT_SOURCE_DIR}/run.sh
   ${PROJECT_SOURCE_DIR}/test/test_eq.scm)
 
-add_test(TestSCMvectors ${PROJECT_SOURCE_DIR}/run.sh
+add_test(TestSCMequal? ${PROJECT_SOURCE_DIR}/run.sh
+  ${PROJECT_SOURCE_DIR}/test/test_equal.scm)
+
+add_test(TestSCMVectors ${PROJECT_SOURCE_DIR}/run.sh
   ${PROJECT_SOURCE_DIR}/test/test_vectors.scm)

@@ -2,6 +2,11 @@
 ;;; A set of core list functions
 ;;;
 
+(define (cons car cdr) (asm (cdr) (car) cons))
+
+(define (set-car! pair obj) (asm (pair) (obj) set-car))
+(define (set-cdr! pair obj) (asm (pair) (obj) set-cdr))
+
 (define list (lambda x x))
 
 

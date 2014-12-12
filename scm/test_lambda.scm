@@ -1,6 +1,0 @@
-((lambda (x y)
-    (display #\newline)
-    (display x)
-    (display y)
-    (display #\newline))
- 1 2)

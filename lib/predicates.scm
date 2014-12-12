@@ -4,7 +4,6 @@
 
 (define (fixnum? x) (asm (x) fixnum?))
 
-(define (boolean? x) (asm (x) bool?))
 
 (define (char? x) (asm (x) char?))
 

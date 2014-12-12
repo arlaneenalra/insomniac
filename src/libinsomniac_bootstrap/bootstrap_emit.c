@@ -154,6 +154,81 @@ void emit_if(compiler_core_type *compiler, buffer_type *buf,
   gc_unregister_root(compiler->gc, &true_label);
 }
 
+/* Handle and(true)/or(false) */
+void emit_bool(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *tree, bool allow_tail_call, bool and_or) {
+
+  ins_node_type *exp = 0;
+  bool pushed = false;
+  bool no_args = true;
+
+  buffer_type *done_label = 0;
+  buffer_type *next_label = 0;
+
+  gc_register_root(compiler->gc, &done_label);
+  gc_register_root(compiler->gc, &next_label);
+
+  gen_label(compiler, &done_label);
+
+  /* a null stream is possible */
+  if (tree && tree->value.stream) {
+    exp = tree->value.stream->head;
+  }
+
+  emit_comment(buf, "--Bool Operator Start--");
+
+  while(exp) {
+    no_args = false;
+
+    /* Tail calls cannot be allowed here */
+    pushed = emit_node(compiler, buf, exp, false); 
+
+    exp = exp->next;
+
+    // TODO: Look at optimizing this out 
+    if (!pushed) {
+      emit_op(buf, "()");
+    }
+    
+    if (exp) {
+      emit_op(buf, "dup");
+
+      if (and_or) {
+        /* and case */
+        gen_label(compiler, &next_label);
+
+        emit_jump_label(buf, OP_JNF, next_label);
+        emit_jump_label(buf, OP_JMP, done_label);
+
+        emit_label(buf, next_label);
+      } else {
+        /* or case */
+        emit_jump_label(buf, OP_JNF, done_label);
+      }
+    
+      /* ignore intermediate results */
+      emit_op(buf, "drop");
+    }
+  }
+
+  /* If there were no arguments, treat this as a literal
+   * #t or #f */
+  if (no_args) {
+    if (and_or) {
+      emit_op(buf, "#t");
+    } else {
+      emit_op(buf, "#f");
+    }
+  } 
+
+  emit_label(buf, done_label);
+
+  emit_comment(buf, "--Bool Operator End--");
+
+  gc_unregister_root(compiler->gc, &done_label);
+  gc_unregister_root(compiler->gc, &next_label);
+}
+
 /* Emit framing code for a lambda */
 void emit_lambda(compiler_core_type *compiler, buffer_type *buf,
   ins_node_type *node) {
@@ -413,6 +488,16 @@ bool emit_node(compiler_core_type *compiler, buffer_type *buf,
 
     case STREAM_IF:
       emit_if(compiler, buf, head, allow_tail_call);
+      pushed = true;
+      break;
+
+    case STREAM_AND:
+      emit_bool(compiler, buf, head, allow_tail_call, true);
+      pushed = true;
+      break;
+
+    case STREAM_OR:
+      emit_bool(compiler, buf, head, allow_tail_call, false);
       pushed = true;
       break;
 

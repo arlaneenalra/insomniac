@@ -12,16 +12,6 @@
         out
         #\newline out
 
-
-        ;; ( runtime -- )
-        ;;s"scheme-env"
-        ;;swap
-        ;;proc eval-lookup-symbol
-        ;;swap
-        ;;call call-in-env
-
-        ;;out #\newline out
-
         call stack_dump
 
         ;; Exit cleanly

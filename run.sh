@@ -5,6 +5,8 @@ function abs_path {
   (cd "$(dirname '$1')" &>/dev/null && printf "%s/%s" "$(pwd)" "${1##*/}")
 }
 
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
 SAVE=$2
 
 if [ "$SAVE" == "" ] ; then
@@ -13,25 +15,22 @@ else
   TMP=$(abs_path $SAVE)
 fi
 
-SRC=$(abs_path $1)
+SRC=$(realpath $1)
 
 (
+  cd $DIR
+
   echo "Temp :" $TMP 
 
   echo
   echo "Compiling ..."
   echo
 
-  # the compiler needs to know where to find it's preamble
-  (
-    cd ../build
-    src/insc $SRC > $TMP
-  )
+  build/src/insc $SRC $TMP
 
   EXIT=$?
 
   if [ "$EXIT" != "0" ] ; then
-    echo $EXIT
     exit $EXIT 
   fi
 
@@ -41,9 +40,16 @@ SRC=$(abs_path $1)
   echo "Running ..."
   echo
 
-  ../build/src/insomniac $TMP
+  build/src/insomniac $TMP
 
+  EXIT=$?
+
+  if [ "$EXIT" != "0" ] ; then
+    exit $EXIT 
+  fi
 )
+
+EXIT=$?
 
 echo
 echo
@@ -51,3 +57,9 @@ echo
 if [ "$SAVE" == "" ] && [ "$TMP" != "" ]  ; then
   rm $TMP
 fi
+
+if [ "$EXIT" != "0" ] ; then
+  echo "Exit status:" $EXIT
+  exit $EXIT 
+fi
+

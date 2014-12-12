@@ -47,6 +47,7 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_MAKE_VECTOR] = &op_make_vector;
     vm->ops[OP_VECTOR_SET] = &op_vector_set;
     vm->ops[OP_VECTOR_REF] = &op_vector_ref;
+    vm->ops[OP_VECTOR_LENGTH] = &op_vector_length;
 
     vm->ops[OP_CONS] = &op_cons;
     vm->ops[OP_CAR] = &op_car;
@@ -107,6 +108,8 @@ void setup_instructions(vm_internal_type *vm) {
     /* Exception Handline */
     vm->ops[OP_CONTINUE] = &op_continue;
     vm->ops[OP_RESTORE] = &op_restore;
+    
+    vm->ops[OP_SET_EXIT] = &op_set_exit;
 
     /* type testing operations */
     vm->ops[OP_IS_FIXNUM] = &op_is_fixnum;

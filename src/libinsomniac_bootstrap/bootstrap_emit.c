@@ -55,6 +55,58 @@ void emit_jump_label(buffer_type *buf, op_type type, buffer_type *label) {
     buffer_append(buf, label, -1);
     emit_newline(buf);
 }
+/* Emit a cond expression */
+void emit_cond(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *node, bool allow_tail_call) {
+  
+  buffer_type *next_label = 0;
+  buffer_type *done_label = 0;
+
+  ins_node_type *clause = 0;
+
+  gc_register_root(compiler->gc, &next_label);
+  gc_register_root(compiler->gc, &done_label);
+
+  gen_label(compiler, &done_label);
+
+  emit_comment(buf, "--Cond Start--");
+
+  clause = node->value.stream->head;
+
+  while (clause) {
+    node = clause->value.stream->head;
+
+    emit_comment(buf, "----Cond Clause----");
+
+    /* Emit the test */
+    emit_stream(compiler, buf, node->value.two.stream1, false); 
+
+    emit_op(buf, "not");
+    gen_label(compiler, &next_label);
+    emit_jump_label(buf, OP_JNF, next_label);
+
+    /* Emit the body */
+    emit_stream(compiler, buf, node->value.two.stream2, allow_tail_call);
+
+    /* Emit jump to end */
+    emit_jump_label(buf, OP_JMP, done_label);
+
+    emit_label(buf, next_label);
+
+    clause = clause->next;
+  }
+ 
+  emit_comment(buf, "--Cond Fall-Through--");
+  
+  /* In the event no case matches, follow our defined stack discipline */
+  emit_op(buf, "()");
+
+  emit_label(buf, done_label);
+  emit_comment(buf, "--Cond End--"); 
+
+  gc_unregister_root(compiler->gc, &next_label);
+  gc_unregister_root(compiler->gc, &done_label);
+}
 
 /* Emit an If */
 void emit_if(compiler_core_type *compiler, buffer_type *buf,
@@ -100,6 +152,81 @@ void emit_if(compiler_core_type *compiler, buffer_type *buf,
   
   gc_unregister_root(compiler->gc, &done_label);
   gc_unregister_root(compiler->gc, &true_label);
+}
+
+/* Handle and(true)/or(false) */
+void emit_bool(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *tree, bool allow_tail_call, bool and_or) {
+
+  ins_node_type *exp = 0;
+  bool pushed = false;
+  bool no_args = true;
+
+  buffer_type *done_label = 0;
+  buffer_type *next_label = 0;
+
+  gc_register_root(compiler->gc, &done_label);
+  gc_register_root(compiler->gc, &next_label);
+
+  gen_label(compiler, &done_label);
+
+  /* a null stream is possible */
+  if (tree && tree->value.stream) {
+    exp = tree->value.stream->head;
+  }
+
+  emit_comment(buf, "--Bool Operator Start--");
+
+  while(exp) {
+    no_args = false;
+
+    /* Tail calls cannot be allowed here */
+    pushed = emit_node(compiler, buf, exp, false); 
+
+    exp = exp->next;
+
+    // TODO: Look at optimizing this out 
+    if (!pushed) {
+      emit_op(buf, "()");
+    }
+    
+    if (exp) {
+      emit_op(buf, "dup");
+
+      if (and_or) {
+        /* and case */
+        gen_label(compiler, &next_label);
+
+        emit_jump_label(buf, OP_JNF, next_label);
+        emit_jump_label(buf, OP_JMP, done_label);
+
+        emit_label(buf, next_label);
+      } else {
+        /* or case */
+        emit_jump_label(buf, OP_JNF, done_label);
+      }
+    
+      /* ignore intermediate results */
+      emit_op(buf, "drop");
+    }
+  }
+
+  /* If there were no arguments, treat this as a literal
+   * #t or #f */
+  if (no_args) {
+    if (and_or) {
+      emit_op(buf, "#t");
+    } else {
+      emit_op(buf, "#f");
+    }
+  } 
+
+  emit_label(buf, done_label);
+
+  emit_comment(buf, "--Bool Operator End--");
+
+  gc_unregister_root(compiler->gc, &done_label);
+  gc_unregister_root(compiler->gc, &next_label);
 }
 
 /* Emit framing code for a lambda */
@@ -344,6 +471,7 @@ bool emit_node(compiler_core_type *compiler, buffer_type *buf,
 
     case STREAM_ASM:
       emit_asm(compiler, buf, head->value.stream);
+      pushed = true;
       break;
 
     case STREAM_LOAD:
@@ -353,8 +481,23 @@ bool emit_node(compiler_core_type *compiler, buffer_type *buf,
       pushed = true;
       break;
 
+    case STREAM_COND:
+      emit_cond(compiler, buf, head, allow_tail_call);
+      pushed = true;
+      break;
+
     case STREAM_IF:
       emit_if(compiler, buf, head, allow_tail_call);
+      pushed = true;
+      break;
+
+    case STREAM_AND:
+      emit_bool(compiler, buf, head, allow_tail_call, true);
+      pushed = true;
+      break;
+
+    case STREAM_OR:
+      emit_bool(compiler, buf, head, allow_tail_call, false);
       pushed = true;
       break;
 
@@ -413,6 +556,10 @@ void emit_stream(compiler_core_type *compiler, buffer_type *buf,
     if (head && pushed) {
       emit_op(buf, "drop");
     }
+  }
+
+  if (!pushed) {
+    emit_op(buf, "()");
   }
 }
 

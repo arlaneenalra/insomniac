@@ -1,6 +1,5 @@
 
 (begin
-  (include "lib/baselib.scm")
 
   (define tail-bomb
     (lambda (t n)
@@ -14,5 +13,5 @@
         (t t (- n 1)))))
 
 
-  (display (tail-bomb tail-bomb 1000000))
+  (display (tail-bomb tail-bomb 10))
 )

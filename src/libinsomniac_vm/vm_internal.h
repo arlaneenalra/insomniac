@@ -13,6 +13,10 @@
 #include <buffer.h>
 #include <vm.h>
 
+#define OUTPUT_MAX_DEPTH 100 
+#define OUTPUT_MAX_LENGTH 100 
+
+
 typedef struct vm_internal vm_internal_type;
 typedef struct env env_type;
 
@@ -64,6 +68,8 @@ struct vm_internal {
     /* current execution state */
     gc_type_def env_type;
     env_type *env;
+
+    int exit_status;
 };
 
 /* construct a new pair */

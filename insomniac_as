@@ -20,7 +20,7 @@ depth ( -- depth ) How deep is the stack?
 
 sym    ( str -- sym ) Takes a string and makes it into a symbol
 
-cons   ( car cdr -- (car . cdr) ) Takes the top two stack entries and
+cons   ( cdr car -- (car . cdr) ) Takes the top two stack entries and
                                   makes them into a pair
 car    ( pair -- car ) Return the car of the pair
 cdr    ( pair -- cdr ) Return the cdr of the pair
@@ -33,6 +33,9 @@ vec@ ( index vector -- obj ) Takes an index and vector and
                                 index
 vec! ( index obj vector -- ) Takes an index, object, and vector and
                                 stores the object at the given index
+vec-len ( vector -- size)    Takes a vector as an argument and returns
+                                the vectors length.
+
 jmp  ( -label- ) Jumps to given label
 jnf  ( obj -label- ) Jumps to the given label if obj is not false
 
@@ -146,3 +149,4 @@ Internals
 These calls are used to examine/dump internal vm state
 
 gc-stats
+

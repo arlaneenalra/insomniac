@@ -2,6 +2,7 @@
 %option always-interactive
 %option yylineno
 %option nounput noinput
+%option extra-type="compiler_core_type *"
 
 %{
 #include "bootstrap_internal.h"
@@ -17,7 +18,7 @@ EOL       \n|\r\n|\n\r|\r
 WS	  {EOL}|[[:blank:]]
 IDENT     [-!$%&*+\./:<=>?@^_~[:alnum:]]
 SIGNS     [-+]
-MATH      [-+*/%><]
+MATH      [-+*/%><=]
 
 CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 
@@ -42,8 +43,13 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 "quote"   { return PRIM_QUOTE; }
 "define"  { return PRIM_DEFINE; }
 "lambda"  { return PRIM_LAMBDA; }
-"if"      { return PRIM_IF; }
 "set!"    { return PRIM_SET; }
+
+"if"      { return PRIM_IF; }
+"cond"    { return PRIM_COND; }
+
+"and"     { return PRIM_AND; }
+"or"      { return PRIM_OR; }
 
 "include" { return PRIM_INCLUDE; }
 "asm"     { return PRIM_ASM; }
@@ -74,6 +80,8 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 
 <<EOF>>   {
             yypop_buffer_state(yyscanner);
+
+            yyget_extra(yyscanner)->include_depth--;
 
             if( !YY_CURRENT_BUFFER) {
               return END_OF_FILE;

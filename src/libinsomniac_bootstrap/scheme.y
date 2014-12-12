@@ -13,7 +13,6 @@
 %parse-param {void *scanner} 
 %lex-param {void *scanner} 
 
-//%define api.value.type { buffer_type * }
 %define api.value.type { ins_stream_type * }
 
 %token OPEN_PAREN
@@ -39,8 +38,13 @@
 %token PRIM_BEGIN
 %token PRIM_QUOTE
 %token PRIM_LAMBDA
-%token PRIM_IF
 %token PRIM_SET
+
+%token PRIM_IF
+%token PRIM_COND
+
+%token PRIM_AND
+%token PRIM_OR
 
 %token PRIM_INCLUDE
 %token SPEC_DEFINE
@@ -143,6 +147,9 @@ primitive_procedures:
   | user_call
   | include
   | asm
+  | cond
+  | and
+  | or
 
 asm:
     PRIM_ASM asm_end CLOSE_PAREN    { STREAM_NEW($$, asm, $2); }
@@ -170,6 +177,9 @@ asm_types:
   | PRIM_DEFINE
   | PRIM_ASM
   | MATH_OPS
+  | PRIM_COND
+  | PRIM_AND
+  | PRIM_OR
 
 two_args:
     expression expression                  { STREAM_NEW($$, two_arg, $1, $2); }
@@ -183,28 +193,71 @@ include: /* Only single arg include and is effectively an empty node. */
                                }
 
 if:
-    PRIM_IF expression two_args CLOSE_PAREN { STREAM_NEW($$, if, $2, $3); }
+    PRIM_IF expression if_end                  { STREAM_NEW($$, if, $2, $3); }
+
+if_end:
+    two_args CLOSE_PAREN                       { $$ = $1; }
+  | expression CLOSE_PAREN                     { /* Handle (if arg true) */
+                                                 STREAM_NEW($$, two_arg, $1, 0);
+                                                 STREAM_NEW(($$->head->value.two.stream2),
+                                                  literal, "()");
+                                               }
+
+and:
+    PRIM_AND boolean_end                       { STREAM_NEW($$, and, $2); }
+
+or:
+    PRIM_OR boolean_end                        { STREAM_NEW($$, or, $2); }
+
+boolean_body:
+    expression 
+  | expression boolean_body                    { $$ = $1; stream_concat($$, $2); }
+
+boolean_end:
+    CLOSE_PAREN
+  | boolean_body CLOSE_PAREN
+
+cond:
+    PRIM_COND cond_clause_list                 { STREAM_NEW($$, cond, $2); }
+
+cond_clause:
+    OPEN_PAREN expression begin_end            { STREAM_NEW($$, two_arg, $2, $3); }
+
+cond_clause_list_end:
+    cond_clause                                { STREAM_NEW($$, cond, $1); }
+  | cond_clause cond_clause_list_end           { STREAM_NEW($$, cond, $1);  stream_concat($$, $2); }
+
+cond_clause_list:
+    CLOSE_PAREN
+  | cond_clause_list_end CLOSE_PAREN
 
 define:
     define_variable
+  | define_lambda
+
 
 /* the most basic version of define */
 define_variable:
-  PRIM_DEFINE symbol expression CLOSE_PAREN  { STREAM_NEW($$, bind, $3, $2); }
+    PRIM_DEFINE symbol expression CLOSE_PAREN  { STREAM_NEW($$, bind, $3, $2); }
+
+define_lambda:
+    PRIM_DEFINE OPEN_PAREN
+    symbol define_lambda_body                  { STREAM_NEW($$, bind, $4, $3); }
+
+define_lambda_body:
+    lambda_formals_list 
+    begin_end                                  { STREAM_NEW($$, lambda, $1, $2); }
 
 /* Set the value of a location */
 set:
-  PRIM_SET symbol expression CLOSE_PAREN     { STREAM_NEW($$, store, $3, $2); } 
+    PRIM_SET symbol expression CLOSE_PAREN     { STREAM_NEW($$, store, $3, $2); } 
 
 begin:
     PRIM_BEGIN begin_end   { $$ = $2; }
 
 begin_body:
     expression              
-  | expression begin_body  {
-                             $$ = $1;
-                             stream_concat($$, $2);
-                           }
+  | expression begin_body  { $$ = $1; stream_concat($$, $2); }
 
 begin_end:
     CLOSE_PAREN
@@ -238,11 +291,11 @@ lambda:
 lambda_formals:                 /* if formals ends in a () it's a fixed list
                                    otherwise the it's a variadic formals list */
     symbol
-  | lambda_formals_list
+  | OPEN_PAREN lambda_formals_list { $$ = $2; }
 
 lambda_formals_list:
-    OPEN_PAREN CLOSE_PAREN      { NEW_STREAM($$); } /* ignore arguments */
-  | OPEN_PAREN lambda_formals_list_end   { $$ = $2; }
+    CLOSE_PAREN                    { NEW_STREAM($$); } /* ignore arguments */
+  | lambda_formals_list_end        { $$ = $1; }
 
 lambda_formals_list_end:
     symbol CLOSE_PAREN             {
@@ -253,16 +306,17 @@ lambda_formals_list_end:
                                      /* Add an element in the middle of a list */
                                      $$ = $1; stream_concat($$, $2); 
                                    }
-  | symbol DOT symbol CLOSE_PAREN  {
+  | DOT symbol CLOSE_PAREN         {
                                      /* Last element takes rest */
-                                     $$ = $1; stream_concat($$, $3);
+                                     //stream_concat($$, $2);
+                                     $$ = $2;
                                    }
 
 %%
 
 void parse_error(compiler_core_type *compiler, void *scanner, char *s) {
-    (void)fprintf(stderr,"There was an error parsing '%s' on line %i\n", 
-                  s, yyget_lineno(scanner) + 1);
+    (void)fprintf(stderr,"There was an error parsing '%s' on line %i near: '%s'\n", 
+                  s, yyget_lineno(scanner) + 1, yyget_text(scanner));
 }
 
 

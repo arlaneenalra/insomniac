@@ -15,24 +15,28 @@
 
 #include <locale.h>
 
-void eval_string(vm_type *vm, gc_type *gc, char *str) {
-    size_t written=0;
+int eval_string(vm_type *vm, gc_type *gc, char *str) {
+    size_t written = 0;
     uint8_t *code_ref = 0;
+    int ret_value = 0;
 
     gc_register_root(gc, (void **)&code_ref);
 
     /* assemble a simple command */
     written = asm_string(gc, str, &code_ref);
 
-    vm_eval(vm, written, code_ref);
+    ret_value = vm_eval(vm, written, code_ref);
 
     gc_unregister_root(gc, (void **)&code_ref);
+    
+    return ret_value;
 }
 
 int main(int argc, char**argv) {
     gc_type *gc = gc_create(sizeof(object_type));
     vm_type *vm = 0; 
     char *code_str = 0;
+    int ret_value = 0;
 
     /* needed to setup locale aware printf . . . 
        I need to do a great deal more research here */
@@ -53,7 +57,7 @@ int main(int argc, char**argv) {
     /* load and eval */
     eval_string(vm, gc, " \"Insomniac VM\" out #\\newline out");
     (void)buffer_load_string(gc, argv[1], &code_str);
-    eval_string(vm, gc, code_str);
+    ret_value = eval_string(vm, gc, code_str);
 
     vm_reset(vm);
 
@@ -63,5 +67,5 @@ int main(int argc, char**argv) {
     gc_unregister_root(gc, (void **)&code_str);
     gc_destroy(gc);
 
-    return 0;
+    return ret_value;
 }

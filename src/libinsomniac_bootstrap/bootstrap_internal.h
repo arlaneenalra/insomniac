@@ -6,6 +6,10 @@
 #include <bootstrap.h>
 #include <ops.h>
 #include <stdio.h>
+#include <limits.h>
+
+/* Define the maximum include depth that we will support */
+#define MAX_INCLUDE_DEPTH 64 
 
 typedef struct ins_stream ins_stream_type;
 typedef struct ins_node ins_node_type;
@@ -28,7 +32,11 @@ typedef enum node {
 
     STREAM_TWO_ARG,
     STREAM_IF,
+    STREAM_COND,
     STREAM_MATH,
+
+    STREAM_AND,
+    STREAM_OR,
 
     STREAM_LAMBDA,
     STREAM_CALL,
@@ -77,11 +85,10 @@ struct compiler_core {
     gc_type_def stream_gc_type;
     gc_type_def node_types[NODE_MAX];
 
+    char home[PATH_MAX];
 
-
-    /* path to preamble and postamble code */
-    char *preamble;
-    char *postamble;
+    int include_depth;
+    char **include_stack;
 
     void *scanner;
 
@@ -107,8 +114,14 @@ void emit_asm(compiler_core_type *compiler, buffer_type *buf,
   ins_stream_type *tree);
 void emit_double(compiler_core_type *compiler, buffer_type *buf,
   ins_node_type *node, char *op);
+
+void emit_cond(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *tree, bool allow_tail_call);
 void emit_if(compiler_core_type *compiler, buffer_type *buf,
   ins_node_type *tree, bool allow_tail_call);
+
+void emit_bool(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *tree, bool allow_tail_call, bool and_or);
 
 void emit_newline(buffer_type *buf);
 void emit_indent(buffer_type *buf);
@@ -149,6 +162,10 @@ BUILD_SINGLE_SIGNATURE(asm);
 BUILD_SINGLE_SIGNATURE(asm_stream);
 BUILD_SINGLE_SIGNATURE(quoted);
 BUILD_SINGLE_SIGNATURE(load);
+
+BUILD_SINGLE_SIGNATURE(cond);
+BUILD_SINGLE_SIGNATURE(and);
+BUILD_SINGLE_SIGNATURE(or);
 
 /* Nodes that hold two streams */
 BUILD_DOUBLE_SIGNATURE(bind);
@@ -191,17 +208,12 @@ void parse_error(compiler_core_type *compiler, void *scanner, char *s);
 void parse_push_state(compiler_core_type *compiler, FILE *file);
 
 /* Define some macros to make the parser code easier */
-/*#define NEW_BUF(var) buffer_create(compiler->gc, &var)
-
-#define EMIT(var, type, op) emit_##type(var, op)
-#define EMIT_NEW(var, type, op) NEW_BUF(var); EMIT(var, type, op);*/
-
 #define NEW_STREAM(var) stream_create(compiler, &var)
 
 #define STREAM(var, type, ...) \
-  stream_##type(compiler, var, ##__VA_ARGS__)
+  stream_##type(compiler, var, __VA_ARGS__)
 
 #define STREAM_NEW(var, type, ...) NEW_STREAM(var); \
-  STREAM(var, type, ##__VA_ARGS__);
+  STREAM(var, type, __VA_ARGS__);
 
 #endif

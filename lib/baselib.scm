@@ -3,36 +3,35 @@
 ;;;
 
 ;; Define type tests
-(begin
 
-(define display
-    (lambda (x) (asm (x) out ())))
+;; Functions needed for base test library
+;;
+;; (x) display
+;; write
+;; equal?
+; for-each
+;; let
+;; (x) newline
+;; (x) set!
+;; define-macro --- maybe
+;; 
 
-(define fixnum?
-  (lambda (x) (asm (x) fixnum?)))
+(define (display x) (asm (x) out ()))
+(define (newline) (asm #\newline out ()))
 
-(define bool?
-  (lambda (x) (asm (x) bool?)))
+;; very very crude eq?
+(define (eq? a b) (asm (a) (b) eq))
+(define eqv? eq?)
 
-(define char?
-  (lambda (x) (asm (x) char?)))
+;; For cond
+(define else #t)
 
-(define string?
-  (lambda (x) (asm (x) string?)))
+(include "math.scm")
 
-(define vector?
-  (lambda (x) (asm (x) vector?)))
+(include "predicates.scm")
 
-(define pair?
-  (lambda (x) (asm (x) pair?)))
+(include "boolean.scm")
 
-(define null?
-  (lambda (x) (asm (x) null?)))
+(include "lists.scm")
+(include "vectors.scm")
 
-(define proc?
-  (lambda (x) (asm (x) proc?)))
-
-(define symbol?
-  (lambda (x) (asm (x) symbol?)))
-
-)

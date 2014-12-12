@@ -21,6 +21,29 @@ void op_make_vector(vm_internal_type *vm) {
     gc_unprotect(vm->gc);
 }
 
+/* return the lenght of a vector */
+void op_vector_length(vm_internal_type *vm) {
+    object_type *obj = 0;
+    object_type *length = 0;
+
+    gc_register_root(vm->gc, (void **)&obj);
+    gc_register_root(vm->gc, (void **)&length);
+    
+    obj = vm_pop(vm);
+
+    if (!obj || obj->type != VECTOR) {
+      throw(vm, "Attempt to read vector length of non-vector!", 1, obj);
+    }
+
+    length = vm_alloc(vm, FIXNUM);
+    length->value.integer = obj->value.vector.length;
+
+    vm_push(vm, length);
+
+    gc_unregister_root(vm->gc, (void **)&length);
+    gc_unregister_root(vm->gc, (void **)&obj);
+}
+
 /* set an element in a vector */
 void op_vector_set(vm_internal_type *vm) {
     object_type *vector = 0;
@@ -30,9 +53,9 @@ void op_vector_set(vm_internal_type *vm) {
 
     gc_protect(vm->gc);
 
-    obj_index = vm_pop(vm);
-    obj = vm_pop(vm);
     vector = vm_pop(vm);
+    obj = vm_pop(vm);
+    obj_index = vm_pop(vm);
 
     assert(obj_index && obj_index->type == FIXNUM);
     
@@ -56,15 +79,15 @@ void op_vector_ref(vm_internal_type *vm) {
 
     gc_protect(vm->gc);
 
-    obj_index = vm_pop(vm);
     vector = vm_pop(vm);
+    obj_index = vm_pop(vm);
 
     assert(obj_index && obj_index->type == FIXNUM);
     
     index = obj_index->value.integer;
 
     assert(vector && vector->type == VECTOR &&
-           vector->value.vector.length >= index);
+           vector->value.vector.length > index);
 
     /* do the read */
     obj = vector->value.vector.vector[index];

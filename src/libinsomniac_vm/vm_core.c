@@ -89,7 +89,7 @@ object_type *vm_pop(vm_type *vm_void) {
 
     /* pop the value off */
     obj = vm->stack_root->value.pair.car;
-    vm->stack_root=vm->stack_root->value.pair.cdr;
+    vm->stack_root = vm->stack_root->value.pair.cdr;
     vm->depth--;
 
     return obj;

@@ -20,22 +20,20 @@ uint8_t vm_peek(vm_internal_type *vm, vm_int offset) {
 }
 
 /* create a list of pairs */
-object_type *cons(vm_type *vm_void, object_type *car, object_type *cdr) {
+void cons(vm_type *vm_void, object_type *car, object_type *cdr,
+  object_type **pair_out) {
     vm_internal_type *vm=(vm_internal_type *)vm_void;
-    object_type *new_pair = 0;
     
-   /* gc_protect(vm->gc); */
-    gc_register_root(vm->gc, (void **)&new_pair);
+    /* gc_protect(vm->gc); */
+    //gc_register_root(vm->gc, (void **)&new_pair);
 
-    new_pair = vm_alloc(vm, PAIR);
+    *pair_out = vm_alloc(vm, PAIR);
     
-    new_pair->value.pair.car = car;
-    new_pair->value.pair.cdr = cdr;
+    (*pair_out)->value.pair.car = car;
+    (*pair_out)->value.pair.cdr = cdr;
 
-    gc_unregister_root(vm->gc, (void **)&new_pair);
+    //gc_unregister_root(vm->gc, (void **)&new_pair);
     /* gc_unprotect(vm->gc); */
-    
-    return new_pair;
 }
 
 /* parse an integer in byte code form */
@@ -90,11 +88,13 @@ void make_symbol(vm_internal_type *vm, object_type **obj) {
 void throw(vm_internal_type *vm, char *msg, int num, ...) {
     va_list ap;
     object_type *exception = 0;
+    object_type *cons_temp = 0;
     object_type *obj = 0;
 
     /* make the exception */
     gc_register_root(vm->gc, (void **)&exception);
     gc_register_root(vm->gc, (void **)&obj);
+    gc_register_root(vm->gc, (void **)cons_temp);
 
     exception = vm->empty;
   
@@ -103,7 +103,8 @@ void throw(vm_internal_type *vm, char *msg, int num, ...) {
     
     for(int i = 0; i < num ; i++) {
         obj = va_arg(ap, object_type *);
-        exception = cons(vm, obj, exception);
+        cons(vm, obj, exception, &cons_temp);
+        exception = cons_temp;
     }
     
     va_end(ap);
@@ -112,7 +113,8 @@ void throw(vm_internal_type *vm, char *msg, int num, ...) {
     obj = vm_alloc(vm, CLOSURE);
     clone_env(vm, (env_type **)&(obj->value.closure), vm->env);
     
-    exception = cons(vm, obj, exception);
+    cons(vm, obj, exception, &cons_temp);
+    exception = cons_temp;
 
     /* /\* save the stack *\/ */
     /* exception = cons(vm, vm->stack_root, exception); */
@@ -121,11 +123,13 @@ void throw(vm_internal_type *vm, char *msg, int num, ...) {
     obj = vm_make_string(vm, msg, strlen(msg));
 
     /* put everything in a pair */
-    exception = cons(vm,  obj, exception);
+    cons(vm,  obj, exception, &cons_temp);
+    exception = cons_temp; 
     
     /* put the exception itself on the stack */
     vm_push(vm, exception);
 
+    gc_unregister_root(vm->gc, (void **)cons_temp);
     gc_unregister_root(vm->gc, (void **)&obj);
     gc_unregister_root(vm->gc, (void **)&exception);
 

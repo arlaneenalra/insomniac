@@ -66,11 +66,14 @@ void vm_destroy(vm_type *vm_raw) {
 /* push and item onto the vm stack */
 void vm_push(vm_type *vm_void, object_type *obj) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
+    object_type *pair = 0;
 
     gc_protect(vm->gc);
     
     /* push an item onto the stack */
-    vm->stack_root = cons(vm, obj, vm->stack_root);
+    cons(vm, obj, vm->stack_root, &pair);
+    
+    vm->stack_root = pair;
     vm->depth++;
 
     gc_unprotect(vm->gc);

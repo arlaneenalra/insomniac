@@ -4,14 +4,13 @@
 void op_cons(vm_internal_type *vm) {
     object_type *car = 0;
     object_type *cdr = 0;
-    object_type *pair = 0;
 
     vm->reg1 = car = vm_pop(vm);
     vm->reg2 = cdr = vm_pop(vm);
 
-    vm->reg3 = pair = cons(vm, car, cdr);
+    cons(vm, car, cdr, &vm->reg3);
 
-    vm_push(vm, pair);
+    vm_push(vm, vm->reg3);
 }
 
 /* extract the car from a given pair */

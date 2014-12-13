@@ -24,8 +24,8 @@ add_executable( insomniac
 
 target_link_libraries(insomniac 
   insomniac_buffer
-  insomniac_hash
   insomniac_vm
+  insomniac_hash
   insomniac_gc
   insomniac_asm
   dl
@@ -36,9 +36,9 @@ add_executable(insc
   )
 
 target_link_libraries(insc
+  insomniac_bootstrap
   insomniac_buffer
   insomniac_hash
   insomniac_gc
-  insomniac_bootstrap
   )
 

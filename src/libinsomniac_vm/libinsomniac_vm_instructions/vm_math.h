@@ -8,13 +8,9 @@ void fn_name(vm_internal_type *vm) {                    \
     object_type *num2 = 0;                              \
     object_type *result = 0;                            \
                                                         \
-    gc_register_root(vm->gc, (void **)&num1);           \
-    gc_register_root(vm->gc, (void **)&num2);           \
-    gc_register_root(vm->gc, (void **)&result);         \
-                                                        \
     /* verify that the firt two objects are number */   \
-    num2 = vm_pop(vm);                                  \
-    num1 = vm_pop(vm);                                  \
+    vm->reg2 = num2 = vm_pop(vm);                       \
+    vm->reg1 = num1 = vm_pop(vm);                       \
                                                         \
     /* TODO: replace this with sane exception           \
        handler */                                       \
@@ -27,15 +23,11 @@ void fn_name(vm_internal_type *vm) {                    \
         assert(0);                                      \
     }                                                   \
                                                         \
-    result = vm_alloc(vm, FIXNUM);                      \
+    vm->reg3 = result = vm_alloc(vm, FIXNUM);           \
                                                         \
     result->value.integer =                             \
         num1->value.integer op num2->value.integer;     \
     vm_push(vm, result);                                \
-                                                        \
-    gc_unregister_root(vm->gc, (void **)&result);       \
-    gc_unregister_root(vm->gc, (void **)&num2);         \
-    gc_unregister_root(vm->gc, (void **)&num1);         \
 }                                                       \
 
 
@@ -45,13 +37,9 @@ void fn_name(vm_internal_type *vm) {                    \
     object_type *num2 = 0;                              \
     object_type *result = 0;                            \
                                                         \
-    gc_register_root(vm->gc, (void **)&num1);           \
-    gc_register_root(vm->gc, (void **)&num2);           \
-    gc_register_root(vm->gc, (void **)&result);         \
-                                                        \
     /* verify that the firt two objects are number */   \
-    num2 = vm_pop(vm);                                  \
-    num1 = vm_pop(vm);                                  \
+    vm->reg2 = num2 = vm_pop(vm);                       \
+    vm->reg1 = num1 = vm_pop(vm);                       \
                                                         \
     /* TODO: replace this with sane exception           \
        handler */                                       \
@@ -67,15 +55,11 @@ void fn_name(vm_internal_type *vm) {                    \
     }                                                   \
                                                         \
     if(num1->value.integer op num2->value.integer) {    \
-        result = vm->vm_true;                              \
+        result = vm->vm_true;                           \
     } else {                                            \
-        result = vm->vm_false;                             \
+        result = vm->vm_false;                          \
     }                                                   \
     vm_push(vm, result);                                \
-                                                        \
-    gc_unregister_root(vm->gc, (void **)&result);       \
-    gc_unregister_root(vm->gc, (void **)&num2);         \
-    gc_unregister_root(vm->gc, (void **)&num1);         \
 }                                                       \
 
 #endif

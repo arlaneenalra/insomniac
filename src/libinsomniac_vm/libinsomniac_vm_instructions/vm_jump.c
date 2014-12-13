@@ -6,16 +6,12 @@ void op_jnf(vm_internal_type *vm) {
     object_type *obj =0 ;
     vm_int target = parse_int(vm);
     
-    gc_register_root(vm->gc, (void**)&obj);
-    
-    obj = vm_pop(vm);
+    vm->reg1 = obj = vm_pop(vm);
 
     if(!(obj && obj->type == BOOL &&
          !obj->value.boolean)) {
         vm->env->ip += target;
     }
-
-    gc_unregister_root(vm->gc, (void**)&obj);
 }
 
 /* straight jump */
@@ -32,16 +28,12 @@ void op_call(vm_internal_type *vm) {
     object_type *closure = 0;
     vm_int target = parse_int(vm); /* get target address */
 
-    gc_register_root(vm->gc, (void **)&closure);
-
     /* allocate a new closure */
-    closure = vm_alloc(vm, CLOSURE);
+    vm->reg1 = closure = vm_alloc(vm, CLOSURE);
 
     /* save our current environment */
     closure->value.closure = vm->env;
     vm_push(vm, closure);
-
-    gc_unregister_root(vm->gc, (void **)&closure);
 
     push_env(vm); /* create a child of the current env */
 
@@ -57,13 +49,10 @@ void op_adopt(vm_internal_type *vm) {
   object_type *adopted = 0;
   env_type *env = 0;
   
-  gc_register_root(vm->gc, (void **)&child);
-  gc_register_root(vm->gc, (void **)&parent);
-  gc_register_root(vm->gc, (void **)&adopted);
   gc_register_root(vm->gc, (void **)&env);
 
-  parent = vm_pop(vm);
-  child = vm_pop(vm);
+  vm->reg1 = parent = vm_pop(vm);
+  vm->reg2 = child = vm_pop(vm);
 
   if(!parent || parent->type != CLOSURE) {
       throw(vm, "Attempt to adopt with non-closure", 1, parent);
@@ -72,7 +61,7 @@ void op_adopt(vm_internal_type *vm) {
       throw(vm, "Attempt to adopt non-closure", 1, child);
 
   } else {
-    adopted = vm_alloc(vm, CLOSURE);
+    vm->reg3 = adopted = vm_alloc(vm, CLOSURE);
     
     /* copy the child into the new closure */
     clone_env(vm, (env_type **)&env, 
@@ -88,9 +77,6 @@ void op_adopt(vm_internal_type *vm) {
   }
 
   gc_unregister_root(vm->gc, (void **)&env);
-  gc_unregister_root(vm->gc, (void **)&adopted);
-  gc_unregister_root(vm->gc, (void **)&child);
-  gc_unregister_root(vm->gc, (void **)&parent);
 }
 
 /* create a procedure reference based on target and leave it 
@@ -100,11 +86,10 @@ void op_proc(vm_internal_type *vm) {
     vm_int target = parse_int(vm); /* get target address */
     env_type *env = 0;
 
-    gc_register_root(vm->gc, (void **)&closure);
     gc_register_root(vm->gc, (void **)&env);
 
     /* allocate a new closure */
-    closure = vm_alloc(vm, CLOSURE);
+    vm->reg1 = closure = vm_alloc(vm, CLOSURE);
 
     /* save our current environment */
     clone_env(vm, (env_type **)&env, vm->env);
@@ -117,8 +102,6 @@ void op_proc(vm_internal_type *vm) {
     vm_push(vm, closure);
 
     gc_unregister_root(vm->gc, (void **)&env);
-    gc_unregister_root(vm->gc, (void **)&closure);
-
 }
 
 /* jump indirect operation */
@@ -126,10 +109,9 @@ void op_jin(vm_internal_type *vm) {
     object_type *closure = 0;
     env_type *env = 0;
     
-    gc_register_root(vm->gc, (void **)&closure);
     gc_register_root(vm->gc, (void **)&env);
     
-    closure = vm_pop(vm);
+    vm->reg1 = closure = vm_pop(vm);
 
     if(!closure || closure->type != CLOSURE) {
         throw(vm, "Attempt to jump to non-closure", 1, closure);
@@ -151,16 +133,13 @@ void op_jin(vm_internal_type *vm) {
     }
 
     gc_unregister_root(vm->gc, (void **)&env);
-    gc_unregister_root(vm->gc, (void **)&closure);
 }
 
 /* return operation */
 void op_ret(vm_internal_type *vm) {
     object_type *closure = 0;
     
-    gc_register_root(vm->gc, (void **)&closure);
-    
-    closure = vm_pop(vm);
+    vm->reg1 = closure = vm_pop(vm);
 
     if(!closure || closure->type != CLOSURE) {
         throw(vm, "Attempt to jump to non-closure", 1, closure);
@@ -170,8 +149,6 @@ void op_ret(vm_internal_type *vm) {
         /* clone the closures environment */
         clone_env(vm, &(vm->env), closure->value.closure);
     }
-
-    gc_unregister_root(vm->gc, (void **)&closure);
 }
 
 
@@ -180,17 +157,14 @@ void op_call_in(vm_internal_type *vm) {
     object_type *closure = 0;
     object_type *ret = 0;
     
-    gc_register_root(vm->gc, (void **)&closure);
-    gc_register_root(vm->gc, (void **)&ret);
-    
-    closure = vm_pop(vm);
+    vm->reg1 = closure = vm_pop(vm);
 
     if(!closure || closure->type != CLOSURE) {
         throw(vm, "Attempt to jump to non-closure", 1, closure);
 
     } else {
         /* allocate a new closure */
-        ret = vm_alloc(vm, CLOSURE);
+        vm->reg2 = ret = vm_alloc(vm, CLOSURE);
 
         /* save our current environment */
         ret->value.closure = vm->env;
@@ -201,18 +175,13 @@ void op_call_in(vm_internal_type *vm) {
         /* create a child environment */
         push_env(vm);
     }
-
-    gc_unregister_root(vm->gc, (void **)&ret);
-    gc_unregister_root(vm->gc, (void **)&closure);
 }
 
 /* tail call indirect operation */
 void op_tail_call_in(vm_internal_type *vm) {
     object_type *closure = 0;
     
-    gc_register_root(vm->gc, (void **)&closure);
-    
-    closure = vm_pop(vm);
+    vm->reg1 = closure = vm_pop(vm);
 
     if(!closure || closure->type != CLOSURE) {
         throw(vm, "Attempt to jump to non-closure", 1, closure);
@@ -225,8 +194,6 @@ void op_tail_call_in(vm_internal_type *vm) {
         /* create a child environment */
         push_env(vm);
     }
-
-    gc_unregister_root(vm->gc, (void **)&closure);
 }
 /* Exception Handling code */
 

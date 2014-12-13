@@ -17,7 +17,6 @@ void vm_create(gc_type *gc, vm_type **vm_ret ) {
     /* attach instructions to the vm */
     setup_instructions(vm);
     
-
     /* setup types for allocations */
     create_types(vm);
    
@@ -29,6 +28,8 @@ void vm_create(gc_type *gc, vm_type **vm_ret ) {
     
     vm->vm_false = vm_alloc(vm, BOOL);
     vm->vm_false->value.boolean = false;
+
+    vm->reg1 = vm->reg2 = vm->reg3 = 0;
 
     /* setup the stack */
     vm->stack_root = vm->empty;

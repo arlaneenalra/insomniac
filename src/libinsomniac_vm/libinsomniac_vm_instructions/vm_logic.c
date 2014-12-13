@@ -6,11 +6,8 @@ void op_eq(vm_internal_type *vm) {
     object_type *obj2 = 0;
     int result = 0;
 
-    gc_register_root(vm->gc, (void **)&obj1);
-    gc_register_root(vm->gc, (void **)&obj2);
-
-    obj1 = vm_pop(vm);
-    obj2 = vm_pop(vm);
+    vm->reg1 = obj1 = vm_pop(vm);
+    vm->reg2 = obj2 = vm_pop(vm);
 
 
     /* make sure we have actual objects */
@@ -43,19 +40,13 @@ void op_eq(vm_internal_type *vm) {
         vm_push(vm, result ? vm->vm_true : vm->vm_false);
     }
 
-    
-    gc_unregister_root(vm->gc, (void **)&obj2);
-    gc_unregister_root(vm->gc, (void **)&obj1);
-
 }
 
 /* return the boolean inverse of the given object */
 void op_not(vm_internal_type *vm) {
     object_type *obj = 0;
     
-    gc_register_root(vm->gc, (void **)&obj);
-    
-    obj = vm_pop(vm);
+    vm->reg1 = obj = vm_pop(vm);
 
     if(!obj) {
         printf("Stack Underrun!");
@@ -68,6 +59,4 @@ void op_not(vm_internal_type *vm) {
     } else {
         vm_push(vm, vm->vm_false);
     }
-
-    gc_unregister_root(vm->gc, (void **)&obj);
 }

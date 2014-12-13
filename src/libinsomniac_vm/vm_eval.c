@@ -26,11 +26,12 @@ int vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref) {
         /* call instruction */
         if(op_call) {
             (*op_call)(vm);
+            /* Clean up after instructions */
+            vm->reg1 = vm->reg2 = vm->reg3 = 0;
         } else {
             /* Found undefined instruction */
             fprintf(stderr, "Undefined instruction! %zu:%i\n", vm->env->ip - 1, op_code);
         }
-
     }
 
     return vm->exit_status;

@@ -13,10 +13,12 @@ For the moment, I'm playing around with the idea of a mark/sweep garbage collect
 
 TODO:
 
+* Build out define-record-type and assorted functions -- This will be a big help in getting the code ready for the metacircular interpreter.
+
 * Sweep is currently limited by stack size, this should be adjusted to work in an iterative manner, if possible.  This will take some work to get right and is not immediately necessary, thankfully.
 
 * VM code recreates gc types every time that a vm is instance is created.  This needs to be rectified.
 
-* Rework compiler to produce CPS style code (begin, etc)
+* Rework compiler to produce CPS style code (begin, etc) -- This will likely be delayed until the system is metacircular.
 
 

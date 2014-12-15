@@ -6,39 +6,28 @@
 hash_type hash_string(void *key) {
     hash_type hash = 0;
     uint8_t *bytes = key;
-    size_t size = 0;
 
-    size = strlen(key);
-
-    for(size_t i=0; i < size; i++) {
-        hash *= 32;
-        hash += bytes[i];
+    for(size_t i=0; bytes[i] != 0; i++) {
+        /*hash *= 32;
+        hash += bytes[i];*/
+        /* see http://www.cse.yorku.ca/~oz/hash.html */
+        hash = bytes[i] + (hash << 6) + (hash << 16) - hash;
     }
+
     return hash;
 }
 
 /* Wrapper for strncmp */
-cmp_type hash_string_cmp(void *key1, void *key2) {
+cmp_type hash_string_cmp(void *void_key1, void *void_key2) {
+    // TODO: this looks an awful lot like strcmp ...
+    uint8_t *key1 = (uint8_t *)void_key1;
+    uint8_t *key2 = (uint8_t *)void_key2;
 
-    int result = 0;
-    size_t size1 = 0;
-    size_t size2 = 0;
-
-    size1 = strlen(key1);
-    size2 = strlen(key2);
-    
-    /* if the sizes are not equal, return not equal */
-    if(size1 != size2) {
-        return (size1 > size2) ? GT : LT;
+    while (*key1 == *key2 && *key1 != 0 && *key2 != 0) {
+      key1++;
+      key2++;
     }
 
-    /* both keys are of the same size */
-    result = strncmp(key1, key2, size1);
-
-    /* string are not equal */
-    if(result != 0) {
-        return (result > 0) ? GT : LT;
-    }
-
-    return EQ;
+    return *key1 == *key2 ? EQ :
+           *key1 > *key2 ? GT : LT;
 }

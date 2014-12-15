@@ -7,17 +7,15 @@
 #define TYPE_OP(fn_name, type_test)                     \
 void fn_name(vm_internal_type *vm) {                    \
     object_type *obj = 0;                               \
-    gc_register_root(vm->gc, (void **)&obj);            \
                                                         \
-    obj = vm_pop(vm);                                   \
+    vm->reg1 = obj = vm_pop(vm);                        \
                                                         \
     if(obj && type_test) {                              \
-        vm_push(vm, vm->vm_true);                          \
+        vm_push(vm, vm->vm_true);                       \
     } else {                                            \
-        vm_push(vm, vm->vm_false);                         \
+        vm_push(vm, vm->vm_false);                      \
     }                                                   \
                                                         \
-    gc_unregister_root(vm->gc, (void **)&obj);          \
 }                                                       \
 
 

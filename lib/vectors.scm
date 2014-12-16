@@ -9,11 +9,11 @@
 
 ;; Store a value into the vector
 (define (vector-set! vec idx obj)
-  (asm (idx) (obj) (vec) vec! ()))
+  (asm (idx) (obj) (vec) idx! ()))
 
 ;; Load a value from a vector
 (define (vector-ref vec idx)
-  (asm (idx) (vec) vec@))
+  (asm (idx) (vec) idx@))
 
 ;; Fills a vector with the given object
 (define (vector-fill! vec fill)

@@ -95,7 +95,7 @@ void create_types(vm_internal_type *vm) {
     vm->types[CHAR] = register_basic(gc);
 
     vm->types[STRING] = register_string(gc);
-    vm->types[VECTOR] = register_vector(gc);
+    vm->types[RECORD] = vm->types[VECTOR] = register_vector(gc);
 
     vm->types[CLOSURE] = register_closure(gc);
     vm->types[LIBRARY] = register_library(gc);

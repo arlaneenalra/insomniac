@@ -9,7 +9,7 @@
 
 
 ;; The internals of define-record-type
-(define (record-type-factory . args)
+(define (record-type-factory rec-def)
   ;; creates an a record primitive with the given size
   (define (make-record size)
     (asm (size) record))
@@ -21,10 +21,10 @@
     (asm 0 (type) (rec) idx! ()))
 
   ;; extract clauses
-  (define name-clause (car args))
-  (define const-clause  (car (cdr args)))
-  (define pred-clause (car (cdr (cdr args))))
-  (define fields-list (cdr (cdr (cdr args))))
+  (define name-clause (car rec-def))
+  (define const-clause  (car (cdr rec-def)))
+  (define pred-clause (car (cdr (cdr rec-def))))
+  (define fields-list (cdr (cdr (cdr rec-def))))
 
   ;; Setup the constructor
   (define field-count (- (length const-clause) 1))
@@ -32,7 +32,7 @@
   (display "Setting up define-record")
   (newline)
   (display "Name:")
-  (display nam-clause)
+  (display name-clause)
   (newline)
   (display "Const:")
   (display const-clause)

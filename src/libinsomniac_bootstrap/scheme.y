@@ -315,6 +315,9 @@ lambda_formals_list_end:
 %%
 
 void parse_error(compiler_core_type *compiler, void *scanner, char *s) {
+    if (compiler->include_depth >= 0) {
+      (void)fprintf(stderr,"In file %s\n", compiler->include_stack[compiler->include_depth]);
+    }
     (void)fprintf(stderr,"There was an error parsing '%s' on line %i near: '%s'\n", 
                   s, yyget_lineno(scanner) + 1, yyget_text(scanner));
 }

@@ -11,17 +11,28 @@
 
 /* Add an include path to the include stack */
 void push_include_path(compiler_core_type *compiler, char *file_name) {
-  char *new_include_path = 0;
-
-  /* Setup the include search path */
-  new_include_path = dirname(file_name);
   
   compiler->include_depth++;
+  
+  //(void)fprintf(stderr, "Pushing: %s\n", file_name);
 
-  gc_alloc(compiler->gc, 0, strlen(new_include_path) + 1,
+  gc_alloc(compiler->gc, 0, strlen(file_name) + 1,
     (void **)&(compiler->include_stack[compiler->include_depth]));
 
-  strcpy(compiler->include_stack[compiler->include_depth], new_include_path);
+  strcpy(compiler->include_stack[compiler->include_depth], file_name);
+}
+
+/* Pop the current include path off the stack */
+void pop_include_path(compiler_core_type *compiler) {
+  
+  /* null out this path so it can be garbage collected */
+  if (compiler->include_depth >=0) {
+    //(void)fprintf(stderr, "Poping: %s\n", compiler->include_stack[compiler->include_depth]);
+    compiler->include_stack[compiler->include_depth] = 0;
+  }
+
+  compiler->include_depth--;
+  //(void)fprintf(stderr, "At: %s\n", compiler->include_stack[compiler->include_depth]);
 }
 
 /* Make a label */
@@ -111,6 +122,7 @@ void setup_include(compiler_core_type* compiler, ins_stream_type *arg) {
 
   FILE *include_file = 0;
   char *file_name = 0;
+  char new_include_path_buf[PATH_MAX];
   char *new_include_path = 0;
   char new_file_name[PATH_MAX];
   char raw_file_name[PATH_MAX];
@@ -123,14 +135,16 @@ void setup_include(compiler_core_type* compiler, ins_stream_type *arg) {
   if (file_name[0] == '/' || compiler->include_depth < 0) {
     include_file = fopen(file_name, "r");
   } else {
+
     /* setup include path */
-    new_include_path = compiler->include_stack[compiler->include_depth];
+    strcpy(new_include_path_buf, compiler->include_stack[compiler->include_depth]);
+    new_include_path = dirname(new_include_path_buf);
     
     /* add 1 for null and 1 for / */
     length = strlen(new_include_path) + strlen(file_name) + 2;
 
     if (length > PATH_MAX) {
-      (void)fprintf(stderr, "Error %i! Including '%s' - Search path to long: %zi characters\n",
+      (void)fprintf(stderr, "Error %i! Including '%s' - Search path too long: %zi characters\n",
         errno, file_name, length);
       parse_error(compiler, compiler->scanner, "Unable to open include file!");
       assert(0);

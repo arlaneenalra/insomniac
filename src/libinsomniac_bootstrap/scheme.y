@@ -319,7 +319,7 @@ void parse_error(compiler_core_type *compiler, void *scanner, char *s) {
       (void)fprintf(stderr,"In file %s\n", compiler->include_stack[compiler->include_depth]);
     }
     (void)fprintf(stderr,"There was an error parsing '%s' on line %i near: '%s'\n", 
-                  s, yyget_lineno(scanner) + 1, yyget_text(scanner));
+                  s, yyget_lineno(scanner), yyget_text(scanner));
 }
 
 

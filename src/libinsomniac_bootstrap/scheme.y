@@ -114,8 +114,8 @@ list_next:
                                        }
 
 quoted:
-    QUOTE datum                             { $$ = $2; }
-  | OPEN_PAREN PRIM_QUOTE datum CLOSE_PAREN { $$ = $3; }
+    QUOTE datum                        { $$ = $2; }
+  | OPEN_PAREN PRIM_QUOTE list_end     { $$ = $3; }
 
     
 boolean:

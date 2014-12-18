@@ -6,10 +6,8 @@
 
 ;; Test Cases
 (define (equal-suite name predicate)
-  (display name)
-  (newline)
-  (display "==================================================")
-  (newline)
+
+  (next-suite name)
 
   (expect-true "Two Booleans"
                (lambda () (predicate #t #t)))

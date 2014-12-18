@@ -207,6 +207,8 @@ void parse_error(compiler_core_type *compiler, void *scanner, char *s);
 
 void parse_push_state(compiler_core_type *compiler, FILE *file);
 
+void pop_include_path(compiler_core_type *compiler);
+
 /* Define some macros to make the parser code easier */
 #define NEW_STREAM(var) stream_create(compiler, &var)
 

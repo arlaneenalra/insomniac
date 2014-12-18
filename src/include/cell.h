@@ -19,6 +19,7 @@ typedef enum cell {
     SYMBOL,
 
     VECTOR,
+    RECORD,
 
     PAIR,
     EMPTY,

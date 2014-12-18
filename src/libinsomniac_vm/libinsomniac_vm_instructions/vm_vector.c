@@ -17,6 +17,23 @@ void op_make_vector(vm_internal_type *vm) {
     vm_push(vm, obj);
 }
 
+/* allocate a new record */
+void op_make_record(vm_internal_type *vm) {
+    object_type *obj = 0;
+    vm_int length = 0;
+    
+    vm->reg1 = obj = vm_pop(vm);
+
+    /* make sure we have a number */
+    assert(obj && obj->type == FIXNUM);
+
+    length = obj->value.integer;
+
+    vm->reg1 = obj = vm_make_record(vm, length);
+
+    vm_push(vm, obj);
+}
+
 /* return the lenght of a vector */
 void op_vector_length(vm_internal_type *vm) {
     object_type *obj = 0;
@@ -24,7 +41,7 @@ void op_vector_length(vm_internal_type *vm) {
 
     vm->reg1 = obj = vm_pop(vm);
 
-    if (!obj || obj->type != VECTOR) {
+    if (!obj || obj->type != VECTOR ) {
       throw(vm, "Attempt to read vector length of non-vector!", 1, obj);
     }
 
@@ -35,7 +52,7 @@ void op_vector_length(vm_internal_type *vm) {
 }
 
 /* set an element in a vector */
-void op_vector_set(vm_internal_type *vm) {
+void op_index_set(vm_internal_type *vm) {
     object_type *vector = 0;
     object_type *obj_index = 0;
     object_type *obj = 0;
@@ -49,7 +66,7 @@ void op_vector_set(vm_internal_type *vm) {
     
     index = obj_index->value.integer;
 
-    assert(vector && vector->type == VECTOR &&
+    assert(vector && (vector->type == VECTOR || vector->type == RECORD) &&
            vector->value.vector.length >= index);
 
     /* do the set */
@@ -57,7 +74,7 @@ void op_vector_set(vm_internal_type *vm) {
 }
 
 /* read an element from a vector */
-void op_vector_ref(vm_internal_type *vm) {
+void op_index_ref(vm_internal_type *vm) {
     object_type *vector = 0;
     object_type *obj_index = 0;
     object_type *obj = 0;
@@ -70,8 +87,8 @@ void op_vector_ref(vm_internal_type *vm) {
     
     index = obj_index->value.integer;
 
-    assert(vector && vector->type == VECTOR &&
-           vector->value.vector.length > index);
+    assert(vector && (vector->type == VECTOR || vector->type == RECORD) &&
+           vector->value.vector.length >= index);
 
     /* do the read */
     vm->reg3 = obj = vector->value.vector.vector[index];

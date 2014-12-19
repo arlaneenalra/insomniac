@@ -8,6 +8,10 @@
 (define b '(1 2 3 4))
 (define c '(1 2 3 ))
 
+(define a-str '("a" b c d))
+(define a2-str '("a" b c d))
+(define b-str '("b" b c d))
+
 (define vec-a (vector 1 2 3 4))
 (define vec-b (vector 1 2 3 4))
 (define vec-c (vector 1 2 3))
@@ -84,6 +88,12 @@
 (expect-false "Number lists to symbols"
               (lambda () (equal? abc a)))
 
+(expect-true "Strings and symbols in lists"
+             (lambda () (equal? a-str a2-str)))
+
+(expect-false "Strings and symbols in lists"
+              (lambda () (equal? a-str b-str)))
+
 
 (expect-true "Same cycle"
              (lambda () (equal? cycle-a cycle-a)))
@@ -129,5 +139,4 @@
 
 (expect-false "Different Vectors, transitive"
               (lambda () (equal? vec-a vec-c)))
-
 

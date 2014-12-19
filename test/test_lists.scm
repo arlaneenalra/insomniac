@@ -23,10 +23,19 @@
 
 (next-suite "cons tests")
 
-(expect-true "Make a list"
-             (lambda ()
-               (equal?
-                 (cons 'a '())
-                 '(a))))
+(expect "Make a list"
+        (lambda () (cons 'a '()))
+        '(a))
+
+(expect "Add to a list"
+        (lambda () (cons '(a) '(b c d)))
+        '((a) b c d))
+
+(display (cons "a" '(b c d)))
+(newline)
+
+(expect "Add to a list 2"
+        (lambda () (cons "a" '(b c d)))
+        '("a" b c d))
 
 

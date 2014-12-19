@@ -37,7 +37,6 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 
 {WS}*     /* Do nothing with white space */
 
-{MATH}    { return MATH_OPS; }
 
 "begin"   { return PRIM_BEGIN;  }
 "quote"   { return PRIM_QUOTE; }
@@ -58,6 +57,9 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 {SIGNS}?({DIGITS}|nan|inf)?"."{DIGITS} { return FLOAT_NUMBER; }
 {SIGNS}?{DIGITS}[/]{DIGITS}              { return FLOAT_NUMBER; }
 
+{IDENT}+  { return AST_SYMBOL; }
+
+{MATH}{WS} { return MATH_OPS; }
 
 #\\       { BEGIN(EXPECT_CHAR); }
 
@@ -73,7 +75,6 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 }
 
 
-{IDENT}+  { return AST_SYMBOL; }
 
 [;].*     /* Eat comments */
 #!r6rs    /* Treat this as a comment */      

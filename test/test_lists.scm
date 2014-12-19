@@ -58,6 +58,35 @@
         (lambda () (assoc 'b alist))
         '(b 2))
 
+(expect "assoc should return the list entry"
+        (lambda () (assoc 'a alist))
+        '(a 1))
+
 (expect-false "assoc should return false if not found"
-          (lambda () (assoc 'd alist)))
+              (lambda () (assoc 'd alist)))
+
+
+(expect "assq should return the list entry"
+        (lambda () (assq 'b alist))
+        '(b 2))
+
+(expect "assq should return the list entry"
+        (lambda () (assq 'a alist))
+        '(a 1))
+
+(expect-false "assq should return false if not found"
+              (lambda () (assq 'd alist)))
+
+(expect-false "assq should use eq?"
+              (lambda () (assq (list 'a) '(((a)) ((b)) ((c))))))
+
+(expect "assoc should use equal?"
+        (lambda () (assoc (list 'a) '(((a)) ((b)) ((c)))))
+        '((a)))
+
+(expect "assv should use eqv?"
+        (lambda () (assv 5 '((2 3) (5 7) (11 13))))
+        '(5 7))
+
+
 

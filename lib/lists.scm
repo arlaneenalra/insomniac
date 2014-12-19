@@ -64,6 +64,9 @@
     ;; member returns a tail, all we need is the entry
     (car entry)
     #f))
-              
 
+(define (assq obj list)
+  (assoc obj list eq?))
 
+(define (assv obj list)
+  (assoc obj list eqv?))

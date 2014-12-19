@@ -27,3 +27,46 @@
              (cons (car list) rev-list))))
   (inner list '()))
 
+
+;; Find a sub list 
+(define (member obj list . pred)
+
+  (set! pred
+    (if (null? pred) equal? (car pred)))
+
+  (cond
+    ;; obj not found
+    ((null? list) #f)
+
+    ;; test element using pred or equal?
+    ((pred (car list) obj) list)
+
+    (else (member obj (cdr list) pred))))
+
+;; memq uses eq?
+(define (memq obj list)
+  (member obj list eq?))
+
+(define (memv obj list)
+  (member obj list eqv?))
+
+
+;; Functions for dealing with an associative list
+(define (assoc obj alist . compare)
+  (set! compare 
+    (if (null? compare) equal? (car compare)))
+
+  (define entry
+    (member obj alist
+            (lambda (key b) (compare (car key) b))))
+
+  (if entry
+    ;; member returns a tail, all we need is the entry
+    (car entry)
+    #f))
+
+(define (assq obj list)
+  (assoc obj list eq?))
+
+(define (assv obj list)
+  (assoc obj list eqv?))

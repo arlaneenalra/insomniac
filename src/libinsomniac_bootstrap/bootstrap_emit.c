@@ -394,6 +394,10 @@ void emit_quoted(buffer_type *buf, ins_stream_type *tree) {
         emit_literal(buf, head);
         break;
 
+      case STREAM_STRING:
+        emit_string(buf, head);
+        break;
+
       default:
         fprintf(stderr, "Unknown instructions type %i in stream!\n", head->type);
         break; 

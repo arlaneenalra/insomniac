@@ -2,6 +2,13 @@
 ;;; Some simple testing procedures
 ;;;
 
+(define (next-suite name)
+  (display "Running: ")
+  (display name)
+  (newline)
+  (display "==================================================")
+  (newline))
+
 (define (fail)
   (display ":FAILED")
   (newline)

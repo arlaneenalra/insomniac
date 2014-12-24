@@ -217,6 +217,7 @@ void compiler_create(gc_type *gc, compiler_type **comp_void, char *compiler_home
   compiler->node_types[STREAM_COND] = node_single_gc_type;
   compiler->node_types[STREAM_AND] = node_single_gc_type;
   compiler->node_types[STREAM_OR] = node_single_gc_type;
+  compiler->node_types[STREAM_RECORD_TYPE] = node_single_gc_type;
 
   compiler->node_types[STREAM_BIND] = node_double_gc_type;
   compiler->node_types[STREAM_STORE] = node_double_gc_type;

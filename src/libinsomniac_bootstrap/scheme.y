@@ -40,6 +40,7 @@
 %token PRIM_LAMBDA
 %token PRIM_SET
 
+%token PRIM_RECORD_TYPE
 %token PRIM_IF
 %token PRIM_COND
 
@@ -89,7 +90,6 @@ datum:
       literal
     | symbol
     | list
-//    | procedure_call
    
 list_end:
     list_next CLOSE_PAREN              {
@@ -141,6 +141,7 @@ primitive_procedures:
     math_calls
   | begin
   | define
+  | define_record_type
   | if
   | lambda
   | set
@@ -247,6 +248,9 @@ define_lambda:
 define_lambda_body:
     lambda_formals_list 
     begin_end                                  { STREAM_NEW($$, lambda, $1, $2); }
+
+define_record_type:
+    PRIM_RECORD_TYPE list_end                  { STREAM_NEW($$, record_type, $2); }
 
 /* Set the value of a location */
 set:

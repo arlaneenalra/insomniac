@@ -46,6 +46,7 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 
 "if"      { return PRIM_IF; }
 "cond"    { return PRIM_COND; }
+"define-record-type" { return PRIM_RECORD_TYPE; }
 
 "and"     { return PRIM_AND; }
 "or"      { return PRIM_OR; }

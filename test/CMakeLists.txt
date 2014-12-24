@@ -34,3 +34,6 @@ add_test(TestSCMLists ${PROJECT_SOURCE_DIR}/run.sh
 
 add_test(TestSCMVectors ${PROJECT_SOURCE_DIR}/run.sh
   ${PROJECT_SOURCE_DIR}/test/test_vectors.scm)
+
+add_test(TestSCMRecords ${PROJECT_SOURCE_DIR}/run.sh
+  ${PROJECT_SOURCE_DIR}/test/test_define_record_type.scm)

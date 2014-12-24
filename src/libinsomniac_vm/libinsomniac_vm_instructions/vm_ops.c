@@ -22,6 +22,7 @@ TYPE_OP(op_is_char, TYPE_TEST(CHAR))
 TYPE_OP(op_is_string, TYPE_TEST(STRING))
 TYPE_OP(op_is_symbol, TYPE_TEST(SYMBOL))
 TYPE_OP(op_is_vector, TYPE_TEST(VECTOR))
+TYPE_OP(op_is_record, TYPE_TEST(RECORD))
 TYPE_OP(op_is_pair, TYPE_TEST(PAIR))
 TYPE_OP(op_is_empty, TYPE_TEST(EMPTY))
 TYPE_OP(op_is_closure, TYPE_TEST(CLOSURE))
@@ -45,8 +46,9 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_LIT_FALSE] = &op_lit_false;
 
     vm->ops[OP_MAKE_VECTOR] = &op_make_vector;
-    vm->ops[OP_VECTOR_SET] = &op_vector_set;
-    vm->ops[OP_VECTOR_REF] = &op_vector_ref;
+    vm->ops[OP_MAKE_RECORD] = &op_make_record;
+    vm->ops[OP_INDEX_SET] = &op_index_set;
+    vm->ops[OP_INDEX_REF] = &op_index_ref;
     vm->ops[OP_VECTOR_LENGTH] = &op_vector_length;
 
     vm->ops[OP_CONS] = &op_cons;
@@ -118,6 +120,7 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_IS_STRING] = &op_is_string;
     vm->ops[OP_IS_SYMBOL] = &op_is_symbol;
     vm->ops[OP_IS_VECTOR] = &op_is_vector;
+    vm->ops[OP_IS_RECORD] = &op_is_record;
     vm->ops[OP_IS_PAIR] = &op_is_pair;
     vm->ops[OP_IS_EMPTY] = &op_is_empty;
     vm->ops[OP_IS_CLOSURE] = &op_is_closure;

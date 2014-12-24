@@ -37,7 +37,6 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 
 {WS}*     /* Do nothing with white space */
 
-{MATH}    { return MATH_OPS; }
 
 "begin"   { return PRIM_BEGIN;  }
 "quote"   { return PRIM_QUOTE; }
@@ -47,6 +46,7 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 
 "if"      { return PRIM_IF; }
 "cond"    { return PRIM_COND; }
+"define-record-type" { return PRIM_RECORD_TYPE; }
 
 "and"     { return PRIM_AND; }
 "or"      { return PRIM_OR; }
@@ -58,6 +58,9 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 {SIGNS}?({DIGITS}|nan|inf)?"."{DIGITS} { return FLOAT_NUMBER; }
 {SIGNS}?{DIGITS}[/]{DIGITS}              { return FLOAT_NUMBER; }
 
+{IDENT}+  { return AST_SYMBOL; }
+
+{MATH}{WS} { return MATH_OPS; }
 
 #\\       { BEGIN(EXPECT_CHAR); }
 
@@ -73,7 +76,6 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 }
 
 
-{IDENT}+  { return AST_SYMBOL; }
 
 [;].*     /* Eat comments */
 #!r6rs    /* Treat this as a comment */      
@@ -81,7 +83,8 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 <<EOF>>   {
             yypop_buffer_state(yyscanner);
 
-            yyget_extra(yyscanner)->include_depth--;
+            //yyget_extra(yyscanner)->include_depth--;
+            pop_include_path((compiler_core_type *)yyget_extra(yyscanner));
 
             if( !YY_CURRENT_BUFFER) {
               return END_OF_FILE;

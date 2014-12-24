@@ -25,8 +25,9 @@ typedef enum op {
     OP_SET_CDR,
 
     OP_MAKE_VECTOR, /* create an empty vector */
-    OP_VECTOR_SET, /* set a column in a given vector */
-    OP_VECTOR_REF, /* read the index into a vector an put it on the stack */
+    OP_MAKE_RECORD, /* create an empty record */
+    OP_INDEX_SET, /* set a column in a given vector */
+    OP_INDEX_REF, /* read the index into a vector an put it on the stack */
     OP_VECTOR_LENGTH, /* return the length of a vector */
 
     /* jump operations Jumps are relative */
@@ -85,6 +86,7 @@ typedef enum op {
     OP_IS_STRING,
     OP_IS_SYMBOL,
     OP_IS_VECTOR,
+    OP_IS_RECORD,
     OP_IS_PAIR,
     OP_IS_EMPTY,
     OP_IS_CLOSURE,

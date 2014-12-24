@@ -79,8 +79,10 @@
                (and (set! result #t) #f (set! result #f))
                result))
 
-(newline)
-(newline)
+(expect "Should return the first false expression"
+        (lambda ()
+          (and 1 2 'c '(f g))) '(f g))
+
 (newline)
 
 (display "Testing or:")
@@ -118,4 +120,8 @@
                (define result #f)
                (or (set! result #t) #t (set! result #f))
                result))
+
+(expect "Should return the first true expression"
+        (lambda ()
+          (or #f '(b c) (/ 3 0))) '(b c))
 

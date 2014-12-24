@@ -95,7 +95,7 @@ void create_types(vm_internal_type *vm) {
     vm->types[CHAR] = register_basic(gc);
 
     vm->types[STRING] = register_string(gc);
-    vm->types[VECTOR] = register_vector(gc);
+    vm->types[RECORD] = vm->types[VECTOR] = register_vector(gc);
 
     vm->types[CLOSURE] = register_closure(gc);
     vm->types[LIBRARY] = register_library(gc);
@@ -120,6 +120,14 @@ gc_type_def create_vm_type(gc_type *gc) {
                         offsetof(vm_internal_type, vm_true));
     gc_register_pointer(gc, vm_type_def, 
                         offsetof(vm_internal_type, vm_false));
+
+    gc_register_pointer(gc, vm_type_def, 
+                        offsetof(vm_internal_type, reg1));
+    gc_register_pointer(gc, vm_type_def, 
+                        offsetof(vm_internal_type, reg2));
+    gc_register_pointer(gc, vm_type_def, 
+                        offsetof(vm_internal_type, reg3));
+
     gc_register_pointer(gc, vm_type_def, 
                         offsetof(vm_internal_type, symbol_table));
     gc_register_pointer(gc, vm_type_def,

@@ -97,12 +97,15 @@ void op_import(vm_internal_type *vm) {
                 obj2->value.integer = func_count;
 
                 /* This may have some vm allocation issues */
-                binding_alist = cons(vm,
+                /*binding_alist = cons(vm,
                                      cons(vm,
-                                          obj,
-                                          obj2
+                                          obj, obj2
                                           ),
-                                     binding_alist);
+                                     binding_alist); */
+                cons(vm, obj, obj2, &vm->reg1);
+                cons(vm, vm->reg1, binding_alist, &vm->reg2);
+
+                binding_alist = vm->reg2;
 
                 /* increment function count */
                 func_count++;

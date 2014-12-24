@@ -8,6 +8,10 @@
 (define b '(1 2 3 4))
 (define c '(1 2 3 ))
 
+(define a-str '("a" b c d))
+(define a2-str '("a" b c d))
+(define b-str '("b" b c d))
+
 (define vec-a (vector 1 2 3 4))
 (define vec-b (vector 1 2 3 4))
 (define vec-c (vector 1 2 3))
@@ -44,8 +48,8 @@
  (cdr (cdr (cdr cycle-c))))
 
 ((lambda (cycle-c-tail)
-   (set-cdr! cycle-c-tail a))
- (cdr (cdr (cdr cycle-c))))
+   (set-car! cycle-c-tail a))
+ (car (car (car cycle-c-a))))
 
 ;; Test cases
 (expect-true "Two nulls"
@@ -84,6 +88,12 @@
 (expect-false "Number lists to symbols"
               (lambda () (equal? abc a)))
 
+(expect-true "Strings and symbols in lists"
+             (lambda () (equal? a-str a2-str)))
+
+(expect-false "Strings and symbols in lists"
+              (lambda () (equal? a-str b-str)))
+
 
 (expect-true "Same cycle"
              (lambda () (equal? cycle-a cycle-a)))
@@ -109,13 +119,11 @@
 (expect-true "Equivalent double cycle, transitive"
              (lambda () (equal? cycle-b-a cycle-a-a)))
 
-;;; Something is wrong with these tests
-;;;
-;;; (expect-false "Different double cycle"
-;;;               (lambda () (equal? cycle-c-a cycle-a-a)))
-;;; 
-;;; (expect-false "Different double cycle, transitive"
-;;;               (lambda () (equal? cycle-a-a cycle-c-a)))
+(expect-false "Different double cycle"
+              (lambda () (equal? cycle-c-a cycle-a-a)))
+ 
+(expect-false "Different double cycle, transitive"
+              (lambda () (equal? cycle-a-a cycle-c-a)))
 
 (expect-true "Same Vectors"
              (lambda () (equal? vec-a vec-a)))
@@ -131,5 +139,4 @@
 
 (expect-false "Different Vectors, transitive"
               (lambda () (equal? vec-a vec-c)))
-
 

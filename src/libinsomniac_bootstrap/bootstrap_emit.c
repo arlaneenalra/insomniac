@@ -344,7 +344,6 @@ void emit_call(compiler_core_type *compiler, buffer_type *buf,
     emit_op(buf, "cons");
     head = head->next;
   }
-
   
   emit_stream(compiler, buf, call->value.two.stream1, false);
 
@@ -394,6 +393,10 @@ void emit_quoted(buffer_type *buf, ins_stream_type *tree) {
         emit_literal(buf, head);
         break;
 
+      case STREAM_STRING:
+        emit_string(buf, head);
+        break;
+
       default:
         fprintf(stderr, "Unknown instructions type %i in stream!\n", head->type);
         break; 
@@ -408,8 +411,63 @@ void emit_quoted(buffer_type *buf, ins_stream_type *tree) {
     /* If we get to a second iteration, then we have a quoted list */
     is_list = true;
   }
-
   emit_comment(buf, "--Quoted End--");
+}
+
+/* Emit a record type definition call */
+void emit_record_type(compiler_core_type *compiler, buffer_type *buf, ins_stream_type *def) {
+ 
+  buffer_type *loop_label = 0;
+  buffer_type *done_label = 0;
+
+  gc_register_root(compiler->gc, &loop_label);
+  gc_register_root(compiler->gc, &done_label);
+
+  emit_comment(buf, "--Record Start--");
+
+  /* output arguments list the same as quoted */
+  emit_quoted(buf, def);
+
+  /* output call to record-type-factory */
+  emit_op(buf, "s\"record-type-factory\"");
+  emit_op(buf, "@");
+  emit_op(buf, "call_in"); /* Assumed that this cannot be a tail call */
+
+  /* build binding code */
+  emit_comment(buf, "--Record Binding--");
+
+  gen_label(compiler, &loop_label);
+  gen_label(compiler, &done_label);
+
+  emit_label(buf, loop_label);
+ 
+  /* do binding test */
+  emit_op(buf, "dup");
+  emit_op(buf, "null?");
+  
+  emit_jump_label(buf, OP_JNF, done_label);
+
+  emit_op(buf, "dup");
+
+  /* pull pair of the form ( sym . value ) */
+  emit_op(buf, "car");
+
+  /* extract symbol and value and bind the two */
+  emit_op(buf, "dup");
+  emit_op(buf, "cdr");
+  emit_op(buf, "swap");
+  emit_op(buf, "car");
+  emit_op(buf, "bind");
+
+  /* next entry in list */
+  emit_op(buf, "cdr");
+  emit_jump_label(buf, OP_JMP, loop_label);
+
+  emit_label(buf, done_label);
+  emit_comment(buf, "--Record End--");
+  
+  gc_unregister_root(compiler->gc, &done_label);
+  gc_unregister_root(compiler->gc, &loop_label);
 }
 
 /* Emit a single stream structure */
@@ -466,6 +524,11 @@ bool emit_node(compiler_core_type *compiler, buffer_type *buf,
 
     case STREAM_QUOTED:
       emit_quoted(buf, head->value.stream);
+      pushed = true;
+      break;
+
+    case STREAM_RECORD_TYPE:
+      emit_record_type(compiler, buf, head->value.stream);
       pushed = true;
       break;
 

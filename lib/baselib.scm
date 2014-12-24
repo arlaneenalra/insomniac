@@ -35,3 +35,5 @@
 (include "lists.scm")
 (include "vectors.scm")
 
+
+(include "records.scm")

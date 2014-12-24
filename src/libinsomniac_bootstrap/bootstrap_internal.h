@@ -34,6 +34,7 @@ typedef enum node {
     STREAM_IF,
     STREAM_COND,
     STREAM_MATH,
+    STREAM_RECORD_TYPE,
 
     STREAM_AND,
     STREAM_OR,
@@ -135,6 +136,8 @@ void emit_lambda(compiler_core_type *compiler, buffer_type *output,
   ins_node_type *node);
 void emit_call(compiler_core_type *compiler, buffer_type *buf,
   ins_node_type *call, bool tail_call);
+void emit_record_type(compiler_core_type *compiler, buffer_type *buf,
+  ins_stream_type *def);
   
 void gen_label(compiler_core_type *compiler, buffer_type **buf);
 
@@ -162,6 +165,8 @@ BUILD_SINGLE_SIGNATURE(asm);
 BUILD_SINGLE_SIGNATURE(asm_stream);
 BUILD_SINGLE_SIGNATURE(quoted);
 BUILD_SINGLE_SIGNATURE(load);
+
+BUILD_SINGLE_SIGNATURE(record_type);
 
 BUILD_SINGLE_SIGNATURE(cond);
 BUILD_SINGLE_SIGNATURE(and);
@@ -206,6 +211,8 @@ int parse_internal(compiler_core_type *compiler, void *scanner);
 void parse_error(compiler_core_type *compiler, void *scanner, char *s);
 
 void parse_push_state(compiler_core_type *compiler, FILE *file);
+
+void pop_include_path(compiler_core_type *compiler);
 
 /* Define some macros to make the parser code easier */
 #define NEW_STREAM(var) stream_create(compiler, &var)

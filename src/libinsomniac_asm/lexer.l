@@ -43,14 +43,16 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "string?"               { return OP_IS_STRING; }
 "symbol?"               { return OP_IS_SYMBOL; }
 "vector?"               { return OP_IS_VECTOR; }
+"record?"               { return OP_IS_RECORD; }
 "pair?"                 { return OP_IS_PAIR; }
 "null?"                 { return OP_IS_EMPTY; }
 "proc?"                 { return OP_IS_CLOSURE; }
 "self?"                 { return OP_IS_SELF; }
 
 "vector"                { return OP_MAKE_VECTOR; }
-"vec@"                  { return OP_VECTOR_REF; }
-"vec!"                  { return OP_VECTOR_SET; }
+"record"                { return OP_MAKE_RECORD; }
+"idx@"                  { return OP_INDEX_REF; }
+"idx!"                  { return OP_INDEX_SET; }
 "vec-len"               { return OP_VECTOR_LENGTH; }
 
 "out"                   { return OP_OUTPUT; }

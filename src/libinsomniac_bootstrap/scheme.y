@@ -40,6 +40,7 @@
 %token PRIM_LAMBDA
 %token PRIM_SET
 
+%token PRIM_RECORD_TYPE
 %token PRIM_IF
 %token PRIM_COND
 
@@ -89,7 +90,6 @@ datum:
       literal
     | symbol
     | list
-//    | procedure_call
    
 list_end:
     list_next CLOSE_PAREN              {
@@ -114,8 +114,8 @@ list_next:
                                        }
 
 quoted:
-    QUOTE datum                             { $$ = $2; }
-  | OPEN_PAREN PRIM_QUOTE datum CLOSE_PAREN { $$ = $3; }
+    QUOTE datum                        { $$ = $2; }
+  | OPEN_PAREN PRIM_QUOTE list_end     { $$ = $3; }
 
     
 boolean:
@@ -141,6 +141,7 @@ primitive_procedures:
     math_calls
   | begin
   | define
+  | define_record_type
   | if
   | lambda
   | set
@@ -248,6 +249,9 @@ define_lambda_body:
     lambda_formals_list 
     begin_end                                  { STREAM_NEW($$, lambda, $1, $2); }
 
+define_record_type:
+    PRIM_RECORD_TYPE list_end                  { STREAM_NEW($$, record_type, $2); }
+
 /* Set the value of a location */
 set:
     PRIM_SET symbol expression CLOSE_PAREN     { STREAM_NEW($$, store, $3, $2); } 
@@ -315,8 +319,11 @@ lambda_formals_list_end:
 %%
 
 void parse_error(compiler_core_type *compiler, void *scanner, char *s) {
+    if (compiler->include_depth >= 0) {
+      (void)fprintf(stderr,"In file %s\n", compiler->include_stack[compiler->include_depth]);
+    }
     (void)fprintf(stderr,"There was an error parsing '%s' on line %i near: '%s'\n", 
-                  s, yyget_lineno(scanner) + 1, yyget_text(scanner));
+                  s, yyget_lineno(scanner), yyget_text(scanner));
 }
 
 

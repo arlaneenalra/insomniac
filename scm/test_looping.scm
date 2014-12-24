@@ -1,16 +1,12 @@
-(begin
-  (define loop
-    (lambda (x loop)
-      (display "Counting down from ")
-      (display x)
-      (display " ")
-      ;;(gc-stats)
-      (display #\newline)
-      (if (< 0 x)
-        (loop (- x 1) loop)
-        (begin
-          (display "Done")
-          (display #\newline)))))
+(define (loop x)
+  (display "Counting down from ")
+  (display x)
+  ;; (display " ")
+  ;; (gc-stats)
+  (newline)
+  (if (< 0 x)
+    (loop (- x 1))))
 
-  (loop 400000 loop)
-)
+(loop 400000)
+(display "Done")
+(newline)

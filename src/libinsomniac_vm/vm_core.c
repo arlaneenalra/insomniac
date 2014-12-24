@@ -17,7 +17,6 @@ void vm_create(gc_type *gc, vm_type **vm_ret ) {
     /* attach instructions to the vm */
     setup_instructions(vm);
     
-
     /* setup types for allocations */
     create_types(vm);
    
@@ -29,6 +28,8 @@ void vm_create(gc_type *gc, vm_type **vm_ret ) {
     
     vm->vm_false = vm_alloc(vm, BOOL);
     vm->vm_false->value.boolean = false;
+
+    vm->reg1 = vm->reg2 = vm->reg3 = 0;
 
     /* setup the stack */
     vm->stack_root = vm->empty;
@@ -65,11 +66,14 @@ void vm_destroy(vm_type *vm_raw) {
 /* push and item onto the vm stack */
 void vm_push(vm_type *vm_void, object_type *obj) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
+    object_type *pair = 0;
 
     gc_protect(vm->gc);
     
     /* push an item onto the stack */
-    vm->stack_root = cons(vm, obj, vm->stack_root);
+    cons(vm, obj, vm->stack_root, &pair);
+    
+    vm->stack_root = pair;
     vm->depth++;
 
     gc_unprotect(vm->gc);
@@ -88,7 +92,7 @@ object_type *vm_pop(vm_type *vm_void) {
 
     /* pop the value off */
     obj = vm->stack_root->value.pair.car;
-    vm->stack_root=vm->stack_root->value.pair.cdr;
+    vm->stack_root = vm->stack_root->value.pair.cdr;
     vm->depth--;
 
     return obj;

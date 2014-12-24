@@ -57,6 +57,11 @@ struct vm_internal {
     object_type *vm_true; /* True and False objects */
     object_type *vm_false;
 
+    /* Used internally to avoid registering roots */
+    object_type *reg1;
+    object_type *reg2;
+    object_type *reg3;
+
     gc_type_def types[CELL_MAX]; /* mapping between cell types and gc types */
     
     fn_type ops[256]; /* bindings for each op code */
@@ -73,7 +78,7 @@ struct vm_internal {
 };
 
 /* construct a new pair */
-object_type *cons(vm_type *vm, object_type *car, object_type *cdr);
+void cons(vm_type *vm, object_type *car, object_type *cdr, object_type **pair_out);
 
 vm_int parse_int(vm_internal_type *vm);
 void parse_string(vm_internal_type *vm, object_type **obj);

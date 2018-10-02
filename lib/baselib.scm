@@ -34,6 +34,6 @@
 
 (include "lists.scm")
 (include "vectors.scm")
-
+(include "strings.scm")
 
 (include "records.scm")

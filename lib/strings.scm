@@ -1,0 +1,3 @@
+;;;
+;;; Some basic string functions
+;;;

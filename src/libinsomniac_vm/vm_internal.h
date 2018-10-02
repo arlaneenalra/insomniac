@@ -14,7 +14,16 @@
 #include <vm.h>
 
 #define OUTPUT_MAX_DEPTH 100 
-#define OUTPUT_MAX_LENGTH 100 
+#define OUTPUT_MAX_LENGTH 100
+
+/* Handle library extensions. */
+#ifdef __MACH__
+#define LIB_EXT ".dylib"
+#define LIB_EXT_LEN 6
+#else
+#define LIB_EXT ".so"
+#define LIB_EXT_LEN 3 
+#endif
 
 
 typedef struct vm_internal vm_internal_type;

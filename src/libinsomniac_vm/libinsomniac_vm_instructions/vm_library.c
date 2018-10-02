@@ -6,6 +6,8 @@ void op_import(vm_internal_type *vm) {
     object_type *obj2 = 0;
     object_type *lib = 0;
     object_type *binding_alist = 0;
+    char *path = 0;
+    vm_int length = 0;
     void *handle = 0;
     binding_type **export_list = 0;
     char *symbol = 0;
@@ -16,20 +18,29 @@ void op_import(vm_internal_type *vm) {
     gc_register_root(vm->gc, (void **)&obj2);
     gc_register_root(vm->gc, (void **)&lib);
     gc_register_root(vm->gc, (void **)&binding_alist);
+    gc_register_root(vm->gc, (void **)&path);
 
     obj = vm_pop(vm);
 
     if(!obj || obj->type != STRING) {
         throw(vm, "Attempt to import with non-string filename", 1, obj);
     } else {
+        
+        /* allocate a string long enough to include the either .so or .dylib */
+        length = obj->value.string.length + LIB_EXT_LEN + 1;
+        gc_alloc(vm->gc, 0, length, (void **)&path);
+        
+        strncpy(path, obj->value.string.bytes, length);
+        strncat(path, LIB_EXT, length);
+
         /* check if the library has been loaded */
-        handle = dlopen(obj->value.string.bytes, RTLD_NOW | RTLD_LOCAL | RTLD_NOLOAD);
+        handle = dlopen(path, RTLD_NOW | RTLD_LOCAL | RTLD_NOLOAD);
 
         /* load the library if it has not been loaded */
         if(!handle) {
             /* handle = dlopen(obj->value.string.bytes, RTLD_NOW | RTLD_LOCAL | RTLD_DEEPBIND); */
             /* RTLD_DEEPBIND is not defined on osx ... */
-            handle = dlopen(obj->value.string.bytes, RTLD_NOW | RTLD_LOCAL);
+            handle = dlopen(path, RTLD_NOW | RTLD_LOCAL);
         }
 
 
@@ -114,6 +125,7 @@ void op_import(vm_internal_type *vm) {
         }
     }
     
+    gc_unregister_root(vm->gc, (void **)&path);
     gc_unregister_root(vm->gc, (void **)&binding_alist);
     gc_unregister_root(vm->gc, (void **)&lib);
     gc_unregister_root(vm->gc, (void **)&obj2);

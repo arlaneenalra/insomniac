@@ -13,7 +13,7 @@
 %parse-param {void *scanner} 
 %lex-param {void *scanner} 
 
-%define api.value.type { ins_stream_type * }
+%define api.value.type {ins_stream_type *}
 
 %token OPEN_PAREN
 %token START_VECTOR

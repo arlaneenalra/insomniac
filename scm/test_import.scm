@@ -44,7 +44,8 @@
         
      
 
-(define io (import-bind "../build/src/libinsomniac_io/libinsomniac_io.so"))
+;;(define io (import-bind "../build/src/libinsomniac_io/libinsomniac_io.so"))
+(define io (import-bind "build/src/libinsomniac_io/libinsomniac_io.dylib"))
 
 (display "Calling: ")
 (io 'io-hello-world)

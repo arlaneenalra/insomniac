@@ -1,19 +1,24 @@
 
-
 ;;; Check import
-        "src/libinsomniac_io/libinsomniac_io.so"
+        "test1" out #\newline out
+
+        "src/libinsomniac_io/libinsomniac_io"
         import
         drop
         s"io.lib"
         bind
+        
+        "test2" out #\newline out
 
-        "src/libinsomniac_io/libinsomniac_io.so"
+        "src/libinsomniac_io/libinsomniac_io"
         import
         drop
         s"io2.lib"
         bind
+        
+        "test3" out #\newline out
 
-        "src/libinsomniac_io/libinsomniac_io.so"
+        "src/libinsomniac_io/libinsomniac_io"
         import
         drop
         s"io3.lib"

@@ -80,7 +80,9 @@ done:
         out
         #\newline
         out
-        
+
+        jmp done
+
 loop:
         out
 

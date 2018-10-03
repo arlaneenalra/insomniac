@@ -191,7 +191,7 @@
 (-)      string-set!
 (-)      string<?
 (-)      string>=?
-(-)      string?
+(x)      string?
 (-)      symbol->string
 (-)      symbol?
 (-)      syntax-rules

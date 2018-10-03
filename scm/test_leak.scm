@@ -6,6 +6,7 @@
       (display " ")
       (gc-stats)
       "BOOM"
+      (display 'abcdefgh)
       (t t)))
 
   (tail-bomb tail-bomb)

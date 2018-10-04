@@ -14,8 +14,6 @@ void push_include_path(compiler_core_type *compiler, char *file_name) {
   
   compiler->include_depth++;
   
-  //(void)fprintf(stderr, "Pushing: %s\n", file_name);
-
   gc_alloc(compiler->gc, 0, strlen(file_name) + 1,
     (void **)&(compiler->include_stack[compiler->include_depth]));
 
@@ -26,13 +24,11 @@ void push_include_path(compiler_core_type *compiler, char *file_name) {
 void pop_include_path(compiler_core_type *compiler) {
   
   /* null out this path so it can be garbage collected */
-  if (compiler->include_depth >=0) {
-    //(void)fprintf(stderr, "Poping: %s\n", compiler->include_stack[compiler->include_depth]);
+  if (compiler->include_depth >= 0) {
     compiler->include_stack[compiler->include_depth] = 0;
   }
 
   compiler->include_depth--;
-  //(void)fprintf(stderr, "At: %s\n", compiler->include_stack[compiler->include_depth]);
 }
 
 /* Make a label */
@@ -297,7 +293,6 @@ void compile_file(compiler_type *comp_void, char *file_name, bool include_baseli
   /* TODO: Need a better way to handle GC than leaking */
   gc_protect(compiler->gc);
 
-  /* Inject include for base library */
   /* Inject include for base library */
   if (include_baselib) {
     strcpy(path, compiler->home);

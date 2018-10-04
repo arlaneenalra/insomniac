@@ -44,14 +44,25 @@
         
      
 
-(define io (import-bind "../build/src/libinsomniac_io/libinsomniac_io.so"))
+(define io (import-bind "build/src/libinsomniac_io/libinsomniac_io"))
 
 (display "Calling: ")
+(display "Calling: ")
+(display "Calling: ")
+(display "Calling: ")
+(display "Calling: ")
+(display "Calling: ")
+(display "Calling: ")
+(display "Calling: ")
+
+(io 'io-hello-world)
+(io 'io-hello-world)
+(io 'io-hello-world)
 (io 'io-hello-world)
 (io 'io-hello-world)
 (io 'io-hello-world)
 (io 'io-hello-world)
 
-(io 'io-say "hello")
+; (io 'io-say "hello")
 (display #\newline)
 

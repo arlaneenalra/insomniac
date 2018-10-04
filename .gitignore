@@ -18,3 +18,4 @@ src/libparser/scheme.c
 Testing
 TAGS
 *.gz
+bison.log

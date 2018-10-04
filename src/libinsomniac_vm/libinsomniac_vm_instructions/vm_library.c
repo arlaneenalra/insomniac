@@ -6,6 +6,8 @@ void op_import(vm_internal_type *vm) {
     object_type *obj2 = 0;
     object_type *lib = 0;
     object_type *binding_alist = 0;
+    char *path = 0;
+    vm_int length = 0;
     void *handle = 0;
     binding_type **export_list = 0;
     char *symbol = 0;
@@ -16,43 +18,48 @@ void op_import(vm_internal_type *vm) {
     gc_register_root(vm->gc, (void **)&obj2);
     gc_register_root(vm->gc, (void **)&lib);
     gc_register_root(vm->gc, (void **)&binding_alist);
+    gc_register_root(vm->gc, (void **)&path);
 
     obj = vm_pop(vm);
 
     if(!obj || obj->type != STRING) {
         throw(vm, "Attempt to import with non-string filename", 1, obj);
     } else {
-        /* check if the library has been loaded */
-        handle = dlopen(obj->value.string.bytes, RTLD_NOW | RTLD_LOCAL | RTLD_NOLOAD);
 
-        /* load the library if it has not been loaded */
-        if(!handle) {
-            /* handle = dlopen(obj->value.string.bytes, RTLD_NOW | RTLD_LOCAL | RTLD_DEEPBIND); */
-            /* RTLD_DEEPBIND is not defined on osx ... */
-            handle = dlopen(obj->value.string.bytes, RTLD_NOW | RTLD_LOCAL);
-        }
+        /* allocate a string long enough to include the either .so or .dylib */
+        length = obj->value.string.length + LIB_EXT_LEN + 1;
+        gc_alloc(vm->gc, 0, length, (void **)&path);
 
+        strncpy(path, obj->value.string.bytes, length);
+        strncat(path, LIB_EXT, length);
 
-        /* check to make sure we did not run into an error */
-        if(!handle) {
-            throw(vm, dlerror(), 1, obj);
-
+        /* if we have already imported this library,
+           return the existing library object */
+        if(hash_get(vm->import_table, path, (void**)&lib)) {
+            vm_push(vm, lib);
         } else {
-            if(hash_get(vm->import_table, handle, (void**)&lib)) {
-                /* if we have already imported this library,
-                   return the existing library object */
-                vm_push(vm, lib);
-                
-            } else { 
+            /* check if the library has been loaded */
+            handle = dlopen(path, RTLD_NOW | RTLD_LOCAL | RTLD_NOLOAD);
+
+            /* load the library if it has not been loaded */
+            if(!handle) {
+                /* handle = dlopen(obj->value.string.bytes, RTLD_NOW | RTLD_LOCAL | RTLD_DEEPBIND); */
+                /* RTLD_DEEPBIND is not defined on osx ... */
+                handle = dlopen(path, RTLD_NOW | RTLD_LOCAL);
+            }
+
+            /* check to make sure we did not run into an error */
+            if(!handle) {
+                throw(vm, dlerror(), 1, obj);
+            } else {
                 lib = vm_alloc(vm, LIBRARY);
-           
+
                 dlerror(); /* Clear error states */
                 export_list = (binding_type **)dlsym(handle, "export_list");
-            
+
                 if((msg = dlerror())) {
                     throw(vm, msg, 1, obj);
                 } else {
-
 
                     func_count = 0;
 
@@ -65,14 +72,16 @@ void op_import(vm_internal_type *vm) {
                     lib->value.library.func_count = func_count;
 
                     /* save this library off into the import table. */
-                    hash_set(vm->import_table,
-                             handle, lib);
+                    hash_set(vm->import_table, path, lib);
 
                     vm_push(vm, lib);
                 }
             }
+        }
 
-            /* setup a binding alist so we can bind the exported 
+        /* if lib is still 0, we couldn't load it. */
+        if (lib != 0) {
+            /* setup a binding alist so we can bind the exported
              * symbols to function call values
              */
 
@@ -84,8 +93,8 @@ void op_import(vm_internal_type *vm) {
             while(((binding_type *)export_list)[func_count].func) {
 
                 symbol = ((binding_type *)export_list)[func_count].symbol;
-                /* create string object */ 
-                obj = vm_make_string(vm, 
+                /* create string object */
+                obj = vm_make_string(vm,
                                      symbol,
                                      strlen(symbol));
 
@@ -102,8 +111,8 @@ void op_import(vm_internal_type *vm) {
                                           obj, obj2
                                           ),
                                      binding_alist); */
-                cons(vm, obj, obj2, &vm->reg1);
-                cons(vm, vm->reg1, binding_alist, &vm->reg2);
+                cons(vm, obj, obj2, &(vm->reg1));
+                cons(vm, vm->reg1, binding_alist, &(vm->reg2));
 
                 binding_alist = vm->reg2;
 
@@ -113,7 +122,8 @@ void op_import(vm_internal_type *vm) {
             vm_push(vm, binding_alist);
         }
     }
-    
+
+    gc_unregister_root(vm->gc, (void **)&path);
     gc_unregister_root(vm->gc, (void **)&binding_alist);
     gc_unregister_root(vm->gc, (void **)&lib);
     gc_unregister_root(vm->gc, (void **)&obj2);
@@ -184,11 +194,11 @@ void op_asm(vm_internal_type *vm) {
     } else {
         /* assemble the string */
         written = asm_string(vm->gc, obj->value.string.bytes, &code_ref);
-        /* clone the current environment in a 
+        /* clone the current environment in a
            closure */
         clone_env(vm, (env_type **)&env, vm->env);
 
-        /* point to the entry point of our 
+        /* point to the entry point of our
            assembled code_ref */
         env->code_ref = code_ref;
         env->ip = 0;

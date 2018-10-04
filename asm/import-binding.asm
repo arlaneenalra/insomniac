@@ -1,7 +1,7 @@
 
 
-;;; Check import
-        "src/libinsomniac_io/libinsomniac_io.so"
+;;; Check import    
+        "src/libinsomniac_io/libinsomniac_io"
         ;;"../build/src/libinsomniac_io/libinsomniac_io.dylib"
         import
 
@@ -80,7 +80,9 @@ done:
         out
         #\newline
         out
-        
+
+        jmp done
+
 loop:
         out
 

@@ -20,12 +20,35 @@
 
 char *target_preamble = \
 ".section __TEXT,__text\n" \
-".global _scheme\n" \
-"_scheme:\n" \
+".global _main\n" \
+".p2align 4, 0x90\n" \
+"_main:\n" \
+"   .cfi_startproc\n" \
+"    pushq	%rbp\n" \
+"    .cfi_def_cfa_offset 16\n" \
+"    .cfi_offset %rbp, -16\n" \
+"    movq	%rsp, %rbp\n" \
+"    .cfi_def_cfa_register %rbp\n" \
+"    xorl	%eax, %eax\n" \
+"    call _run_scheme\n" \
+"    popq	%rbp\n" \
+"    retq\n" \
+"   .cfi_endproc\n" \
+".global _scheme_code\n" \
+"_scheme_code:\n" \
 "    leaq str(%rip), %rax\n" \
-"    ret\n" \
+"    retq\n" \
+".global _scheme_code_size\n" \
+"_scheme_code_size:\n" \
+"   leaq str_size(%rip), %rax\n" \
+"   movq (%rax), %rax\n" \
+"   retq\n" \
 ".section __DATA,_data\n" \
 "str:\n"; 
+
+char *target_size = "\n" \
+"str_size :\n" \
+"   .quad ";
 
 char *target_postamble = "\n";
 
@@ -116,7 +139,7 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
     uint8_t *code_ref = 0;
     buffer_type *target_buf = 0;
     size_t length = 0;
-    char output[6] = {0, 0, 0, 0};
+    char output[512];
     size_t output_len = 0;
     char *line_prefix = "\n    .byte ";
 
@@ -131,7 +154,7 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
     buffer_write(target_buf, (uint8_t *)line_prefix, strlen(line_prefix));
 
     for (size_t i = 0; i < length ; i++) {
-        output_len = snprintf(output, 4, "%i", code_ref[i]);
+        output_len = snprintf(output, 512, "%i", code_ref[i]);
         buffer_write(target_buf, (uint8_t *)output, output_len);
 
         /* Don't add a , on the last value. */
@@ -144,6 +167,12 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
             }
         }
     }
+
+    buffer_write(target_buf, (uint8_t *)target_size, strlen(target_size));
+    
+    /* Output the size */
+    output_len = snprintf(output, 512, "%zu", length - 1);
+    buffer_write(target_buf, (uint8_t *)output, output_len);
 
     buffer_write(target_buf, (uint8_t *)target_postamble, strlen(target_postamble));
 

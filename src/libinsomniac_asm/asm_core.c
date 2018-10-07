@@ -41,7 +41,7 @@ void asm_lit_string(buffer_type *buf, yyscan_t *scanner) {
     int token = 0;
     
     /* get the next token */
-    token = yylex(scanner);
+    token = yyasmlex(scanner);
     
     /* do we have a string body? */
     if (token == OP_LIT_STRING) {
@@ -49,7 +49,7 @@ void asm_lit_string(buffer_type *buf, yyscan_t *scanner) {
         empty = 0;
 
         /* grab the next token */
-        token = yylex(scanner);
+        token = yyasmlex(scanner);
     }
 
     /* do we have an empty string? */
@@ -118,10 +118,10 @@ void asm_jump(gc_type *gc, buffer_type *buf,
     jump->addr = buffer_size(buf);
 
     /* save the line number for this jump */
-    jump->lineno = yyget_lineno(scanner);
+    jump->lineno = yyasmget_lineno(scanner);
 
     /* make sure we have a label */
-    if(yylex(scanner) != LABEL_TOKEN) {
+    if(yyasmlex(scanner) != LABEL_TOKEN) {
         assert(0);
     }
 
@@ -194,15 +194,14 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
     buffer_create(gc, &buf);
     hash_create_string(gc, &labels);
 
-    yylex_init(&scanner);
+    yyasmlex_init(&scanner);
     /* yyset_debug(1, scanner); */
 
-
     /* set the scanners input */
-    yy_scan_string(str, scanner);
+    yyasm_scan_string(str, scanner);
 
     /* match until there is nothing left to match */
-    while((token = yylex(scanner)) != END_OF_FILE) {
+    while((token = yyasmlex(scanner)) != END_OF_FILE) {
 
         /* Handle individual tokens */
         switch((int)token) {
@@ -237,21 +236,24 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
             asm_label(gc, buf, labels, get_text(scanner));
             break;
 
-            /* All otherwise not defined tokens are
-               their opcode */
         default:
-            EMIT(buf, token, 1);
+            /* All instructions not defined otherwise, are their token. 
+               But there are things that can be returned as a token, that
+               are not an instruction. So we have to constrain things to
+               the correct range. */
+            if (token < OP_MAX_INS) {
+                EMIT(buf, token, 1);
+            }
             break;
 
         }
     }
 
-    yylex_destroy(scanner);
+    yyasmlex_destroy(scanner);
 
 
     /* build a code_ref */
     length = buffer_size(buf);
-    /* *code_ref = gc_alloc(gc, 0, length); */
     gc_alloc(gc, 0, length, (void **)code_ref);
     length = buffer_read(buf, *code_ref, length);
 

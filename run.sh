@@ -31,7 +31,7 @@ SRC=$(realpath $1)
   echo "Compiling ..."
   echo
 
-  build/src/insc $SRC $TMP
+  build/src/insc --no-assemble $SRC $TMP
 
   EXIT=$?
 

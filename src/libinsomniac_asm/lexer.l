@@ -1,5 +1,6 @@
 %option noyywrap reentrant
 %option always-interactive
+%option prefix="yyasm"
 %option yylineno
 %option nounput noinput
 %option debug
@@ -160,6 +161,6 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 %%
 
 char * get_text(void * scanner) {
-	return yyget_text(scanner);
+	return yyasmget_text(scanner);
 }
 

@@ -44,6 +44,11 @@ char *target_preamble = \
 "   movq (%rax), %rax\n" \
 "   retq\n" \
 ".section __DATA,_data\n" \
+"meta:\n" \
+"   .quad 0 # meta_obj.next\n" \
+"   .long 0 # meta_obj.mark\n" \
+"   .long 0 # meta_obj.size\n" \
+"   .long 0 # meta_obj.type_def\n" \
 "str:\n"; 
 
 char *target_size = "\n" \

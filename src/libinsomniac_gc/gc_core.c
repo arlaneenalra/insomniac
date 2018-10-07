@@ -84,6 +84,9 @@ void gc_unregister_root(gc_type *gc_void, void **root) {
         meta = meta->next;
     }
 
+    /* do a sanity check to make sure we're unregistering what we mean to. */
+    assert(meta->root == root);
+
     /* we are not the first element in the list */
     if(prev) {
         prev->next = meta->next;

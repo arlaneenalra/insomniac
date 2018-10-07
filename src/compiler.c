@@ -18,6 +18,17 @@
 
 #include <locale.h>
 
+char *target_preamble = \
+".section __TEXT,__text\n" \
+".global _scheme\n" \
+"_scheme:\n" \
+"    leaq str(%rip), %rax\n" \
+"    ret\n" \
+".section __DATA,_data\n" \
+"str:\n"; 
+
+char *target_postamble = "\n";
+
 typedef struct options options_type;
 
 struct options {
@@ -101,12 +112,57 @@ void writeToFile(options_type *opts, char *asm_str, size_t length) {
     fclose(out);
 }
 
+size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
+    uint8_t *code_ref = 0;
+    buffer_type *target_buf = 0;
+    size_t length = 0;
+    char output[6] = {0, 0, 0, 0};
+    size_t output_len = 0;
+    char *line_prefix = "\n    .byte ";
+
+    gc_register_root(gc, (void **)&code_ref);
+    gc_register_root(gc, (void **)&target_buf);
+    
+    length = asm_string(gc, asm_str, &code_ref);
+
+    buffer_create(gc, &target_buf);
+
+    buffer_write(target_buf, (uint8_t *)target_preamble, strlen(target_preamble));
+    buffer_write(target_buf, (uint8_t *)line_prefix, strlen(line_prefix));
+
+    for (size_t i = 0; i < length ; i++) {
+        output_len = snprintf(output, 4, "%i", code_ref[i]);
+        buffer_write(target_buf, (uint8_t *)output, output_len);
+
+        /* Don't add a , on the last value. */
+        if (i + 1 < length) {
+            /* make sure our lines aren't too long. */
+            if (i % 50 == 0 && i > 0) {
+                buffer_write(target_buf, (uint8_t *)line_prefix, strlen(line_prefix));
+            } else {
+                buffer_write(target_buf, (uint8_t *)", ", 2);
+            }
+        }
+    }
+
+    buffer_write(target_buf, (uint8_t *)target_postamble, strlen(target_postamble));
+
+    /* Convert the buffer to a string */
+    length = buffer_size(target_buf) + 1;
+    gc_alloc(gc, 0, length, (void **)target);
+    length = buffer_read(target_buf, *(uint8_t **)target, length);
+    
+    gc_unregister_root(gc, (void **)&target_buf);
+    gc_unregister_root(gc, (void **)&code_ref);
+
+    return length;
+}
+
 int main(int argc, char**argv) {
     options_type opts = { 0, 0, 0, true, true, true};
     gc_type *gc = gc_create(sizeof(object_type));
     size_t length = 0;
     char *asm_str = 0;
-    uint8_t *code_ref = 0;
     compiler_type *compiler = 0;
     buffer_type *asm_buf = 0;
     char realpath_buf[PATH_MAX];
@@ -124,7 +180,6 @@ int main(int argc, char**argv) {
 
     /* make this a root to the garbage collector */
     gc_register_root(gc, (void **)&asm_str);
-    gc_register_root(gc, (void **)&code_ref);
     gc_register_root(gc, (void **)&asm_buf);
     gc_register_root(gc, (void **)&compiler);
 
@@ -145,8 +200,7 @@ int main(int argc, char**argv) {
 
     /* Assemble byte code. */
     if (opts.assemble) {
-        length = asm_string(gc, asm_str, &code_ref);
-        asm_str = (char *) code_ref;
+        length = buildAttachment(gc, asm_str, &asm_str);
     }
     
     writeToFile(&opts, asm_str, length);
@@ -154,7 +208,6 @@ int main(int argc, char**argv) {
     // Clean up the garabge collector
     gc_unregister_root(gc, (void **)&compiler);
     gc_unregister_root(gc, (void **)&asm_buf);
-    gc_unregister_root(gc, (void **)&code_ref);
     gc_unregister_root(gc, (void **)&asm_str);
     gc_destroy(gc);
 

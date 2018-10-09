@@ -28,11 +28,12 @@ set-car ( pair val -- pair ) Returns the pair with it's car modified
 set-cdr ( pair val -- pair ) Returns the pair with it's cdr modified
 
 vector ( size -- vector ) Makes a vector of the given size
+vector-u8 ( size -- byte-vector ) Makes a byte vector of the given size
 record ( size -- record ) Makes a record of the given size -- effectively a special vector
-idx@ ( index vector -- obj ) Takes an index and vector/record and
+idx@ ( index vector -- obj ) Takes an index and vector/record/byte vector and
                                 retrieves the object at the given
                                 index
-idx! ( index obj vector -- ) Takes an index, object, and vector/record and
+idx! ( index obj vector -- ) Takes an index, object, and vector/record/byte vector and
                                 stores the object at the given index
 vec-len ( vector -- size)    Takes a vector as an argument and returns
                                 the vectors length.
@@ -137,6 +138,7 @@ bool?
 char?
 string?
 vector?
+vector-u8?
 record?
 pair?
 null?

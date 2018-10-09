@@ -22,6 +22,7 @@ void op_not(vm_internal_type *vm);
 
 /* vector operations */
 void op_make_vector(vm_internal_type *vm);
+void op_make_byte_vector(vm_internal_type *vm);
 void op_make_record(vm_internal_type *vm);
 void op_index_set(vm_internal_type *vm);
 void op_index_ref(vm_internal_type *vm);

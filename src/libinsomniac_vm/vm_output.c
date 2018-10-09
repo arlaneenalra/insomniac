@@ -70,11 +70,27 @@ void output_vector(FILE *fout, object_type *vector) {
     fprintf(fout, ")");
 }
 
+void output_byte_vector(FILE *fout, object_type *vector) {
+    vm_int index = 0;
+
+    /* walk all the objects in this vector and
+       output them */
+    fprintf(fout, "#u8(");
+
+    for(index = 0; index < vector->value.vector.length; index++) {
+        if(index > 0) {
+            fprintf(fout, " ");
+        }
+        fprintf(fout, "%u", vector->value.byte_vector.vector[index]);
+    }
+
+    fprintf(fout, ")");
+}
+
 /* display a given object to stdout */
 void output_object(FILE *fout, object_type *obj) {
     env_type *env = 0;
     static int depth = 0;
-    
 
     depth++;
 
@@ -115,6 +131,10 @@ void output_object(FILE *fout, object_type *obj) {
         
     case VECTOR:
         output_vector(fout, obj);
+        break;
+
+    case BYTE_VECTOR:
+        output_byte_vector(fout, obj);
         break;
 
     case BOOL:

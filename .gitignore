@@ -19,3 +19,7 @@ Testing
 TAGS
 *.gz
 bison.log
+runme
+scheme.o
+scheme.s
+c-boot

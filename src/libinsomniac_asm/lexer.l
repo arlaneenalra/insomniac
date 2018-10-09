@@ -44,6 +44,7 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "string?"               { return OP_IS_STRING; }
 "symbol?"               { return OP_IS_SYMBOL; }
 "vector?"               { return OP_IS_VECTOR; }
+"vector-u8?"            { return OP_IS_BYTE_VECTOR; }
 "record?"               { return OP_IS_RECORD; }
 "pair?"                 { return OP_IS_PAIR; }
 "null?"                 { return OP_IS_EMPTY; }
@@ -51,6 +52,7 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "self?"                 { return OP_IS_SELF; }
 
 "vector"                { return OP_MAKE_VECTOR; }
+"vector-u8"             { return OP_MAKE_BYTE_VECTOR; }
 "record"                { return OP_MAKE_RECORD; }
 "idx@"                  { return OP_INDEX_REF; }
 "idx!"                  { return OP_INDEX_SET; }

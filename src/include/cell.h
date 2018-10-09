@@ -19,6 +19,7 @@ typedef enum cell {
     SYMBOL,
 
     VECTOR,
+    BYTE_VECTOR,
     RECORD,
 
     PAIR,
@@ -41,6 +42,12 @@ typedef struct string {
     vm_int length;
     char *bytes;
 } string_type;
+
+/* type to store a byte vector */
+typedef struct byte_vector {
+    vm_int length;
+    uint8_t *vector;
+} byte_vector_type;
 
 /* type to store a vector */
 typedef struct vector {
@@ -65,6 +72,7 @@ typedef union value {
     vm_char character;
     string_type string;
     vector_type vector;
+    byte_vector_type byte_vector;
     closure_type closure;
     library_type library;
 } value_type;

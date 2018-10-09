@@ -37,6 +37,24 @@ object_type *vm_make_string(vm_type *vm_void, char *buf, vm_int length) {
     return obj;
 }
 
+/* Allocate an empty byte vector of the given size */
+object_type *vm_make_byte_vector(vm_type *vm_void, vm_int length) {
+    vm_internal_type *vm=(vm_internal_type *)vm_void;
+    object_type *obj = 0;
+
+    gc_register_root(vm->gc, (void**)&obj);
+
+    obj = vm_alloc(vm, BYTE_VECTOR);
+    obj->value.byte_vector.length = length;
+
+    /* allocate an array of pointers */
+    gc_alloc(vm->gc, 0, length, (void **)&(obj->value.byte_vector.vector));
+    
+    gc_unregister_root(vm->gc, (void**)&obj);
+
+    return obj;
+}
+
 /* Allocate an empty vector of the given size */
 object_type *vm_make_vector(vm_type *vm_void, vm_int length) {
     vm_internal_type *vm=(vm_internal_type *)vm_void;

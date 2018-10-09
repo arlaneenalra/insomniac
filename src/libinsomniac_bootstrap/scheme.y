@@ -17,6 +17,7 @@
 
 %token OPEN_PAREN
 %token START_VECTOR
+%token START_BYTE_VECTOR
 %token CLOSE_PAREN
 %token DOT
 
@@ -75,8 +76,6 @@ self_evaluating:
 symbol:
     AST_SYMBOL                    { STREAM_NEW($$, symbol, yyget_text(scanner)); }
 
-
-  
 literal:
     quoted                        { STREAM_NEW($$, quoted, $1); } 
   | self_evaluating 

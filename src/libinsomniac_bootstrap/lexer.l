@@ -29,6 +29,7 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 "("|"["   { return OPEN_PAREN; }
 ")"|"]"   { return CLOSE_PAREN; }
 "#("      { return START_VECTOR; }
+"#u8("    { return START_BYTE_VECTOR; }
 "."       { return DOT; }
 "'"       { return QUOTE; }
 

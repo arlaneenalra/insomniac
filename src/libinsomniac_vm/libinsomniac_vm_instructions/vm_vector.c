@@ -1,5 +1,22 @@
 #include "vm_instructions_internal.h"
 
+/* allocate a new byte vector */
+void op_make_byte_vector(vm_internal_type *vm) {
+    object_type *obj = 0;
+    vm_int length = 0;
+    
+    vm->reg1 = obj = vm_pop(vm);
+
+    /* make sure we have a number */
+    assert(obj && obj->type == FIXNUM);
+
+    length = obj->value.integer;
+
+    vm->reg1 = obj = vm_make_byte_vector(vm, length);
+
+    vm_push(vm, obj);
+}
+
 /* allocate a new vector */
 void op_make_vector(vm_internal_type *vm) {
     object_type *obj = 0;
@@ -41,7 +58,7 @@ void op_vector_length(vm_internal_type *vm) {
 
     vm->reg1 = obj = vm_pop(vm);
 
-    if (!obj || obj->type != VECTOR ) {
+    if (!obj || (obj->type != VECTOR && obj->type != BYTE_VECTOR)) {
       throw(vm, "Attempt to read vector length of non-vector!", 1, obj);
     }
 
@@ -66,11 +83,16 @@ void op_index_set(vm_internal_type *vm) {
     
     index = obj_index->value.integer;
 
-    assert(vector && (vector->type == VECTOR || vector->type == RECORD) &&
+    assert(vector && (vector->type == VECTOR || vector->type == RECORD || vector->type == BYTE_VECTOR) &&
            vector->value.vector.length >= index);
 
     /* do the set */
-    vector->value.vector.vector[index] = obj;
+    if (vector->type == VECTOR || vector->type == RECORD) {
+        vector->value.vector.vector[index] = obj;
+    } else {
+        assert(obj && obj_index->type == FIXNUM);
+        vector->value.byte_vector.vector[index] = obj->value.integer;
+    }
 }
 
 /* read an element from a vector */
@@ -87,11 +109,17 @@ void op_index_ref(vm_internal_type *vm) {
     
     index = obj_index->value.integer;
 
-    assert(vector && (vector->type == VECTOR || vector->type == RECORD) &&
+    assert(vector && (vector->type == VECTOR || vector->type == RECORD || vector->type == BYTE_VECTOR) &&
            vector->value.vector.length >= index);
 
     /* do the read */
-    vm->reg3 = obj = vector->value.vector.vector[index];
+    if (vector->type == VECTOR || vector->type == RECORD) {
+        vm->reg3 = obj = vector->value.vector.vector[index];
+    } else {
+        /* read an integer. */
+        vm->reg3 = obj = vm_alloc(vm, FIXNUM);
+        obj->value.integer = vector->value.byte_vector.vector[index];
+    }
 
     vm_push(vm, obj);
 }

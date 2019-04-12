@@ -41,8 +41,23 @@
     (lambda ()
         (define source (bytevector 1 2 3 4 5))
         (define dest (make-bytevector 6)) 
-        (bytevector-copy! dest source 0)
+        (bytevector-copy! dest 0 source)
         dest)
     (bytevector 1 2 3 4 5 0))
 
+(expect "Check that copy! with a different from works"
+    (lambda ()
+        (define source (bytevector 1 2 3 4 5))
+        (define dest (make-bytevector 6)) 
+        (bytevector-copy! dest 1 source)
+        dest)
+    (bytevector 0 1 2 3 4 5))
+
+(expect "Check that copy! works right with overlap"
+    (lambda ()
+        (define source (bytevector 1 2 3 4 5))
+        (define dest (make-bytevector 6)) 
+        (bytevector-copy! dest 1 source)
+        dest)
+    (bytevector 0 1 2 3 4 5))
 

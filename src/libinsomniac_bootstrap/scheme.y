@@ -254,6 +254,7 @@ define_record_type:
 /* Set the value of a location */
 set:
     PRIM_SET symbol expression CLOSE_PAREN     { STREAM_NEW($$, store, $3, $2); } 
+  | PRIM_SET expression expression CLOSE_PAREN     { STREAM_NEW($$, store, $3, $2); } 
 
 begin:
     PRIM_BEGIN begin_end   { $$ = $2; }

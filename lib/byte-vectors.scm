@@ -49,7 +49,7 @@
 ;; Copy from one byte vector to another.
 (define (bytevector-copy! to at from . args)
     (define start 0)
-    (define end (bytevector-length at))
+    (define end (- (bytevector-length from) 1))
 
     (define (process-args sym args)
         (if (or (null? args) (null? sym))
@@ -63,10 +63,8 @@
         (if (> start end)
             #t
             (begin
-                (bytevector-u8-set! to start
-                    (bytevector-u8-ref at from))
-                (inner to at (+ 1 from) (+ 1 start) end))))
-    
-    (display "here") (newline)
+                (bytevector-u8-set! to at 
+                    (bytevector-u8-ref from start))
+                (inner to (+ 1 at ) from (+ 1 start) end))))
     (inner to at from start end))
 

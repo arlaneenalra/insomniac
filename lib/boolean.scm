@@ -59,8 +59,26 @@
 (define (equal-vector? x y)
   (equal-pair? (vector->list x)
                (vector->list y)))
-       
-  
+
+;; Check bytevectors for equality
+(define (equal-bytevector? x y)
+    (define len-x (bytevector-length x))
+    (define len-y (bytevector-length y))
+
+    (define (walk idx x y)
+        (cond
+            ((eqv? idx len-x) #t)
+            ((eqv? (bytevector-u8-ref x idx) (bytevector-u8-ref y idx))
+                (walk (+ 1 idx) x y))
+            (else #f))) 
+    
+    (cond
+        ((not (eqv? len-x len-y)) #f)
+        (else
+            (walk 0 x y))))
+
+
+    
 ;; Deep equality checking
 (define (equal? x y)
   (cond
@@ -68,6 +86,7 @@
     ((and (string? x) (string? y)) (string=? x y))
     ((and (pair? x) (pair? y)) (equal-pair? x y))
     ((and (vector? x) (vector? y)) (equal-vector? x y))
+    ((and (bytevector? x) (bytevector? y)) (equal-bytevector? x y))
 
     ;; if we get here, things are not equal
     (else 

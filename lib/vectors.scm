@@ -5,7 +5,10 @@
 (define (vector? x) (asm (x) vector?))
 
 ;; Return the length of a vector
-(define (vector-length x) (asm (x) vec-len))
+(define (vector-length x) 
+    (if (null? x) 
+        0
+        (asm (x) vec-len)))
 
 ;; Store a value into the vector
 (define (vector-set! vec idx obj)

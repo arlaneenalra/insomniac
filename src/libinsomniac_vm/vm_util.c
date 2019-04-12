@@ -94,7 +94,7 @@ void throw(vm_internal_type *vm, char *msg, int num, ...) {
     /* make the exception */
     gc_register_root(vm->gc, (void **)&exception);
     gc_register_root(vm->gc, (void **)&obj);
-    gc_register_root(vm->gc, (void **)cons_temp);
+    gc_register_root(vm->gc, (void **)&cons_temp);
 
     exception = vm->empty;
   
@@ -129,7 +129,7 @@ void throw(vm_internal_type *vm, char *msg, int num, ...) {
     /* put the exception itself on the stack */
     vm_push(vm, exception);
 
-    gc_unregister_root(vm->gc, (void **)cons_temp);
+    gc_unregister_root(vm->gc, (void **)&cons_temp);
     gc_unregister_root(vm->gc, (void **)&obj);
     gc_unregister_root(vm->gc, (void **)&exception);
 

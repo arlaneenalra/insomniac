@@ -36,5 +36,5 @@
           (list (get-x point)
                 (get-y point)
                 (get-z point)))
-        '(2 4 8))
+        '(2 64 8))
 

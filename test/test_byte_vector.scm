@@ -75,3 +75,10 @@
         source)
     (bytevector 1 2 1 2 3 4))
 
+(expect "Check that the new allocation version of copy works"
+    (lambda () 
+        (define source (bytevector 1 2 3 4 5)) 
+        (define dest (bytevector-copy source 2 4))
+        (cons source dest))
+        (cons (bytevector 1 2 3 4 5) (bytevector 3 4)))
+

@@ -52,9 +52,9 @@
         (define (add x) (+ x 1))
         (define (sub x) (- x 1))
 
-        (lambda (to at from-factory args)
+        (lambda (to-factory at from args)
             (define start 0)
-            (define end (bytevector-length to))
+            (define end (bytevector-length from))
 
             (define (process-args sym args)
                 (if (or (null? args) (null? sym))
@@ -66,11 +66,11 @@
 
             (define to-copy (- end start))
 
-            (define from (from-factory to-copy))
+            (define to (to-factory to-copy))
 
             (define (inner at start dir num)
                 (if (> 0 num ) 
-                    #t
+                    to 
                     (begin
                         (bytevector-u8-set! to at 
                             (bytevector-u8-ref from start))
@@ -84,9 +84,9 @@
 
 ;; Copy from one byte vector to another.
 (define (bytevector-copy! to at from . args)
-    (bytevector-copier to at (lambda (size) from) args))
+    (bytevector-copier (lambda (size) to) at from args))
 
 ;; Copy from one byte vector to another.
-(define (bytevector-copy to . args)
-    (bytevector-copier to 0 make-bytevector args))
+(define (bytevector-copy from . args)
+    (bytevector-copier make-bytevector 0 from args))
 

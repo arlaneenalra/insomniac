@@ -3,7 +3,7 @@ project(insomniac C)
 
 cmake_minimum_required(VERSION 2.8.1)
 
-enable_language(ASM)
+enable_language(ASM-ATT)
 
 INCLUDE(CTest)
 

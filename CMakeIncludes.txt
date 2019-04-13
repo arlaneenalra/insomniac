@@ -12,7 +12,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/include)
 # turn on shared libraries
 set(BUILD_SHARED_LIBS 1)
 
-# Define an insomniac compile target.
+# Define an insomniac compile command.
 macro(INSC_TARGET Name Input Output)
     set(INSC_TARGET_outputs "${CMAKE_CURRENT_BINARY_DIR}/${Output}")
 
@@ -22,9 +22,10 @@ macro(INSC_TARGET Name Input Output)
         COMMAND ${CMAKE_BINARY_DIR}/src/insc ${Input} -o ${INSC_TARGET_outputs}
         VERBATIM
         DEPENDS ${Input} insc
-        COMMENT "[INSC] Compile Insomniac Scheme code to ${INSC_TARGET_outputs}"
+        COMMENT "[INSC] Compiling Insomniac Scheme code to ${INSC_TARGET_outputs}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
     set(INSC_${Name}_OUTPUTS "${INSC_TARGET_outputs}")
 endmacro()
 
+# Define a

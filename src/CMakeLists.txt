@@ -10,15 +10,6 @@ add_subdirectory(libinsomniac_io)
 add_subdirectory(libinsomniac_bootstrap)
 add_subdirectory(libinsomniac_runtime)
 
-link_directories(
-    ${libinsomniac_vm_BIN_DIR}/libinsomniac_vm
-    ${libinsomniac_gc_BIN_DIR}/libinsomniac_gc
-    ${libinsomniac_buffer_BIN_DIR}/libinsomniac_buffer
-    ${libinsomniac_hash_BIN_DIR}/libinsomniac_hash
-    ${libinsomniac_asm_BIN_DIR}/libinsomniac_asm
-    ${libinsomniac_asm_BIN_DIR}/libinsomniac_bootstrap
-)
-
 add_executable( insomniac 
     main.c
 )
@@ -38,8 +29,8 @@ add_executable(insc
 target_link_libraries(insc
     insomniac_bootstrap
     insomniac_buffer
-    insomniac_hash
     insomniac_gc
     insomniac_asm
+    insomniac_hash
 )
 

@@ -1,0 +1,10 @@
+version: "3.7"
+
+services:
+  docker-builder:
+    build:
+      context: docker/
+
+    volumes:
+      - ".:/usr/src/app"
+

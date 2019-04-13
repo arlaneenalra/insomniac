@@ -28,16 +28,12 @@ foreach(SCM_FILE ${SCM_SOURCES})
         ${INSC_TEST_SCM_OUTPUTS}
         )
 
-    target_link_libraries(${testname}
-        insomniac_runtime
-        insomniac_hash
-        insomniac_buffer
-        insomniac_gc
-        insomniac_vm
-        )
-
     set_target_properties(${testname}
         PROPERTIES LINKER_LANGUAGE C
+        )
+
+    target_link_libraries(${testname}
+        insomniac_runtime
         )
 
     add_test(Test_${testname} ${CMAKE_CURRENT_BIN_DIR}/${testname})

@@ -5,10 +5,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_subdirectory(libinsomniac_vm_instructions)
 
-link_directories(
-  ${libinsomniac_vm_instructions_BIN_DIR}/libinsomniac_vm_instructions
-  )
-
 add_library(insomniac_vm
   vm_core.c
   vm_util.c

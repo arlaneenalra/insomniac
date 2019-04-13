@@ -22,5 +22,7 @@ add_library(insomniac_vm_instructions
 )
 
 target_link_libraries(insomniac_vm_instructions
+    insomniac_asm
+    insomniac_buffer
     dl
 )

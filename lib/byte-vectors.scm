@@ -46,25 +46,47 @@
                 (walk-vector (cdr args) result (+ 1 idx)))))
     (walk-vector args (make-bytevector (length args)) 0))
 
+;; The guts of the copy operation.
+(define bytevector-copier
+    (begin
+        (define (add x) (+ x 1))
+        (define (sub x) (- x 1))
+
+        (lambda (to at from-factory args)
+            (define start 0)
+            (define end (bytevector-length to))
+
+            (define (process-args sym args)
+                (if (or (null? args) (null? sym))
+                    #t 
+                    (begin
+                        (set! (car sym) (car args))
+                        (process-args (cdr sym) (cdr args)))))
+            (process-args '(start end) args)
+
+            (define to-copy (- end start))
+
+            (define from (from-factory to-copy))
+
+            (define (inner at start dir num)
+                (if (> 0 num ) 
+                    #t
+                    (begin
+                        (bytevector-u8-set! to at 
+                            (bytevector-u8-ref from start))
+                        (inner (dir at) (dir start) dir (- num 1 )))))
+
+            (if (> start at)
+                (inner at start add (- to-copy 1)) 
+                (begin
+                    (set! to-copy (- to-copy 1))
+                    (inner (+ at to-copy) (+ start to-copy) sub to-copy))))))
+
 ;; Copy from one byte vector to another.
 (define (bytevector-copy! to at from . args)
-    (define start 0)
-    (define end (- (bytevector-length from) 1))
+    (bytevector-copier to at (lambda (size) from) args))
 
-    (define (process-args sym args)
-        (if (or (null? args) (null? sym))
-            #t 
-            (begin
-                (set! (car sym) (car args))
-                (process-args (cdr sym) (cdr args)))))
-    (process-args '(start end) args)
-
-    (define (inner to at from start end)
-        (if (> start end)
-            #t
-            (begin
-                (bytevector-u8-set! to at 
-                    (bytevector-u8-ref from start))
-                (inner to (+ 1 at ) from (+ 1 start) end))))
-    (inner to at from start end))
+;; Copy from one byte vector to another.
+(define (bytevector-copy to . args)
+    (bytevector-copier to 0 make-bytevector args))
 

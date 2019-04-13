@@ -236,8 +236,9 @@ int main(int argc, char**argv) {
     if (opts.assemble) {
         length = buildAttachment(gc, asm_str, &asm_str);
     }
-    
-    writeToFile(&opts, asm_str, length);
+   
+    /* Write the assembled code out to a file *without the null* at the end of the string. */
+    writeToFile(&opts, asm_str, length - 1);
 
     // Clean up the garabge collector
     gc_unregister_root(gc, (void **)&compiler);

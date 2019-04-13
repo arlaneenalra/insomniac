@@ -18,10 +18,11 @@
 
 #include <locale.h>
 
+#ifdef __APPLE__
 char *target_preamble = \
-".section __TEXT,__text\n" \
-".global _main\n" \
-".p2align 4, 0x90\n" \
+"    .section __TEXT,__text\n" \
+"    .global _main\n" \
+"    .p2align 4, 0x90\n" \
 "_main:\n" \
 "   .cfi_startproc\n" \
 "    pushq	%rbp\n" \
@@ -56,6 +57,40 @@ char *target_size = "\n" \
 "   .quad ";
 
 char *target_postamble = "\n";
+
+#elif __linux__
+char *target_preamble = \
+"   .text\n" \
+"   .globl main\n" \
+"main:\n" \
+"   pushq %rbp\n" \
+"	movq	%rsp, %rbp\n" \
+"   call run_scheme@PLT\n" \
+"   popq %rbp\n" \
+"   ret\n"\
+".globl scheme_code\n" \
+"scheme_code:\n" \
+"    leaq str(%rip), %rax\n" \
+"    retq\n" \
+".globl scheme_code_size\n" \
+"scheme_code_size:\n" \
+"   leaq str_size(%rip), %rax\n" \
+"   movq (%rax), %rax\n" \
+"   retq\n" \
+"   .data\n"\
+"meta:\n" \
+"   .quad 0 # meta_obj.next\n" \
+"   .long 0 # meta_obj.mark\n" \
+"   .long 0 # meta_obj.size\n" \
+"   .long 0 # meta_obj.type_def\n" \
+"str:\n"; 
+
+char *target_size = "\n" \
+"str_size :\n" \
+"   .quad ";
+
+char *target_postamble = "\n";
+#endif
 
 typedef struct options options_type;
 
@@ -236,8 +271,9 @@ int main(int argc, char**argv) {
     if (opts.assemble) {
         length = buildAttachment(gc, asm_str, &asm_str);
     }
-    
-    writeToFile(&opts, asm_str, length);
+   
+    /* Write the assembled code out to a file *without the null* at the end of the string. */
+    writeToFile(&opts, asm_str, length - 1);
 
     // Clean up the garabge collector
     gc_unregister_root(gc, (void **)&compiler);

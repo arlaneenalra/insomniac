@@ -2,10 +2,7 @@
 include(${PROJECT_SOURCE_DIR}/CMakeIncludes.txt)
 include(${PROJECT_SOURCE_DIR}/CMakeTestIncludes.txt)
 
-
-
 add_subdirectory(libtester)
-
 
 add_executable(test_hash
   test_hash.c
@@ -17,27 +14,28 @@ target_link_libraries(test_hash
   tester
   )
 
-
 add_test(TestHash ${CMAKE_CURRENT_BIN_DIR}/test_hash)
 
-add_test(TestSCMBools ${PROJECT_SOURCE_DIR}/run.sh
-  ${PROJECT_SOURCE_DIR}/test/test_bools.scm)
+# Setup and build scheme tests.
+file(GLOB SCM_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test_*.scm)
 
-add_test(TestSCMeq? ${PROJECT_SOURCE_DIR}/run.sh
-  ${PROJECT_SOURCE_DIR}/test/test_eq.scm)
+foreach(SCM_FILE ${SCM_SOURCES}) 
+    string(REPLACE ".scm" "" testname ${SCM_FILE})
 
-add_test(TestSCMequal? ${PROJECT_SOURCE_DIR}/run.sh
-  ${PROJECT_SOURCE_DIR}/test/test_equal.scm)
+    INSC_TARGET(TEST_SCM ${SCM_FILE} ${SCM_FILE}.s)
 
-add_test(TestSCMLists ${PROJECT_SOURCE_DIR}/run.sh
-  ${PROJECT_SOURCE_DIR}/test/test_lists.scm)
+    add_executable(${testname}
+        ${INSC_TEST_SCM_OUTPUTS}
+        )
 
-add_test(TestSCMVectors ${PROJECT_SOURCE_DIR}/run.sh
-  ${PROJECT_SOURCE_DIR}/test/test_vectors.scm)
+    set_target_properties(${testname}
+        PROPERTIES LINKER_LANGUAGE C
+        )
 
-add_test(TestSCMBytevectors ${PROJECT_SOURCE_DIR}/run.sh
-  ${PROJECT_SOURCE_DIR}/test/test_byte_vector.scm)
+    target_link_libraries(${testname}
+        insomniac_runtime
+        )
 
-add_test(TestSCMRecords ${PROJECT_SOURCE_DIR}/run.sh
-  ${PROJECT_SOURCE_DIR}/test/test_define_record_type.scm)
+    add_test(Test_${testname} ${CMAKE_CURRENT_BIN_DIR}/${testname})
+endforeach()
 

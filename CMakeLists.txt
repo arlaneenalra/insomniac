@@ -3,6 +3,8 @@ project(insomniac C)
 
 cmake_minimum_required(VERSION 2.8.1)
 
+enable_language(ASM)
+
 INCLUDE(CTest)
 
 set(UPDATE_TYPE git)
@@ -17,6 +19,5 @@ add_subdirectory(src)
 add_subdirectory(test)
 
 ENABLE_TESTING()
-
 
 

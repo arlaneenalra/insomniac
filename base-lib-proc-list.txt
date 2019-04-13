@@ -21,8 +21,8 @@
 (x)      boolean=?
 (x)      boolean?
 (p)      bytevector
-(-)      bytevector-append
-(-)      bytevector-copy
+(p)      bytevector-append
+(p)      bytevector-copy
 (p)      bytevector-copy!
 (p)      bytevector-length
 (p)      bytevector-u8-ref

@@ -90,3 +90,22 @@
 (define (bytevector-copy from . args)
     (bytevector-copier make-bytevector 0 from args))
 
+;; A basic append
+(define (bytevector-append . args)
+    (define (len-all size args)
+        (if (null? args)
+            size
+            (len-all (+ size (bytevector-length (car args))) (cdr args))))
+
+    (define dest (make-bytevector (len-all 0 args)))
+
+    (define (inner dest idx args)
+        (if (null? args)
+            dest
+            (begin
+                (define len (bytevector-length (car args)))
+                (bytevector-copy! dest idx (car args))
+                (inner dest (+ idx len) (cdr args)))))
+
+    (inner dest 0 args))
+

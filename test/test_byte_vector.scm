@@ -82,3 +82,8 @@
         (cons source dest))
         (cons (bytevector 1 2 3 4 5) (bytevector 3 4)))
 
+(expect "Validate append"
+    (lambda ()
+        (bytevector-append (bytevector 0 1 2) (bytevector 3 4 5) (bytevector 6 7 8)))
+    (bytevector 0 1 2 3 4 5 6 7 8))
+

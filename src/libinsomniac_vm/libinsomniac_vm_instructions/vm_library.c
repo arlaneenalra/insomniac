@@ -105,12 +105,6 @@ void op_import(vm_internal_type *vm) {
                 obj2 = vm_alloc(vm, FIXNUM);
                 obj2->value.integer = func_count;
 
-                /* This may have some vm allocation issues */
-                /*binding_alist = cons(vm,
-                                     cons(vm,
-                                          obj, obj2
-                                          ),
-                                     binding_alist); */
                 cons(vm, obj, obj2, &(vm->reg1));
                 cons(vm, vm->reg1, binding_alist, &(vm->reg2));
 

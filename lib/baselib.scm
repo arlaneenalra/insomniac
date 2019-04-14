@@ -26,6 +26,8 @@
 ;; For cond
 (define else #t)
 
+(include "dynamic.scm")
+
 (include "math.scm")
 
 (include "predicates.scm")

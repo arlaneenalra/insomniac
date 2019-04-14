@@ -25,14 +25,14 @@ char *target_preamble = \
 "    .p2align 4, 0x90\n" \
 "_main:\n" \
 "   .cfi_startproc\n" \
-"    pushq	%rbp\n" \
+"    pushq  %rbp\n" \
 "    .cfi_def_cfa_offset 16\n" \
 "    .cfi_offset %rbp, -16\n" \
-"    movq	%rsp, %rbp\n" \
+"    movq   %rsp, %rbp\n" \
 "    .cfi_def_cfa_register %rbp\n" \
-"    xorl	%eax, %eax\n" \
+"    xorl   %eax, %eax\n" \
 "    call _run_scheme\n" \
-"    popq	%rbp\n" \
+"    popq   %rbp\n" \
 "    retq\n" \
 "   .cfi_endproc\n" \
 ".global _scheme_code\n" \
@@ -64,7 +64,7 @@ char *target_preamble = \
 "   .globl main\n" \
 "main:\n" \
 "   pushq %rbp\n" \
-"	movq	%rsp, %rbp\n" \
+"   movq %rsp, %rbp\n" \
 "   call run_scheme@PLT\n" \
 "   popq %rbp\n" \
 "   ret\n"\

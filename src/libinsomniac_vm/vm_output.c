@@ -150,8 +150,9 @@ void output_object(FILE *fout, object_type *obj) {
 
         fprintf(fout, "{");
         while (env) {
-          fprintf(fout, "<CLOSURE %p:%p -> %p ", (void *)obj,
+          fprintf(fout, "<CLOSURE %p:%p(%p) -> %p ", (void *)obj,
                   (void *)env,
+                  (void *)env->bindings,
                   (void *)env->parent);
           hash_info(env->bindings);
           fprintf(fout, ">\n");

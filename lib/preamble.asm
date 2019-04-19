@@ -41,7 +41,6 @@ scheme-set!:
         swap ret
 
 scheme-call-cc-return:
-        s"ret" bind
 
 ;; Empty everything on the stack
 scheme-call-cc-empty:
@@ -66,19 +65,16 @@ scheme-call-cc-restore:
 scheme-call-cc-restore-done:
         drop
 
-        s"ret" @
+        s"ret-val" @
+        s"return" @ ;; return to the called parent
         ret 
 
 scheme-call-cc-exit:
         drop ;; get rid of the old return address
         car s"ret-val" bind ;; get the return value
 
-        call scheme-call-cc-return
+        jmp scheme-call-cc-return
         
-        s"ret-val" @
-        s"return" @ ;; return to the called parent
-        ret
-
 scheme-call-cc:
         swap
         car s"proc" bind ;; setup the proc to call
@@ -108,12 +104,9 @@ scheme-call-cc-stack-save-exit:
         ;; Call the  
         s"proc" @ 
         call_in
-       
-        call scheme-call-cc-return
+        s"ret-val" bind 
 
-        s"return" @
-        ret
-        
+        jmp scheme-call-cc-return
 
 scheme-emergency-exit:
         drop ;; drop return
@@ -134,6 +127,6 @@ user-entry:
         proc scheme-car s"car" bind
         proc scheme-cdr s"cdr" bind
         proc scheme-set! s"set!" bind
-        proc scheme-call-cc s"call/cc" bind
+        proc scheme-call-cc s"prim-call/cc" bind
 _main:
 

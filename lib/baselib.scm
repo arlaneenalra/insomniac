@@ -26,6 +26,10 @@
 ;; For cond
 (define else #t)
 
+(define (apply proc . args) 
+    (asm (args) (proc) tail_call_in ))
+
+
 (include "dynamic.scm")
 
 (include "math.scm")
@@ -40,3 +44,7 @@
 (include "strings.scm")
 
 (include "records.scm")
+
+(include "loop.scm")
+(include "call-cc.scm")
+

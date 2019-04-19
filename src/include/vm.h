@@ -34,5 +34,33 @@ typedef struct binding {
     ext_call_type func;
 } binding_type;
 
+/* This is a nightmarish hack to allow an unmanaged pointer to be passed
+   scheme code. */
+#define UNSTUFF_POINTER(pointer, type)                              \
+    *(type*)(pointer->value.byte_vector.vector)
+
+#define STUFF_POINTER(vm, pointer, type)                            \
+({                                                                  \
+    object_type *obj = vm_make_byte_vector(vm, sizeof (type));      \
+    type* f = (type*)(obj->value.byte_vector.vector);               \
+    *f = pointer;                                                   \
+    obj;                                                            \
+})
+
+
+#define STUFFED_POINTER_OP(fn_name, pointer, type)                  \
+void fn_name(vm_type *vm, gc_type *gc) {                            \
+    object_type *obj = 0;                                           \
+    gc_register_root(gc, (void **)&obj);                            \
+                                                                    \
+    /* We can ignore this. */                                       \
+    vm_pop(vm);                                                     \
+    obj = STUFF_POINTER(vm, pointer, type);                         \
+    vm_push(vm, obj);                                               \
+                                                                    \
+    gc_unregister_root(gc, (void **)&obj);                          \
+}
+
+#define STUFF_FILE_POINTER(fn_name, pointer) STUFFED_POINTER_OP(fn_name, pointer, FILE *)
 
 #endif

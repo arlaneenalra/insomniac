@@ -188,9 +188,10 @@ void op_asm(vm_internal_type *vm) {
     } else {
         /* assemble the string */
         written = asm_string(vm->gc, obj->value.string.bytes, &code_ref);
+
         /* clone the current environment in a
            closure */
-        clone_env(vm, (env_type **)&env, vm->env);
+        clone_env(vm, (env_type **)&env, vm->env, false);
 
         /* point to the entry point of our
            assembled code_ref */

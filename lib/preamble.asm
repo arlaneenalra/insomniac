@@ -40,6 +40,81 @@ scheme-set!:
         ()
         swap ret
 
+scheme-call-cc-return:
+        s"ret" bind
+
+;; Empty everything on the stack
+scheme-call-cc-empty:
+        depth 0 =
+        jnf scheme-call-cc-empty-done
+
+        drop
+        jmp scheme-call-cc-empty
+        
+        scheme-call-cc-empty-done:
+
+        s"stack-save" @
+scheme-call-cc-restore:
+        dup null?
+        jnf scheme-call-cc-restore-done
+
+        dup car ;; push the next stack value back onto the stack
+        swap ;; push the next value below the list 
+        cdr ;; move to the next saved stack entry
+
+        jmp scheme-call-cc-restore
+scheme-call-cc-restore-done:
+        drop
+
+        s"ret" @
+        ret 
+
+scheme-call-cc-exit:
+        drop ;; get rid of the old return address
+        car s"ret-val" bind ;; get the return value
+
+        call scheme-call-cc-return
+        
+        s"ret-val" @
+        s"return" @ ;; return to the called parent
+        ret
+
+scheme-call-cc:
+        swap
+        car s"proc" bind ;; setup the proc to call
+        s"return" bind ;; bind the return value
+
+        ;; Store the stack so we can restore it after call/cc
+        () s"stack-save" bind
+scheme-call-cc-save:
+        depth
+        0 =
+        jnf scheme-call-cc-stack-save-exit
+
+        s"stack-save" @             ; read the save list 
+        swap                        ; swap the top of the stack and the save list 
+        cons                        ; add the top of the stack to the list
+        s"stack-save" !             ; save to stack-save
+        
+        jmp scheme-call-cc-save
+         
+scheme-call-cc-stack-save-exit:
+
+        ;; Setup the exit routine
+        ()
+        proc scheme-call-cc-exit 
+        cons
+
+        ;; Call the  
+        s"proc" @ 
+        call_in
+       
+        call scheme-call-cc-return
+
+        s"return" @
+        ret
+        
+
 scheme-emergency-exit:
         drop ;; drop return
         car set-exit ;; set the exit status
@@ -59,5 +134,6 @@ user-entry:
         proc scheme-car s"car" bind
         proc scheme-cdr s"cdr" bind
         proc scheme-set! s"set!" bind
+        proc scheme-call-cc s"call/cc" bind
 _main:
 

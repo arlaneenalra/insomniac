@@ -72,7 +72,10 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_DEPTH] = &op_depth;
 
     vm->ops[OP_OUTPUT] = &op_output;
-    vm->ops[OP_GETC] = &op_getc;
+    vm->ops[OP_FD_READ] = &op_fd_read;
+    vm->ops[OP_FD_WRITE] = &op_fd_write;
+    vm->ops[OP_OPEN] = &op_open;
+    vm->ops[OP_CLOSE] = &op_close;
     vm->ops[OP_SLURP] = &op_slurp;
     vm->ops[OP_ASM] = &op_asm;
 

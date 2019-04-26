@@ -59,7 +59,10 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "vec-len"               { return OP_VECTOR_LENGTH; }
 
 "out"                   { return OP_OUTPUT; }
-"read"                  { return OP_GETC; }
+"read"                  { return OP_FD_READ; }
+"write"                 { return OP_FD_WRITE; }
+"open"                  { return OP_OPEN; }
+"close"                 { return OP_CLOSE; }
 "slurp"                 { return OP_SLURP; }
 "asm"                   { return OP_ASM; }
 "import"                { return OP_IMPORT; }

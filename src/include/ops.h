@@ -71,7 +71,10 @@ typedef enum op {
     OP_EQ, /* A simple equivalence operation */
 
     OP_OUTPUT, /* Outputs what ever is currently on the top of the stack */
-    OP_GETC, /* read a single character */
+    OP_FD_READ, /* From a file descriptor */
+    OP_FD_WRITE, /* Write to a file descriptor */
+    OP_OPEN, /* Open a file */
+    OP_CLOSE, /* Close a file */
 
     OP_SLURP, /* load a file into a string */
     OP_ASM, /* assemble the given string */

@@ -5,6 +5,9 @@
 
 #include <asm.h>
 #include <dlfcn.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/errno.h>
 
 /* literals with the exception of make_symbol */
 void op_lit_64bit(vm_internal_type *vm);
@@ -60,7 +63,10 @@ void op_restore(vm_internal_type *vm);
 /* some simple io instructions, these will need to be rethought */
 void op_output(vm_internal_type *vm);
 void op_slurp(vm_internal_type *vm);
-void op_getc(vm_internal_type *vm);
+void op_fd_read(vm_internal_type *vm);
+void op_fd_write(vm_internal_type *vm);
+void op_close(vm_internal_type *vm);
+void op_open(vm_internal_type *vm);
 
 /* library handling instructions */
 void op_import(vm_internal_type *vm);

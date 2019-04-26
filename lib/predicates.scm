@@ -17,4 +17,3 @@
 
 (define (symbol? x) (asm (x) symbol?))
 
-

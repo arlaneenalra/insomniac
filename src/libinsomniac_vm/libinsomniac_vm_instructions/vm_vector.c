@@ -123,3 +123,38 @@ void op_index_ref(vm_internal_type *vm) {
 
     vm_push(vm, obj);
 }
+
+/* return a slice of a the passed in vector */
+void op_slice(vm_internal_type *vm) {
+    object_type *vector = 0;
+    object_type *start = 0;
+    object_type *end = 0;
+    vm_int length = 0;
+
+    vm->reg1 = vector = vm_pop(vm);
+    vm->reg2 = end = vm_pop(vm);
+    vm->reg3 = start = vm_pop(vm);
+    
+    assert(vector && (vector->type == VECTOR || vector->type == BYTE_VECTOR) && vector->value.vector.length >= end->value.integer);
+    
+    length = end->value.integer - start->value.integer;
+
+    assert(length >= 0);
+
+    /* Vector and bytevector have the same internal structure, the only difference 
+       are the final pointer types. We can use this to avoid extraneous allocations 
+       and make accessing the members easier. */
+    vm->reg2 = vm_alloc(vm, vector->type);
+    vm->reg2->value.byte_vector.length = MIN(length, vector->value.byte_vector.length);
+    vm->reg2->value.byte_vector.slice = true;
+  
+    /* We need to know the type to determine the size to offset by. */
+    if (vector->type == VECTOR) {
+        vm->reg2->value.vector.vector = vector->value.vector.vector + start->value.integer;
+    } else {
+        vm->reg2->value.byte_vector.vector = vector->value.byte_vector.vector + start->value.integer;
+    }
+
+    vm_push(vm, vm->reg2);
+}
+

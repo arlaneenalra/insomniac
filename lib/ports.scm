@@ -107,8 +107,10 @@
                 (process-args (cdr sym) (cdr args)))))
     (process-args '(port start end) args)
 
+    (define u8-slice (slice u8 start end))
+
     ;;; TODO Fully implement write
-    ((port-op port) u8 end (port-fd port)))
+    ((port-op port) u8-slice (bytevector-length u8-slice) (port-fd port)))
 
 (define (read-bytevector k . args)
     (define port

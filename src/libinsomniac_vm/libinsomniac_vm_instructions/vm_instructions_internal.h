@@ -9,6 +9,9 @@
 #include <unistd.h>
 #include <sys/errno.h>
 
+#define MIN(a, b) (a > b ? b : a)
+#define MAX(a, b) (a > b ? a : b)
+
 /* literals with the exception of make_symbol */
 void op_lit_64bit(vm_internal_type *vm);
 void op_lit_char(vm_internal_type *vm);
@@ -30,6 +33,7 @@ void op_make_record(vm_internal_type *vm);
 void op_index_set(vm_internal_type *vm);
 void op_index_ref(vm_internal_type *vm);
 void op_vector_length(vm_internal_type *vm);
+void op_slice(vm_internal_type *vm);
 
 /* list operations */
 void op_cons(vm_internal_type *vm);

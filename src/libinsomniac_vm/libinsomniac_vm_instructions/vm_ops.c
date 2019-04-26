@@ -22,6 +22,7 @@ TYPE_OP(op_is_char, TYPE_TEST(CHAR))
 TYPE_OP(op_is_string, TYPE_TEST(STRING))
 TYPE_OP(op_is_symbol, TYPE_TEST(SYMBOL))
 TYPE_OP(op_is_vector, TYPE_TEST(VECTOR))
+TYPE_OP(op_is_slice, (TYPE_TEST(VECTOR) || TYPE_TEST(BYTE_VECTOR)) && obj->value.vector.slice)
 TYPE_OP(op_is_byte_vector, TYPE_TEST(BYTE_VECTOR))
 TYPE_OP(op_is_record, TYPE_TEST(RECORD))
 TYPE_OP(op_is_pair, TYPE_TEST(PAIR))
@@ -52,6 +53,7 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_INDEX_SET] = &op_index_set;
     vm->ops[OP_INDEX_REF] = &op_index_ref;
     vm->ops[OP_VECTOR_LENGTH] = &op_vector_length;
+    vm->ops[OP_SLICE] = &op_slice;
 
     vm->ops[OP_CONS] = &op_cons;
     vm->ops[OP_CAR] = &op_car;
@@ -126,6 +128,7 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_IS_SYMBOL] = &op_is_symbol;
     vm->ops[OP_IS_VECTOR] = &op_is_vector;
     vm->ops[OP_IS_BYTE_VECTOR] = &op_is_byte_vector;
+    vm->ops[OP_IS_SLICE] = &op_is_slice;
     vm->ops[OP_IS_RECORD] = &op_is_record;
     vm->ops[OP_IS_PAIR] = &op_is_pair;
     vm->ops[OP_IS_EMPTY] = &op_is_empty;

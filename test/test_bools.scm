@@ -125,3 +125,9 @@
         (lambda ()
           (or #f '(b c) (/ 3 0))) '(b c))
 
+(expect-true "null? should return true on '()"
+    (lambda () (null? '())))
+
+(expect-false "null? should return false on #f"
+   (lambda () (null? #f)))
+

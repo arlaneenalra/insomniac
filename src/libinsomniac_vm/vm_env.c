@@ -28,12 +28,16 @@ void push_env(vm_internal_type *vm) {
 
 /* create a copy of the environment in a new environment */
 void clone_env(vm_internal_type *vm, env_type **target,
-               env_type *env) {    
+               env_type *env, bool cow) {
 
     gc_alloc_type(vm->gc, 0, vm->env_type, (void **)target);
 
     /* copy env to vm->env */
     memcpy(*target, env, sizeof(env_type));
+
+    if (cow) {
+        hash_cow(vm->gc, env->bindings, &(*target)->bindings);
+    }
 }
 
 /* pop off the current environment */

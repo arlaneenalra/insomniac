@@ -24,6 +24,10 @@ typedef cmp_type(*hash_cmp)(void *key1, void *key2);
 void hash_create(gc_type *gc, hash_fn fn, 
                  hash_cmp cmp, hashtable_type **ret);
 
+/* duplicate an existing hash table in cow mode */
+void hash_cow(gc_type *gc, hashtable_type *src,
+                 hashtable_type **ret);
+
 /* macro to make string hash tables easier to deal with */
 #define hash_create_string(gc, ret)                 \
     hash_create(gc, &hash_string, &hash_string_cmp, ret)

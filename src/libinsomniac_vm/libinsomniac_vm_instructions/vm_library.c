@@ -105,12 +105,6 @@ void op_import(vm_internal_type *vm) {
                 obj2 = vm_alloc(vm, FIXNUM);
                 obj2->value.integer = func_count;
 
-                /* This may have some vm allocation issues */
-                /*binding_alist = cons(vm,
-                                     cons(vm,
-                                          obj, obj2
-                                          ),
-                                     binding_alist); */
                 cons(vm, obj, obj2, &(vm->reg1));
                 cons(vm, vm->reg1, binding_alist, &(vm->reg2));
 
@@ -194,9 +188,10 @@ void op_asm(vm_internal_type *vm) {
     } else {
         /* assemble the string */
         written = asm_string(vm->gc, obj->value.string.bytes, &code_ref);
+
         /* clone the current environment in a
            closure */
-        clone_env(vm, (env_type **)&env, vm->env);
+        clone_env(vm, (env_type **)&env, vm->env, false);
 
         /* point to the entry point of our
            assembled code_ref */

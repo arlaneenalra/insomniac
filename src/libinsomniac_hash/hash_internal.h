@@ -1,6 +1,8 @@
 #ifndef _HASH_INTERNAL_
 #define _HASH_INTERNAL_
 
+#include <string.h>
+
 #include <gc.h>
 #include <hash.h>
 
@@ -32,6 +34,8 @@ struct hash_internal {
     key_value_type **table;
     size_t size;
     size_t entries;
+
+    bool copy_on_write;
 
     gc_type_def key_value;
 };

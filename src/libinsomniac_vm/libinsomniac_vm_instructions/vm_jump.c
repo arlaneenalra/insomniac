@@ -65,7 +65,7 @@ void op_adopt(vm_internal_type *vm) {
     
     /* copy the child into the new closure */
     clone_env(vm, (env_type **)&env, 
-      ((env_type *)child->value.closure));
+      ((env_type *)child->value.closure), true);
     
     adopted->value.closure = env;
 
@@ -92,7 +92,7 @@ void op_proc(vm_internal_type *vm) {
     vm->reg1 = closure = vm_alloc(vm, CLOSURE);
 
     /* save our current environment */
-    clone_env(vm, (env_type **)&env, vm->env);
+    clone_env(vm, (env_type **)&env, vm->env, false);
 
     /* update the ip */
     env->ip +=target;
@@ -122,11 +122,11 @@ void op_jin(vm_internal_type *vm) {
         env = vm->env;
 
         /* clone the closures environment */
-        clone_env(vm, &(vm->env), closure->value.closure);
+        clone_env(vm, &(vm->env), closure->value.closure, false);
 
         /* preserve the old bindings and parent so 
            we have a jump equivalent. */
-        /* WARNING: This does break lose the current 
+        /* WARNING: This does break/lose the current 
            exception handler . . .*/
         vm->env->bindings = env->bindings;
         vm->env->parent = env->parent;
@@ -147,7 +147,7 @@ void op_ret(vm_internal_type *vm) {
     } else {
 
         /* clone the closures environment */
-        clone_env(vm, &(vm->env), closure->value.closure);
+        clone_env(vm, &(vm->env), closure->value.closure, false);
     }
 }
 
@@ -171,7 +171,8 @@ void op_call_in(vm_internal_type *vm) {
         vm_push(vm, ret);
 
         /* clone the closures environment */
-        clone_env(vm, &(vm->env), closure->value.closure);
+        clone_env(vm, &(vm->env), closure->value.closure, false);
+
         /* create a child environment */
         push_env(vm);
     }
@@ -190,7 +191,8 @@ void op_tail_call_in(vm_internal_type *vm) {
         op_swap(vm);
 
         /* clone the closures environment */
-        clone_env(vm, &(vm->env), closure->value.closure);
+        clone_env(vm, &(vm->env), closure->value.closure, false);
+
         /* create a child environment */
         push_env(vm);
     }

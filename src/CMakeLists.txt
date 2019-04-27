@@ -22,11 +22,11 @@ target_link_libraries(insomniac
     insomniac_asm
 )
 
-add_executable(insc
+add_executable(insc-bootstrap
     compiler.c
 )
 
-target_link_libraries(insc
+target_link_libraries(insc-bootstrap
     insomniac_bootstrap
     insomniac_buffer
     insomniac_gc

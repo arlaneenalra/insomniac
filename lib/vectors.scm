@@ -65,3 +65,10 @@
 (define (vector . list)
   (list->vector list))
 
+;; Create a slice of a vector
+(define (slice vector start end)
+    (asm (start) (end) (vector) slice ('result) bind ())
+    result)
+
+(define (slice? x) (asm (x) slice?))
+

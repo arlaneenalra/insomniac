@@ -2,14 +2,14 @@
 #include <math.h>
 #include <stdio.h>
 
+static gc_type_def hashtable_type_def = 0;
+static gc_type_def key_value_type_def = 0;
 
 /* create a hashtable using the given function and 
    comparator */
 void hash_create(gc_type *gc, hash_fn fn,
                  hash_cmp cmp, hashtable_type **ret) {
     
-    static gc_type_def hashtable_type_def = 0;
-    static gc_type_def key_value_type_def = 0;
     hash_internal_type *table = 0;
     
     /* register the hashtable type with the gc */
@@ -25,17 +25,32 @@ void hash_create(gc_type *gc, hash_fn fn,
     table->gc = gc;
     table->calc_hash = fn;
     table->compare = cmp;
+    table->copy_on_write = false;
     
     /* resize the hashtable */
     hash_resize(table, HASH_SIZE);
 
-    /* table->key_value = register_key_value(gc); */
     table->key_value = key_value_type_def;
 
     *ret = (hashtable_type *)table;
 
     gc_unregister_root(gc, (void**)&table);
 }
+
+/* create a cow copy of an existing hashtable */
+void hash_cow(gc_type *gc, hashtable_type *src, hashtable_type **ret) {
+    hash_internal_type **table = (hash_internal_type **)ret;
+
+    /* allocate the new hashtable instance */
+    gc_alloc_type(gc, 0, hashtable_type_def, (void **)table);
+
+    /* copy the entire contents of the hashtable into the new one */
+    memcpy(*table, src, sizeof(hash_internal_type));
+
+    (*table)->copy_on_write = true;
+}
+
+
 
 /* add a value to the hash */
 void hash_set(hashtable_type *void_table, void *key, void * value) {
@@ -89,7 +104,14 @@ key_value_type *hash_find(hash_internal_type *table,
     hash_type index = hash % table->size; /* calculate the search table index */
     key_value_type *kv = 0;
     key_value_type *prev_kv = 0;
+   
+    /* Check for "write" operations and a COW hash */
+    if (table->copy_on_write && (action == CREATE || action == DELETE)) {
+        /* resize implicitly copies everything */
+        hash_resize(table, table->size);
 
+        table->copy_on_write = false;
+    }
 
     /* is there anything at the given index? */
     if((kv = table->table[index])) {
@@ -197,8 +219,8 @@ void hash_info(hashtable_type *void_table) {
     uint64_t active_chains = 0;
 
 
-    printf("Hash Info: Entries %lu Size %lu Load %f\n",
-           table->entries, table->size, hash_load(table));
+    printf("Hash Info: Entries %lu Size %lu Load %f COW %i\n",
+           table->entries, table->size, hash_load(table), table->copy_on_write);
 
     printf("\tHash Keys: ");
     for(int i=0; i < table->size; i++) {

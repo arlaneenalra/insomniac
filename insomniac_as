@@ -11,6 +11,16 @@ out  ( obj -- ) Outputs the object on top of the stack to stdout
                printf. This instruction should only be used for
                debugging purposes.
 
+open ( path write -- fd ) Open the file at path in read (wrtie false) or write (write true)
+                          and leave a file descriptor the stack.
+
+write ( u8 num fd -- written ) Write num bytes from u8 to the file represented by fd leaving the number
+                           of bytes actually written on the stack.
+
+read ( num fd -- u8 ) Read num bytes from the fd leaving a byte buffer on the stack of all the bytes
+                      actually read. u8 is sized to the number of bytes actually read.
+
+close ( fd -- ) Close the fd on the top of the stack.
 
 nop ( -- ) Does nothing
 dup ( a -- a a)
@@ -37,6 +47,10 @@ idx! ( index obj vector -- ) Takes an index, object, and vector/record/byte vect
                                 stores the object at the given index
 vec-len ( vector -- size)    Takes a vector as an argument and returns
                                 the vectors length.
+
+slice ( start end vector -- slice ) Given a vector or bytevector, return a vector of the same
+                                    type that is backed by the same data store as the original.
+                                    End is constrained by the length of the original vector.
 
 jmp  ( -label- ) Jumps to given label
 jnf  ( obj -label- ) Jumps to the given label if obj is not false
@@ -139,6 +153,7 @@ char?
 string?
 vector?
 vector-u8?
+slice?
 record?
 pair?
 null?

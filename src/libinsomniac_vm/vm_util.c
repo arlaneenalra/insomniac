@@ -24,16 +24,10 @@ void cons(vm_type *vm_void, object_type *car, object_type *cdr,
   object_type **pair_out) {
     vm_internal_type *vm=(vm_internal_type *)vm_void;
     
-    /* gc_protect(vm->gc); */
-    //gc_register_root(vm->gc, (void **)&new_pair);
-
     *pair_out = vm_alloc(vm, PAIR);
     
     (*pair_out)->value.pair.car = car;
     (*pair_out)->value.pair.cdr = cdr;
-
-    //gc_unregister_root(vm->gc, (void **)&new_pair);
-    /* gc_unprotect(vm->gc); */
 }
 
 /* parse an integer in byte code form */
@@ -111,7 +105,7 @@ void throw(vm_internal_type *vm, char *msg, int num, ...) {
 
     /* save the current point in the execution */
     obj = vm_alloc(vm, CLOSURE);
-    clone_env(vm, (env_type **)&(obj->value.closure), vm->env);
+    clone_env(vm, (env_type **)&(obj->value.closure), vm->env, false);
     
     cons(vm, obj, exception, &cons_temp);
     exception = cons_temp;
@@ -142,13 +136,15 @@ void throw(vm_internal_type *vm, char *msg, int num, ...) {
 
     /* did we find a handler ? */
     if(vm->env) {
-    clone_env(vm, (env_type **)&(vm->env), vm->env);
+        clone_env(vm, (env_type **)&(vm->env), vm->env, false);
         /* disable exception handler while 
            handling exceptions */
         vm->env->handler = 0;
+
         /* we can assume that if vm is a valid pointer, 
-           handler is a valid */
+           handler is a valid pointer */
         vm->env->ip = vm->env->handler_addr;
+
         return;
     }
 

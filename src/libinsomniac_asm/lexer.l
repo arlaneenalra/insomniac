@@ -45,6 +45,7 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "symbol?"               { return OP_IS_SYMBOL; }
 "vector?"               { return OP_IS_VECTOR; }
 "vector-u8?"            { return OP_IS_BYTE_VECTOR; }
+"slice?"                { return OP_IS_SLICE; }
 "record?"               { return OP_IS_RECORD; }
 "pair?"                 { return OP_IS_PAIR; }
 "null?"                 { return OP_IS_EMPTY; }
@@ -57,9 +58,13 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "idx@"                  { return OP_INDEX_REF; }
 "idx!"                  { return OP_INDEX_SET; }
 "vec-len"               { return OP_VECTOR_LENGTH; }
+"slice"                 { return OP_SLICE; }
 
 "out"                   { return OP_OUTPUT; }
-"read"                  { return OP_GETC; }
+"read"                  { return OP_FD_READ; }
+"write"                 { return OP_FD_WRITE; }
+"open"                  { return OP_OPEN; }
+"close"                 { return OP_CLOSE; }
 "slurp"                 { return OP_SLURP; }
 "asm"                   { return OP_ASM; }
 "import"                { return OP_IMPORT; }

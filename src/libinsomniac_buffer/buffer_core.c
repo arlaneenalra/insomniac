@@ -185,7 +185,6 @@ size_t buffer_append(buffer_type *buf_void, buffer_type *src_void, size_t length
         }
 
         /* copy data from block to destination */
-        //memcpy(&(dest[offset]), &(block->block[0]), copy_amount);
         buffer_write(buf_void, block->block, copy_amount);
 
         offset+=copy_amount;

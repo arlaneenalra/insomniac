@@ -151,7 +151,7 @@ void writeToFile(options_type *opts, char *asm_str, size_t length) {
     size_t wrote = 0;
     int err = 0;
 
-    // if not output file is given, write directly to output.
+    /* if not output file is given, write directly to output. *.
     if(!opts->outfile) {
         out = stdout;
     } else {
@@ -275,7 +275,7 @@ int main(int argc, char**argv) {
     /* Write the assembled code out to a file *without the null* at the end of the string. */
     writeToFile(&opts, asm_str, length - 1);
 
-    // Clean up the garabge collector
+    /* Clean up the garabge collector */
     gc_unregister_root(gc, (void **)&compiler);
     gc_unregister_root(gc, (void **)&asm_buf);
     gc_unregister_root(gc, (void **)&asm_str);

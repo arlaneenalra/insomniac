@@ -8,8 +8,6 @@ hash_type hash_string(void *key) {
     uint8_t *bytes = key;
 
     for(size_t i=0; bytes[i] != 0; i++) {
-        /*hash *= 32;
-        hash += bytes[i];*/
         /* see http://www.cse.yorku.ca/~oz/hash.html */
         hash = bytes[i] + (hash << 6) + (hash << 16) - hash;
     }
@@ -19,7 +17,6 @@ hash_type hash_string(void *key) {
 
 /* Wrapper for strncmp */
 cmp_type hash_string_cmp(void *void_key1, void *void_key2) {
-    // TODO: this looks an awful lot like strcmp ...
     uint8_t *key1 = (uint8_t *)void_key1;
     uint8_t *key2 = (uint8_t *)void_key2;
 

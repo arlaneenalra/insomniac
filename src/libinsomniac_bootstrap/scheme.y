@@ -328,7 +328,6 @@ lambda_formals_list_end:
                                    }
   | DOT symbol CLOSE_PAREN         {
                                      /* Last element takes rest */
-                                     //stream_concat($$, $2);
                                      $$ = $2;
                                    }
 

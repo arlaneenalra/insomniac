@@ -185,7 +185,7 @@ void emit_bool(compiler_core_type *compiler, buffer_type *buf,
 
     exp = exp->next;
 
-    // TODO: Look at optimizing this out
+    /* TODO: Look at optimizing this out */
     if (!pushed) {
       emit_op(buf, "()");
     }
@@ -306,8 +306,8 @@ void emit_lambda(compiler_core_type *compiler, buffer_type *buf,
   emit_stream(compiler, buf, node->value.two.stream2, true);
 
   /* swap ret */
-  // TODO Add a check for tail call to avoid garbage instructions in the
-  // stream
+  /* TODO Add a check for tail call to avoid garbage instructions in the
+     stream */
   emit_op(buf, "swap ret");
 
   /* skip_label: */

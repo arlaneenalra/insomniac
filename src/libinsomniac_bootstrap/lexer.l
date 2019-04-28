@@ -86,7 +86,6 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 <<EOF>>   {
             yypop_buffer_state(yyscanner);
 
-            //yyget_extra(yyscanner)->include_depth--;
             pop_include_path((compiler_core_type *)yyget_extra(yyscanner));
 
             if( !YY_CURRENT_BUFFER) {

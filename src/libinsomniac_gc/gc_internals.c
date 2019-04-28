@@ -105,7 +105,6 @@ void *gc_malloc(gc_ms_type *gc, size_t size) {
         gc->allocations++;
     }
 
-    //return calloc(1, real_size);
     return calloc(real_size, 1);
 }
 

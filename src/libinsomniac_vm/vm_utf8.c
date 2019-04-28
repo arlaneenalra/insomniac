@@ -1,7 +1,7 @@
 #include "vm_internal.h"
 #include <strings.h>
 
-#include <stdio.h> // for getc
+#include <stdio.h> /* for getc */
 
 #define BIT_MASK(i) ((uint32_t)0xFFFFFFFF >> (32 - i ))
 #define NOT_MASK(i) ((uint32_t)0xFFFFFFFF << i)

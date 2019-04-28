@@ -76,7 +76,7 @@ object_type *vm_make_vector(vm_type *vm_void, vm_int length) {
 }
 
 /* Allocate an empyt record of the given size */
-// TODO:  The record definition will likely need to change at some point.
+/* TODO:  The record definition will likely need to change at some point. */
 object_type *vm_make_record(vm_type *vm_void, vm_int length) {
     /* first element of a vector is always special */
     object_type *obj = vm_make_vector(vm_void, length + 1);

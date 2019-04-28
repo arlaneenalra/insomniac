@@ -158,8 +158,8 @@ void setup_include(compiler_core_type* compiler, ins_stream_type *arg) {
   }
 
   if ( !include_file ) {
-    // TODO: Add file name tracking to compiler so we can
-    // report what file include failed in.
+    /* TODO: Add file name tracking to compiler so we can
+       report what file include failed in. */
 
     (void)fprintf(stderr, "Error %i! Including '%s'\n", errno, raw_file_name);
     parse_error(compiler, compiler->scanner, "Unable to open include file!'");
@@ -178,7 +178,7 @@ void compiler_create(gc_type *gc, compiler_type **comp_void, char *compiler_home
   static gc_type_def node_double_gc_type = 0;
   static gc_type_def compiler_gc_type = 0;
 
-  // setup gc types
+  /* setup gc types */
   if (!compiler_gc_type) {
     compiler_gc_type = register_compiler_type(gc);
     stream_gc_type = register_stream_type(gc);
@@ -233,7 +233,7 @@ void compiler_create(gc_type *gc, compiler_type **comp_void, char *compiler_home
   stream_create(compiler, &(compiler->stream));
 
   /* Add the include stack array */
-  // TODO: Look at statically allocating this
+  /* TODO: Look at statically allocating this */
   compiler->include_depth = -1;
   gc_alloc_pointer_array(gc, 0, MAX_INCLUDE_DEPTH, (void **)&(compiler->include_stack));
 
@@ -286,7 +286,6 @@ void compile_file(compiler_type *comp_void, char *file_name, bool include_baseli
       assert(0);
   }
 
-  //yyset_in(in, compiler->scanner);
   yy_switch_to_buffer(
     yy_create_buffer(in, YY_BUF_SIZE, compiler->scanner), compiler->scanner);
 

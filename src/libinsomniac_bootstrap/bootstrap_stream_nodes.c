@@ -64,7 +64,7 @@ BUILD_DOUBLE_STREAM(lambda, STREAM_LAMBDA)
 BUILD_DOUBLE_STREAM(call, STREAM_CALL)
 
 
-//TODO: These can probably be re-written as a macro
+/* TODO: These can probably be re-written as a macro */
 
 /* Build a bare asm instruction/literal */
 void stream_bare(compiler_core_type *compiler, ins_stream_type *stream,

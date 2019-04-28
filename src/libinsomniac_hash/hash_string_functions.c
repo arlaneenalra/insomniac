@@ -7,7 +7,7 @@ hash_type hash_string(void *key) {
     hash_type hash = 0;
     uint8_t *bytes = key;
 
-    for(size_t i=0; bytes[i] != 0; i++) {
+    for (size_t i = 0; bytes[i] != 0; i++) {
         /* see http://www.cse.yorku.ca/~oz/hash.html */
         hash = bytes[i] + (hash << 6) + (hash << 16) - hash;
     }
@@ -21,10 +21,9 @@ cmp_type hash_string_cmp(void *void_key1, void *void_key2) {
     uint8_t *key2 = (uint8_t *)void_key2;
 
     while (*key1 == *key2 && *key1 != 0 && *key2 != 0) {
-      key1++;
-      key2++;
+        key1++;
+        key2++;
     }
 
-    return *key1 == *key2 ? EQ :
-           *key1 > *key2 ? GT : LT;
+    return *key1 == *key2 ? EQ : *key1 > *key2 ? GT : LT;
 }

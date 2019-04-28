@@ -1,6 +1,5 @@
 #include "vm_internal.h"
 
-
 /* Evaluate the given object using the provided vm instance */
 int vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
@@ -13,18 +12,17 @@ int vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref) {
     vm->env->length = length;
 
     /* iterate over instrcutions */
-    while(vm->env->ip < vm->env->length) {
+    while (vm->env->ip < vm->env->length) {
         /* load instrcutions */
         op_code = vm->env->code_ref[vm->env->ip];
         op_call = vm->ops[op_code];
-
 
         /* incerement ip so it points to
            any arguments or the next instructions */
         vm->env->ip++;
 
         /* call instruction */
-        if(op_call) {
+        if (op_call) {
             (*op_call)(vm);
             /* Clean up after instructions */
             vm->reg1 = vm->reg2 = vm->reg3 = 0;

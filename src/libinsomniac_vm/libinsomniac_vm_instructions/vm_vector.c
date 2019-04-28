@@ -59,7 +59,7 @@ void op_vector_length(vm_internal_type *vm) {
     vm->reg1 = obj = vm_pop(vm);
 
     if (!obj || (obj->type != VECTOR && obj->type != BYTE_VECTOR)) {
-      throw(vm, "Attempt to read vector length of non-vector!", 1, obj);
+        throw(vm, "Attempt to read vector length of non-vector!", 1, obj);
     }
 
     vm->reg2 = length = vm_alloc(vm, FIXNUM);
@@ -83,8 +83,11 @@ void op_index_set(vm_internal_type *vm) {
 
     index = obj_index->value.integer;
 
-    assert(vector && (vector->type == VECTOR || vector->type == RECORD || vector->type == BYTE_VECTOR) &&
-           vector->value.vector.length >= index);
+    assert(
+        vector &&
+        (vector->type == VECTOR || vector->type == RECORD ||
+         vector->type == BYTE_VECTOR) &&
+        vector->value.vector.length >= index);
 
     /* do the set */
     if (vector->type == VECTOR || vector->type == RECORD) {
@@ -109,8 +112,11 @@ void op_index_ref(vm_internal_type *vm) {
 
     index = obj_index->value.integer;
 
-    assert(vector && (vector->type == VECTOR || vector->type == RECORD || vector->type == BYTE_VECTOR) &&
-           vector->value.vector.length >= index);
+    assert(
+        vector &&
+        (vector->type == VECTOR || vector->type == RECORD ||
+         vector->type == BYTE_VECTOR) &&
+        vector->value.vector.length >= index);
 
     /* do the read */
     if (vector->type == VECTOR || vector->type == RECORD) {
@@ -135,26 +141,29 @@ void op_slice(vm_internal_type *vm) {
     vm->reg2 = end = vm_pop(vm);
     vm->reg3 = start = vm_pop(vm);
 
-    assert(vector && (vector->type == VECTOR || vector->type == BYTE_VECTOR) && vector->value.vector.length >= end->value.integer);
+    assert(
+        vector && (vector->type == VECTOR || vector->type == BYTE_VECTOR) &&
+        vector->value.vector.length >= end->value.integer);
 
     length = end->value.integer - start->value.integer;
 
     assert(length >= 0);
 
-    /* Vector and bytevector have the same internal structure, the only difference
-       are the final pointer types. We can use this to avoid extraneous allocations
-       and make accessing the members easier. */
+    /* Vector and bytevector have the same internal structure, the only
+       difference are the final pointer types. We can use this to avoid
+       extraneous allocations and make accessing the members easier. */
     vm->reg2 = vm_alloc(vm, vector->type);
     vm->reg2->value.byte_vector.length = MIN(length, vector->value.byte_vector.length);
     vm->reg2->value.byte_vector.slice = true;
 
     /* We need to know the type to determine the size to offset by. */
     if (vector->type == VECTOR) {
-        vm->reg2->value.vector.vector = vector->value.vector.vector + start->value.integer;
+        vm->reg2->value.vector.vector =
+            vector->value.vector.vector + start->value.integer;
     } else {
-        vm->reg2->value.byte_vector.vector = vector->value.byte_vector.vector + start->value.integer;
+        vm->reg2->value.byte_vector.vector =
+            vector->value.byte_vector.vector + start->value.integer;
     }
 
     vm_push(vm, vm->reg2);
 }
-

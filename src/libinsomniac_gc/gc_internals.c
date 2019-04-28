@@ -1,12 +1,11 @@
 #include "gc_internal.h"
 
-
 vm_int count_list(meta_obj_type **list) {
     vm_int count = 0;
     meta_obj_type *meta = 0;
 
     meta = *list;
-    while(meta) {
+    while (meta) {
         count++;
         meta = meta->next;
     }
@@ -20,7 +19,7 @@ void destroy_list(gc_ms_type *gc, meta_obj_type **list) {
 
     /* retrieve the first list value */
     meta = *list;
-    while(meta) {
+    while (meta) {
         meta_obj_type *next = meta->next;
 
         /* free the object we are holding onto and
@@ -42,18 +41,18 @@ meta_obj_type *internal_alloc(gc_ms_type *gc, uint8_t perm, size_t size) {
 
     /* adjust the requested size with
        the size of our meta object */
-    real_size = sizeof(meta_obj_type)+size;
+    real_size = sizeof(meta_obj_type) + size;
 
     /* only attempt reuse on cell sized objects */
-    if(size == gc->cell_size) {
+    if (size == gc->cell_size) {
 
         /* if there are no available objects, sweep */
-        if(!gc->dead_list) {
+        if (!gc->dead_list) {
             sweep(gc);
         }
 
         /* only attempt reallocation for cell sized things */
-        if(gc->dead_list) {
+        if (gc->dead_list) {
             /* reuse an object */
             meta = gc->dead_list;
             gc->dead_list = meta->next;
@@ -64,20 +63,20 @@ meta_obj_type *internal_alloc(gc_ms_type *gc, uint8_t perm, size_t size) {
 
     /* If we didn't find an object,
        create one. */
-    if(!meta) {
+    if (!meta) {
         /* create a new obect */
         meta = MALLOC(real_size);
     }
 
     /* reset the allocation size */
-    meta->size=size;
+    meta->size = size;
 
     /* make sure we have an object */
     assert(meta);
 
     /* Attach a permenant object to
        the list of perm objects */
-    if(perm) {
+    if (perm) {
         meta->mark = PERM;
 
         /* attach the new object to our gc */
@@ -99,9 +98,8 @@ void *gc_malloc(gc_ms_type *gc, size_t size) {
     size_t real_size = size;
 
     /* if we have a gc, use size_granularity */
-    if(gc) {
-        real_size += gc->size_granularity -
-            (real_size % gc->size_granularity);
+    if (gc) {
+        real_size += gc->size_granularity - (real_size % gc->size_granularity);
         gc->allocations++;
     }
 
@@ -110,7 +108,7 @@ void *gc_malloc(gc_ms_type *gc, size_t size) {
 
 /* Count frees */
 void gc_free(gc_ms_type *gc, void *obj) {
-    if(gc) {
+    if (gc) {
         gc->allocations--;
     }
     free(obj);
@@ -126,15 +124,14 @@ mark_type set_next_mark(gc_ms_type *gc) {
 /* preallocate a chunk of memory, only use with an empty
    dead list */
 void pre_alloc(gc_ms_type *gc) {
-    void *obj=0;
+    void *obj = 0;
 
     gc_protect(gc);
 
-    for(int i = 0; i < 1000; i++) {
-        gc_alloc(gc, 0, gc->cell_size, (void**)&obj);
+    for (int i = 0; i < 1000; i++) {
+        gc_alloc(gc, 0, gc->cell_size, (void **)&obj);
     }
 
     gc_unprotect(gc);
     gc_sweep(gc); /* sweep the garbage collector */
 }
-

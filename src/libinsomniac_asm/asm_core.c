@@ -19,17 +19,17 @@ void asm_lit_char(buffer_type *buf, yyscan_t *scanner) {
     str = get_text(scanner);
     c = *str;
 
-    if(strcmp(str, "newline")==0) {
+    if (strcmp(str, "newline") == 0) {
         c = '\n';
 
-    } else if(strcmp(str, "space")==0) {
+    } else if (strcmp(str, "space") == 0) {
         c = ' ';
 
-    } else if(strcmp(str, "eof")==0) {
+    } else if (strcmp(str, "eof") == 0) {
         c = -1;
 
-    } else if(*str=='x' && strlen(str) > 1) { /* Hex encoded charater */
-        c = strtoul(str+1, 0, 16);
+    } else if (*str == 'x' && strlen(str) > 1) { /* Hex encoded charater */
+        c = strtoul(str + 1, 0, 16);
     }
 
     EMIT_LIT_CHAR(buf, c);
@@ -53,8 +53,8 @@ void asm_lit_string(buffer_type *buf, yyscan_t *scanner) {
     }
 
     /* do we have an empty string? */
-    if(token == STRING_END_TOKEN) {
-        if(empty) {
+    if (token == STRING_END_TOKEN) {
+        if (empty) {
             EMIT_LIT_STRING(buf, "");
         }
         return;
@@ -68,16 +68,15 @@ void asm_lit_string(buffer_type *buf, yyscan_t *scanner) {
 
 /* Save this label and its location in memory for latter
  lookup */
-void asm_label(gc_type *gc, buffer_type *buf,
-               hashtable_type *labels, char *str) {
+void asm_label(gc_type *gc, buffer_type *buf, hashtable_type *labels, char *str) {
     vm_int *addr = 0;
     char *key = 0;
 
-    gc_register_root(gc, (void**)&key);
-    gc_register_root(gc, (void**)&addr);
+    gc_register_root(gc, (void **)&key);
+    gc_register_root(gc, (void **)&addr);
 
     /* defensively copy the label name */
-    gc_alloc(gc, 0, strlen(str)+1, (void **)&key);
+    gc_alloc(gc, 0, strlen(str) + 1, (void **)&key);
     strcpy(key, str);
 
     /* save location */
@@ -86,13 +85,11 @@ void asm_label(gc_type *gc, buffer_type *buf,
 
     hash_set(labels, key, addr);
 
-    gc_unregister_root(gc, (void**)&key);
-    gc_unregister_root(gc, (void**)&addr);
-
+    gc_unregister_root(gc, (void **)&key);
+    gc_unregister_root(gc, (void **)&addr);
 }
 
-void asm_jump(gc_type *gc, buffer_type *buf,
-              yyscan_t *scanner, jump_type **jump_list) {
+void asm_jump(gc_type *gc, buffer_type *buf, yyscan_t *scanner, jump_type **jump_list) {
 
     static int init = 0;
     static gc_type_def jump_def = 0;
@@ -100,7 +97,7 @@ void asm_jump(gc_type *gc, buffer_type *buf,
     char *label = 0;
 
     /* TODO: This is a hack */
-    if(!init) {
+    if (!init) {
         init = 1;
         jump_def = gc_register_type(gc, sizeof(jump_type));
 
@@ -121,13 +118,13 @@ void asm_jump(gc_type *gc, buffer_type *buf,
     jump->lineno = yyasmget_lineno(scanner);
 
     /* make sure we have a label */
-    if(yyasmlex(scanner) != LABEL_TOKEN) {
+    if (yyasmlex(scanner) != LABEL_TOKEN) {
         assert(0);
     }
 
     /* save a copy of the label */
     label = get_text(scanner);
-    gc_alloc(gc, 0, strlen(label)+1, (void **)&(jump->label));
+    gc_alloc(gc, 0, strlen(label) + 1, (void **)&(jump->label));
     strcpy(jump->label, label);
 
     /* put this jump at the head of the
@@ -138,22 +135,21 @@ void asm_jump(gc_type *gc, buffer_type *buf,
     gc_unregister_root(gc, (void **)&jump);
 
     /* Make sure we have space to write target */
-    EMIT(buf, INT_64(0),8);
-
+    EMIT(buf, INT_64(0), 8);
 }
 
-void rewrite_jumps(uint8_t *code_ref, jump_type *jump_list,
-                   hashtable_type *labels) {
+void rewrite_jumps(uint8_t *code_ref, jump_type *jump_list, hashtable_type *labels) {
     vm_int target = 0;
     vm_int *label_addr = 0;
 
-        /* rewrite jumps */
-    while(jump_list) {
-
+    /* rewrite jumps */
+    while (jump_list) {
 
         /* look up label */
-        if(!hash_get(labels, jump_list->label, (void **)&label_addr)) {
-            printf("Undefined jump to '%s' @ %" PRIi64 " on line %" PRIi64 "\n", jump_list->label, jump_list->addr, jump_list->lineno);
+        if (!hash_get(labels, jump_list->label, (void **)&label_addr)) {
+            printf(
+                "Undefined jump to '%s' @ %" PRIi64 " on line %" PRIi64 "\n",
+                jump_list->label, jump_list->addr, jump_list->lineno);
             assert(0);
         }
 
@@ -161,18 +157,16 @@ void rewrite_jumps(uint8_t *code_ref, jump_type *jump_list,
         target = *label_addr - jump_list->addr;
         target -= 8; /* adjust for addr field */
 
-
         /* get bytes, there should be 8 */
-        uint8_t addr[] = { INT_64(target)};
+        uint8_t addr[] = {INT_64(target)};
 
         /* write bytes into code_ref */
-        for(int i=0; i < 8; i++) {
+        for (int i = 0; i < 8; i++) {
             code_ref[jump_list->addr + i] = addr[i];
         }
 
         jump_list = jump_list->next;
     }
-
 }
 
 /* Entry point for the assembler. code_ref is assumed to be attached
@@ -184,7 +178,6 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
     hashtable_type *labels = 0;
     jump_type *jump_list = 0;
     size_t length = 0;
-
 
     gc_register_root(gc, &buf);
     gc_register_root(gc, &labels);
@@ -201,56 +194,54 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
     yyasm_scan_string(str, scanner);
 
     /* match until there is nothing left to match */
-    while((token = yyasmlex(scanner)) != END_OF_FILE) {
+    while ((token = yyasmlex(scanner)) != END_OF_FILE) {
 
         /* Handle individual tokens */
-        switch((int)token) {
-        case OP_LIT_FIXNUM:
-            asm_lit_fixnum(buf, scanner);
-            break;
+        switch ((int)token) {
+            case OP_LIT_FIXNUM:
+                asm_lit_fixnum(buf, scanner);
+                break;
 
-        case OP_LIT_CHAR:
-            asm_lit_char(buf, scanner);
-            break;
+            case OP_LIT_CHAR:
+                asm_lit_char(buf, scanner);
+                break;
 
-        case STRING_START_TOKEN:
-            EMIT(buf, OP_LIT_STRING, 1);
-            asm_lit_string(buf, scanner);
-            break;
+            case STRING_START_TOKEN:
+                EMIT(buf, OP_LIT_STRING, 1);
+                asm_lit_string(buf, scanner);
+                break;
 
-        case SYMBOL_START_TOKEN:
-            EMIT(buf, OP_LIT_SYMBOL, 1);
-            asm_lit_string(buf, scanner);
-            break;
+            case SYMBOL_START_TOKEN:
+                EMIT(buf, OP_LIT_SYMBOL, 1);
+                asm_lit_string(buf, scanner);
+                break;
 
-        case OP_JMP:
-        case OP_JNF:
-        case OP_CALL:
-        case OP_PROC:
-        case OP_CONTINUE:
-            EMIT(buf, token, 1); /* emit the jump operation */
-            asm_jump(gc, buf, scanner, &jump_list);
-            break;
+            case OP_JMP:
+            case OP_JNF:
+            case OP_CALL:
+            case OP_PROC:
+            case OP_CONTINUE:
+                EMIT(buf, token, 1); /* emit the jump operation */
+                asm_jump(gc, buf, scanner, &jump_list);
+                break;
 
-        case LABEL_TOKEN:
-            asm_label(gc, buf, labels, get_text(scanner));
-            break;
+            case LABEL_TOKEN:
+                asm_label(gc, buf, labels, get_text(scanner));
+                break;
 
-        default:
-            /* All instructions not defined otherwise, are their token.
-               But there are things that can be returned as a token, that
-               are not an instruction. So we have to constrain things to
-               the correct range. */
-            if (token < OP_MAX_INS) {
-                EMIT(buf, token, 1);
-            }
-            break;
-
+            default:
+                /* All instructions not defined otherwise, are their token.
+                   But there are things that can be returned as a token, that
+                   are not an instruction. So we have to constrain things to
+                   the correct range. */
+                if (token < OP_MAX_INS) {
+                    EMIT(buf, token, 1);
+                }
+                break;
         }
     }
 
     yyasmlex_destroy(scanner);
-
 
     /* build a code_ref */
     length = buffer_size(buf);

@@ -1,9 +1,9 @@
 #ifndef _GC_
 #define _GC_
 
-#include "cell.h" /* type definitions */
-#include <stdlib.h> /* for the malloc lines */
+#include "cell.h"   /* type definitions */
 #include <stddef.h> /* for offsetof */
+#include <stdlib.h> /* for the malloc lines */
 
 /* structure that contains the core of our GC implementation */
 typedef void gc_type;

@@ -10,12 +10,11 @@ gc_type *gc_create(size_t cell_size) {
     gc->current_mark = RED;
     gc->protect_count = 0;
     gc->cell_size = cell_size;
-    gc->size_granularity = sizeof(meta_obj_type)+ cell_size;
+    gc->size_granularity = sizeof(meta_obj_type) + cell_size;
 
     /* used to keep track of type definitions */
     gc->type_defs = 0;
     gc->num_types = 0;
-
 
     /* register the ARRAY type as type 0 */
     gc->array_type = gc_register_type(gc, sizeof(void *));
@@ -26,7 +25,7 @@ gc_type *gc_create(size_t cell_size) {
 
 /* deallocate a GC instance */
 void gc_destroy(gc_type *gc_void) {
-    if(gc_void) {
+    if (gc_void) {
         /* cast back to our internal type */
         gc_ms_type *gc = (gc_ms_type *)gc_void;
 
@@ -54,7 +53,7 @@ void gc_unprotect(gc_type *gc_void) {
     /* make sure we have paired protects */
     assert(gc->protect_count >= 0);
 
-    if(!gc->protect_count && !gc->dead_list) {
+    if (!gc->protect_count && !gc->dead_list) {
         sweep(gc);
     }
 }
@@ -73,13 +72,12 @@ void gc_register_root(gc_type *gc_void, void **root) {
 /* unregister a root point */
 /* TODO: This is going to be very inefficient */
 void gc_unregister_root(gc_type *gc_void, void **root) {
-    gc_ms_type *gc=(gc_ms_type *)gc_void;
+    gc_ms_type *gc = (gc_ms_type *)gc_void;
     meta_root_type *meta = gc->root_list;
     meta_root_type *prev = 0;
 
-
     /* search until we find an object that matches our root pointer */
-    while(meta->next && meta->root != root) {
+    while (meta->next && meta->root != root) {
         prev = meta;
         meta = meta->next;
     }
@@ -88,7 +86,7 @@ void gc_unregister_root(gc_type *gc_void, void **root) {
     assert(meta->root == root);
 
     /* we are not the first element in the list */
-    if(prev) {
+    if (prev) {
         prev->next = meta->next;
     } else { /* it was the first item on the list */
         gc->root_list = meta->next;
@@ -136,17 +134,16 @@ void gc_alloc_pointer_array(gc_type *gc_void, uint8_t perm, size_t cells, void *
     *ret = obj_from_meta(meta);
 }
 
-
 /* remove permenant status from a given cell */
 void gc_de_perm(gc_type *gc_void, void *obj_in) {
-    gc_ms_type *gc=(gc_ms_type *)gc_void;
+    gc_ms_type *gc = (gc_ms_type *)gc_void;
     meta_obj_type *meta = gc->perm_list;
     meta_obj_type *prev = 0;
 
-    meta_obj_type *obj=meta_from_obj(obj_in);
+    meta_obj_type *obj = meta_from_obj(obj_in);
 
     /* nothing to unmark */
-    if(obj->mark != PERM) {
+    if (obj->mark != PERM) {
         return;
     }
 
@@ -154,13 +151,13 @@ void gc_de_perm(gc_type *gc_void, void *obj_in) {
     obj->mark = gc->current_mark;
 
     /* search for our object in the perm list */
-    while(meta->next && meta != obj) {
+    while (meta->next && meta != obj) {
         prev = meta;
         meta = meta->next;
     }
 
     /* we are not the first element in the list */
-    if(prev) {
+    if (prev) {
         prev->next = meta->next;
     } else { /* it was the first item on the list */
         gc->perm_list = meta->next;
@@ -180,12 +177,14 @@ void gc_stats(gc_type *gc_void) {
 
     assert(gc);
 
-    active=count_list(&(gc->active_list));
-    dead=count_list(&(gc->dead_list));
-    perm=count_list(&(gc->perm_list));
+    active = count_list(&(gc->active_list));
+    dead = count_list(&(gc->dead_list));
+    perm = count_list(&(gc->perm_list));
 
-    printf("GC statistics active:%" PRIi64 " dead:%" PRIi64 " perm:%" PRIi64 " Allocations : %"PRIi64 "\n",
-           active, dead, perm, gc->allocations);
+    printf(
+        "GC statistics active:%" PRIi64 " dead:%" PRIi64 " perm:%" PRIi64
+        " Allocations : %" PRIi64 "\n",
+        active, dead, perm, gc->allocations);
 }
 
 /* initiate a sweep of objects in the active list */
@@ -194,4 +193,3 @@ void gc_sweep(gc_type *gc_void) {
 
     sweep(gc);
 }
-

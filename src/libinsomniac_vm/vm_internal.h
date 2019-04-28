@@ -1,16 +1,16 @@
 #ifndef _VM_INTERNAL_
 #define _VM_INTERNAL_
 
+#include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
-
 
 #include <gc.h>
-#include <ops.h>
-#include <hash.h>
+
 #include <buffer.h>
+#include <hash.h>
+#include <ops.h>
 #include <vm.h>
 
 #define OUTPUT_MAX_DEPTH 100
@@ -25,13 +25,11 @@
 #define LIB_EXT_LEN 3
 #endif
 
-
 typedef struct vm_internal vm_internal_type;
 typedef struct env env_type;
 
 /* Function pointer for operations */
 typedef void (*fn_type)(vm_internal_type *vm);
-
 
 /* An environment, "stack frame" in a language like
    C */
@@ -92,7 +90,7 @@ void cons(vm_type *vm, object_type *car, object_type *cdr, object_type **pair_ou
 vm_int parse_int(vm_internal_type *vm);
 void parse_string(vm_internal_type *vm, object_type **obj);
 void make_symbol(vm_internal_type *vm, object_type **obj);
-void throw(vm_internal_type *vm, char *msg, int num, ...);
+void throw(vm_internal_type * vm, char *msg, int num, ...);
 
 void vm_load_buf(vm_internal_type *vm, char *file, object_type **obj);
 

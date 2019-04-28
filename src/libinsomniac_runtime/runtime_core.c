@@ -3,7 +3,7 @@
 extern uint64_t scheme_code_size();
 extern uint8_t *scheme_code();
 
-int run_scheme(int argc, char**argv) {
+int run_scheme(int argc, char **argv) {
     size_t code_size = (size_t)scheme_code_size();
     uint8_t *code = scheme_code();
     gc_type *gc = gc_create(sizeof(object_type));

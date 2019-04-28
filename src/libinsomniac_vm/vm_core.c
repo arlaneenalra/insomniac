@@ -1,16 +1,16 @@
 #include "vm_internal.h"
 
-void vm_create(gc_type *gc, vm_type **vm_ret ) {
+void vm_create(gc_type *gc, vm_type **vm_ret) {
     gc_type_def vm_type_def = 0;
     vm_internal_type *vm = 0;
 
-    gc_register_root(gc, (void**)&vm);
+    gc_register_root(gc, (void **)&vm);
 
     vm_type_def = create_vm_type(gc);
 
     /* create a permanent vm object */
     /* vm = gc_alloc_type(gc, 1, vm_type_def); */
-    gc_alloc_type(gc, 0, vm_type_def, (void**)&vm);
+    gc_alloc_type(gc, 0, vm_type_def, (void **)&vm);
 
     vm->gc = gc;
 
@@ -49,9 +49,8 @@ void vm_create(gc_type *gc, vm_type **vm_ret ) {
     /* save off the vm pointer to our external pointer */
     *vm_ret = vm;
 
-    gc_unregister_root(gc, (void**)&vm);
+    gc_unregister_root(gc, (void **)&vm);
 }
-
 
 /* Deallocate the vm instance */
 void vm_destroy(vm_type *vm_raw) {
@@ -84,7 +83,7 @@ object_type *vm_pop(vm_type *vm_void) {
     object_type *obj = 0;
 
     /* return 0 if the stack is empty */
-    if(vm->stack_root->type == EMPTY) {
+    if (vm->stack_root->type == EMPTY) {
         fprintf(stderr, "Stack Under Run!\n");
         assert(0);
         return 0;
@@ -98,7 +97,6 @@ object_type *vm_pop(vm_type *vm_void) {
     return obj;
 }
 
-
 /* reset a vm instance into a clean state */
 void vm_reset(vm_type *vm_void) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
@@ -109,6 +107,4 @@ void vm_reset(vm_type *vm_void) {
     push_env(vm);
 }
 
-void vm_output_object(FILE *fout, object_type *obj) {
-    output_object(fout, obj);
-}
+void vm_output_object(FILE *fout, object_type *obj) { output_object(fout, obj); }

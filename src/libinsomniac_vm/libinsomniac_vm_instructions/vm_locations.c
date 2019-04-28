@@ -12,18 +12,13 @@ void op_bind(vm_internal_type *vm) {
     value = vm_pop(vm);
 
     /* make sure the key is a symbol */
-    if(!key || key->type != SYMBOL) {
+    if (!key || key->type != SYMBOL) {
         throw(vm, "Attempt to bind with non-symbol", 2, key, value);
-    } else if (hash_get(vm->env->bindings,
-      key->value.string.bytes, 0)) {
-        throw(
-          vm, "Attempt to bind previously bound symbol", 2, key, value
-        );
+    } else if (hash_get(vm->env->bindings, key->value.string.bytes, 0)) {
+        throw(vm, "Attempt to bind previously bound symbol", 2, key, value);
     } else {
         /* do the actual bind */
-        hash_set(vm->env->bindings,
-                 key->value.string.bytes,
-                 value);
+        hash_set(vm->env->bindings, key->value.string.bytes, value);
     }
 
     gc_unregister_root(vm->gc, (void **)&value);
@@ -41,8 +36,8 @@ void op_read(vm_internal_type *vm) {
     key = vm_pop(vm);
 
     /* make sure the key is a symbol */
-    if(!key  || key->type != SYMBOL) {
-        throw(vm,"Attempt to read with non-symbol", 1, key);
+    if (!key || key->type != SYMBOL) {
+        throw(vm, "Attempt to read with non-symbol", 1, key);
 
         /* there has to be a better way to do this */
         gc_unregister_root(vm->gc, (void **)&value);
@@ -53,14 +48,12 @@ void op_read(vm_internal_type *vm) {
     /* search all environments and parents for
        key */
     env = vm->env;
-    while(env && !hash_get(env->bindings,
-                           key->value.string.bytes,
-                           (void**)&value)) {
+    while (env && !hash_get(env->bindings, key->value.string.bytes, (void **)&value)) {
         env = env->parent;
     }
 
     /* we didn't find anything */
-    if(!value) {
+    if (!value) {
         throw(vm, "Attempt to read undefined symbol", 1, key);
 
     } else {
@@ -85,7 +78,7 @@ void op_set(vm_internal_type *vm) {
     value = vm_pop(vm);
 
     /* make sure the key is a symbol */
-    if(!key  || key->type != SYMBOL) {
+    if (!key || key->type != SYMBOL) {
         throw(vm, "Attempt to set with non-symbol", 2, key, value);
 
         gc_unregister_root(vm->gc, (void **)&value);
@@ -96,22 +89,19 @@ void op_set(vm_internal_type *vm) {
     /* search all environments and parents for
        key */
     env = vm->env;
-    while(env && !done) {
+    while (env && !done) {
         /* did we find a binding for the symbol? */
-        if(hash_get(env->bindings,
-                    key->value.string.bytes, 0)) {
+        if (hash_get(env->bindings, key->value.string.bytes, 0)) {
             done = 1;
 
             /* save the value */
-            hash_set(env->bindings,
-                     key->value.string.bytes,
-                     value);
+            hash_set(env->bindings, key->value.string.bytes, value);
         }
         env = env->parent;
     }
 
     /* don't allow writing of undefined symbols */
-    if(!done) {
+    if (!done) {
         throw(vm, "Attempt to set undefined symbol", 2, key, value);
     }
 
@@ -127,7 +117,7 @@ void op_set_exit(vm_internal_type *vm) {
     value = vm_pop(vm);
 
     /* make sure the key is a symbol */
-    if(!value  || value->type != FIXNUM) {
+    if (!value || value->type != FIXNUM) {
         throw(vm, "Attempt to set non-number exit status", 1, value);
 
     } else {
@@ -136,4 +126,3 @@ void op_set_exit(vm_internal_type *vm) {
 
     gc_unregister_root(vm->gc, (void **)&value);
 }
-

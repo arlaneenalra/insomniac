@@ -20,7 +20,7 @@ void op_lit_char(vm_internal_type *vm) {
     uint8_t byte = 0;
 
     /* ip should be pointed at the instructions argument */
-    for(int i=4; i>=0; i--) {
+    for (int i = 4; i >= 0; i--) {
         byte = vm->env->code_ref[vm->env->ip + i];
 
         character = character << 8;
@@ -37,19 +37,13 @@ void op_lit_char(vm_internal_type *vm) {
 }
 
 /* push the empty object onto the stack */
-void op_lit_empty(vm_internal_type *vm) {
-    vm_push(vm, vm->empty);
-}
+void op_lit_empty(vm_internal_type *vm) { vm_push(vm, vm->empty); }
 
 /* push a true object onto the stack */
-void op_lit_true(vm_internal_type *vm) {
-    vm_push(vm, vm->vm_true);
-}
+void op_lit_true(vm_internal_type *vm) { vm_push(vm, vm->vm_true); }
 
 /* push a true object onto the stack */
-void op_lit_false(vm_internal_type *vm) {
-    vm_push(vm, vm->vm_false);
-}
+void op_lit_false(vm_internal_type *vm) { vm_push(vm, vm->vm_false); }
 
 /* load a string litteral and push it onto the stack*/
 void op_lit_symbol(vm_internal_type *vm) {

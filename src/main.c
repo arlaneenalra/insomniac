@@ -1,14 +1,14 @@
-#include <stdio.h>
 #include <assert.h>
+#include <stdio.h>
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
+#include <emit.h>
 #include <insomniac.h>
 #include <ops.h>
-#include <emit.h>
 
 #include <asm.h>
 
@@ -31,7 +31,7 @@ int eval_string(vm_type *vm, gc_type *gc, char *str) {
     return ret_value;
 }
 
-int main(int argc, char**argv) {
+int main(int argc, char **argv) {
     gc_type *gc = gc_create(sizeof(object_type));
     vm_type *vm = 0;
     char *code_str = 0;
@@ -42,7 +42,7 @@ int main(int argc, char**argv) {
     setlocale(LC_ALL, "");
 
     /* check for file argument */
-    if(argc < 2) {
+    if (argc < 2) {
         fprintf(stderr, "Usage: %s <file.asm>\n", argv[0]);
         exit(-1);
     }

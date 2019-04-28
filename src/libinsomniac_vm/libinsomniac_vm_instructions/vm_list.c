@@ -19,10 +19,10 @@ void op_car(vm_internal_type *vm) {
 
     vm->reg1 = obj = vm_pop(vm);
 
-    if(obj && obj->type == PAIR) {
+    if (obj && obj->type == PAIR) {
 
         vm->reg1 = obj = obj->value.pair.car;
-        vm_push(vm,obj);
+        vm_push(vm, obj);
 
     } else {
 
@@ -36,10 +36,10 @@ void op_cdr(vm_internal_type *vm) {
 
     vm->reg1 = obj = vm_pop(vm);
 
-    if(obj && obj->type == PAIR) {
+    if (obj && obj->type == PAIR) {
 
         vm->reg1 = obj = obj->value.pair.cdr;
-        vm_push(vm,obj);
+        vm_push(vm, obj);
 
     } else {
 
@@ -55,14 +55,16 @@ void op_set_car(vm_internal_type *vm) {
     vm->reg1 = obj = vm_pop(vm);
     vm->reg2 = pair = vm_pop(vm);
 
-    if(obj && pair && pair->type == PAIR) {
+    if (obj && pair && pair->type == PAIR) {
 
         pair->value.pair.car = obj;
 
         vm_push(vm, pair);
 
     } else {
-        throw(vm, "Attempt to set the car of a non-pair or set car to non-object", 2, obj, pair);
+        throw(
+            vm, "Attempt to set the car of a non-pair or set car to non-object", 2, obj,
+            pair);
     }
 }
 
@@ -74,13 +76,15 @@ void op_set_cdr(vm_internal_type *vm) {
     vm->reg1 = obj = vm_pop(vm);
     vm->reg2 = pair = vm_pop(vm);
 
-    if(obj && pair && pair->type == PAIR) {
+    if (obj && pair && pair->type == PAIR) {
 
         pair->value.pair.cdr = obj;
         vm_push(vm, pair);
 
     } else {
 
-        throw(vm, "Attempt to set the cdr of a non-pair or set cdr to non-object", 2, obj, pair);
+        throw(
+            vm, "Attempt to set the cdr of a non-pair or set cdr to non-object", 2, obj,
+            pair);
     }
 }

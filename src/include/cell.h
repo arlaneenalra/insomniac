@@ -58,7 +58,7 @@ typedef struct vector {
 } vector_type;
 
 /* holds a portion of the vm's execution state */
-typedef void * closure_type;
+typedef void *closure_type;
 
 /* holds a library handle */
 typedef struct library {

@@ -2,11 +2,12 @@
 #define _BOOTSTRAP_INTERNAL
 
 #include <gc.h>
-#include <buffer.h>
+
 #include <bootstrap.h>
+#include <buffer.h>
+#include <limits.h>
 #include <ops.h>
 #include <stdio.h>
-#include <limits.h>
 
 /* Define the maximum include depth that we will support */
 #define MAX_INCLUDE_DEPTH 64
@@ -80,7 +81,6 @@ struct ins_stream {
     ins_node_type *tail;
 };
 
-
 struct compiler_core {
     gc_type *gc;
 
@@ -103,31 +103,36 @@ struct compiler_core {
 
 void emit_bootstrap(compiler_core_type *compiler, buffer_type *buf);
 
-bool emit_node(compiler_core_type *compiler, buffer_type *buf,
-  ins_node_type *head, bool allow_tail_call);
-void emit_stream(compiler_core_type *compiler, buffer_type *buf,
-  ins_stream_type *tree, bool allow_tail_call);
+bool emit_node(
+    compiler_core_type *compiler, buffer_type *buf, ins_node_type *head,
+    bool allow_tail_call);
+void emit_stream(
+    compiler_core_type *compiler, buffer_type *buf, ins_stream_type *tree,
+    bool allow_tail_call);
 
 void emit_literal(buffer_type *buf, ins_node_type *ins);
 void emit_string(buffer_type *buf, ins_node_type *ins);
 
 void emit_quoted(buffer_type *buf, ins_stream_type *tree);
 
-void emit_asm(compiler_core_type *compiler, buffer_type *buf,
-  ins_stream_type *tree);
-void emit_double(compiler_core_type *compiler, buffer_type *buf,
-  ins_node_type *node, char *op);
+void emit_asm(compiler_core_type *compiler, buffer_type *buf, ins_stream_type *tree);
+void emit_double(
+    compiler_core_type *compiler, buffer_type *buf, ins_node_type *node, char *op);
 
-void emit_cond(compiler_core_type *compiler, buffer_type *buf,
-  ins_node_type *tree, bool allow_tail_call);
-void emit_if(compiler_core_type *compiler, buffer_type *buf,
-  ins_node_type *tree, bool allow_tail_call);
+void emit_cond(
+    compiler_core_type *compiler, buffer_type *buf, ins_node_type *tree,
+    bool allow_tail_call);
+void emit_if(
+    compiler_core_type *compiler, buffer_type *buf, ins_node_type *tree,
+    bool allow_tail_call);
 
-void emit_let_star(compiler_core_type *compiler, buffer_type *output,
-  ins_node_type *node, bool allow_tail_call);
+void emit_let_star(
+    compiler_core_type *compiler, buffer_type *output, ins_node_type *node,
+    bool allow_tail_call);
 
-void emit_bool(compiler_core_type *compiler, buffer_type *buf,
-  ins_node_type *tree, bool allow_tail_call, bool and_or);
+void emit_bool(
+    compiler_core_type *compiler, buffer_type *buf, ins_node_type *tree,
+    bool allow_tail_call, bool and_or);
 
 void emit_newline(buffer_type *buf);
 void emit_indent(buffer_type *buf);
@@ -137,16 +142,15 @@ void emit_label(buffer_type *buf, buffer_type *label);
 void emit_op(buffer_type *buf, char *str);
 void emit_jump_label(buffer_type *buf, op_type type, buffer_type *label);
 
-void emit_lambda(compiler_core_type *compiler, buffer_type *output,
-  ins_node_type *node);
-void emit_call(compiler_core_type *compiler, buffer_type *buf,
-  ins_node_type *call, bool tail_call);
-void emit_record_type(compiler_core_type *compiler, buffer_type *buf,
-  ins_stream_type *def);
+void emit_lambda(compiler_core_type *compiler, buffer_type *output, ins_node_type *node);
+void emit_call(
+    compiler_core_type *compiler, buffer_type *buf, ins_node_type *call, bool tail_call);
+void emit_record_type(
+    compiler_core_type *compiler, buffer_type *buf, ins_stream_type *def);
 
 void gen_label(compiler_core_type *compiler, buffer_type **buf);
 
-void setup_include(compiler_core_type* compiler, ins_stream_type *arg);
+void setup_include(compiler_core_type *compiler, ins_stream_type *arg);
 
 /* Instruction Stream builder routines */
 void stream_create(compiler_core_type *compiler, ins_stream_type **stream);
@@ -154,16 +158,17 @@ void stream_create(compiler_core_type *compiler, ins_stream_type **stream);
 void stream_concat(ins_stream_type *stream, ins_stream_type *source);
 void stream_append(ins_stream_type *stream, ins_node_type *node);
 
-void stream_alloc_node(compiler_core_type *compiler, node_type type,
-  ins_node_type **node);
+void stream_alloc_node(
+    compiler_core_type *compiler, node_type type, ins_node_type **node);
 
-#define BUILD_SINGLE_SIGNATURE(name) \
-void stream_##name(compiler_core_type *compiler, ins_stream_type *stream, \
-  ins_stream_type *arg1)
+#define BUILD_SINGLE_SIGNATURE(name)                                                     \
+    void stream_##name(                                                                  \
+        compiler_core_type *compiler, ins_stream_type *stream, ins_stream_type *arg1)
 
-#define BUILD_DOUBLE_SIGNATURE(name) \
-void stream_##name(compiler_core_type *compiler, ins_stream_type *stream, \
-  ins_stream_type *arg1, ins_stream_type *arg2)
+#define BUILD_DOUBLE_SIGNATURE(name)                                                     \
+    void stream_##name(                                                                  \
+        compiler_core_type *compiler, ins_stream_type *stream, ins_stream_type *arg1,    \
+        ins_stream_type *arg2)
 
 /* Nodes that hold a stream of instructions */
 BUILD_SINGLE_SIGNATURE(asm);
@@ -192,26 +197,20 @@ BUILD_DOUBLE_SIGNATURE(lambda);
 BUILD_DOUBLE_SIGNATURE(call);
 
 /* Special Literals */
-void stream_boolean(compiler_core_type *compiler,
-  ins_stream_type *stream, int b);
-void stream_char(compiler_core_type *compiler,
-  ins_stream_type *stream, char *str);
+void stream_boolean(compiler_core_type *compiler, ins_stream_type *stream, int b);
+void stream_char(compiler_core_type *compiler, ins_stream_type *stream, char *str);
 
-void stream_symbol(compiler_core_type *compiler,
-  ins_stream_type *stream, char *str);
+void stream_symbol(compiler_core_type *compiler, ins_stream_type *stream, char *str);
 
 /* These are identical to bare */
-void stream_bare(compiler_core_type *compiler,
-  ins_stream_type *stream, node_type type, char *str);
+void stream_bare(
+    compiler_core_type *compiler, ins_stream_type *stream, node_type type, char *str);
 
-#define stream_string(comp, stream, num)  \
-  stream_bare(comp, stream, STREAM_STRING, num)
+#define stream_string(comp, stream, num) stream_bare(comp, stream, STREAM_STRING, num)
 
-#define stream_literal(comp, stream, num)  \
-  stream_bare(comp, stream, STREAM_LITERAL, num)
+#define stream_literal(comp, stream, num) stream_bare(comp, stream, STREAM_LITERAL, num)
 
-#define stream_op(comp, stream, num)  \
-  stream_bare(comp, stream, STREAM_OP, num)
+#define stream_op(comp, stream, num) stream_bare(comp, stream, STREAM_OP, num)
 
 /* Scheme parser */
 int parse_internal(compiler_core_type *compiler, void *scanner);
@@ -224,10 +223,10 @@ void pop_include_path(compiler_core_type *compiler);
 /* Define some macros to make the parser code easier */
 #define NEW_STREAM(var) stream_create(compiler, &var)
 
-#define STREAM(var, type, ...) \
-  stream_##type(compiler, var, __VA_ARGS__)
+#define STREAM(var, type, ...) stream_##type(compiler, var, __VA_ARGS__)
 
-#define STREAM_NEW(var, type, ...) NEW_STREAM(var); \
-  STREAM(var, type, __VA_ARGS__);
+#define STREAM_NEW(var, type, ...)                                                       \
+    NEW_STREAM(var);                                                                     \
+    STREAM(var, type, __VA_ARGS__);
 
 #endif

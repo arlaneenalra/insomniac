@@ -3,11 +3,11 @@
 #include <assert.h>
 
 /* Allocate a new instruction node */
-void stream_alloc_node(compiler_core_type *compiler, node_type type,
-  ins_node_type **node) {
+void stream_alloc_node(
+    compiler_core_type *compiler, node_type type, ins_node_type **node) {
 
-  gc_alloc_type(compiler->gc, 0, compiler->node_types[type], (void **)node);
-  (*node)->type = type;
+    gc_alloc_type(compiler->gc, 0, compiler->node_types[type], (void **)node);
+    (*node)->type = type;
 }
 
 /* add source to the end of stream */
@@ -50,5 +50,3 @@ void stream_append(ins_stream_type *stream, ins_node_type *node) {
 void stream_create(compiler_core_type *compiler, ins_stream_type **stream) {
     gc_alloc_type(compiler->gc, 0, compiler->stream_gc_type, (void **)stream);
 }
-
-

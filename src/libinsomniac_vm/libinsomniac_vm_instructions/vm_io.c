@@ -36,7 +36,7 @@ void op_open(vm_internal_type *vm) {
     vm->reg1 = write = vm_pop(vm);
     vm->reg2 = path = vm_pop(vm);
 
-    if (!write || write->type != BOOL ) {
+    if (!write || write->type != BOOL) {
         throw(vm, "Open expected a boolean for write!", 1, write);
     } else if (!path || path->type != STRING) {
         throw(vm, "Open expected a string for path!", 1, path);
@@ -57,7 +57,7 @@ void op_open(vm_internal_type *vm) {
             vm->reg1->value.integer = errno;
             vm->reg2 = vm_make_string(vm, err, strlen(err));
 
-            throw (vm, "There was an error opening the file", 2, vm->reg1, vm->reg2);
+            throw(vm, "There was an error opening the file", 2, vm->reg1, vm->reg2);
         } else {
             vm_push(vm, vm->reg1);
         }
@@ -87,7 +87,7 @@ void op_close(vm_internal_type *vm) {
 
         vm->reg2 = vm_make_string(vm, err, strlen(err));
 
-        throw (vm, "There was an error closing the file", 2, vm->reg1, vm->reg2);
+        throw(vm, "There was an error closing the file", 2, vm->reg1, vm->reg2);
     }
 }
 
@@ -149,7 +149,6 @@ void op_fd_read(vm_internal_type *vm) {
     vm_int bytes_read = 0;
     char *err = 0;
 
-
     vm->reg1 = fd = vm_pop(vm);
     vm->reg2 = num = vm_pop(vm);
 
@@ -165,7 +164,8 @@ void op_fd_read(vm_internal_type *vm) {
 
     vm->reg3 = u8 = vm_make_byte_vector(vm, num->value.integer);
 
-    bytes_read = read(fd->value.integer, u8->value.byte_vector.vector, num->value.integer);
+    bytes_read =
+        read(fd->value.integer, u8->value.byte_vector.vector, num->value.integer);
 
     if (bytes_read < 0) {
         err = strerror(errno);
@@ -183,4 +183,3 @@ void op_fd_read(vm_internal_type *vm) {
         vm_push(vm, vm->reg3);
     }
 }
-

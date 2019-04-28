@@ -20,6 +20,3 @@ void emit_comment(buffer_type *buf, char *str) {
     buffer_write(buf, (uint8_t *)str, strlen(str));
     emit_newline(buf);
 }
-
-
-

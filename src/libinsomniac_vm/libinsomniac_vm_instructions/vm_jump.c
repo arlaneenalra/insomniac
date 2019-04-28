@@ -1,15 +1,13 @@
 #include "vm_instructions_internal.h"
 
-
 /* jump if the top of stack is not false */
 void op_jnf(vm_internal_type *vm) {
-    object_type *obj =0 ;
+    object_type *obj = 0;
     vm_int target = parse_int(vm);
 
     vm->reg1 = obj = vm_pop(vm);
 
-    if(!(obj && obj->type == BOOL &&
-         !obj->value.boolean)) {
+    if (!(obj && obj->type == BOOL && !obj->value.boolean)) {
         vm->env->ip += target;
     }
 }
@@ -20,7 +18,6 @@ void op_jmp(vm_internal_type *vm) {
 
     vm->env->ip += target;
 }
-
 
 /* create a procedure reference based on the current address
  and jump to target */
@@ -44,39 +41,38 @@ void op_call(vm_internal_type *vm) {
 /* Rebind the parent of a proc to change the symbol look up
  environment */
 void op_adopt(vm_internal_type *vm) {
-  object_type *child = 0;
-  object_type *parent = 0;
-  object_type *adopted = 0;
-  env_type *env = 0;
+    object_type *child = 0;
+    object_type *parent = 0;
+    object_type *adopted = 0;
+    env_type *env = 0;
 
-  gc_register_root(vm->gc, (void **)&env);
+    gc_register_root(vm->gc, (void **)&env);
 
-  vm->reg1 = parent = vm_pop(vm);
-  vm->reg2 = child = vm_pop(vm);
+    vm->reg1 = parent = vm_pop(vm);
+    vm->reg2 = child = vm_pop(vm);
 
-  if(!parent || parent->type != CLOSURE) {
-      throw(vm, "Attempt to adopt with non-closure", 1, parent);
+    if (!parent || parent->type != CLOSURE) {
+        throw(vm, "Attempt to adopt with non-closure", 1, parent);
 
-  } else if(!child || child->type != CLOSURE) {
-      throw(vm, "Attempt to adopt non-closure", 1, child);
+    } else if (!child || child->type != CLOSURE) {
+        throw(vm, "Attempt to adopt non-closure", 1, child);
 
-  } else {
-    vm->reg3 = adopted = vm_alloc(vm, CLOSURE);
+    } else {
+        vm->reg3 = adopted = vm_alloc(vm, CLOSURE);
 
-    /* copy the child into the new closure */
-    clone_env(vm, (env_type **)&env,
-      ((env_type *)child->value.closure), true);
+        /* copy the child into the new closure */
+        clone_env(vm, (env_type **)&env, ((env_type *)child->value.closure), true);
 
-    adopted->value.closure = env;
+        adopted->value.closure = env;
 
-    /* Setup adopted to use bindings/parent of parent */
-    env->parent = ((env_type *)parent->value.closure)->parent;
-    env->bindings = ((env_type *)parent->value.closure)->bindings;
+        /* Setup adopted to use bindings/parent of parent */
+        env->parent = ((env_type *)parent->value.closure)->parent;
+        env->bindings = ((env_type *)parent->value.closure)->bindings;
 
-    vm_push(vm, adopted);
-  }
+        vm_push(vm, adopted);
+    }
 
-  gc_unregister_root(vm->gc, (void **)&env);
+    gc_unregister_root(vm->gc, (void **)&env);
 }
 
 /* create a procedure reference based on target and leave it
@@ -95,7 +91,7 @@ void op_proc(vm_internal_type *vm) {
     clone_env(vm, &env, vm->env, false);
 
     /* update the ip */
-    env->ip +=target;
+    env->ip += target;
 
     closure->value.closure = env;
 
@@ -113,7 +109,7 @@ void op_jin(vm_internal_type *vm) {
 
     vm->reg1 = closure = vm_pop(vm);
 
-    if(!closure || closure->type != CLOSURE) {
+    if (!closure || closure->type != CLOSURE) {
         throw(vm, "Attempt to jump to non-closure", 1, closure);
 
     } else {
@@ -141,7 +137,7 @@ void op_ret(vm_internal_type *vm) {
 
     vm->reg1 = closure = vm_pop(vm);
 
-    if(!closure || closure->type != CLOSURE) {
+    if (!closure || closure->type != CLOSURE) {
         throw(vm, "Attempt to jump to non-closure", 1, closure);
 
     } else {
@@ -151,7 +147,6 @@ void op_ret(vm_internal_type *vm) {
     }
 }
 
-
 /* call indirect operation */
 void op_call_in(vm_internal_type *vm) {
     object_type *closure = 0;
@@ -159,7 +154,7 @@ void op_call_in(vm_internal_type *vm) {
 
     vm->reg1 = closure = vm_pop(vm);
 
-    if(!closure || closure->type != CLOSURE) {
+    if (!closure || closure->type != CLOSURE) {
         throw(vm, "Attempt to jump to non-closure", 1, closure);
 
     } else {
@@ -184,7 +179,7 @@ void op_tail_call_in(vm_internal_type *vm) {
 
     vm->reg1 = closure = vm_pop(vm);
 
-    if(!closure || closure->type != CLOSURE) {
+    if (!closure || closure->type != CLOSURE) {
         throw(vm, "Attempt to jump to non-closure", 1, closure);
 
     } else {

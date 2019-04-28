@@ -17,7 +17,7 @@ void push_env(vm_internal_type *vm) {
 
     /* if we have a parent, save off the parents
        ip and code_ref */
-    if(vm->env->parent) {
+    if (vm->env->parent) {
         vm->env->code_ref = vm->env->parent->code_ref;
         vm->env->ip = vm->env->parent->ip;
         vm->env->length = vm->env->parent->length;
@@ -27,8 +27,7 @@ void push_env(vm_internal_type *vm) {
 }
 
 /* create a copy of the environment in a new environment */
-void clone_env(vm_internal_type *vm, env_type **target,
-               env_type *env, bool cow) {
+void clone_env(vm_internal_type *vm, env_type **target, env_type *env, bool cow) {
 
     gc_alloc_type(vm->gc, 0, vm->env_type, (void **)target);
 
@@ -42,7 +41,7 @@ void clone_env(vm_internal_type *vm, env_type **target,
 
 /* pop off the current environment */
 void pop_env(vm_internal_type *vm) {
-    if(vm->env) {
+    if (vm->env) {
         vm->env = vm->env->parent;
     }
 }

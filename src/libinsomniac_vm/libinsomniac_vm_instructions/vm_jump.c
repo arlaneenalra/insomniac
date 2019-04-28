@@ -92,7 +92,7 @@ void op_proc(vm_internal_type *vm) {
     vm->reg1 = closure = vm_alloc(vm, CLOSURE);
 
     /* save our current environment */
-    clone_env(vm, (env_type **)&env, vm->env, false);
+    clone_env(vm, &env, vm->env, false);
 
     /* update the ip */
     env->ip +=target;
@@ -188,8 +188,14 @@ void op_tail_call_in(vm_internal_type *vm) {
         throw(vm, "Attempt to jump to non-closure", 1, closure);
 
     } else {
-        op_swap(vm);
-
+        
+        /* Do a swap. */
+        vm->reg2 = vm_pop(vm);
+        vm->reg3 = vm_pop(vm);
+        
+        vm_push(vm, vm->reg2);
+        vm_push(vm, vm->reg3);
+    
         /* clone the closures environment */
         clone_env(vm, &(vm->env), closure->value.closure, false);
 

@@ -21,7 +21,7 @@ typedef hash_type (*hash_fn)(void *key);
 typedef cmp_type(*hash_cmp)(void *key1, void *key2);
 
 /* construct a new hash table instance */
-void hash_create(gc_type *gc, hash_fn fn, 
+void hash_create(gc_type *gc, hash_fn fn,
                  hash_cmp cmp, hashtable_type **ret);
 
 /* duplicate an existing hash table in cow mode */
@@ -45,7 +45,7 @@ void hash_erase(hashtable_type *hash, void *key);
 
 /* returns true on the key being found in the given
    hash table */
-uint8_t hash_get(hashtable_type *hash, void *key, 
+uint8_t hash_get(hashtable_type *hash, void *key,
                  void **value);
 
 

@@ -18,8 +18,8 @@ int vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref) {
         op_code = vm->env->code_ref[vm->env->ip];
         op_call = vm->ops[op_code];
 
-        
-        /* incerement ip so it points to 
+
+        /* incerement ip so it points to
            any arguments or the next instructions */
         vm->env->ip++;
 

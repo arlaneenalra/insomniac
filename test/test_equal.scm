@@ -20,7 +20,7 @@
 (define ABC (cons a (cons b (cons c '()))))
 (define acb (cons a (cons c (cons b '()))))
 
-;; Construct a cycle 
+;; Construct a cycle
 (define (make-cycle-cdr)
   (define cycle (cons 1 (cons 2 (cons 3 (cons 4 (cons 5 '()))))))
   (define cycle-tail (cdr (cdr (cdr (cdr cycle)))))
@@ -121,7 +121,7 @@
 
 (expect-false "Different double cycle"
               (lambda () (equal? cycle-c-a cycle-a-a)))
- 
+
 (expect-false "Different double cycle, transitive"
               (lambda () (equal? cycle-a-a cycle-c-a)))
 

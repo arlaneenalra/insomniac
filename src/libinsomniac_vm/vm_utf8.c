@@ -28,7 +28,7 @@ int utf8_head_count_bytes(char c) {
 
 /* read a multibyte unicode character from stdin */
 void utf8_read_char(vm_char *character) {
-    int in_c = 0; 
+    int in_c = 0;
     char c;
     int bytes = 0;
 
@@ -46,7 +46,7 @@ void utf8_read_char(vm_char *character) {
 
     bytes = utf8_head_count_bytes(c);
 
-    /* a count of one means that the head is the 
+    /* a count of one means that the head is the
        only byte */
     if(bytes == 1) {
         *character = c;
@@ -58,14 +58,14 @@ void utf8_read_char(vm_char *character) {
     *character = c;
 
     /* read in the other utf8 bytes,
-       start at one because we have already 
+       start at one because we have already
        read one byte. */
     for(int i = 1; i < bytes ; i++) {
         c = getchar();
 
         /* shift 6 bits left */
         *character <<= 6;
-        /* mask of the utf8 tag bits and 
+        /* mask of the utf8 tag bits and
            or the data bits into the character */
         *character |= (c & BIT_MASK(6));
     }
@@ -74,7 +74,7 @@ void utf8_read_char(vm_char *character) {
 /* encode a raw unicode character to utf8 */
 void utf8_encode_char(char *output, vm_char character) {
     bzero(output, 7);
-    
+
     /* walk through each of the possible mappings */
     if(!(character & NOT_MASK(7))) {
         output[0]=(uint8_t)(character & BIT_MASK(7));
@@ -82,7 +82,7 @@ void utf8_encode_char(char *output, vm_char character) {
     } else if(!(character & NOT_MASK(11))) {
         output[1]=UTF8_TAIL | (uint8_t)(character & BIT_MASK(6));
         character >>= 6;
-        
+
         output[0]=UTF8_HEAD(1) | (uint8_t)character;
 
     } else if(!(character & NOT_MASK(16))) {
@@ -91,7 +91,7 @@ void utf8_encode_char(char *output, vm_char character) {
 
         output[1]=UTF8_TAIL | (uint8_t)(character & BIT_MASK(6));
         character >>= 6;
-        
+
         output[0]=UTF8_HEAD(2) | (uint8_t)character;
 
     } else if(!(character & NOT_MASK(21))) {
@@ -103,7 +103,7 @@ void utf8_encode_char(char *output, vm_char character) {
 
         output[1]=UTF8_TAIL | (uint8_t)(character & BIT_MASK(6));
         character >>= 6;
-        
+
         output[0]=UTF8_HEAD(3) | (uint8_t)character;
 
     } else if(!(character & NOT_MASK(26))) {
@@ -118,7 +118,7 @@ void utf8_encode_char(char *output, vm_char character) {
 
         output[1]=UTF8_TAIL | (uint8_t)(character & BIT_MASK(6));
         character >>= 6;
-        
+
         output[0]=UTF8_HEAD(4) | (uint8_t)character;
 
     } else if(!(character & NOT_MASK(31))) {
@@ -136,7 +136,7 @@ void utf8_encode_char(char *output, vm_char character) {
 
         output[1]=UTF8_TAIL | (uint8_t)(character & BIT_MASK(6));
         character >>= 6;
-        
+
         output[0]=UTF8_HEAD(5) | (uint8_t)character;
     }
 }

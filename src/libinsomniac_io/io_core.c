@@ -39,7 +39,7 @@ STUFF_FILE_POINTER(get_stderr, stderr)
 
 /* setup the export list */
 binding_type export_list[] = {
-     
+
     {"stdin", &get_stdin},
     {"stdout", &get_stdout},
     {"stderr", &get_stderr},

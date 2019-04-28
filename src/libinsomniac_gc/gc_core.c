@@ -6,7 +6,7 @@
 gc_type *gc_create(size_t cell_size) {
     gc_ms_type *gc = 0;
     gc = MALLOC_TYPE(gc_ms_type);
-    
+
     gc->current_mark = RED;
     gc->protect_count = 0;
     gc->cell_size = cell_size;
@@ -20,7 +20,7 @@ gc_type *gc_create(size_t cell_size) {
     /* register the ARRAY type as type 0 */
     gc->array_type = gc_register_type(gc, sizeof(void *));
     gc_register_array(gc, gc->array_type, 0);
-    
+
     return (gc_type *)gc;
 }
 
@@ -95,7 +95,7 @@ void gc_unregister_root(gc_type *gc_void, void **root) {
     }
 
     /* this is really inefficient */
-    FREE(meta);    
+    FREE(meta);
 }
 
 /* allocate a blob and attach it to the gc */
@@ -175,7 +175,7 @@ void gc_de_perm(gc_type *gc_void, void *obj_in) {
 void gc_stats(gc_type *gc_void) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
     vm_int active = 0;
-    vm_int dead = 0; 
+    vm_int dead = 0;
     vm_int perm = 0;
 
     assert(gc);

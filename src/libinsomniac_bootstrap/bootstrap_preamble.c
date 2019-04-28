@@ -10,7 +10,7 @@ void emit_bootstrap(compiler_core_type *compiler, buffer_type *out_buf) {
   char path[PATH_MAX];
 
   gc_register_root(gc, (void **)&buf);
-  
+
   buffer_create(gc, &buf);
 
 

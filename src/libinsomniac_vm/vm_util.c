@@ -23,9 +23,9 @@ uint8_t vm_peek(vm_internal_type *vm, vm_int offset) {
 void cons(vm_type *vm_void, object_type *car, object_type *cdr,
   object_type **pair_out) {
     vm_internal_type *vm=(vm_internal_type *)vm_void;
-    
+
     *pair_out = vm_alloc(vm, PAIR);
-    
+
     (*pair_out)->value.pair.car = car;
     (*pair_out)->value.pair.cdr = cdr;
 }
@@ -34,11 +34,11 @@ void cons(vm_type *vm_void, object_type *car, object_type *cdr,
 vm_int parse_int(vm_internal_type *vm) {
     vm_int num = 0;
     uint8_t byte = 0;
-    
+
     /* ip should be pointed at the instructions argument */
     for(int i=7; i>=0; i--) {
         byte = vm->env->code_ref[vm->env->ip + i];
-        
+
         num = num << 8;
         num = num | byte;
     }
@@ -71,7 +71,7 @@ void make_symbol(vm_internal_type *vm, object_type **obj) {
                  (*obj)->value.string.bytes, (void **)obj)) {
 
         (*obj)->type = SYMBOL;
-        
+
         hash_set(vm->symbol_table,
                  (*obj)->value.string.bytes, (*obj));
     }
@@ -91,22 +91,22 @@ void throw(vm_internal_type *vm, char *msg, int num, ...) {
     gc_register_root(vm->gc, (void **)&cons_temp);
 
     exception = vm->empty;
-  
-    /* save off any given objects */    
+
+    /* save off any given objects */
     va_start(ap, num);
-    
+
     for(int i = 0; i < num ; i++) {
         obj = va_arg(ap, object_type *);
         cons(vm, obj, exception, &cons_temp);
         exception = cons_temp;
     }
-    
+
     va_end(ap);
 
     /* save the current point in the execution */
     obj = vm_alloc(vm, CLOSURE);
     clone_env(vm, (env_type **)&(obj->value.closure), vm->env, false);
-    
+
     cons(vm, obj, exception, &cons_temp);
     exception = cons_temp;
 
@@ -118,8 +118,8 @@ void throw(vm_internal_type *vm, char *msg, int num, ...) {
 
     /* put everything in a pair */
     cons(vm,  obj, exception, &cons_temp);
-    exception = cons_temp; 
-    
+    exception = cons_temp;
+
     /* put the exception itself on the stack */
     vm_push(vm, exception);
 
@@ -137,11 +137,11 @@ void throw(vm_internal_type *vm, char *msg, int num, ...) {
     /* did we find a handler ? */
     if(vm->env) {
         clone_env(vm, (env_type **)&(vm->env), vm->env, false);
-        /* disable exception handler while 
+        /* disable exception handler while
            handling exceptions */
         vm->env->handler = 0;
 
-        /* we can assume that if vm is a valid pointer, 
+        /* we can assume that if vm is a valid pointer,
            handler is a valid pointer */
         vm->env->ip = vm->env->handler_addr;
 
@@ -151,7 +151,7 @@ void throw(vm_internal_type *vm, char *msg, int num, ...) {
     /* we did not find a handler ! */
     vm_pop(vm);
     printf("Unhandled Exception: '%s'\n", msg);
-    
+
     printf("Exception:\n");
     output_object(stdout, exception);
 
@@ -170,7 +170,7 @@ void vm_load_buf(vm_internal_type *vm, char *file, object_type **obj) {
     *obj = vm_alloc(vm, STRING);
 
     count = buffer_load_string(vm->gc, file, &((*obj)->value.string.bytes));
-    
+
     (*obj)->value.string.length = count;
 }
 

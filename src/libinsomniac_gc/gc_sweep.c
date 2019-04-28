@@ -20,7 +20,7 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
     int64_t size_max = 0;
     void *obj=0;
     void **next_obj=0;
-    
+
     /* return if we don't have an object */
     if(!meta) {
         return;
@@ -44,17 +44,17 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
     if(meta->type_def >= 0) {
         /* Load the definition for this type of object */
         root_list = gc->type_defs[meta->type_def].root_list;
-        
-        /* walk the list of poitners internal to 
+
+        /* walk the list of poitners internal to
            this object */
         while(root_list) {
             obj = obj_from_meta(meta);
             next_obj = (void **)((uint8_t *)obj + root_list->offset);
-            
+
             switch(root_list->type) {
             case PTR:
                 /* mark any pointed to objects */
-                mark_graph(gc, meta_from_obj(*next_obj), mark);                
+                mark_graph(gc, meta_from_obj(*next_obj), mark);
                 break;
 
             case ARRAY:
@@ -65,14 +65,14 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
                 for(size = 0; size < size_max; size++) {
                     mark_graph(gc, meta_from_obj(next_obj[size]), mark);
                 }
-                
+
                 break;
 
             default:
                 assert(0);
                 break;
             }
-                        
+
             root_list = root_list->next;
         }
     }
@@ -116,20 +116,20 @@ void sweep_list(gc_ms_type * gc, mark_type mark) {
 
     while(active) {
         meta_obj_type *next=active->next;
-        
+
         /* do we have a dead object */
         if(active->mark == mark) {
             /* move our object to the head
                of the active list */
             active->next=new_active;
             new_active=active;
-            
+
         } else {
-            
+
             /* Do we have a cell sized object or
                something else? */
             if(active->size == gc->cell_size) {
-                /* move our object to the head 
+                /* move our object to the head
                    of the new dead list */
                 active->next = dead;
                 active->mark = DEAD; /* mark as dead */
@@ -165,16 +165,16 @@ void sweep(gc_ms_type *gc) {
 
     /* mark all reachable objects */
     mark_list(gc, gc->perm_list, mark);
-    
-    /* mark all objects reachable from our defined root 
+
+    /* mark all objects reachable from our defined root
        pointers */
     if(gc->root_list) {
         mark_root(gc, gc->root_list, mark);
     }
 
-    /* iterate through the list of active nodes and 
+    /* iterate through the list of active nodes and
        move the unmarked ones to dead */
-    
+
     sweep_list(gc, mark);
 
     /* allocate some cell sized objects to make

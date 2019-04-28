@@ -5,7 +5,7 @@
 void op_jnf(vm_internal_type *vm) {
     object_type *obj =0 ;
     vm_int target = parse_int(vm);
-    
+
     vm->reg1 = obj = vm_pop(vm);
 
     if(!(obj && obj->type == BOOL &&
@@ -17,7 +17,7 @@ void op_jnf(vm_internal_type *vm) {
 /* straight jump */
 void op_jmp(vm_internal_type *vm) {
     vm_int target = parse_int(vm);
-    
+
     vm->env->ip += target;
 }
 
@@ -48,7 +48,7 @@ void op_adopt(vm_internal_type *vm) {
   object_type *parent = 0;
   object_type *adopted = 0;
   env_type *env = 0;
-  
+
   gc_register_root(vm->gc, (void **)&env);
 
   vm->reg1 = parent = vm_pop(vm);
@@ -62,24 +62,24 @@ void op_adopt(vm_internal_type *vm) {
 
   } else {
     vm->reg3 = adopted = vm_alloc(vm, CLOSURE);
-    
+
     /* copy the child into the new closure */
-    clone_env(vm, (env_type **)&env, 
+    clone_env(vm, (env_type **)&env,
       ((env_type *)child->value.closure), true);
-    
+
     adopted->value.closure = env;
 
     /* Setup adopted to use bindings/parent of parent */
     env->parent = ((env_type *)parent->value.closure)->parent;
     env->bindings = ((env_type *)parent->value.closure)->bindings;
-    
+
     vm_push(vm, adopted);
   }
 
   gc_unregister_root(vm->gc, (void **)&env);
 }
 
-/* create a procedure reference based on target and leave it 
+/* create a procedure reference based on target and leave it
  on the stack*/
 void op_proc(vm_internal_type *vm) {
     object_type *closure = 0;
@@ -96,7 +96,7 @@ void op_proc(vm_internal_type *vm) {
 
     /* update the ip */
     env->ip +=target;
-    
+
     closure->value.closure = env;
 
     vm_push(vm, closure);
@@ -108,25 +108,25 @@ void op_proc(vm_internal_type *vm) {
 void op_jin(vm_internal_type *vm) {
     object_type *closure = 0;
     env_type *env = 0;
-    
+
     gc_register_root(vm->gc, (void **)&env);
-    
+
     vm->reg1 = closure = vm_pop(vm);
 
     if(!closure || closure->type != CLOSURE) {
         throw(vm, "Attempt to jump to non-closure", 1, closure);
 
     } else {
-        
+
         /* save the current environment */
         env = vm->env;
 
         /* clone the closures environment */
         clone_env(vm, &(vm->env), closure->value.closure, false);
 
-        /* preserve the old bindings and parent so 
+        /* preserve the old bindings and parent so
            we have a jump equivalent. */
-        /* WARNING: This does break/lose the current 
+        /* WARNING: This does break/lose the current
            exception handler . . .*/
         vm->env->bindings = env->bindings;
         vm->env->parent = env->parent;
@@ -138,7 +138,7 @@ void op_jin(vm_internal_type *vm) {
 /* return operation */
 void op_ret(vm_internal_type *vm) {
     object_type *closure = 0;
-    
+
     vm->reg1 = closure = vm_pop(vm);
 
     if(!closure || closure->type != CLOSURE) {
@@ -156,7 +156,7 @@ void op_ret(vm_internal_type *vm) {
 void op_call_in(vm_internal_type *vm) {
     object_type *closure = 0;
     object_type *ret = 0;
-    
+
     vm->reg1 = closure = vm_pop(vm);
 
     if(!closure || closure->type != CLOSURE) {
@@ -181,21 +181,21 @@ void op_call_in(vm_internal_type *vm) {
 /* tail call indirect operation */
 void op_tail_call_in(vm_internal_type *vm) {
     object_type *closure = 0;
-    
+
     vm->reg1 = closure = vm_pop(vm);
 
     if(!closure || closure->type != CLOSURE) {
         throw(vm, "Attempt to jump to non-closure", 1, closure);
 
     } else {
-        
+
         /* Do a swap. */
         vm->reg2 = vm_pop(vm);
         vm->reg3 = vm_pop(vm);
-        
+
         vm_push(vm, vm->reg2);
         vm_push(vm, vm->reg3);
-    
+
         /* clone the closures environment */
         clone_env(vm, &(vm->env), closure->value.closure, false);
 
@@ -205,20 +205,20 @@ void op_tail_call_in(vm_internal_type *vm) {
 }
 /* Exception Handling code */
 
-/* set the exception handler for the current 
+/* set the exception handler for the current
    environment */
 void op_continue(vm_internal_type *vm) {
     vm_int target = parse_int(vm);
 
-    /* we need an absolute address for the 
-       exception handler as we don't know 
+    /* we need an absolute address for the
+       exception handler as we don't know
        where it will be called from */
 
     vm->env->handler = 1;
     vm->env->handler_addr = vm->env->ip + target;
 }
 
-/* set the exception handler for the current 
+/* set the exception handler for the current
    environment */
 void op_restore(vm_internal_type *vm) {
     /* restore the current exception handler */

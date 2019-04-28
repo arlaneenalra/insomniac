@@ -5,27 +5,27 @@ void vm_create(gc_type *gc, vm_type **vm_ret ) {
     vm_internal_type *vm = 0;
 
     gc_register_root(gc, (void**)&vm);
-    
+
     vm_type_def = create_vm_type(gc);
-    
+
     /* create a permanent vm object */
     /* vm = gc_alloc_type(gc, 1, vm_type_def); */
     gc_alloc_type(gc, 0, vm_type_def, (void**)&vm);
-    
+
     vm->gc = gc;
 
     /* attach instructions to the vm */
     setup_instructions(vm);
-    
+
     /* setup types for allocations */
     create_types(vm);
-   
+
     /* setup unique objects */
     vm->empty = vm_alloc(vm, EMPTY);
 
     vm->vm_true = vm_alloc(vm, BOOL);
     vm->vm_true->value.boolean = true;
-    
+
     vm->vm_false = vm_alloc(vm, BOOL);
     vm->vm_false->value.boolean = false;
 
@@ -69,10 +69,10 @@ void vm_push(vm_type *vm_void, object_type *obj) {
     object_type *pair = 0;
 
     gc_protect(vm->gc);
-    
+
     /* push an item onto the stack */
     cons(vm, obj, vm->stack_root, &pair);
-    
+
     vm->stack_root = pair;
     vm->depth++;
 
@@ -86,7 +86,7 @@ object_type *vm_pop(vm_type *vm_void) {
     /* return 0 if the stack is empty */
     if(vm->stack_root->type == EMPTY) {
         fprintf(stderr, "Stack Under Run!\n");
-        assert(0);        
+        assert(0);
         return 0;
     }
 

@@ -50,7 +50,7 @@ char *target_preamble = \
 "   .long 0 # meta_obj.mark\n" \
 "   .long 0 # meta_obj.size\n" \
 "   .long 0 # meta_obj.type_def\n" \
-"str:\n"; 
+"str:\n";
 
 char *target_size = "\n" \
 "str_size :\n" \
@@ -83,7 +83,7 @@ char *target_preamble = \
 "   .long 0 # meta_obj.mark\n" \
 "   .long 0 # meta_obj.size\n" \
 "   .long 0 # meta_obj.type_def\n" \
-"str:\n"; 
+"str:\n";
 
 char *target_size = "\n" \
 "str_size :\n" \
@@ -171,7 +171,7 @@ void writeToFile(options_type *opts, char *asm_str, size_t length) {
             err, opts->outfile, wrote, length);
         assert(0);
     }
-  
+
     fclose(out);
 }
 
@@ -185,7 +185,7 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
 
     gc_register_root(gc, (void **)&code_ref);
     gc_register_root(gc, (void **)&target_buf);
-    
+
     length = asm_string(gc, asm_str, &code_ref);
 
     buffer_create(gc, &target_buf);
@@ -209,7 +209,7 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
     }
 
     buffer_write(target_buf, (uint8_t *)target_size, strlen(target_size));
-    
+
     /* Output the size */
     output_len = snprintf(output, 512, "%zu", length - 1);
     buffer_write(target_buf, (uint8_t *)output, output_len);
@@ -220,7 +220,7 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
     length = buffer_size(target_buf) + 1;
     gc_alloc(gc, 0, length, (void **)target);
     length = buffer_read(target_buf, *(uint8_t **)target, length);
-    
+
     gc_unregister_root(gc, (void **)&target_buf);
     gc_unregister_root(gc, (void **)&code_ref);
 
@@ -238,7 +238,7 @@ int main(int argc, char**argv) {
     char compiler_home[PATH_MAX];
 
 
-    /* needed to setup locale aware printf . . . 
+    /* needed to setup locale aware printf . . .
        I need to do a great deal more research here */
     setlocale(LC_ALL, "");
 
@@ -261,17 +261,17 @@ int main(int argc, char**argv) {
     buffer_create(gc, &asm_buf);
 
     compiler_code_gen(compiler, asm_buf, opts.pre_post_amble);
-    
+
     /* Convert generated code to string */
     length = buffer_size(asm_buf);
     gc_alloc(gc, 0, length, (void **)&asm_str);
-    length = buffer_read(asm_buf, (uint8_t *)asm_str, length); 
+    length = buffer_read(asm_buf, (uint8_t *)asm_str, length);
 
     /* Assemble byte code. */
     if (opts.assemble) {
         length = buildAttachment(gc, asm_str, &asm_str);
     }
-   
+
     /* Write the assembled code out to a file *without the null* at the end of the string. */
     writeToFile(&opts, asm_str, length - 1);
 

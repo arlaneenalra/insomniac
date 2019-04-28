@@ -13,7 +13,7 @@
 #include <buffer.h>
 #include <vm.h>
 
-#define OUTPUT_MAX_DEPTH 100 
+#define OUTPUT_MAX_DEPTH 100
 #define OUTPUT_MAX_LENGTH 100
 
 /* Handle library extensions. */
@@ -22,7 +22,7 @@
 #define LIB_EXT_LEN 6
 #else
 #define LIB_EXT ".so"
-#define LIB_EXT_LEN 3 
+#define LIB_EXT_LEN 3
 #endif
 
 
@@ -54,7 +54,7 @@ struct env {
 
 /* definition of the VM itself */
 struct vm_internal {
- 
+
     object_type *stack_root;
     vm_int depth;
 
@@ -72,13 +72,13 @@ struct vm_internal {
     object_type *reg3;
 
     gc_type_def types[CELL_MAX]; /* mapping between cell types and gc types */
-    
+
     fn_type ops[256]; /* bindings for each op code */
 
     hashtable_type *symbol_table; /* Symbol table */
-    
+
     hashtable_type *import_table; /* Loaded library table */
-    
+
     /* current execution state */
     gc_type_def env_type;
     env_type *env;

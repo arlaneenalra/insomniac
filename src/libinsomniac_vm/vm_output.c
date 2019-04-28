@@ -6,9 +6,9 @@ void output_pair(FILE *fout, object_type *pair) {
     int length = 0;
 
     fprintf(fout, "(");
-    
+
     do {
-        /* print a space only if we are not on 
+        /* print a space only if we are not on
            the first pair */
         if(flag) {
             fprintf(fout, " ");
@@ -17,7 +17,7 @@ void output_pair(FILE *fout, object_type *pair) {
         /* extract the car and cdr */
         car = pair->value.pair.car;
         pair = pair->value.pair.cdr;
-        
+
         /* output the car */
         output_object(fout, car);
 
@@ -31,9 +31,9 @@ void output_pair(FILE *fout, object_type *pair) {
     if(!pair || pair->type != EMPTY) {
         fprintf(fout, " . ");
         output_object(fout, pair);
-    } 
+    }
 
-        
+
     fprintf(fout,")");
 }
 
@@ -42,7 +42,7 @@ void output_pair(FILE *fout, object_type *pair) {
 void output_char(FILE *fout, object_type *character) {
     /* 7 byte output buffer (UTF-8 maxes out at 6 */
     char char_buf[] = {0,0,0, 0,0,0, 0};
-    
+
     /* encode the string in utf8 */
     utf8_encode_char(char_buf, character->value.character);
 
@@ -63,7 +63,7 @@ void output_vector(FILE *fout, object_type *vector) {
         if(index > 0) {
             fprintf(fout, " ");
         }
-        output_object(fout, 
+        output_object(fout,
                       vector->value.vector.vector[index]);
     }
 
@@ -113,9 +113,9 @@ void output_object(FILE *fout, object_type *obj) {
         break;
 
     case EMPTY: /* The object is an empty pair */
-        fprintf(fout, "()"); 
+        fprintf(fout, "()");
         break;
-        
+
     case PAIR:
         output_pair(fout, obj);
         break;
@@ -128,7 +128,7 @@ void output_object(FILE *fout, object_type *obj) {
     case SYMBOL:
         fprintf(fout, "%s", obj->value.string.bytes);
         break;
-        
+
     case VECTOR:
         output_vector(fout, obj);
         break;
@@ -166,7 +166,7 @@ void output_object(FILE *fout, object_type *obj) {
         fprintf(fout, "<LIBRARY %p:%p #%"PRIi64">", (void *)obj,
                 (void *)obj->value.library.handle, obj->value.library.func_count);
         break;
-        
+
     default:
         fprintf(fout, "<Unkown Object %p>", (void *)obj);
         break;

@@ -8,7 +8,7 @@
     eof-object?)
 
 ;; Define a singleton eof object
-(define eof-object 
+(define eof-object
     ((lambda (eof)
         (lambda () eof))
      (raw-eof-object)))
@@ -41,7 +41,7 @@
     (type port-type)
     (op port-op))
 
-;; Check to see if the port is an input port 
+;; Check to see if the port is an input port
 (define (input-port? port)
     (not (port-writable port)))
 
@@ -51,7 +51,7 @@
 
 ;; Check for a textual port
 (define (textual-port? port)
-    (eq? (port-type port) '<text>)) 
+    (eq? (port-type port) '<text>))
 
 (define (close-port port)
     (raw-close (port-fd port)))
@@ -61,16 +61,16 @@
 
 
 (define current-input-port
-    (make-parameter 
-        (make-port 0 #f '<binary> raw-read))) 
+    (make-parameter
+        (make-port 0 #f '<binary> raw-read)))
 
 (define current-output-port
-    (make-parameter 
-        (make-port 1 #t '<binary> raw-write))) 
+    (make-parameter
+        (make-port 1 #t '<binary> raw-write)))
 
 (define current-error-port
-    (make-parameter 
-        (make-port 2 #t '<binary> raw-write))) 
+    (make-parameter
+        (make-port 2 #t '<binary> raw-write)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Binary port operations
@@ -101,7 +101,7 @@
 
     (define (process-args sym args)
         (if (or (null? args) (null? sym))
-            #t 
+            #t
             (begin
                 (set! (car sym) (car args))
                 (process-args (cdr sym) (cdr args)))))
@@ -124,5 +124,5 @@
         u8-read
         (eof-object)))
 
-    
+
 

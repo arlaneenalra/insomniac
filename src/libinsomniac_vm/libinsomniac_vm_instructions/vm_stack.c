@@ -2,7 +2,7 @@
 
 /* swap the top two items on the stack */
 void op_swap(vm_internal_type *vm) {
-    
+
     vm->reg1 = vm_pop(vm);
     vm->reg2 = vm_pop(vm);
 
@@ -34,11 +34,11 @@ void op_dup_ref(vm_internal_type *vm) {
 
 /* return the current stack depth */
 void op_depth(vm_internal_type *vm) {
-    
+
     vm->reg1 = vm_alloc(vm, FIXNUM);
-    
+
     vm->reg1->value.integer = vm->depth;
-    
+
     vm_push(vm, vm->reg1);
 }
 

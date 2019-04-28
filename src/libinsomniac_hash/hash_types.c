@@ -4,7 +4,7 @@
 gc_type_def register_hashtable(gc_type *gc) {
     gc_type_def hashtable = 0;
 
-    hashtable = 
+    hashtable =
         gc_register_type(gc, sizeof(hash_internal_type));
 
     /* register the table itself */
@@ -17,20 +17,20 @@ gc_type_def register_hashtable(gc_type *gc) {
 
 gc_type_def register_key_value(gc_type *gc) {
     gc_type_def key_value = 0;
-    
-    key_value = gc_register_type(gc, 
+
+    key_value = gc_register_type(gc,
                                  sizeof(key_value_type));
-    
+
     gc_register_pointer(gc, key_value,
-                         offsetof(key_value_type, 
+                         offsetof(key_value_type,
                                   key));
 
     gc_register_pointer(gc, key_value,
-                         offsetof(key_value_type, 
+                         offsetof(key_value_type,
                                   value));
 
     gc_register_pointer(gc, key_value,
-                         offsetof(key_value_type, 
+                         offsetof(key_value_type,
                                   next));
 
     return key_value;

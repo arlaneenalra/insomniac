@@ -27,7 +27,7 @@ typedef struct buffer {
     size_t used;
 
     /* Hack to make sure we have access to block type */
-    gc_type_def block_gc_type; 
+    gc_type_def block_gc_type;
 } buffer_internal_type;
 
 

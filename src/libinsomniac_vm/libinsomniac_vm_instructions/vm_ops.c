@@ -1,6 +1,6 @@
 #include "vm_instructions_internal.h"
 
-#include "vm_math.h" 
+#include "vm_math.h"
 #include "vm_types.h"
 
 
@@ -117,7 +117,7 @@ void setup_instructions(vm_internal_type *vm) {
     /* Exception Handline */
     vm->ops[OP_CONTINUE] = &op_continue;
     vm->ops[OP_RESTORE] = &op_restore;
-    
+
     vm->ops[OP_SET_EXIT] = &op_set_exit;
 
     /* type testing operations */

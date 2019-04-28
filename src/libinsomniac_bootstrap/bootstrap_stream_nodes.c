@@ -18,7 +18,7 @@ BUILD_SINGLE_SIGNATURE(name) {                              \
     stream_append(stream, ins_node);                        \
                                                             \
     gc_unregister_root(compiler->gc, (void **)&ins_node);   \
-}                                                           
+}
 
 #define BUILD_DOUBLE_STREAM(name, type)                     \
 BUILD_DOUBLE_SIGNATURE(name) {                              \
@@ -36,7 +36,7 @@ BUILD_DOUBLE_SIGNATURE(name) {                              \
     stream_append(stream, ins_node);                        \
                                                             \
     gc_unregister_root(compiler->gc, (void **)&ins_node);   \
-}                                                           
+}
 
 /* Single stream nodes */
 BUILD_SINGLE_STREAM(quoted, STREAM_QUOTED)
@@ -86,7 +86,7 @@ void stream_bare(compiler_core_type *compiler, ins_stream_type *stream,
 
     /* add the boolean to our instruction stream */
     stream_append(stream, ins_node);
-    
+
     gc_unregister_root(compiler->gc, (void **)&ins_node);
 }
 
@@ -112,7 +112,7 @@ void stream_boolean(compiler_core_type *compiler,
 
     /* add the boolean to our instruction stream */
     stream_append(stream, ins_node);
-    
+
     gc_unregister_root(compiler->gc, (void **)&ins_node);
 }
 
@@ -136,7 +136,7 @@ void stream_char(compiler_core_type *compiler,
 
     /* add the boolean to our instruction stream */
     stream_append(stream, ins_node);
-    
+
     gc_unregister_root(compiler->gc, (void **)&ins_node);
 }
 
@@ -160,7 +160,7 @@ void stream_symbol(compiler_core_type *compiler,
 
     /* add the boolean to our instruction stream */
     stream_append(stream, ins_node);
-    
+
     gc_unregister_root(compiler->gc, (void **)&ins_node);
 }
 

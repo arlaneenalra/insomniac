@@ -67,7 +67,7 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 
 #\\       { BEGIN(EXPECT_CHAR); }
 
-<EXPECT_CHAR>{CHAR_VAL} {	BEGIN(INITIAL); 
+<EXPECT_CHAR>{CHAR_VAL} {	BEGIN(INITIAL);
 				return CHAR_CONSTANT; }
 
 \"        { BEGIN(EXPECT_STRING); return DOUBLE_QUOTE;}
@@ -81,7 +81,7 @@ CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
 
 
 [;].*     /* Eat comments */
-#!r6rs    /* Treat this as a comment */      
+#!r6rs    /* Treat this as a comment */
 
 <<EOF>>   {
             yypop_buffer_state(yyscanner);

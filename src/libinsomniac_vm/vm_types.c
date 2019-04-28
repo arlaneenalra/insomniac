@@ -26,32 +26,32 @@ gc_type_def register_pair(gc_type *gc) {
 /* register a string container type */
 gc_type_def register_string(gc_type *gc) {
     gc_type_def str = 0;
-    
+
     str = gc_register_type(gc, sizeof(object_type));
     gc_register_pointer(gc, str,
       offsetof(object_type, value) + offsetof(value_type, string) +
       offsetof(string_type, bytes));
-    
+
     return str;
 }
 
 /* register a continuation container type */
 gc_type_def register_closure(gc_type *gc) {
     gc_type_def closure = 0;
-    
+
     closure = gc_register_type(gc, sizeof(object_type));
     gc_register_pointer(gc, closure,
       offsetof(object_type, value) + offsetof(value_type, closure));
-    
+
     return closure;
 }
 
 /* register a library container type */
 gc_type_def register_library(gc_type *gc) {
     gc_type_def library = 0;
-    
+
     library = gc_register_type(gc, sizeof(object_type));
-    
+
     return library;
 }
 
@@ -59,7 +59,7 @@ gc_type_def register_library(gc_type *gc) {
 /* register a vector type */
 gc_type_def register_vector(gc_type *gc) {
     gc_type_def vector = 0;
-    
+
     vector = gc_register_type(gc, sizeof(object_type));
     gc_register_pointer(gc, vector,
       offsetof(object_type, value) + offsetof(value_type, vector) +
@@ -71,7 +71,7 @@ gc_type_def register_vector(gc_type *gc) {
 /* type used to store the execution state */
 gc_type_def register_env(gc_type *gc) {
     gc_type_def env = 0;
-    
+
     env = gc_register_type(gc, sizeof(env_type));
 
     gc_register_pointer(gc, env,
@@ -112,27 +112,27 @@ gc_type_def create_vm_type(gc_type *gc) {
 
     vm_type_def = gc_register_type(gc, sizeof(vm_internal_type));
 
-    gc_register_pointer(gc, vm_type_def, 
+    gc_register_pointer(gc, vm_type_def,
                         offsetof(vm_internal_type, stack_root));
     gc_register_pointer(gc, vm_type_def,
                         offsetof(vm_internal_type, empty));
-    gc_register_pointer(gc, vm_type_def, 
+    gc_register_pointer(gc, vm_type_def,
                         offsetof(vm_internal_type, vm_true));
-    gc_register_pointer(gc, vm_type_def, 
+    gc_register_pointer(gc, vm_type_def,
                         offsetof(vm_internal_type, vm_false));
 
-    gc_register_pointer(gc, vm_type_def, 
+    gc_register_pointer(gc, vm_type_def,
                         offsetof(vm_internal_type, reg1));
-    gc_register_pointer(gc, vm_type_def, 
+    gc_register_pointer(gc, vm_type_def,
                         offsetof(vm_internal_type, reg2));
-    gc_register_pointer(gc, vm_type_def, 
+    gc_register_pointer(gc, vm_type_def,
                         offsetof(vm_internal_type, reg3));
 
-    gc_register_pointer(gc, vm_type_def, 
+    gc_register_pointer(gc, vm_type_def,
                         offsetof(vm_internal_type, symbol_table));
     gc_register_pointer(gc, vm_type_def,
                         offsetof(vm_internal_type, import_table));
-    gc_register_pointer(gc, vm_type_def, 
+    gc_register_pointer(gc, vm_type_def,
                         offsetof(vm_internal_type, env));
 
     return vm_type_def;

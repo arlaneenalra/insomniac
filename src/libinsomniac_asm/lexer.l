@@ -35,7 +35,7 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 
 {SIGNS}?{DIGITS}        { return OP_LIT_FIXNUM; }
 "#t"                    { return OP_LIT_TRUE; }
-"#f"                    { return OP_LIT_FALSE;} 
+"#f"                    { return OP_LIT_FALSE;}
 "()"                    { return OP_LIT_EMPTY; }
 
 "fixnum?"               { return OP_IS_FIXNUM; }
@@ -157,7 +157,7 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 <EXPECT_STRING>{
 
 	([^\"]|\\\")*     { return OP_LIT_STRING; }
-        \"                { BEGIN(INITIAL); 
+        \"                { BEGIN(INITIAL);
                             return STRING_END_TOKEN; }
 }
 

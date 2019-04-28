@@ -22,7 +22,7 @@ void op_lit_char(vm_internal_type *vm) {
     /* ip should be pointed at the instructions argument */
     for(int i=4; i>=0; i--) {
         byte = vm->env->code_ref[vm->env->ip + i];
-        
+
         character = character << 8;
         character = character | byte;
     }
@@ -69,7 +69,7 @@ void op_lit_string(vm_internal_type *vm) {
 /* Given a string, convert it into a symbol */
 void op_make_symbol(vm_internal_type *vm) {
     vm->reg1 = vm_pop(vm);
-    
+
     assert(vm->reg1 && vm->reg1->type == STRING);
 
     make_symbol(vm, &vm->reg1);

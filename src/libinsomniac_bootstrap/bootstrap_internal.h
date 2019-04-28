@@ -9,7 +9,7 @@
 #include <limits.h>
 
 /* Define the maximum include depth that we will support */
-#define MAX_INCLUDE_DEPTH 64 
+#define MAX_INCLUDE_DEPTH 64
 
 typedef struct ins_stream ins_stream_type;
 typedef struct ins_node ins_node_type;
@@ -21,7 +21,7 @@ typedef enum node {
     STREAM_SYMBOL,
     STREAM_STRING,
     STREAM_OP,
-    
+
     STREAM_QUOTED,
     STREAM_LOAD,
     STREAM_ASM,
@@ -143,7 +143,7 @@ void emit_call(compiler_core_type *compiler, buffer_type *buf,
   ins_node_type *call, bool tail_call);
 void emit_record_type(compiler_core_type *compiler, buffer_type *buf,
   ins_stream_type *def);
-  
+
 void gen_label(compiler_core_type *compiler, buffer_type **buf);
 
 void setup_include(compiler_core_type* compiler, ins_stream_type *arg);

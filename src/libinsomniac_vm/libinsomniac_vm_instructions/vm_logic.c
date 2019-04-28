@@ -45,7 +45,7 @@ void op_eq(vm_internal_type *vm) {
 /* return the boolean inverse of the given object */
 void op_not(vm_internal_type *vm) {
     object_type *obj = 0;
-    
+
     vm->reg1 = obj = vm_pop(vm);
 
     if(!obj) {

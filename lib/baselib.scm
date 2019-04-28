@@ -14,7 +14,7 @@
 ;; (x) newline
 ;; (x) set!
 ;; define-macro --- maybe
-;; 
+;;
 
 (define (display x) (asm (x) out ()))
 (define (newline) (asm #\newline out ()))
@@ -26,7 +26,7 @@
 ;; For cond
 (define else #t)
 
-(define (apply proc . args) 
+(define (apply proc . args)
     (asm (args) (proc) tail_call_in ))
 
 

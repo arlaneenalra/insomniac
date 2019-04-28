@@ -29,7 +29,7 @@ void tear_down_hook() {
     gc_unregister_root(gc, (void **)&value);
     gc_unregister_root(gc, (void **)&key1);
     gc_unregister_root(gc, &hash);
-    
+
     /* Shutdown the GC */
     gc_destroy(gc);
 }
@@ -37,11 +37,11 @@ void tear_down_hook() {
 void build_hash() {
 
     /* create a hash table */
-    hash_create(gc, 
+    hash_create(gc,
                 &hash_string,
                 &hash_string_cmp,
                 &hash);
-    
+
 
     /* push values into the hash */
     for(int i=0; i <10; i++) {
@@ -88,7 +88,7 @@ int test_read() {
                 printf("'%s': '%s' != '%s'\n",key1, expected, value);
                 return 1;
             }
-            
+
         } else { /* test case failed */
             return 1;
         }
@@ -131,7 +131,7 @@ int test_erase() {
     /* The key should no longer be found */
     if(hash_get(hash, (void*)"k1", (void**)&value)) {
         printf("Found: '%s'\n", value);
-    
+
         return 1;
     }
 

@@ -5,19 +5,19 @@
 static gc_type_def hashtable_type_def = 0;
 static gc_type_def key_value_type_def = 0;
 
-/* create a hashtable using the given function and 
+/* create a hashtable using the given function and
    comparator */
 void hash_create(gc_type *gc, hash_fn fn,
                  hash_cmp cmp, hashtable_type **ret) {
-    
+
     hash_internal_type *table = 0;
-    
+
     /* register the hashtable type with the gc */
     if(!hashtable_type_def) {
         hashtable_type_def = register_hashtable(gc);
         key_value_type_def = register_key_value(gc);
     }
-    
+
     gc_register_root(gc, (void**)&table);
 
     gc_alloc_type(gc, 0, hashtable_type_def, (void **)&table);
@@ -26,7 +26,7 @@ void hash_create(gc_type *gc, hash_fn fn,
     table->calc_hash = fn;
     table->compare = cmp;
     table->copy_on_write = false;
-    
+
     /* resize the hashtable */
     hash_resize(table, HASH_SIZE);
 
@@ -87,8 +87,8 @@ uint8_t hash_get(hashtable_type *void_table, void *key, void ** value) {
     if(!kv) {
         return 0;
     }
-    
-    /* we found the value, do we have 
+
+    /* we found the value, do we have
      somewhere to put it? */
     if(value) {
         *(value) = kv->value;
@@ -104,7 +104,7 @@ key_value_type *hash_find(hash_internal_type *table,
     hash_type index = hash % table->size; /* calculate the search table index */
     key_value_type *kv = 0;
     key_value_type *prev_kv = 0;
-   
+
     /* Check for "write" operations and a COW hash */
     if (table->copy_on_write && (action == CREATE || action == DELETE)) {
         /* resize implicitly copies everything */
@@ -121,7 +121,7 @@ key_value_type *hash_find(hash_internal_type *table,
 
                 /* do the delete if needed */
                 if(action == DELETE) {
-                    
+
                     /* Do we have a chain? */
                     if(prev_kv) {
                         /* Remove node from chain */
@@ -138,7 +138,7 @@ key_value_type *hash_find(hash_internal_type *table,
             kv = kv->next;
         }
     }
-    
+
     /* we did not find the key, should we create it? */
     if(action == CREATE) {
         gc_register_root(table->gc, (void**)&kv);
@@ -158,7 +158,7 @@ key_value_type *hash_find(hash_internal_type *table,
         return kv;
     }
 
-    
+
     return 0;
 }
 
@@ -180,7 +180,7 @@ void hash_resize(hash_internal_type *table, size_t size) {
     table->size = size;
     table->entries = 0;
 
-    /* do we need to copy old entries into 
+    /* do we need to copy old entries into
        the new table */
     if(old_table) {
         /* enumerate all old entries and add them to the
@@ -198,7 +198,7 @@ void hash_resize(hash_internal_type *table, size_t size) {
             }
         }
     }
-    
+
     gc_unregister_root(table->gc, (void **)&old_table);
 }
 
@@ -243,7 +243,7 @@ void hash_info(hashtable_type *void_table) {
             max = current;
         }
     }
-    
+
     printf("\n\tLongest Chain %" PRIi64 " Active Chains %" PRIi64 " Average Chain %f\n",
            max, active_chains, (table->entries * 1.0) / active_chains);
 }

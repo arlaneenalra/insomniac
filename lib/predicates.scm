@@ -1,5 +1,5 @@
 ;;;
-;;; Type testing predicates 
+;;; Type testing predicates
 ;;;
 
 (define (fixnum? x) (asm (x) fixnum?))

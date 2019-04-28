@@ -82,7 +82,7 @@ typedef union value {
 /* define a memory object */
 struct object {
     cell_type type;
-    
+
     /* what is actually stored in this
        memory location */
     value_type value;

@@ -4,7 +4,7 @@
 void op_make_byte_vector(vm_internal_type *vm) {
     object_type *obj = 0;
     vm_int length = 0;
-    
+
     vm->reg1 = obj = vm_pop(vm);
 
     /* make sure we have a number */
@@ -21,7 +21,7 @@ void op_make_byte_vector(vm_internal_type *vm) {
 void op_make_vector(vm_internal_type *vm) {
     object_type *obj = 0;
     vm_int length = 0;
-    
+
     vm->reg1 = obj = vm_pop(vm);
 
     /* make sure we have a number */
@@ -38,7 +38,7 @@ void op_make_vector(vm_internal_type *vm) {
 void op_make_record(vm_internal_type *vm) {
     object_type *obj = 0;
     vm_int length = 0;
-    
+
     vm->reg1 = obj = vm_pop(vm);
 
     /* make sure we have a number */
@@ -80,7 +80,7 @@ void op_index_set(vm_internal_type *vm) {
     vm->reg3 = obj_index = vm_pop(vm);
 
     assert(obj_index && obj_index->type == FIXNUM);
-    
+
     index = obj_index->value.integer;
 
     assert(vector && (vector->type == VECTOR || vector->type == RECORD || vector->type == BYTE_VECTOR) &&
@@ -106,7 +106,7 @@ void op_index_ref(vm_internal_type *vm) {
     vm->reg2 = obj_index = vm_pop(vm);
 
     assert(obj_index && obj_index->type == FIXNUM);
-    
+
     index = obj_index->value.integer;
 
     assert(vector && (vector->type == VECTOR || vector->type == RECORD || vector->type == BYTE_VECTOR) &&
@@ -134,20 +134,20 @@ void op_slice(vm_internal_type *vm) {
     vm->reg1 = vector = vm_pop(vm);
     vm->reg2 = end = vm_pop(vm);
     vm->reg3 = start = vm_pop(vm);
-    
+
     assert(vector && (vector->type == VECTOR || vector->type == BYTE_VECTOR) && vector->value.vector.length >= end->value.integer);
-    
+
     length = end->value.integer - start->value.integer;
 
     assert(length >= 0);
 
-    /* Vector and bytevector have the same internal structure, the only difference 
-       are the final pointer types. We can use this to avoid extraneous allocations 
+    /* Vector and bytevector have the same internal structure, the only difference
+       are the final pointer types. We can use this to avoid extraneous allocations
        and make accessing the members easier. */
     vm->reg2 = vm_alloc(vm, vector->type);
     vm->reg2->value.byte_vector.length = MIN(length, vector->value.byte_vector.length);
     vm->reg2->value.byte_vector.slice = true;
-  
+
     /* We need to know the type to determine the size to offset by. */
     if (vector->type == VECTOR) {
         vm->reg2->value.vector.vector = vector->value.vector.vector + start->value.integer;

@@ -10,7 +10,7 @@ gc_type_def gc_register_type(gc_type *gc_void, size_t size) {
 
     uint32_t new_type = gc->num_types;
 
-    /* if we don't have any types defined, define a new 
+    /* if we don't have any types defined, define a new
        array */
     if(!gc->num_types) {
         gc->type_defs = MALLOC(array_size);
@@ -18,7 +18,7 @@ gc_type_def gc_register_type(gc_type *gc_void, size_t size) {
     } else {
         /* redefine array and copy */
         type_defs = MALLOC(array_size);
-        
+
         memcpy(type_defs, gc->type_defs, sizeof(meta_obj_def_type) * (gc->num_types));
         FREE(gc->type_defs);
         gc->type_defs = type_defs;
@@ -62,7 +62,7 @@ void gc_register_array(gc_type *gc_void, gc_type_def type, size_t offset) {
 void destroy_types(gc_ms_type *gc, meta_obj_def_type *type_list, uint32_t num_types) {
     meta_obj_ptr_def_type *next=0;
     meta_obj_ptr_def_type *type_def=0;
-    
+
 
     for(int i=0; i<num_types; i++) {
         type_def=type_list[i].root_list;
@@ -72,7 +72,7 @@ void destroy_types(gc_ms_type *gc, meta_obj_def_type *type_list, uint32_t num_ty
 
             FREE(type_def);
 
-            type_def=next;  
+            type_def=next;
         }
 
     }

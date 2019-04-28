@@ -27,17 +27,17 @@ int eval_string(vm_type *vm, gc_type *gc, char *str) {
     ret_value = vm_eval(vm, written, code_ref);
 
     gc_unregister_root(gc, (void **)&code_ref);
-    
+
     return ret_value;
 }
 
 int main(int argc, char**argv) {
     gc_type *gc = gc_create(sizeof(object_type));
-    vm_type *vm = 0; 
+    vm_type *vm = 0;
     char *code_str = 0;
     int ret_value = 0;
 
-    /* needed to setup locale aware printf . . . 
+    /* needed to setup locale aware printf . . .
        I need to do a great deal more research here */
     setlocale(LC_ALL, "");
 

@@ -23,7 +23,7 @@ typedef struct meta_obj_ptr_def meta_obj_ptr_def_type;
 typedef enum mark {
     RED,
     BLACK,
-    
+
     PERM,
     DEAD
 } mark_type;
@@ -82,7 +82,7 @@ typedef struct gc_ms {
     size_t size_granularity; /* the actual size of a normal cell*/
 
     vm_int protect_count;
-    
+
     vm_int allocations; /* Total number of active allocations */
 
     mark_type current_mark;

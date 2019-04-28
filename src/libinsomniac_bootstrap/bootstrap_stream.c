@@ -18,7 +18,7 @@ void stream_concat(ins_stream_type *stream, ins_stream_type *source) {
         fprintf(stderr, "Attempt to concat non-stream!\n");
         assert(0);
     }
-    
+
     /* Make sure there is something to append */
     if (!source->head) {
         return;

@@ -1,4 +1,4 @@
-%pure-parser 
+%pure-parser
 /* %define api.pure */
 
 %{
@@ -10,8 +10,8 @@
 %}
 
 %parse-param {compiler_core_type *compiler}
-%parse-param {void *scanner} 
-%lex-param {void *scanner} 
+%parse-param {void *scanner}
+%lex-param {void *scanner}
 
 %define api.value.type {ins_stream_type *}
 
@@ -61,13 +61,13 @@
 %%
 
 top_level:
-  begin_body                      { stream_concat(compiler->stream, $1); }  
+  begin_body                      { stream_concat(compiler->stream, $1); }
   END_OF_FILE                     { YYACCEPT; }
 
 self_evaluating:
     boolean
   | CHAR_CONSTANT                 { STREAM_NEW($$, char, yyget_text(scanner)); }
-  | string 
+  | string
   | number
 
 /* Matches all symbols
@@ -79,25 +79,25 @@ symbol:
     AST_SYMBOL                    { STREAM_NEW($$, symbol, yyget_text(scanner)); }
 
 literal:
-    quoted                        { STREAM_NEW($$, quoted, $1); } 
-  | self_evaluating 
+    quoted                        { STREAM_NEW($$, quoted, $1); }
+  | self_evaluating
 
 expression:
     literal
   | procedure_call
-  | symbol                        { STREAM_NEW($$, load, $1); } 
+  | symbol                        { STREAM_NEW($$, load, $1); }
 
 datum:
       literal
     | symbol
     | list
-   
+
 list_end:
     list_next CLOSE_PAREN              {
                                          STREAM_NEW($$, literal, "()");
                                          stream_concat($$, $1);
                                        }
- 
+
   | list_next DOT datum CLOSE_PAREN    {
                                          $$ = $3;
                                          stream_concat($$, $1);
@@ -108,7 +108,7 @@ list:
     OPEN_PAREN list_end                { STREAM_NEW($$, quoted, $2); }
 
 list_next:
-    datum                                 
+    datum
   | datum list_next                    {
                                          $$ = $2;
                                          stream_concat($$, $1);
@@ -118,14 +118,14 @@ quoted:
     QUOTE datum                        { $$ = $2; }
   | OPEN_PAREN PRIM_QUOTE list_end     { $$ = $3; }
 
-    
+
 boolean:
     TRUE_OBJ                      { STREAM_NEW($$, boolean, 1); }
   | FALSE_OBJ                     { STREAM_NEW($$, boolean, 0); }
 
-number:                           
+number:
     FIXED_NUMBER                { STREAM_NEW($$, literal, yyget_text(scanner)); }
-  | FLOAT_NUMBER                { STREAM_NEW($$, literal, yyget_text(scanner)); } 
+  | FLOAT_NUMBER                { STREAM_NEW($$, literal, yyget_text(scanner)); }
 
 string_body:
     STRING_CONSTANT               { STREAM_NEW($$, string, yyget_text(scanner)); }
@@ -133,7 +133,7 @@ string_body:
 string:
     DOUBLE_QUOTE string_body DOUBLE_QUOTE  { $$ = $2; }
   | DOUBLE_QUOTE DOUBLE_QUOTE     { STREAM_NEW($$, string, ""); }
-  
+
 /* Some basic math procedures */
 procedure_call:
     OPEN_PAREN primitive_procedures  { $$ = $2; }
@@ -187,7 +187,7 @@ asm_types:
 two_args:
     expression expression                  { STREAM_NEW($$, two_arg, $1, $2); }
 
-include: /* Only single arg include and is effectively an empty node. */ 
+include: /* Only single arg include and is effectively an empty node. */
     PRIM_INCLUDE DOUBLE_QUOTE
     string_body DOUBLE_QUOTE
     CLOSE_PAREN                {
@@ -213,7 +213,7 @@ or:
     PRIM_OR boolean_end                        { STREAM_NEW($$, or, $2); }
 
 boolean_body:
-    expression 
+    expression
   | expression boolean_body                    { $$ = $1; stream_concat($$, $2); }
 
 boolean_end:
@@ -235,16 +235,16 @@ cond_clause_list:
   | cond_clause_list_end CLOSE_PAREN
 
 let_star:
-    PRIM_LET_STAR let_binding_list begin_end   { STREAM_NEW($$, let_star, $2, $3); } 
+    PRIM_LET_STAR let_binding_list begin_end   { STREAM_NEW($$, let_star, $2, $3); }
 
 let_binding:
     OPEN_PAREN symbol expression CLOSE_PAREN   { STREAM_NEW($$, bind, $3, $2); }
 
 let_binding_list:
-    OPEN_PAREN let_binding_end CLOSE_PAREN     { $$ = $2; } 
+    OPEN_PAREN let_binding_end CLOSE_PAREN     { $$ = $2; }
 
 let_binding_end:
-    let_binding                                { $$ = $1; } 
+    let_binding                                { $$ = $1; }
   | let_binding let_binding_end                { $$ = $1; stream_concat($$, $2); }
 
 define:
@@ -261,7 +261,7 @@ define_lambda:
     symbol define_lambda_body                  { STREAM_NEW($$, bind, $4, $3); }
 
 define_lambda_body:
-    lambda_formals_list 
+    lambda_formals_list
     begin_end                                  { STREAM_NEW($$, lambda, $1, $2); }
 
 define_record_type:
@@ -269,14 +269,14 @@ define_record_type:
 
 /* Set the value of a location */
 set:
-    PRIM_SET symbol expression CLOSE_PAREN     { STREAM_NEW($$, store, $3, $2); } 
-  | PRIM_SET expression expression CLOSE_PAREN     { STREAM_NEW($$, store, $3, $2); } 
+    PRIM_SET symbol expression CLOSE_PAREN     { STREAM_NEW($$, store, $3, $2); }
+  | PRIM_SET expression expression CLOSE_PAREN     { STREAM_NEW($$, store, $3, $2); }
 
 begin:
     PRIM_BEGIN begin_end   { $$ = $2; }
 
 begin_body:
-    expression              
+    expression
   | expression begin_body  { $$ = $1; stream_concat($$, $2); }
 
 begin_end:
@@ -300,7 +300,7 @@ user_call_end:
 
 user_call_body:
     expression                  { $$ = $1; }
-  | expression user_call_body   { $$ = $2; stream_concat($2, $1); }  
+  | expression user_call_body   { $$ = $2; stream_concat($2, $1); }
 
 /* A basic lambda expression */
 lambda:
@@ -324,7 +324,7 @@ lambda_formals_list_end:
                                    }
   | symbol lambda_formals_list_end {
                                      /* Add an element in the middle of a list */
-                                     $$ = $1; stream_concat($$, $2); 
+                                     $$ = $1; stream_concat($$, $2);
                                    }
   | DOT symbol CLOSE_PAREN         {
                                      /* Last element takes rest */
@@ -338,14 +338,14 @@ void parse_error(compiler_core_type *compiler, void *scanner, char *s) {
     if (compiler->include_depth >= 0) {
       (void)fprintf(stderr,"In file %s\n", compiler->include_stack[compiler->include_depth]);
     }
-    (void)fprintf(stderr,"There was an error parsing '%s' on line %i near: '%s'\n", 
+    (void)fprintf(stderr,"There was an error parsing '%s' on line %i near: '%s'\n",
                   s, yyget_lineno(scanner), yyget_text(scanner));
 }
 
 
 int parse_internal(compiler_core_type *compiler, void *scanner) {
     int ret_val = 0;
-    
+
     ret_val = yyparse(compiler, scanner);
 
     return ret_val;

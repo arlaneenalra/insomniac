@@ -1,14 +1,14 @@
 #include "vm_internal.h"
 
-/* create a new environment that is a child of 
+/* create a new environment that is a child of
    the current environement */
 void push_env(vm_internal_type *vm) {
     env_type *new_env = 0;
 
     gc_register_root(vm->gc, (void **)&new_env);
-    
+
     gc_alloc_type(vm->gc, 0, vm->env_type, (void **)&new_env);
-    
+
     /* create new hash table */
     hash_create_string(vm->gc, &(new_env->bindings));
 

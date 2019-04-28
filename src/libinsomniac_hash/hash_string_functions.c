@@ -1,7 +1,7 @@
 #include "hash_internal.h"
 #include <string.h>
 
-/* Simple hash function for strings. Treats all 
+/* Simple hash function for strings. Treats all
    characters as single bytes. */
 hash_type hash_string(void *key) {
     hash_type hash = 0;

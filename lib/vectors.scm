@@ -5,8 +5,8 @@
 (define (vector? x) (asm (x) vector?))
 
 ;; Return the length of a vector
-(define (vector-length x) 
-    (if (null? x) 
+(define (vector-length x)
+    (if (null? x)
         0
         (asm (x) vec-len)))
 
@@ -41,7 +41,7 @@
 
 ;; Convert the given list into a vector
 (define (list->vector list)
-  (define vec 
+  (define vec
     (make-vector (length list)))
 
   (define (inner list index)

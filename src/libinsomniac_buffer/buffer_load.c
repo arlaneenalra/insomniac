@@ -19,7 +19,7 @@ size_t buffer_load(buffer_type *buf, char *file) {
     if(fd == -1 ) {
         return -1;
     }
-    
+
     /* read everything into our elastic buffer */
     while((count = read(fd, bytes, BLOCK_SIZE))) {
         buffer_write(buf, (uint8_t *)bytes, count);
@@ -54,6 +54,6 @@ size_t buffer_load_string(gc_type *gc, char *file, char **str) {
     buffer_read(buf, (uint8_t *)*str, count);
 
     gc_unregister_root(gc, &buf);
-    
+
     return count;
 }

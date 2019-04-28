@@ -10,13 +10,13 @@
     -1)
 
 (expect "Check something a little more complex"
-    (lambda () 
+    (lambda ()
         (call-with-current-continuation
-            (lambda (exit) 
-                (for-each 
-                    (lambda (x) 
-                        (if (> 0 x) 
-                            (exit x))) 
+            (lambda (exit)
+                (for-each
+                    (lambda (x)
+                        (if (> 0 x)
+                            (exit x)))
                     '(54 0 37 -3 245 19)) #t)))
     -3)
 
@@ -26,7 +26,7 @@
         (define c #f)
 
         (define (add s)
-            (set! path (cons s path))) 
+            (set! path (cons s path)))
 
         (dynamic-wind
             (lambda () (add 'connect))
@@ -43,7 +43,7 @@
         '(connect talk1 disconnect
             connect talk2 disconnect))
 
-(define (build-winder adder before after) 
+(define (build-winder adder before after)
     (lambda (proc)
         (dynamic-wind
             (lambda () (adder before))
@@ -55,12 +55,12 @@
         (define path '())
         (define (add s)
             (set! path (cons s path))
-            path) 
+            path)
 
         (define winder (build-winder add 'connect 'disconnect))
         (define c #f)
 
-        (winder (lambda (add1) 
+        (winder (lambda (add1)
             (winder (lambda (add)
                 (add (call/cc
                     (lambda (c0)
@@ -78,13 +78,13 @@
         (define path '())
         (define (add s)
             (set! path (cons s path))
-            path) 
+            path)
 
         (define winder (build-winder add 'connect 'disconnect))
         (define winder2 (build-winder add 'conn2 'disconn2))
         (define c #f)
 
-        (winder2 (lambda (add1) 
+        (winder2 (lambda (add1)
             (winder (lambda (add)
                 (add (call/cc
                     (lambda (c0)
@@ -96,4 +96,4 @@
 
         '(conn2 connect talk1 disconnect disconn2
             conn2 connect talk2 disconnect disconn2))
-       
+

@@ -16,7 +16,7 @@ void op_cons(vm_internal_type *vm) {
 /* extract the car from a given pair */
 void op_car(vm_internal_type *vm) {
     object_type *obj = 0;
-    
+
     vm->reg1 = obj = vm_pop(vm);
 
     if(obj && obj->type == PAIR) {
@@ -25,7 +25,7 @@ void op_car(vm_internal_type *vm) {
         vm_push(vm,obj);
 
     } else {
-        
+
         throw(vm, "Attempt to read the car of a non-pair", 1, obj);
     }
 }
@@ -33,7 +33,7 @@ void op_car(vm_internal_type *vm) {
 /* extract the car from a given pair */
 void op_cdr(vm_internal_type *vm) {
     object_type *obj = 0;
-    
+
     vm->reg1 = obj = vm_pop(vm);
 
     if(obj && obj->type == PAIR) {

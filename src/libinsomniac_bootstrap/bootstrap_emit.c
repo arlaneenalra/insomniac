@@ -58,7 +58,7 @@ void emit_jump_label(buffer_type *buf, op_type type, buffer_type *label) {
 /* Emit a cond expression */
 void emit_cond(compiler_core_type *compiler, buffer_type *buf,
   ins_node_type *node, bool allow_tail_call) {
-  
+
   buffer_type *next_label = 0;
   buffer_type *done_label = 0;
 
@@ -79,7 +79,7 @@ void emit_cond(compiler_core_type *compiler, buffer_type *buf,
     emit_comment(buf, "----Cond Clause----");
 
     /* Emit the test */
-    emit_stream(compiler, buf, node->value.two.stream1, false); 
+    emit_stream(compiler, buf, node->value.two.stream1, false);
 
     emit_op(buf, "not");
     gen_label(compiler, &next_label);
@@ -95,14 +95,14 @@ void emit_cond(compiler_core_type *compiler, buffer_type *buf,
 
     clause = clause->next;
   }
- 
+
   emit_comment(buf, "--Cond Fall-Through--");
-  
+
   /* In the event no case matches, follow our defined stack discipline */
   emit_op(buf, "()");
 
   emit_label(buf, done_label);
-  emit_comment(buf, "--Cond End--"); 
+  emit_comment(buf, "--Cond End--");
 
   gc_unregister_root(compiler->gc, &next_label);
   gc_unregister_root(compiler->gc, &done_label);
@@ -111,7 +111,7 @@ void emit_cond(compiler_core_type *compiler, buffer_type *buf,
 /* Emit an If */
 void emit_if(compiler_core_type *compiler, buffer_type *buf,
   ins_node_type *node, bool allow_tail_call) {
-  
+
   buffer_type *true_label = 0;
   buffer_type *done_label = 0;
 
@@ -137,19 +137,19 @@ void emit_if(compiler_core_type *compiler, buffer_type *buf,
   /* true: */
   emit_comment(buf, "--If true--");
   emit_label(buf, true_label);
- 
-  /* <true> */ 
+
+  /* <true> */
   emit_stream(compiler, buf, body->value.two.stream1, allow_tail_call);
- 
+
   /* done: */
   emit_comment(buf, "--If Done--");
 
   /* emit label */
   emit_label(buf, done_label);
-  
+
   emit_comment(buf, "--If End--");
 
-  
+
   gc_unregister_root(compiler->gc, &done_label);
   gc_unregister_root(compiler->gc, &true_label);
 }
@@ -181,15 +181,15 @@ void emit_bool(compiler_core_type *compiler, buffer_type *buf,
     no_args = false;
 
     /* Tail calls cannot be allowed here */
-    pushed = emit_node(compiler, buf, exp, false); 
+    pushed = emit_node(compiler, buf, exp, false);
 
     exp = exp->next;
 
-    // TODO: Look at optimizing this out 
+    // TODO: Look at optimizing this out
     if (!pushed) {
       emit_op(buf, "()");
     }
-    
+
     if (exp) {
       emit_op(buf, "dup");
 
@@ -205,7 +205,7 @@ void emit_bool(compiler_core_type *compiler, buffer_type *buf,
         /* or case */
         emit_jump_label(buf, OP_JNF, done_label);
       }
-    
+
       /* ignore intermediate results */
       emit_op(buf, "drop");
     }
@@ -219,7 +219,7 @@ void emit_bool(compiler_core_type *compiler, buffer_type *buf,
     } else {
       emit_op(buf, "#f");
     }
-  } 
+  }
 
   emit_label(buf, done_label);
 
@@ -250,7 +250,7 @@ void emit_lambda(compiler_core_type *compiler, buffer_type *buf,
 
   /* jmp skip_label */
   emit_jump_label(buf, OP_JMP, skip_label);
- 
+
   /* proc_label: */
   emit_label(buf, proc_label);
 
@@ -266,8 +266,8 @@ void emit_lambda(compiler_core_type *compiler, buffer_type *buf,
 
   /* Loop until we're at the end of the list we're looking at a () */
   while (formal_node && formal_node->type != STREAM_LITERAL) {
-    
-    /* If we see the end of the list here, we're binding anything left in the 
+
+    /* If we see the end of the list here, we're binding anything left in the
        arguments list to this symbol. */
     bind_rest = (formal_node && formal_node->next == 0);
 
@@ -284,7 +284,7 @@ void emit_lambda(compiler_core_type *compiler, buffer_type *buf,
     }
 
     emit_literal(buf, formal_node);
-    
+
     emit_op(buf, "bind");
 
     formal_node = formal_node->next;
@@ -306,7 +306,7 @@ void emit_lambda(compiler_core_type *compiler, buffer_type *buf,
   emit_stream(compiler, buf, node->value.two.stream2, true);
 
   /* swap ret */
-  // TODO Add a check for tail call to avoid garbage instructions in the 
+  // TODO Add a check for tail call to avoid garbage instructions in the
   // stream
   emit_op(buf, "swap ret");
 
@@ -326,10 +326,10 @@ void emit_let_star(compiler_core_type *compiler, buffer_type *buf,
 
   buffer_type *body_label = 0;
   buffer_type *next_label = 0;
-  
+
   gc_register_root(compiler->gc, &body_label);
   gc_register_root(compiler->gc, &next_label);
-  
+
   gen_label(compiler, &body_label);
   gen_label(compiler, &next_label);
 
@@ -344,7 +344,7 @@ void emit_let_star(compiler_core_type *compiler, buffer_type *buf,
     emit_jump_label(buf, OP_CALL, body_label);
     emit_jump_label(buf, OP_JMP, next_label);
   }
-    
+
   emit_label(buf, body_label);
 
   /* tail_call_in requires args, but let* doesn't so we need to drop them. */
@@ -360,7 +360,7 @@ void emit_let_star(compiler_core_type *compiler, buffer_type *buf,
   emit_comment(buf, "-- Let* Body--");
   emit_stream(compiler, buf, node->value.two.stream2, allow_tail_call);
   emit_comment(buf, "-- Let* Body End--");
- 
+
   emit_op(buf, "swap ret");
 
   emit_label(buf, next_label);
@@ -386,7 +386,7 @@ void emit_call(compiler_core_type *compiler, buffer_type *buf,
   head = call->value.two.stream2->head;
   while (head) {
     pushed = emit_node(compiler, buf, head, false);
-  
+
     /* Always take a slot */
     if (!pushed) {
       emit_op(buf, "()");
@@ -395,7 +395,7 @@ void emit_call(compiler_core_type *compiler, buffer_type *buf,
     emit_op(buf, "cons");
     head = head->next;
   }
-  
+
   emit_stream(compiler, buf, call->value.two.stream1, false);
 
   /* Rely on a vm level hack to make tail calls work */
@@ -419,9 +419,9 @@ void emit_string(buffer_type *buf, ins_node_type *ins) {
   char *quote = "\"";
 
   emit_indent(buf);
-  buffer_write(buf, (uint8_t*)quote, 1); 
+  buffer_write(buf, (uint8_t*)quote, 1);
   buffer_write(buf, (uint8_t*)ins->value.literal, strlen(ins->value.literal));
-  buffer_write(buf, (uint8_t*)quote, 1); 
+  buffer_write(buf, (uint8_t*)quote, 1);
   emit_newline(buf);
 }
 
@@ -450,7 +450,7 @@ void emit_quoted(buffer_type *buf, ins_stream_type *tree) {
 
       default:
         fprintf(stderr, "Unknown instructions type %i in stream!\n", head->type);
-        break; 
+        break;
     }
 
     if (is_list) {
@@ -458,7 +458,7 @@ void emit_quoted(buffer_type *buf, ins_stream_type *tree) {
     }
 
     head = head->next;
-    
+
     /* If we get to a second iteration, then we have a quoted list */
     is_list = true;
   }
@@ -467,7 +467,7 @@ void emit_quoted(buffer_type *buf, ins_stream_type *tree) {
 
 /* Emit a record type definition call */
 void emit_record_type(compiler_core_type *compiler, buffer_type *buf, ins_stream_type *def) {
- 
+
   buffer_type *loop_label = 0;
   buffer_type *done_label = 0;
 
@@ -491,11 +491,11 @@ void emit_record_type(compiler_core_type *compiler, buffer_type *buf, ins_stream
   gen_label(compiler, &done_label);
 
   emit_label(buf, loop_label);
- 
+
   /* do binding test */
   emit_op(buf, "dup");
   emit_op(buf, "null?");
-  
+
   emit_jump_label(buf, OP_JNF, done_label);
 
   emit_op(buf, "dup");
@@ -516,7 +516,7 @@ void emit_record_type(compiler_core_type *compiler, buffer_type *buf, ins_stream
 
   emit_label(buf, done_label);
   emit_comment(buf, "--Record End--");
-  
+
   gc_unregister_root(compiler->gc, &done_label);
   gc_unregister_root(compiler->gc, &loop_label);
 }
@@ -641,7 +641,7 @@ bool emit_node(compiler_core_type *compiler, buffer_type *buf,
       break;
 
     case STREAM_LET_STAR:
-      emit_let_star(compiler, buf, head, allow_tail_call); 
+      emit_let_star(compiler, buf, head, allow_tail_call);
       pushed = true;
       break;
 
@@ -657,16 +657,16 @@ bool emit_node(compiler_core_type *compiler, buffer_type *buf,
 void emit_stream(compiler_core_type *compiler, buffer_type *buf,
   ins_stream_type *tree, bool allow_tail_call) {
   ins_node_type *head = 0;
-  bool pushed = false; 
+  bool pushed = false;
 
 
-  if (tree) { 
+  if (tree) {
     head = tree->head;
   }
 
   while (head) {
     /* Set to true if the node pushes to the stack */
-    pushed = emit_node(compiler, buf, head, allow_tail_call && !(head->next)); 
+    pushed = emit_node(compiler, buf, head, allow_tail_call && !(head->next));
 
     head = head->next;
 

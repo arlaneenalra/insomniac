@@ -12,7 +12,7 @@
 
 ;; find the length of a list
 (define (length list)
-  (define (inner list len) 
+  (define (inner list len)
     (if (null? list)
       len
       (inner (cdr list) (+ 1 len))))
@@ -28,7 +28,7 @@
   (inner list '()))
 
 
-;; Find a sub list 
+;; Find a sub list
 (define (member obj list . pred)
 
   (set! pred
@@ -53,7 +53,7 @@
 
 ;; Functions for dealing with an associative list
 (define (assoc obj alist . compare)
-  (set! compare 
+  (set! compare
     (if (null? compare) equal? (car compare)))
 
   (define entry

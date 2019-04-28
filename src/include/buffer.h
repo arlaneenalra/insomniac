@@ -18,7 +18,7 @@ void buffer_write(buffer_type *buf, uint8_t * bytes, size_t length);
 /* return the number of bytes in a buffer */
 size_t buffer_size(buffer_type *buf);
 
-/* create a new buffer of size_t bytes containing everything 
+/* create a new buffer of size_t bytes containing everything
  in the buffer. */
 size_t buffer_read(buffer_type *buf, uint8_t *dest, size_t length);
 

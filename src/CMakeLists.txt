@@ -10,11 +10,11 @@ add_subdirectory(libinsomniac_io)
 add_subdirectory(libinsomniac_bootstrap)
 add_subdirectory(libinsomniac_runtime)
 
-add_executable( insomniac 
+add_executable( insomniac
     main.c
 )
 
-target_link_libraries(insomniac 
+target_link_libraries(insomniac
     insomniac_buffer
     insomniac_vm
     insomniac_hash

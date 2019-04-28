@@ -10,7 +10,7 @@
 (expect-false "True becomes false"
              (lambda () (not #t)))
 
-(expect-true "False becomes true" 
+(expect-true "False becomes true"
              (lambda () (not #f)))
 
 (expect-false "Numbers are true - and become false"

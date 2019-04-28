@@ -39,8 +39,8 @@ void destroy_list(gc_ms_type *gc, meta_obj_type **list) {
 meta_obj_type *internal_alloc(gc_ms_type *gc, uint8_t perm, size_t size) {
     meta_obj_type *meta = 0;
     size_t real_size = 0;
-    
-    /* adjust the requested size with 
+
+    /* adjust the requested size with
        the size of our meta object */
     real_size = sizeof(meta_obj_type)+size;
 
@@ -130,11 +130,11 @@ void pre_alloc(gc_ms_type *gc) {
     void *obj=0;
 
     gc_protect(gc);
-    
+
     for(int i = 0; i < 1000; i++) {
         gc_alloc(gc, 0, gc->cell_size, (void**)&obj);
     }
-    
+
     gc_unprotect(gc);
     gc_sweep(gc); /* sweep the garbage collector */
 }

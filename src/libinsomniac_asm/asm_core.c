@@ -6,7 +6,7 @@
 /* assmble a litteral fix num */
 void asm_lit_fixnum(buffer_type *buf, yyscan_t *scanner) {
     vm_int i = 0;
-    
+
     i = strtoq(get_text(scanner), 0, 0);
     EMIT_LIT_FIXNUM(buf, i);
 }
@@ -17,7 +17,7 @@ void asm_lit_char(buffer_type *buf, yyscan_t *scanner) {
     vm_char c = 0;
 
     str = get_text(scanner);
-    c = *str; 
+    c = *str;
 
     if(strcmp(str, "newline")==0) {
         c = '\n';
@@ -27,7 +27,7 @@ void asm_lit_char(buffer_type *buf, yyscan_t *scanner) {
 
     } else if(strcmp(str, "eof")==0) {
         c = -1;
-    
+
     } else if(*str=='x' && strlen(str) > 1) { /* Hex encoded charater */
         c = strtoul(str+1, 0, 16);
     }
@@ -39,10 +39,10 @@ void asm_lit_char(buffer_type *buf, yyscan_t *scanner) {
 void asm_lit_string(buffer_type *buf, yyscan_t *scanner) {
     int empty = 1;
     int token = 0;
-    
+
     /* get the next token */
     token = yyasmlex(scanner);
-    
+
     /* do we have a string body? */
     if (token == OP_LIT_STRING) {
         EMIT_LIT_STRING(buf, get_text(scanner));
@@ -68,7 +68,7 @@ void asm_lit_string(buffer_type *buf, yyscan_t *scanner) {
 
 /* Save this label and its location in memory for latter
  lookup */
-void asm_label(gc_type *gc, buffer_type *buf, 
+void asm_label(gc_type *gc, buffer_type *buf,
                hashtable_type *labels, char *str) {
     vm_int *addr = 0;
     char *key = 0;
@@ -103,10 +103,10 @@ void asm_jump(gc_type *gc, buffer_type *buf,
     if(!init) {
         init = 1;
         jump_def = gc_register_type(gc, sizeof(jump_type));
-        
+
         gc_register_pointer(gc, jump_def, offsetof(jump_type, label));
-        
-        gc_register_pointer(gc, jump_def, offsetof(jump_type, next)); 
+
+        gc_register_pointer(gc, jump_def, offsetof(jump_type, next));
     }
 
     gc_register_root(gc, (void **)&jump);
@@ -129,12 +129,12 @@ void asm_jump(gc_type *gc, buffer_type *buf,
     label = get_text(scanner);
     gc_alloc(gc, 0, strlen(label)+1, (void **)&(jump->label));
     strcpy(jump->label, label);
-    
+
     /* put this jump at the head of the
        list */
     jump->next = *jump_list;
     *jump_list = jump;
-    
+
     gc_unregister_root(gc, (void **)&jump);
 
     /* Make sure we have space to write target */
@@ -164,12 +164,12 @@ void rewrite_jumps(uint8_t *code_ref, jump_type *jump_list,
 
         /* get bytes, there should be 8 */
         uint8_t addr[] = { INT_64(target)};
-        
+
         /* write bytes into code_ref */
         for(int i=0; i < 8; i++) {
             code_ref[jump_list->addr + i] = addr[i];
         }
-        
+
         jump_list = jump_list->next;
     }
 
@@ -184,8 +184,8 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
     hashtable_type *labels = 0;
     jump_type *jump_list = 0;
     size_t length = 0;
-    
-    
+
+
     gc_register_root(gc, &buf);
     gc_register_root(gc, &labels);
     gc_register_root(gc, (void **)&jump_list);
@@ -223,21 +223,21 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
             asm_lit_string(buf, scanner);
             break;
 
-        case OP_JMP:            
+        case OP_JMP:
         case OP_JNF:
         case OP_CALL:
         case OP_PROC:
         case OP_CONTINUE:
             EMIT(buf, token, 1); /* emit the jump operation */
             asm_jump(gc, buf, scanner, &jump_list);
-            break;                
+            break;
 
         case LABEL_TOKEN:
             asm_label(gc, buf, labels, get_text(scanner));
             break;
 
         default:
-            /* All instructions not defined otherwise, are their token. 
+            /* All instructions not defined otherwise, are their token.
                But there are things that can be returned as a token, that
                are not an instruction. So we have to constrain things to
                the correct range. */

@@ -58,7 +58,7 @@
 
             (define (process-args sym args)
                 (if (or (null? args) (null? sym))
-                    #t 
+                    #t
                     (begin
                         (set! (car sym) (car args))
                         (process-args (cdr sym) (cdr args)))))
@@ -69,15 +69,15 @@
             (define to (to-factory to-copy))
 
             (define (inner at start dir num)
-                (if (> 0 num ) 
-                    to 
+                (if (> 0 num )
+                    to
                     (begin
-                        (bytevector-u8-set! to at 
+                        (bytevector-u8-set! to at
                             (bytevector-u8-ref from start))
                         (inner (dir at) (dir start) dir (- num 1 )))))
 
             (if (> start at)
-                (inner at start add (- to-copy 1)) 
+                (inner at start add (- to-copy 1))
                 (begin
                     (set! to-copy (- to-copy 1))
                     (inner (+ at to-copy) (+ start to-copy) sub to-copy))))))

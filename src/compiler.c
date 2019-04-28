@@ -151,7 +151,7 @@ void writeToFile(options_type *opts, char *asm_str, size_t length) {
     size_t wrote = 0;
     int err = 0;
 
-    /* if not output file is given, write directly to output. *.
+    /* if not output file is given, write directly to output. */
     if(!opts->outfile) {
         out = stdout;
     } else {

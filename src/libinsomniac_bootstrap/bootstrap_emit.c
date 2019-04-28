@@ -320,6 +320,57 @@ void emit_lambda(compiler_core_type *compiler, buffer_type *buf,
   gc_unregister_root(compiler->gc, &proc_label);
 }
 
+/* Emit framing code for a let*. */
+void emit_let_star(compiler_core_type *compiler, buffer_type *buf,
+  ins_node_type *node, bool allow_tail_call) {
+
+  buffer_type *body_label = 0;
+  buffer_type *next_label = 0;
+  
+  gc_register_root(compiler->gc, &body_label);
+  gc_register_root(compiler->gc, &next_label);
+  
+  gen_label(compiler, &body_label);
+  gen_label(compiler, &next_label);
+
+  emit_comment(buf, "-- Let* --");
+
+  /* Call the label for the let body. */
+  if (allow_tail_call) {
+    emit_op(buf, "()");
+    emit_jump_label(buf, OP_PROC, body_label);
+    emit_op(buf, "tail_call_in");
+  } else {
+    emit_jump_label(buf, OP_CALL, body_label);
+    emit_jump_label(buf, OP_JMP, next_label);
+  }
+    
+  emit_label(buf, body_label);
+
+  /* tail_call_in requires args, but let* doesn't so we need to drop them. */
+  if (allow_tail_call) {
+    emit_op(buf, "swap drop");
+  }
+
+  emit_comment(buf, "-- Binding List--");
+  emit_stream(compiler, buf, node->value.two.stream1, false);
+  emit_op(buf, "drop"); /* Inefficient, but works */
+  emit_comment(buf, "-- Binding List End--");
+
+  emit_comment(buf, "-- Let* Body--");
+  emit_stream(compiler, buf, node->value.two.stream2, allow_tail_call);
+  emit_comment(buf, "-- Let* Body End--");
+ 
+  emit_op(buf, "swap ret");
+
+  emit_label(buf, next_label);
+
+  emit_comment(buf, "-- Let* End --");
+
+  gc_unregister_root(compiler->gc, &next_label);
+  gc_unregister_root(compiler->gc, &body_label);
+}
+
 /* Build a function call */
 void emit_call(compiler_core_type *compiler, buffer_type *buf,
   ins_node_type *call, bool tail_call) {
@@ -587,6 +638,11 @@ bool emit_node(compiler_core_type *compiler, buffer_type *buf,
 
     case STREAM_STORE:
       emit_double(compiler, buf, head, "!");
+      break;
+
+    case STREAM_LET_STAR:
+      emit_let_star(compiler, buf, head, allow_tail_call); 
+      pushed = true;
       break;
 
     default:

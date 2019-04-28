@@ -45,6 +45,8 @@
 %token PRIM_IF
 %token PRIM_COND
 
+%token PRIM_LET_STAR
+
 %token PRIM_AND
 %token PRIM_OR
 
@@ -148,6 +150,7 @@ primitive_procedures:
   | include
   | asm
   | cond
+  | let_star
   | and
   | or
 
@@ -230,6 +233,19 @@ cond_clause_list_end:
 cond_clause_list:
     CLOSE_PAREN
   | cond_clause_list_end CLOSE_PAREN
+
+let_star:
+    PRIM_LET_STAR let_binding_list begin_end   { STREAM_NEW($$, let_star, $2, $3); } 
+
+let_binding:
+    OPEN_PAREN symbol expression CLOSE_PAREN   { STREAM_NEW($$, bind, $3, $2); }
+
+let_binding_list:
+    OPEN_PAREN let_binding_end CLOSE_PAREN     { $$ = $2; } 
+
+let_binding_end:
+    let_binding                                { $$ = $1; } 
+  | let_binding let_binding_end                { $$ = $1; stream_concat($$, $2); }
 
 define:
     define_variable

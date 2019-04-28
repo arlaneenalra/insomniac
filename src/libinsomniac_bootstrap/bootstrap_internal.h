@@ -30,6 +30,8 @@ typedef enum node {
     STREAM_BIND,
     STREAM_STORE,
 
+    STREAM_LET_STAR,
+
     STREAM_TWO_ARG,
     STREAM_IF,
     STREAM_COND,
@@ -121,6 +123,9 @@ void emit_cond(compiler_core_type *compiler, buffer_type *buf,
 void emit_if(compiler_core_type *compiler, buffer_type *buf,
   ins_node_type *tree, bool allow_tail_call);
 
+void emit_let_star(compiler_core_type *compiler, buffer_type *output,
+  ins_node_type *node, bool allow_tail_call);
+
 void emit_bool(compiler_core_type *compiler, buffer_type *buf,
   ins_node_type *tree, bool allow_tail_call, bool and_or);
 
@@ -175,6 +180,8 @@ BUILD_SINGLE_SIGNATURE(or);
 /* Nodes that hold two streams */
 BUILD_DOUBLE_SIGNATURE(bind);
 BUILD_DOUBLE_SIGNATURE(store);
+
+BUILD_DOUBLE_SIGNATURE(let_star);
 
 BUILD_DOUBLE_SIGNATURE(two_arg);
 BUILD_DOUBLE_SIGNATURE(if);

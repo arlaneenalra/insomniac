@@ -217,6 +217,8 @@ void compiler_create(gc_type *gc, compiler_type **comp_void, char *compiler_home
 
   compiler->node_types[STREAM_BIND] = node_double_gc_type;
   compiler->node_types[STREAM_STORE] = node_double_gc_type;
+
+  compiler->node_types[STREAM_LET_STAR] = node_double_gc_type;
   
   compiler->node_types[STREAM_TWO_ARG] = node_double_gc_type;
   compiler->node_types[STREAM_IF] = node_double_gc_type;

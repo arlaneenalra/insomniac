@@ -105,8 +105,8 @@ void op_set(vm_internal_type *vm) {
         throw(vm, "Attempt to set undefined symbol", 2, key, value);
     }
 
-    gc_unregister_root(vm->gc, (void **)&value);
     gc_unregister_root(vm->gc, (void **)&key);
+    gc_unregister_root(vm->gc, (void **)&value);
 }
 
 void op_set_exit(vm_internal_type *vm) {

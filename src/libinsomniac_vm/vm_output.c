@@ -50,6 +50,22 @@ void output_char(FILE *fout, object_type *character) {
     /* fprintf(fout, "<%x>", character->value.character); */
 }
 
+void output_record(FILE *fout, object_type *vector) {
+    vm_int index = 0;
+
+    /* walk all the objects in this vector and
+       output them */
+    fprintf(fout, "<RECORD ");
+
+    for (index = 0; index < vector->value.vector.length; index++) {
+        if (index > 0) {
+            fprintf(fout, " ");
+        }
+        output_object(fout, vector->value.vector.vector[index]);
+    }
+
+    fprintf(fout, ">");
+}
 void output_vector(FILE *fout, object_type *vector) {
     vm_int index = 0;
 
@@ -133,6 +149,10 @@ void output_object(FILE *fout, object_type *obj) {
         case BYTE_VECTOR:
             output_byte_vector(fout, obj);
             break;
+
+		case RECORD:
+			output_record(fout, obj);
+			break;
 
         case BOOL:
             if (obj->value.boolean) {

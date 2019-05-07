@@ -48,9 +48,9 @@
 (-)      char>=?
 (-)      char>?
 (-)      char?
-(-)      close-input-port
-(-)      close-output-port
-(-)      close-port
+(x)      close-input-port
+(x)      close-output-port
+(x)      close-port
 (-)      complex?
 (x)      cond
 (-)      cond-expand
@@ -82,7 +82,7 @@
 (x)      if
 (-)      include-ci
 (-)      inexact?
-(-)      input-port?
+(x)      input-port?
 (-)      integer?
 (-)      lcm
 (-)      let
@@ -106,7 +106,7 @@
 (-)      open-input-bytevector
 (-)      open-output-bytevector
 (x)      or
-(-)      output-port?
+(x)      output-port?
 (-)      parameterize
 (-)      peek-u8
 (-)      positive?
@@ -141,7 +141,7 @@
 (-)      guard
 (x)      include
 (-)      inexact
-(-)      input-port-open?
+(x)      input-port-open?
 (-)      integer->char
 (x)      lambda
 (x)      length
@@ -165,7 +165,7 @@
 (-)      odd?
 (-)      open-input-string
 (-)      open-output-string
-(-)      output-port-open?
+(x)      output-port-open?
 (x)      pair?
 (-)      peek-char
 (-)      port?

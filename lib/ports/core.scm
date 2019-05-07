@@ -15,14 +15,25 @@
 
 ;; Define a port type
 (define-record-type <port>
-    (make-port fd writable type op closer)
+    (real-make-port fd writable open type op closer)
     port?
     (fd port-fd)
     (writable port-writable)
+    (open port-open? port-set-open!)
     (type port-type)
     (op port-op)
-    (closer close-op))
+    (closer port-closer))
 
+(define (make-port fd writable type op closer)
+    (real-make-port
+        fd
+        writable
+        #t
+        type
+        op
+        (lambda (port)
+            (port-set-open! port #f)
+            (closer port))))
 ;;
 ;; Predicates
 ;;
@@ -43,12 +54,19 @@
 (define (textual-port? port)
     (eq? (port-type port) '<text>))
 
+(define (output-port-open? port)
+    (and (output-port? port)
+         (port-open? port)))
+
+(define (input-port-open? port)
+    (and (input-port? port)
+         (port-open? port)))
 ;;
 ;; Close port
 ;;
 
 (define (close-port port)
-    ((close-op port) port))
+    ((port-closer port) port))
 
 (define close-input-port close-port)
 (define close-output-port close-port)

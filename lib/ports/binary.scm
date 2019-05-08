@@ -25,14 +25,23 @@
 (define (binary-close-port port)
     (raw-close (port-fd port)))
 
+;; Setup type for binary ports
+(define <binary-port>
+    (make-port-ops
+        raw-write
+        raw-read
+        raw-close
+        (lambda (port) #t))) ;; Does nothing
+
+
+;; Check for a binary port
+(define (binary-port? port)
+    (eq? (port-type port) <binary-port>))
+
+
 ;; Build a binary port
 (define (make-binary-port fd writable)
-	(make-port
-		fd
-		writable
-		'<binary>
-		(if writable raw-write raw-read)
-		binary-close-port))
+	(make-port fd writable #t <binary-port>))
 
 ;;
 ;; Standard IO ports
@@ -52,12 +61,8 @@
 ;;
 
 (define (open-binary-output-file file)
-    (make-binary-port
-        (raw-open file #t)
-        #t))
+    (make-binary-port (raw-open file #t) #t))
 
 (define (open-binary-input-file file)
-    (make-binary-port
-        (raw-open file #f)
-        #f))
+    (make-binary-port (raw-open file #f) #f))
 

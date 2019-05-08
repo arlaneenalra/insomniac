@@ -29,6 +29,7 @@ void op_read(vm_internal_type *vm) {
     object_type *key = 0;
     object_type *value = 0;
     env_type *env = 0;
+    bool found = false;
 
     gc_register_root(vm->gc, (void **)&key);
     gc_register_root(vm->gc, (void **)&value);
@@ -48,16 +49,14 @@ void op_read(vm_internal_type *vm) {
     /* search all environments and parents for
        key */
     env = vm->env;
-    while (env && !hash_get(env->bindings, key->value.string.bytes, (void **)&value)) {
+    while (env && !(found = hash_get(env->bindings, key->value.string.bytes, (void **)&value))) {
         env = env->parent;
     }
 
     /* we didn't find anything */
-    if (!value) {
+    if (!found) {
         throw(vm, "Attempt to read undefined symbol", 1, key);
-
     } else {
-
         vm_push(vm, value);
     }
 

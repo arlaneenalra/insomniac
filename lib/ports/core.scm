@@ -13,27 +13,25 @@
         (lambda () eof))
      (raw-eof-object)))
 
-;; Define a port type
+;; Define a type for ports.
+(define-record-type <port-ops>
+    (make-port-ops writer reader closer flusher)
+    port-type?
+    (writer port-type-writer)
+    (reader port-type-reader)
+    (closer port-type-closer)
+    (flusher port-type-flusher))
+
+;; Define the ports themselves.
 (define-record-type <port>
-    (real-make-port fd writable open type op closer)
+    (make-port fd writable open type)
     port?
     (fd port-fd)
     (writable port-writable)
     (open port-open? port-set-open!)
-    (type port-type)
-    (op port-op)
-    (closer port-closer))
+    (type port-type)) 
 
-(define (make-port fd writable type op closer)
-    (real-make-port
-        fd
-        writable
-        #t
-        type
-        op
-        (lambda (port)
-            (port-set-open! port #f)
-            (closer port))))
+
 ;;
 ;; Predicates
 ;;
@@ -46,14 +44,6 @@
 (define (output-port? port)
     (port-writable port))
 
-;; Check for a binary port
-(define (binary-port? port)
-    (eq? (port-type port) '<binary>))
-
-;; Check for a textual port
-(define (textual-port? port)
-    (eq? (port-type port) '<text>))
-
 (define (output-port-open? port)
     (and (output-port? port)
          (port-open? port)))
@@ -61,12 +51,19 @@
 (define (input-port-open? port)
     (and (input-port? port)
          (port-open? port)))
+
 ;;
 ;; Close port
 ;;
 
 (define (close-port port)
-    ((port-closer port) port))
+    (let*
+        ((type (port-type port))
+         (closer (port-type-closer type))
+         (fd (port-fd port)))
+        
+        (port-set-open! port #f)
+        (closer fd)))
 
 (define close-input-port close-port)
 (define close-output-port close-port)
@@ -91,7 +88,12 @@
     (define u8-slice (slice u8 start end))
 
     ;;; TODO Fully implement write
-    ((port-op port) u8-slice (bytevector-length u8-slice) (port-fd port)))
+    (let*
+        ((type (port-type port))
+         (writer (port-type-writer type))
+         (fd (port-fd port)))
+        
+        (writer u8-slice (bytevector-length u8-slice) fd)))
 
 (define (read-bytevector k . args)
     (define port
@@ -99,7 +101,13 @@
             (car args)
             (current-input-port)))
 
-    (define u8-read ((port-op port) k (port-fd port)))
+    (define u8-read 
+        (let*
+            ((type (port-type port))
+             (reader (port-type-reader type))
+             (fd (port-fd port)))
+            
+            (reader k fd)))
 
     (if (> (bytevector-length u8-read) 0)
         u8-read

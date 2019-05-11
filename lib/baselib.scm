@@ -26,8 +26,12 @@
 ;; For cond
 (define else #t)
 
-(define (apply proc . args)
-    (asm (args) (proc) tail_call_in ))
+(define (apply proc l . args)
+    (define new-args
+        (if (null? args)
+            l
+            (asm (args) (l) cons (append) call_in))) 
+    (asm (new-args) (proc) tail_call_in))
 
 (include "dynamic.scm")
 

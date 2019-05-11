@@ -8,6 +8,9 @@ void stream_alloc_node(
 
     gc_alloc_type(compiler->gc, 0, compiler->node_types[type], (void **)node);
     (*node)->type = type;
+
+    tag_node(compiler->scanner, *node);
+    (*node)->file = compiler->include_stack[compiler->include_depth];
 }
 
 /* add source to the end of stream */

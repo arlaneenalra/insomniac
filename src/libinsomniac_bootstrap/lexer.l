@@ -11,6 +11,10 @@
 /* avoid a compiler warning */
 #define ECHO /* do nothing */
 
+void accumulate_column(void *scanner);
+
+#define YY_USER_ACTION accumulate_column(yyscanner);
+
 %}
 
 DIGITS    [0-9]+
@@ -107,4 +111,15 @@ void parse_push_state(compiler_core_type *compiler, FILE *file) {
 
 }
 
+/* Used by YY_USER_ACTION to accumulate the column number currently 
+   being parsed. */
+void accumulate_column(void *scanner) {
+    yyset_column(yyget_column(scanner) + yyget_leng(scanner), scanner);
+}
+
+/* Attach line and column numbers to an instruction node. */
+void tag_node(void *scanner, ins_node_type *node) {
+    node->column = yyget_column(scanner);
+    node->line = yyget_lineno(scanner);
+}
 

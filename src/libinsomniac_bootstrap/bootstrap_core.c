@@ -70,6 +70,7 @@ gc_type_def register_node_literal_type(gc_type *gc) {
     gc_register_pointer(gc, type, offsetof(ins_node_type, next));
     gc_register_pointer(
         gc, type, offsetof(ins_node_type, value) + offsetof(node_value_type, literal));
+    gc_register_pointer(gc, type, offsetof(ins_node_type, file));
 
     /* Add other fields here */
 
@@ -84,6 +85,8 @@ gc_type_def register_node_single_type(gc_type *gc) {
     gc_register_pointer(gc, type, offsetof(ins_node_type, next));
     gc_register_pointer(
         gc, type, offsetof(ins_node_type, value) + offsetof(node_value_type, stream));
+    gc_register_pointer(gc, type, offsetof(ins_node_type, file));
+
 
     return type;
 }
@@ -103,6 +106,8 @@ gc_type_def register_node_double_type(gc_type *gc) {
         gc, type,
         offsetof(ins_node_type, value) + offsetof(node_value_type, two) +
             offsetof(two_stream_type, stream2));
+    gc_register_pointer(gc, type, offsetof(ins_node_type, file));
+
 
     return type;
 }
@@ -335,3 +340,4 @@ void compiler_code_gen(compiler_type *comp_void, buffer_type *buf, bool bootstra
         emit_bootstrap(compiler, buf);
     }
 }
+

@@ -31,6 +31,7 @@ typedef enum op {
     OP_INDEX_REF,        /* read the index into a vector an put it on the stack */
     OP_VECTOR_LENGTH,    /* return the length of a vector */
     OP_SLICE,            /* returns a slice of a vector */
+    OP_STRING_SLICE,     /* returns a slice of a string */
 
     /* jump operations Jumps are relative */
     OP_CALL,         /* call the given target and leave return on stack */

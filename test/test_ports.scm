@@ -58,3 +58,17 @@
 	(lambda () (input-port-open? in-port))
 	#f)
 
+(define test-text-file "test.txt")
+
+(define out-text-port (open-output-file test-text-file))
+
+(expect "Check that textual-port? can identify a port"
+    (lambda ()
+        (textual-port? out-text-port))
+    #t) 
+
+(expect "Write data to the text file."
+    (lambda ()
+        (write-string "Testing" out-text-port))
+    7)
+

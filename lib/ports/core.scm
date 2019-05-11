@@ -15,8 +15,9 @@
 
 ;; Define a type for ports.
 (define-record-type <port-ops>
-    (make-port-ops writer reader closer flusher)
+    (make-port-ops binary writer reader closer flusher)
     port-type?
+    (binary port-type-binary?)
     (writer port-type-writer)
     (reader port-type-reader)
     (closer port-type-closer)
@@ -52,6 +53,15 @@
     (and (input-port? port)
          (port-open? port)))
 
+;; Check for a binary port
+(define (binary-port? port)
+    (define type (port-type port))
+    (eq? '<binary> (port-type-binary? type)))
+
+(define (textual-port? port)
+    (define type (port-type port))
+    (eq? '<textual> (port-type-binary? type)))
+
 ;;
 ;; Close port
 ;;
@@ -71,29 +81,37 @@
 ;;
 ;; Standard port operations
 ;;
+(define (writer-factory len-func slicer)
 
-(define (write-bytevector u8 . args)
-    (define port (current-output-port))
-    (define start 0)
-    (define end (bytevector-length u8))
+    (define (write-slice u8 . args)
+        (define port (current-output-port))
+        (define start 0)
+        (define end (len-func u8))
 
-    (define (process-args sym args)
-        (if (or (null? args) (null? sym))
-            #t
-            (begin
-                (set! (car sym) (car args))
-                (process-args (cdr sym) (cdr args)))))
-    (process-args '(port start end) args)
+        (define (process-args sym args)
+            (if (or (null? args) (null? sym))
+                #t
+                (begin
+                    (set! (car sym) (car args))
+                    (process-args (cdr sym) (cdr args)))))
+        (process-args '(port start end) args)
 
-    (define u8-slice (slice u8 start end))
+        (define u8-slice (slicer u8 start end))
 
-    ;;; TODO Fully implement write
-    (let*
-        ((type (port-type port))
-         (writer (port-type-writer type))
-         (fd (port-fd port)))
-        
-        (writer u8-slice (bytevector-length u8-slice) fd)))
+        ;;; TODO Fully implement write
+        (let*
+            ((type (port-type port))
+             (writer (port-type-writer type))
+             (fd (port-fd port)))
+            
+            (writer u8-slice (len-func u8-slice) fd)))
+    write-slice)
+
+(define write-bytevector
+    (writer-factory bytevector-length slice))
+
+;(define write-string
+;    (writer-factory string-length (lambda (str) str)))
 
 (define (read-bytevector k . args)
     (define port
@@ -112,4 +130,6 @@
     (if (> (bytevector-length u8-read) 0)
         u8-read
         (eof-object)))
+
+
 

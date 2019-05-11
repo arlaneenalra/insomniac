@@ -6,3 +6,5 @@
 
 (include "ports/binary.scm")
 
+(include "ports/textual.scm")
+

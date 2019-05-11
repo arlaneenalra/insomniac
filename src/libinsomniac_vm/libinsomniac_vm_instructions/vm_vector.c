@@ -170,3 +170,22 @@ void op_slice(vm_internal_type *vm) {
     vm_push(vm, vm->reg2);
 }
 
+/* return a byte vector of a string. */
+void op_string_slice(vm_internal_type *vm) {
+    object_type *string = 0;
+    object_type *slice = 0;
+    
+    vm->reg1 = string = vm_pop(vm);
+
+    assert(string && string->type == STRING);
+
+    vm->reg2 = slice = vm_alloc(vm, SLICE);
+    slice->type = BYTE_VECTOR;
+
+    slice->value.byte_vector.length = string->value.string.length;
+    slice->value.byte_vector.slice = true;
+    slice->value.byte_vector.vector = (uint8_t *)string->value.string.bytes;
+
+    vm_push(vm, vm->reg2);
+}
+

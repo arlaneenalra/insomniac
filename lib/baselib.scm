@@ -29,7 +29,6 @@
 (define (apply proc . args)
     (asm (args) (proc) tail_call_in ))
 
-
 (include "dynamic.scm")
 
 (include "math.scm")

@@ -48,6 +48,8 @@ idx! ( index obj vector -- ) Takes an index, object, and vector/record/byte vect
 vec-len ( vector -- size)    Takes a vector as an argument and returns
                                 the vectors length.
 
+str->slice (string -- slice) Convert a string into bytevector slice. 
+
 slice ( start end vector -- slice ) Given a vector or bytevector, return a vector of the same
                                     type that is backed by the same data store as the original.
                                     End is constrained by the length of the original vector.

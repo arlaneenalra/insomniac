@@ -52,6 +52,7 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_INDEX_REF] = &op_index_ref;
     vm->ops[OP_VECTOR_LENGTH] = &op_vector_length;
     vm->ops[OP_SLICE] = &op_slice;
+    vm->ops[OP_STRING_SLICE] = &op_string_slice;
 
     vm->ops[OP_CONS] = &op_cons;
     vm->ops[OP_CAR] = &op_car;

@@ -59,6 +59,7 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "idx!"                  { return OP_INDEX_SET; }
 "vec-len"               { return OP_VECTOR_LENGTH; }
 "slice"                 { return OP_SLICE; }
+"str->slice"            { return OP_STRING_SLICE; }
 
 "out"                   { return OP_OUTPUT; }
 "read"                  { return OP_FD_READ; }

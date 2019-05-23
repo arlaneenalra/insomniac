@@ -24,3 +24,15 @@ gc_type_def register_key_value(gc_type *gc) {
 
     return key_value;
 }
+
+gc_type_def register_hash_iterator(gc_type *gc) {
+    gc_type_def hash_iterator = 0;
+
+    hash_iterator = gc_register_type(gc, sizeof(hash_internal_iterator_type));
+
+    gc_register_pointer(gc, hash_iterator,
+        offsetof(hash_internal_iterator_type, entry));
+    
+    return hash_iterator;
+}
+

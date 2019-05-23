@@ -15,7 +15,12 @@
 #define STRING_END_TOKEN OP_MAX_INS + 4
 #define SYMBOL_START_TOKEN OP_MAX_INS + 5
 
+#define DIRECTIVE_FILE OP_MAX_INS + 6
+#define DIRECTIVE_LINE OP_MAX_INS + 7
+#define DIRECTIVE_COLUMN OP_MAX_INS + 8
+
 typedef struct jump jump_type;
+typedef struct debug_state debug_state_type;
 
 /* Used to track jumps for latter rewriting */
 struct jump {
@@ -26,7 +31,17 @@ struct jump {
     jump_type *next;
 };
 
-/* return text of the matched string */
+struct debug_state {
+    char *file;
+    vm_int line;
+    vm_int column;
+   
+    debug_state_type *next;
+};
+
+/* Return text of the matched string */
 char *get_text(void *scanner);
+
+gc_type_def get_debug_info_def(gc_type *gc);
 
 #endif

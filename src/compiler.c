@@ -100,12 +100,13 @@ struct options {
     bool pre_post_amble;
     bool include_baselib;
     bool assemble;
+    bool debug;
 };
 
 void usage(options_type *opts) {
     fprintf(
         stderr,
-        "Usage: %s [--no-pre] [--no-baselib] [--no-assemble] <file.scm> "
+        "Usage: %s [--no-pre] [--no-baselib] [--no-assemble] [--debug] <file.scm> "
         "<out.asm>\n",
         opts->exe);
     exit(-1);
@@ -132,6 +133,8 @@ void parse_options(int argc, char **argv, options_type *opts) {
             opts->include_baselib = false;
         } else if (strcmp(arg, "--no-assemble") == 0) {
             opts->assemble = false;
+        } else if (strcmp(arg, "--no-debug") == 0) {
+            opts->debug = false;
         } else {
             if (!opts->filename) {
                 opts->filename = arg;
@@ -146,6 +149,17 @@ void parse_options(int argc, char **argv, options_type *opts) {
     if (opts->filename == 0) {
         usage(opts);
     }
+}
+
+/* Write an indexed label to a buffer */
+void writeLabel(buffer_type *buf, char *prefix, int idx) {
+    char c[22];
+    int written = 0;
+
+    buffer_write(buf, (uint8_t *)prefix, strlen(prefix));
+
+    written = snprintf(c, 22, "%i", idx);
+    buffer_write(buf, (uint8_t *)c, written);
 }
 
 /* Write the assembly output to a file */
@@ -184,6 +198,7 @@ void writeToFile(options_type *opts, char *asm_str, size_t length) {
 size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
     uint8_t *code_ref = 0;
     buffer_type *target_buf = 0;
+    debug_info_type *debug = 0;
     size_t length = 0;
     char output[512];
     size_t output_len = 0;
@@ -191,8 +206,9 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
 
     gc_register_root(gc, (void **)&code_ref);
     gc_register_root(gc, (void **)&target_buf);
+    gc_register_root(gc, (void **)&debug);
 
-    length = asm_string(gc, asm_str, &code_ref);
+    length = asm_string(gc, asm_str, &code_ref, &debug);
 
     buffer_create(gc, &target_buf);
 
@@ -226,7 +242,8 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
     length = buffer_size(target_buf) + 1;
     gc_alloc(gc, 0, length, (void **)target);
     length = buffer_read(target_buf, *(uint8_t **)target, length);
-
+    
+    gc_unregister_root(gc, (void **)&debug);
     gc_unregister_root(gc, (void **)&target_buf);
     gc_unregister_root(gc, (void **)&code_ref);
 
@@ -234,7 +251,7 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
 }
 
 int main(int argc, char **argv) {
-    options_type opts = {0, 0, 0, true, true, true};
+    options_type opts = {0, 0, 0, true, true, true, true};
     gc_type *gc = gc_create(sizeof(object_type));
     size_t length = 0;
     char *asm_str = 0;

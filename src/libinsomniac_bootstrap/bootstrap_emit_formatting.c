@@ -26,19 +26,24 @@ void emit_debug(buffer_type *buf, ins_node_type *node) {
     char num_buf[12];
     int written;
     
+    /* Write out the file. */
+    buffer_write(buf, (uint8_t *)".file \"", 7);
+    buffer_write(buf, (uint8_t *)node->file, strlen(node->file));
+    buffer_write(buf, (uint8_t *)"\"", 1);
+
+    emit_newline(buf);
+
     /* Convert the line number to a string. */
     written = snprintf(num_buf, 12, "%i", node->line);
-    buffer_write(buf, (uint8_t *)";;;; Line: ", 11);
+    buffer_write(buf, (uint8_t *)".ln ", 4);
     buffer_write(buf, (uint8_t *)num_buf, written);
+    
+    emit_newline(buf);
 
     /* Convert the column number to a string. */
     written = snprintf(num_buf, 12, "%i", node->column);
-    buffer_write(buf, (uint8_t *)" Column: ", 9);    
+    buffer_write(buf, (uint8_t *)".col ", 5);    
     buffer_write(buf, (uint8_t *)num_buf, written);
-
-    /* Write out the file. */
-    buffer_write(buf, (uint8_t *)" File: ", 7);
-    buffer_write(buf, (uint8_t *)node->file, strlen(node->file));
-    
+   
     emit_newline(buf);
 }

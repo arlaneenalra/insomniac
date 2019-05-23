@@ -22,7 +22,7 @@ int eval_string(vm_type *vm, gc_type *gc, char *str) {
     gc_register_root(gc, (void **)&code_ref);
 
     /* assemble a simple command */
-    written = asm_string(gc, str, &code_ref);
+    written = asm_string(gc, str, &code_ref, 0);
 
     ret_value = vm_eval(vm, written, code_ref);
 

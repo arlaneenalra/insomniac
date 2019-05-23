@@ -119,6 +119,10 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 
 "gc-stats"              { return OP_GC_STATS; }
 
+".file"                 { return DIRECTIVE_FILE; }
+".ln"                   { return DIRECTIVE_LINE; } 
+".col"                  { return DIRECTIVE_COLUMN; } 
+
 <EXPECT_TARGET>{
 
      {LABEL}            { BEGIN(INITIAL);

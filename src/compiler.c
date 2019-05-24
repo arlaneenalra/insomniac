@@ -52,11 +52,10 @@ char *target_preamble = "    .section __TEXT,__text\n"
                         "   .long 0 # meta_obj.type_def\n"
                         "str:\n";
 
-char *target_size = "\n"
-                    "str_size :\n"
-                    "   .quad ";
-
 char *target_postamble = "\n";
+
+char *target_global_template = ".global _%s\n"
+                               "_%s:\n";
 
 #elif __linux__
 char *target_preamble = "   .text\n"
@@ -84,12 +83,16 @@ char *target_preamble = "   .text\n"
                         "   .long 0 # meta_obj.type_def\n"
                         "str:\n";
 
-char *target_size = "\n"
-                    "str_size :\n"
-                    "   .quad ";
-
 char *target_postamble = "\n";
+
+char *target_global = ".globl %s\n"
+                      "%s:\n";
+
 #endif
+
+char *target_size = "\n"
+                    "str_size:\n"
+                    "   .quad ";
 
 typedef struct options options_type;
 
@@ -151,15 +154,37 @@ void parse_options(int argc, char **argv, options_type *opts) {
     }
 }
 
-/* Write an indexed label to a buffer */
-void writeLabel(buffer_type *buf, char *prefix, int idx) {
-    char c[22];
-    int written = 0;
+/* Write a global to the symbol */
+void writeGlobalSymbol(FILE *out, char *name) {
+    (void)fprintf(out, target_global_template, name, name);
+}
 
-    buffer_write(buf, (uint8_t *)prefix, strlen(prefix));
+/* Write debugging information into that output stream */
+void writeDebugInfo(FILE *out, debug_info_type *debug) {
+    char *prefix = "L.debug_files.";
 
-    written = snprintf(c, 22, "%i", idx);
-    buffer_write(buf, (uint8_t *)c, written);
+    hashtable_type *files = debug->files;
+
+    hash_iterator_type *it = 0;
+    hash_entry_type *entry = 0;
+    int count = 0;
+    
+    for(;(entry = hash_next(files, &it)); count++) {
+        (void)fprintf(out, "%s%i: .asciz \"%s\"\n", prefix, count, entry->key);
+    }
+
+    /* We wind up one over the actual number */
+    count--;
+    
+    writeGlobalSymbol(out, "debug_files");
+    for (int i = count; i >=0 ; i--) {
+        (void)fprintf(out, "    .quad %s%i\n", prefix, i);
+    }
+
+    (void)fputs("\n", out);
+
+    writeGlobalSymbol(out, "debug_files_count");
+    (void)fprintf(out, "    .quad %i\n", count); 
 }
 
 /* Write the assembly output to a file */
@@ -232,7 +257,10 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
     (void)fputs(target_size, out_buffer);
 
     /* Output the size */
-    (void)fprintf(out_buffer, "%zu", length - 1);
+    (void)fprintf(out_buffer, "%zu\n\n", length - 1);
+
+    /* Output debugging information */
+    writeDebugInfo(out_buffer, debug);
 
     (void)fputs(target_postamble, out_buffer);
     (void)fclose(out_buffer);

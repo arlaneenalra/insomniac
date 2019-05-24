@@ -3,6 +3,9 @@
 extern uint64_t scheme_code_size();
 extern uint8_t *scheme_code();
 
+extern char *debug_files[];
+extern int debug_files_count;
+
 int run_scheme(int argc, char **argv) {
     size_t code_size = (size_t)scheme_code_size();
     uint8_t *code = scheme_code();

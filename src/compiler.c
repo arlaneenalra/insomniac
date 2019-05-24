@@ -35,15 +35,6 @@ char *target_preamble = "    .section __TEXT,__text\n"
                         "    popq   %rbp\n"
                         "    retq\n"
                         "   .cfi_endproc\n"
-                        ".global _scheme_code\n"
-                        "_scheme_code:\n"
-                        "    leaq str(%rip), %rax\n"
-                        "    retq\n"
-                        ".global _scheme_code_size\n"
-                        "_scheme_code_size:\n"
-                        "   leaq str_size(%rip), %rax\n"
-                        "   movq (%rax), %rax\n"
-                        "   retq\n"
                         ".section __DATA,_data\n"
                         "meta:\n"
                         "   .quad 0 # meta_obj.next\n"
@@ -66,15 +57,6 @@ char *target_preamble = "   .text\n"
                         "   call run_scheme@PLT\n"
                         "   popq %rbp\n"
                         "   ret\n"
-                        ".globl scheme_code\n"
-                        "scheme_code:\n"
-                        "    leaq str(%rip), %rax\n"
-                        "    retq\n"
-                        ".globl scheme_code_size\n"
-                        "scheme_code_size:\n"
-                        "   leaq str_size(%rip), %rax\n"
-                        "   movq (%rax), %rax\n"
-                        "   retq\n"
                         "   .data\n"
                         "meta:\n"
                         "   .quad 0 # meta_obj.next\n"
@@ -89,10 +71,6 @@ char *target_global = ".globl %s\n"
                       "%s:\n";
 
 #endif
-
-char *target_size = "\n"
-                    "str_size:\n"
-                    "   .quad ";
 
 typedef struct options options_type;
 
@@ -238,8 +216,9 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
     out_buffer = buffer_open(target_buf);
     
     (void)fputs(target_preamble, out_buffer);
+    
+    writeGlobalSymbol(out_buffer, "scheme_code");
     (void)fputs(line_prefix, out_buffer);
-
     for (size_t i = 0; i < length; i++) {
         (void)fprintf(out_buffer, "%i", code_ref[i]);
 
@@ -254,10 +233,11 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
         }
     }
 
-    (void)fputs(target_size, out_buffer);
+    (void)fputs("\n\n", out_buffer);
 
     /* Output the size */
-    (void)fprintf(out_buffer, "%zu\n\n", length - 1);
+    writeGlobalSymbol(out_buffer, "scheme_code_size");
+    (void)fprintf(out_buffer, "    .quad %zu\n\n", length - 1);
 
     /* Output debugging information */
     writeDebugInfo(out_buffer, debug);

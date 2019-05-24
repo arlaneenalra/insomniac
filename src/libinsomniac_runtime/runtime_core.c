@@ -1,14 +1,12 @@
 #include "runtime_internal.h"
 
-extern uint64_t scheme_code_size();
-extern uint8_t *scheme_code();
+extern uint64_t scheme_code_size;
+extern uint8_t scheme_code[];
 
 extern char *debug_files[];
 extern int debug_files_count;
 
 int run_scheme(int argc, char **argv) {
-    size_t code_size = (size_t)scheme_code_size();
-    uint8_t *code = scheme_code();
     gc_type *gc = gc_create(sizeof(object_type));
     vm_type *vm = 0;
     int ret_value = 0;
@@ -22,7 +20,7 @@ int run_scheme(int argc, char **argv) {
 
     vm_create(gc, &vm);
 
-    ret_value = vm_eval(vm, code_size, code);
+    ret_value = vm_eval(vm, scheme_code_size, scheme_code);
 
     vm_reset(vm);
 

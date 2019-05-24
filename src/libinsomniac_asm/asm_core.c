@@ -3,8 +3,39 @@
 
 #include <assert.h>
 
+/* Add an element in the debug chain if one is needed. */
+void push_debug(gc_type *gc, debug_info_type *debug, char *file, vm_int line, vm_int column, vm_int addr) {
+    debug_state_type *new = 0; 
+    debug_state_type *tail = debug->tail;
+
+    /* check if an update is needed. */ 
+    if (tail && tail->file && strcmp(tail->file, file) == 0 && tail->line == line && tail->column == column) {
+        return;
+    }
+ 
+    gc_register_root(gc, (void **)&new);
+
+    /* Allocate a new record. */
+    gc_alloc_type(gc, 0, get_debug_state_def(gc), (void **)&new);
+
+    new->file = file;
+    new->line = line;
+    new->column = column;
+    new->next = 0;
+
+    /* no record */
+    if (!tail) {
+        debug->tail = debug->head = new;
+    } else {
+        debug->tail->next = new;
+        debug->tail = new;
+    }
+
+    gc_unregister_root(gc, (void **)&new);
+}
+
 /* parse a string out of the token stream for debugging info */
-void add_debug_file(gc_type *gc, hashtable_type *files, yyscan_t *scanner) {
+void add_debug_file(gc_type *gc, yyscan_t *scanner, debug_info_type *debug, vm_int addr) {
     int empty = 1;
     int token = 0;
     int len = 0;
@@ -13,6 +44,8 @@ void add_debug_file(gc_type *gc, hashtable_type *files, yyscan_t *scanner) {
     char *gc_filename = 0;
 
     char *value = 0;
+
+    hashtable_type *files = debug->files;
 
     gc_register_root(gc, (void **)&gc_filename);
 
@@ -51,12 +84,13 @@ void add_debug_file(gc_type *gc, hashtable_type *files, yyscan_t *scanner) {
         
         hash_set(files, gc_filename, gc_filename);
     } 
-
+   
+    push_debug(gc, debug, gc_filename, debug->tail->line, debug->tail->column, addr);
     gc_unregister_root(gc, (void **)&gc_filename);
 }
 
 /* parse the current line number. */
-void set_debug_line(yyscan_t *scanner) {
+void set_debug_line(gc_type *gc, yyscan_t *scanner, debug_info_type *debug, vm_int addr) {
     int token = 0;
     vm_int i = 0;
 
@@ -67,10 +101,11 @@ void set_debug_line(yyscan_t *scanner) {
     }
 
     i = strtoq(get_text(scanner), 0, 0);
+    push_debug(gc, debug, debug->tail->file, i, debug->tail->column, addr);
 }
 
 /* parse the current column number. */
-void set_debug_column(yyscan_t *scanner) {
+void set_debug_column(gc_type *gc, yyscan_t *scanner, debug_info_type *debug, vm_int addr) {
     int token = 0;
     vm_int i = 0;
 
@@ -81,6 +116,8 @@ void set_debug_column(yyscan_t *scanner) {
     }
 
     i = strtoq(get_text(scanner), 0, 0);
+    
+    push_debug(gc, debug, debug->tail->file, debug->tail->line, i, addr);
 }
 
 /* assmble a litteral fix num */
@@ -257,26 +294,27 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref, debug_info_type **
     buffer_type *buf = 0;
 
     hashtable_type *labels = 0;
-    hashtable_type *files = 0;
 
     jump_type *jump_list = 0;
-
-    hash_iterator_type *it = 0;
-    hash_entry_type *entry = 0;
 
     size_t length = 0;
 
     gc_register_root(gc, &buf);
     gc_register_root(gc, &labels);
-    gc_register_root(gc, &files);
     gc_register_root(gc, (void **)&jump_list);
-    gc_register_root(gc, (void **)&it);
 
     /* create an output buffer */
     buffer_create(gc, &buf);
 
     hash_create_string(gc, &labels);
-    hash_create_string(gc, &files);
+
+    /* Check for a debug pointer. */
+    if (debug) {
+        gc_alloc_type(gc, 0, get_debug_info_def(gc), (void **)debug);
+
+        hash_create_string(gc, &((*debug)->files));
+        push_debug(gc, *debug, 0, 0, 0, 0);
+    }
 
     yyasmlex_init(&scanner);
 
@@ -321,17 +359,23 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref, debug_info_type **
 
             case DIRECTIVE_FILE:
                 /* Update the current file. */
-                add_debug_file(gc, files, scanner);
+                if (debug) {
+                    add_debug_file(gc, scanner, *debug, buffer_size(buf));
+                }                    
                 break;
 
             case DIRECTIVE_LINE:
                 /* Update the current line. */
-                set_debug_line(scanner);
+                if (debug) {
+                    set_debug_line(gc, scanner, *debug, buffer_size(buf));
+                }
                 break;
 
             case DIRECTIVE_COLUMN:
                 /* Update the current column. */
-                set_debug_column(scanner);
+                if (debug) {
+                    set_debug_column(gc, scanner, *debug, buffer_size(buf));
+                }
                 break;
 
             default:
@@ -356,15 +400,7 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref, debug_info_type **
     /* replace jump address fields */
     rewrite_jumps(*code_ref, jump_list, labels);
 
-    /* Check for a debug pointer. */
-    if (debug) {
-        gc_alloc_type(gc, 0, get_debug_info_def(gc), (void **)debug);
-        (*debug)->files = files;
-    }
-
-    gc_unregister_root(gc, (void **)&it);
     gc_unregister_root(gc, (void **)&jump_list);
-    gc_unregister_root(gc, &files);
     gc_unregister_root(gc, &labels);
     gc_unregister_root(gc, &buf);
 

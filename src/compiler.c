@@ -140,6 +140,7 @@ void writeGlobalSymbol(FILE *out, char *name) {
 /* Write debugging information into that output stream */
 void writeDebugInfo(FILE *out, debug_info_type *debug) {
     char *prefix = "L.debug_files.";
+    debug_state_type *head = debug->head;
 
     hashtable_type *files = debug->files;
 
@@ -163,6 +164,12 @@ void writeDebugInfo(FILE *out, debug_info_type *debug) {
 
     writeGlobalSymbol(out, "debug_files_count");
     (void)fprintf(out, "    .quad %i\n", count); 
+
+    /* Quick and dirty, spew debug. */
+    while (head) {
+        printf("File: %s Line: %" PRIi64 " Col: %" PRIi64 "\n", head->file, head->line, head->column);
+        head = head->next;
+    }
 }
 
 /* Write the assembly output to a file */

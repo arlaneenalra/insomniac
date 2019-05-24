@@ -198,10 +198,9 @@ void writeToFile(options_type *opts, char *asm_str, size_t length) {
 size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
     uint8_t *code_ref = 0;
     buffer_type *target_buf = 0;
+    FILE *out_buffer = 0;
     debug_info_type *debug = 0;
     size_t length = 0;
-    char output[512];
-    size_t output_len = 0;
     char *line_prefix = "\n    .byte ";
 
     gc_register_root(gc, (void **)&code_ref);
@@ -211,32 +210,32 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
     length = asm_string(gc, asm_str, &code_ref, &debug);
 
     buffer_create(gc, &target_buf);
-
-    buffer_write(target_buf, (uint8_t *)target_preamble, strlen(target_preamble));
-    buffer_write(target_buf, (uint8_t *)line_prefix, strlen(line_prefix));
+    out_buffer = buffer_open(target_buf);
+    
+    (void)fputs(target_preamble, out_buffer);
+    (void)fputs(line_prefix, out_buffer);
 
     for (size_t i = 0; i < length; i++) {
-        output_len = snprintf(output, 512, "%i", code_ref[i]);
-        buffer_write(target_buf, (uint8_t *)output, output_len);
+        (void)fprintf(out_buffer, "%i", code_ref[i]);
 
         /* Don't add a , on the last value. */
         if (i + 1 < length) {
             /* make sure our lines aren't too long. */
             if (i % 50 == 0 && i > 0) {
-                buffer_write(target_buf, (uint8_t *)line_prefix, strlen(line_prefix));
+                (void)fputs(line_prefix, out_buffer);
             } else {
-                buffer_write(target_buf, (uint8_t *)", ", 2);
+                (void)fputs(", ", out_buffer);
             }
         }
     }
 
-    buffer_write(target_buf, (uint8_t *)target_size, strlen(target_size));
+    (void)fputs(target_size, out_buffer);
 
     /* Output the size */
-    output_len = snprintf(output, 512, "%zu", length - 1);
-    buffer_write(target_buf, (uint8_t *)output, output_len);
+    (void)fprintf(out_buffer, "%zu", length - 1);
 
-    buffer_write(target_buf, (uint8_t *)target_postamble, strlen(target_postamble));
+    (void)fputs(target_postamble, out_buffer);
+    (void)fclose(out_buffer);
 
     /* Convert the buffer to a string */
     length = buffer_size(target_buf) + 1;

@@ -196,3 +196,5 @@ size_t buffer_size(buffer_type *buf_void) {
     buffer_internal_type *buf = (buffer_internal_type *)buf_void;
     return buf->used;
 }
+
+

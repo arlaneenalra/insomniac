@@ -13,4 +13,14 @@
 
 #include <locale.h>
 
+/* Represents how debug data is written into the executable. */
+typedef struct debug_range {
+    char * file;
+
+    uint64_t line;
+    uint64_t column;
+    uint64_t start_addr;
+
+} debug_range_type;
+
 #endif

@@ -47,6 +47,7 @@ char *target_postamble = "\n";
 
 char *target_global_template = ".global _%s\n"
                                "_%s:\n";
+char *target_local = "L.";
 
 #elif __linux__
 char *target_preamble = "   .text\n"
@@ -69,7 +70,7 @@ char *target_postamble = "\n";
 
 char *target_global_template = ".globl %s\n"
                                "%s:\n";
-
+char *target_local = ".L";
 #endif
 
 typedef struct options options_type;
@@ -139,7 +140,6 @@ void writeGlobalSymbol(FILE *out, char *name) {
 
 /* Write debugging information into that output stream */
 void writeDebugInfo(gc_type *gc, FILE *out, debug_info_type *debug) {
-    char *prefix = "L.debug_files.";
     char label_buf[50];
     debug_state_type *head = debug->head;
     hashtable_type *files = debug->files;
@@ -151,7 +151,7 @@ void writeDebugInfo(gc_type *gc, FILE *out, debug_info_type *debug) {
     int count = hash_size(debug->files);
    
     for (int i = 0;(entry = hash_next(files, &it)); i++) {
-        (void)snprintf(label_buf, 50, "%s%i", prefix, i);
+        (void)snprintf(label_buf, 50, "%s%i", target_local, i);
         gc_make_string(gc, label_buf, (char **)&(entry->value));
 
         (void)fprintf(out, "%s: .asciz \"%s\"\n", label_buf, (char *)entry->key);
@@ -159,7 +159,7 @@ void writeDebugInfo(gc_type *gc, FILE *out, debug_info_type *debug) {
 
     writeGlobalSymbol(out, "debug_files");
     for (int i = count - 1; i >=0 ; i--) {
-        (void)fprintf(out, "    .quad %s%i\n", prefix, i);
+        (void)fprintf(out, "    .quad %s%i\n", target_local, i);
     }
 
     (void)fputs("\n", out);

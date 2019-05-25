@@ -16,8 +16,6 @@
 #define SYMBOL_START_TOKEN OP_MAX_INS + 5
 
 #define DIRECTIVE_FILE OP_MAX_INS + 6
-#define DIRECTIVE_LINE OP_MAX_INS + 7
-#define DIRECTIVE_COLUMN OP_MAX_INS + 8
 
 typedef struct jump jump_type;
 

@@ -23,7 +23,7 @@ void emit_comment(buffer_type *buf, char *str) {
 
 /* Write debugging information */
 void emit_debug(buffer_type *buf, ins_node_type *node) {
-    char num_buf[12];
+    char num_buf[22];
     int written;
     
     /* Write out the file. */
@@ -31,18 +31,12 @@ void emit_debug(buffer_type *buf, ins_node_type *node) {
     buffer_write(buf, (uint8_t *)node->file, strlen(node->file));
     buffer_write(buf, (uint8_t *)"\"", 1);
 
-    emit_newline(buf);
-
     /* Convert the line number to a string. */
-    written = snprintf(num_buf, 12, "%i", node->line);
-    buffer_write(buf, (uint8_t *)".ln ", 4);
+    written = snprintf(num_buf, 22, " %i", node->line);
     buffer_write(buf, (uint8_t *)num_buf, written);
     
-    emit_newline(buf);
-
     /* Convert the column number to a string. */
-    written = snprintf(num_buf, 12, "%i", node->column);
-    buffer_write(buf, (uint8_t *)".col ", 5);    
+    written = snprintf(num_buf, 22, " %i", node->column);
     buffer_write(buf, (uint8_t *)num_buf, written);
    
     emit_newline(buf);

@@ -34,19 +34,33 @@ void push_debug(gc_type *gc, debug_info_type *debug, char *file, vm_int line, vm
     gc_unregister_root(gc, (void **)&new);
 }
 
+/* parse the current line or column number. */
+int get_debug_num(gc_type *gc, yyscan_t *scanner) {
+    int token = 0;
+    vm_int i = 0;
+
+    token = yyasmlex(scanner);
+    if (token != OP_LIT_FIXNUM) {
+        printf(".ln requires a number.\n");
+        assert(0);
+    }
+
+    return strtoq(get_text(scanner), 0, 0);
+}
+
 /* parse a string out of the token stream for debugging info */
 void add_debug_file(gc_type *gc, yyscan_t *scanner, debug_info_type *debug, vm_int addr) {
     int token = 0;
-    int len = 0;
 
     char *filename = 0;
-    char *gc_filename = 0;
+    int line = 0;
+    int column = 0;
 
     char *value = 0;
 
     hashtable_type *files = debug->files;
 
-    gc_register_root(gc, (void **)&gc_filename);
+    gc_register_root(gc, (void **)&value);
 
     /* get the next token */
     token = yyasmlex(scanner);
@@ -71,49 +85,15 @@ void add_debug_file(gc_type *gc, yyscan_t *scanner, debug_info_type *debug, vm_i
     }
     
     if (!hash_get(files, filename, (void **)&value)) {
-        len = strlen(filename);
-
-        gc_alloc(gc, 0, len + 1, (void **)&gc_filename);
-
-        /* subtract one to remove the extra " */
-        strncpy(gc_filename, filename, len - 1);
-        
-        hash_set(files, gc_filename, gc_filename);
+        gc_make_substring(gc, filename, &value, strlen(filename) - 1);
+        hash_set(files, value, value);
     } 
-   
-    push_debug(gc, debug, gc_filename, debug->tail->line, debug->tail->column, addr);
-    gc_unregister_root(gc, (void **)&gc_filename);
-}
+  
+    line = get_debug_num(gc, scanner);
+    column = get_debug_num(gc, scanner);
 
-/* parse the current line number. */
-void set_debug_line(gc_type *gc, yyscan_t *scanner, debug_info_type *debug, vm_int addr) {
-    int token = 0;
-    vm_int i = 0;
-
-    token = yyasmlex(scanner);
-    if (token != OP_LIT_FIXNUM) {
-        printf(".ln requires a number.\n");
-        assert(0);
-    }
-
-    i = strtoq(get_text(scanner), 0, 0);
-    push_debug(gc, debug, debug->tail->file, i, debug->tail->column, addr);
-}
-
-/* parse the current column number. */
-void set_debug_column(gc_type *gc, yyscan_t *scanner, debug_info_type *debug, vm_int addr) {
-    int token = 0;
-    vm_int i = 0;
-
-    token = yyasmlex(scanner);
-    if (token != OP_LIT_FIXNUM) {
-        printf(".col requires a number.\n");
-        assert(0);
-    }
-
-    i = strtoq(get_text(scanner), 0, 0);
-    
-    push_debug(gc, debug, debug->tail->file, debug->tail->line, i, addr);
+    push_debug(gc, debug, value, line, column, addr);
+    gc_unregister_root(gc, (void **)&value);
 }
 
 /* assmble a litteral fix num */
@@ -358,20 +338,6 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref, debug_info_type **
                 if (debug) {
                     add_debug_file(gc, scanner, *debug, buffer_size(buf));
                 }                    
-                break;
-
-            case DIRECTIVE_LINE:
-                /* Update the current line. */
-                if (debug) {
-                    set_debug_line(gc, scanner, *debug, buffer_size(buf));
-                }
-                break;
-
-            case DIRECTIVE_COLUMN:
-                /* Update the current column. */
-                if (debug) {
-                    set_debug_column(gc, scanner, *debug, buffer_size(buf));
-                }
                 break;
 
             default:

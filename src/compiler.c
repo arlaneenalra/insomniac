@@ -138,25 +138,25 @@ void writeGlobalSymbol(FILE *out, char *name) {
 }
 
 /* Write debugging information into that output stream */
-void writeDebugInfo(FILE *out, debug_info_type *debug) {
+void writeDebugInfo(gc_type *gc, FILE *out, debug_info_type *debug) {
     char *prefix = "L.debug_files.";
+    char label_buf[50];
     debug_state_type *head = debug->head;
-
     hashtable_type *files = debug->files;
 
     hash_iterator_type *it = 0;
     hash_entry_type *entry = 0;
-    int count = 0;
-    
-    for(;(entry = hash_next(files, &it)); count++) {
-        (void)fprintf(out, "%s%i: .asciz \"%s\"\n", prefix, count, (char *)entry->key);
+    int count = hash_size(debug->files);
+   
+    for (int i = 0;(entry = hash_next(files, &it)); i++) {
+        (void)snprintf(label_buf, 50, "%s%i", prefix, i);
+        gc_make_string(gc, label_buf, (char **)&(entry->value));
+
+        (void)fprintf(out, "%s: .asciz \"%s\"\n", label_buf, (char *)entry->key);
     }
 
-    /* We wind up one over the actual number */
-    count--;
-    
     writeGlobalSymbol(out, "debug_files");
-    for (int i = count; i >=0 ; i--) {
+    for (int i = count - 1; i >=0 ; i--) {
         (void)fprintf(out, "    .quad %s%i\n", prefix, i);
     }
 
@@ -167,7 +167,7 @@ void writeDebugInfo(FILE *out, debug_info_type *debug) {
 
     /* Quick and dirty, spew debug. */
     while (head) {
-        printf("File: %s Line: %" PRIi64 " Col: %" PRIi64 "\n", head->file, head->line, head->column);
+        printf("File: %s Line: %" PRIi64 " Col: %" PRIi64 " %" PRIi64 "\n", head->file, head->line, head->column, head->start_addr);
         head = head->next;
     }
 }
@@ -247,9 +247,10 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
     (void)fprintf(out_buffer, "    .quad %zu\n\n", length - 1);
 
     /* Output debugging information */
-    writeDebugInfo(out_buffer, debug);
+    writeDebugInfo(gc, out_buffer, debug);
 
     (void)fputs(target_postamble, out_buffer);
+    (void)fflush(out_buffer);
     (void)fclose(out_buffer);
 
     /* Convert the buffer to a string */

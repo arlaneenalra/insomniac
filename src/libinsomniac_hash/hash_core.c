@@ -201,7 +201,7 @@ float hash_load(hash_internal_type *table) {
 
 /* return the size of the hash table */
 int hash_size(hashtable_type *table) {
-    return ((hash_internal_type *)table)->size;
+    return ((hash_internal_type *)table)->entries;
 }
 
 /* Iterate throught the hash table retrieving values and keys */

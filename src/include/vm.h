@@ -39,6 +39,7 @@ typedef struct binding {
 #define UNSTUFF_POINTER(pointer, type) *(type *)(pointer->value.byte_vector.vector)
 
 #define STUFF_POINTER(vm, pointer, type)                                                 \
+    __extension__                                                                        \
     ({                                                                                   \
         object_type *obj = vm_make_byte_vector(vm, sizeof(type));                        \
         type *f = (type *)(obj->value.byte_vector.vector);                               \

@@ -67,8 +67,8 @@ char *target_preamble = "   .text\n"
 
 char *target_postamble = "\n";
 
-char *target_global = ".globl %s\n"
-                      "%s:\n";
+char *target_global_template = ".globl %s\n"
+                               "%s:\n";
 
 #endif
 
@@ -149,7 +149,7 @@ void writeDebugInfo(FILE *out, debug_info_type *debug) {
     int count = 0;
     
     for(;(entry = hash_next(files, &it)); count++) {
-        (void)fprintf(out, "%s%i: .asciz \"%s\"\n", prefix, count, entry->key);
+        (void)fprintf(out, "%s%i: .asciz \"%s\"\n", prefix, count, (char *)entry->key);
     }
 
     /* We wind up one over the actual number */

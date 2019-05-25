@@ -36,7 +36,6 @@ void push_debug(gc_type *gc, debug_info_type *debug, char *file, vm_int line, vm
 
 /* parse a string out of the token stream for debugging info */
 void add_debug_file(gc_type *gc, yyscan_t *scanner, debug_info_type *debug, vm_int addr) {
-    int empty = 1;
     int token = 0;
     int len = 0;
 
@@ -60,7 +59,6 @@ void add_debug_file(gc_type *gc, yyscan_t *scanner, debug_info_type *debug, vm_i
 
     /* do we have a string body? */
     if (token == OP_LIT_STRING) {
-        empty = 0;
        
         /* Copy the file name into a gc allocated string. */
         filename = get_text(scanner);
@@ -68,8 +66,6 @@ void add_debug_file(gc_type *gc, yyscan_t *scanner, debug_info_type *debug, vm_i
         /* grab the next token */
         token = yyasmlex(scanner);
     }
-
-    /* do we have an empty string? */
     if (token != STRING_END_TOKEN) {
         assert(0);
     }

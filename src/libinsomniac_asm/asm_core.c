@@ -39,7 +39,6 @@ void push_debug(gc_type *gc, debug_info_type *debug, char *file, vm_int line, vm
 /* parse the current line or column number. */
 int get_debug_num(gc_type *gc, yyscan_t *scanner) {
     int token = 0;
-    vm_int i = 0;
 
     token = yyasmlex(scanner);
     if (token != OP_LIT_FIXNUM) {

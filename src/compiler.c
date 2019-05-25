@@ -182,6 +182,8 @@ void writeDebugInfo(gc_type *gc, FILE *out, debug_info_type *debug) {
         head = head->next;
     }
 
+    (void)fputs("\n", out);
+
     writeGlobalSymbol(out, "debug_ranges_count");
     (void)fprintf(out, "    .quad %i\n", count); 
 }

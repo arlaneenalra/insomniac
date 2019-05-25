@@ -21,6 +21,8 @@ void push_debug(gc_type *gc, debug_info_type *debug, char *file, vm_int line, vm
     new->file = file;
     new->line = line;
     new->column = column;
+    new->start_addr = addr;
+
     new->next = 0;
 
     /* no record */
@@ -289,7 +291,6 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref, debug_info_type **
         gc_alloc_type(gc, 0, get_debug_info_def(gc), (void **)debug);
 
         hash_create_string(gc, &((*debug)->files));
-        push_debug(gc, *debug, 0, 0, 0, 0);
     }
 
     yyasmlex_init(&scanner);

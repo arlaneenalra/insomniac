@@ -146,6 +146,8 @@ void writeDebugInfo(gc_type *gc, FILE *out, debug_info_type *debug) {
 
     hash_iterator_type *it = 0;
     hash_entry_type *entry = 0;
+    char *file_label = 0;
+
     int count = hash_size(debug->files);
    
     for (int i = 0;(entry = hash_next(files, &it)); i++) {
@@ -165,11 +167,23 @@ void writeDebugInfo(gc_type *gc, FILE *out, debug_info_type *debug) {
     writeGlobalSymbol(out, "debug_files_count");
     (void)fprintf(out, "    .quad %i\n", count); 
 
-    /* Quick and dirty, spew debug. */
-    while (head) {
-        printf("File: %s Line: %" PRIi64 " Col: %" PRIi64 " %" PRIi64 "\n", head->file, head->line, head->column, head->start_addr);
+    /* Build out address range datastructures. */
+    writeGlobalSymbol(out, "debug_ranges");
+    count = 0;
+    for (;head; count++) {
+        (void)hash_get(debug->files, head->file, (void **)&file_label);
+       
+        (void)fprintf(out, "#--------------------------------\n");
+        (void)fprintf(out, "    .quad %s\n", file_label);
+        (void)fprintf(out, "    .quad %" PRIi64 "\n", head->line);
+        (void)fprintf(out, "    .quad %" PRIi64 "\n", head->column);
+        (void)fprintf(out, "    .quad %" PRIi64 "\n", head->start_addr);
+
         head = head->next;
     }
+
+    writeGlobalSymbol(out, "debug_ranges_count");
+    (void)fprintf(out, "    .quad %i\n", count); 
 }
 
 /* Write the assembly output to a file */

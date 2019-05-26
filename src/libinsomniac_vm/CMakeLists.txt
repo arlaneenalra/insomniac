@@ -14,6 +14,7 @@ add_library(insomniac_vm
   vm_output.c
   vm_alloc.c
   vm_env.c
+  vm_exception.c
   )
 
 target_link_libraries(insomniac_vm

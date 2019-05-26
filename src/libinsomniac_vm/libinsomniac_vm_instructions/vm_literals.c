@@ -64,7 +64,9 @@ void op_lit_string(vm_internal_type *vm) {
 void op_make_symbol(vm_internal_type *vm) {
     vm->reg1 = vm_pop(vm);
 
-    assert(vm->reg1 && vm->reg1->type == STRING);
+    if (vm->reg1->type != STRING) {
+        throw(vm, "Only string can be converted into a symbol.", 1, vm->reg1); 
+    }
 
     make_symbol(vm, &vm->reg1);
 

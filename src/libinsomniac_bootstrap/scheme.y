@@ -1,5 +1,5 @@
-%pure-parser
-/* %define api.pure */
+/* %pure-parser */
+%define api.pure
 
 %{
 #include "bootstrap_internal.h"

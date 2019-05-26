@@ -34,7 +34,7 @@
   (bytevector-fill! (make-bytevector-prim (car args))
                 (if (eq? 2 (length args))
                   (car (cdr args))
-                  '())))
+                  0)))
 
 ;; Create a vector from an arbitrary list of arguments.
 (define (bytevector . args)

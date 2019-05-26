@@ -1,7 +1,7 @@
 #ifndef _VM_INTERNAL_
 #define _VM_INTERNAL_
 
-#include <assert.h>
+#include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -109,5 +109,10 @@ void pop_env(vm_internal_type *vm);
 
 /* output funcitons */
 void output_object(FILE *fout, object_type *obj);
+
+void handle_exception(vm_internal_type * vm, char *msg, bool fatal, int num, ...);
+
+#define throw(vm, msg, ...) handle_exception(vm, msg, false, __VA_ARGS__);
+#define throw_fatal(vm, msg, ...) handle_exception(vm, msg, true, __VA_ARGS__);
 
 #endif

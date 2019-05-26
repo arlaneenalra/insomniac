@@ -1,7 +1,9 @@
 #include "vm_internal.h"
 
 /* Evaluate the given object using the provided vm instance. */
-int vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref) {
+int vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref,
+    debug_range_type *debug, uint64_t debug_count) {
+
     vm_internal_type *vm = (vm_internal_type *)vm_void;
     uint8_t op_code = 0; /* Op code for instructions. */
     fn_type op_call = 0; /* Function actually called. */
@@ -10,6 +12,8 @@ int vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref) {
     vm->env->ip = 0;
     vm->env->code_ref = code_ref;
     vm->env->length = length;
+    vm->env->debug = debug;
+    vm->env->debug_count = debug_count;
 
     /* Iterate over instrcutions. */
     while (vm->env->ip < vm->env->length) {

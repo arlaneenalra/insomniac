@@ -31,23 +31,27 @@ typedef struct env env_type;
 /* Function pointer for operations */
 typedef void (*fn_type)(vm_internal_type *vm);
 
-/* An environment, "stack frame" in a language like
-   C */
+/* An environment, "stack frame" in a language like C. */
 struct env {
-    /* current execution state */
+    /* Current execution state. */
     uint8_t *code_ref;
     size_t length;
     size_t ip;
 
-    /* current variable bindings */
+    /* Current variable bindings. */
     hashtable_type *bindings;
 
-    /* exception handler */
+    /* Exception handler. */
     uint8_t handler;
     size_t handler_addr;
 
-    /* parent environment */
+    /* Parent environment. */
     env_type *parent;
+
+    /* Debug info if any is availabled. */
+    /* WARNING: Explicitly not GC managed.*/
+    debug_range_type *debug;
+    uint64_t debug_count;
 };
 
 /* definition of the VM itself */

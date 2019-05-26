@@ -21,6 +21,8 @@ void push_env(vm_internal_type *vm) {
         vm->env->code_ref = vm->env->parent->code_ref;
         vm->env->ip = vm->env->parent->ip;
         vm->env->length = vm->env->parent->length;
+        vm->env->debug = vm->env->parent->debug;
+        vm->env->debug_count = vm->env->parent->debug_count;
     }
 
     gc_unregister_root(vm->gc, (void **)&new_env);

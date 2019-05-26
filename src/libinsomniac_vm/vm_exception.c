@@ -8,6 +8,8 @@ void handle_exception(vm_internal_type * vm, char *msg, bool fatal, int num, ...
     object_type *exception = 0;
     object_type *cons_temp = 0;
     object_type *obj = 0;
+    env_type *env = 0;
+    uint64_t i = 0;
 
     /* make the exception */
     gc_register_root(vm->gc, (void **)&exception);
@@ -48,15 +50,19 @@ void handle_exception(vm_internal_type * vm, char *msg, bool fatal, int num, ...
     gc_unregister_root(vm->gc, (void **)&obj);
     gc_unregister_root(vm->gc, (void **)&exception);
 
-   
+
     if (!fatal) {
         /* Go hunting for the exception handler routine. */
-        while (vm->env && !vm->env->handler) {
-            vm->env = vm->env->parent;
+        env = vm->env;
+        while (env && !env->handler) {
+            env = env->parent;
         }
 
         /* Did we find a handler? */
-        if (vm->env) {
+        if (env) {
+            /* Set the env to the one we found. */
+            vm->env = env;
+
             clone_env(vm, (env_type **)&(vm->env), vm->env, false);
             /* Disable exception handler while handling exceptions. */
             vm->env->handler = 0;
@@ -70,8 +76,21 @@ void handle_exception(vm_internal_type * vm, char *msg, bool fatal, int num, ...
 
     /* We did not find a handler ! */
     vm_pop(vm);
+
     printf("\n\nUnhandled Exception: '%s'\n", msg);
 
+    /* Find where the exception occured. */ 
+    env = vm->env;
+    for (i = 0; i < env->debug_count && env->debug[i].start_addr > env->ip; i ++);
+
+    /* If i is less than the cound, we found a debug record. */ 
+    if (i < env->debug_count) {
+        printf(
+            "At File: %s, Line: %" PRIi64 " Col: %" PRIi64 " Addr: %" PRIi64 "\n\n",
+            env->debug[i].file, env->debug[i].line, env->debug[i].column,
+            env->debug[i].start_addr);
+    }
+ 
     printf("Exception:\n");
     output_object(stdout, exception);
 

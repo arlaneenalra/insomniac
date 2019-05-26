@@ -38,12 +38,14 @@
     (make-port
         (open-binary-output-file file)
         #t
+        #t
         <textual-file-port>))
 
 (define (open-input-file file)
     (make-port
         (open-binary-input-file file)
         #f
+        #t
         <textual-file-port>))
 
 (define current-input-port
@@ -58,12 +60,14 @@
         (make-port
             (make-binary-port 1 #t)
             #t
+            #t
             <textual-file-port>)))
 
 (define current-error-port
     (make-parameter
         (make-port
             (make-binary-port 2 #t)
+            #t
             #t
             <textual-file-port>)))
 

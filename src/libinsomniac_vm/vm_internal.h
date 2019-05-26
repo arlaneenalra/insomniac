@@ -114,6 +114,8 @@ void pop_env(vm_internal_type *vm);
 /* output funcitons */
 void output_object(FILE *fout, object_type *obj);
 
+void find_source_location(FILE* fout, env_type *env);
+
 void handle_exception(vm_internal_type * vm, char *msg, bool fatal, int num, ...);
 
 #define throw(vm, msg, ...) handle_exception(vm, msg, false, __VA_ARGS__);

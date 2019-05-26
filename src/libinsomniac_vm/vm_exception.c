@@ -2,6 +2,34 @@
 
 #include <assert.h>
 
+void find_source_location(FILE* fout, env_type *env) {
+    uint64_t i = 0;
+
+    if (env->debug_count == 0) { 
+        fprintf(fout, "No debugging info found.\n");
+        return;
+    }
+
+    if (env->ip < env->debug[0].start_addr) {
+        fprintf(fout, "[Preamble code.]\n");
+        return;
+    }
+
+    /* Find where the exception occured. */ 
+    for (i = 0; i < env->debug_count && env->debug[i].start_addr < env->ip; i ++);
+
+    /* If i is less than the cound, we found a debug record. */ 
+    if (i < env->debug_count) {
+        fprintf(
+            fout, 
+            "At File: %s, Line: %" PRIi64 " Col: %" PRIi64 " Addr: %" PRIi64 " Real Addr: %zu\n",
+            env->debug[i].file, env->debug[i].line, env->debug[i].column,
+            env->debug[i].start_addr, env->ip);
+    } else {
+        fprintf(fout, "Uknown location!\n");
+    }
+}
+
 /* Throw an exception. */
 void handle_exception(vm_internal_type * vm, char *msg, bool fatal, int num, ...) {
     va_list ap;
@@ -9,7 +37,6 @@ void handle_exception(vm_internal_type * vm, char *msg, bool fatal, int num, ...
     object_type *cons_temp = 0;
     object_type *obj = 0;
     env_type *env = 0;
-    uint64_t i = 0;
 
     /* make the exception */
     gc_register_root(vm->gc, (void **)&exception);
@@ -79,18 +106,8 @@ void handle_exception(vm_internal_type * vm, char *msg, bool fatal, int num, ...
 
     printf("\n\nUnhandled Exception: '%s'\n", msg);
 
-    /* Find where the exception occured. */ 
-    env = vm->env;
-    for (i = 0; i < env->debug_count && env->debug[i].start_addr > env->ip; i ++);
+    find_source_location(stdout, vm->env);
 
-    /* If i is less than the cound, we found a debug record. */ 
-    if (i < env->debug_count) {
-        printf(
-            "At File: %s, Line: %" PRIi64 " Col: %" PRIi64 " Addr: %" PRIi64 "\n\n",
-            env->debug[i].file, env->debug[i].line, env->debug[i].column,
-            env->debug[i].start_addr);
-    }
- 
     printf("Exception:\n");
     output_object(stdout, exception);
 

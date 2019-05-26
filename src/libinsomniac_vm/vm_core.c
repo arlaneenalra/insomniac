@@ -92,7 +92,7 @@ object_type *vm_pop(vm_type *vm_void) {
 
     /* Make sure our return is not null. */
     if (!obj) {
-        throw_fatal(vm, "Null found", 0);
+        throw_fatal(vm, "Null found in pop.", 0);
     }
 
     vm->stack_root = vm->stack_root->value.pair.cdr;

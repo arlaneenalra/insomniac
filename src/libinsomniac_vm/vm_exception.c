@@ -70,7 +70,7 @@ void handle_exception(vm_internal_type * vm, char *msg, bool fatal, int num, ...
 
     /* We did not find a handler ! */
     vm_pop(vm);
-    printf("Unhandled Exception: '%s'\n", msg);
+    printf("\n\nUnhandled Exception: '%s'\n", msg);
 
     printf("Exception:\n");
     output_object(stdout, exception);

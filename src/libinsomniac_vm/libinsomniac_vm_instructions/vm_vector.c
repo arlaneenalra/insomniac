@@ -229,3 +229,20 @@ void op_string_slice(vm_internal_type *vm) {
     vm_push(vm, vm->reg2);
 }
 
+/* Return a string from a bytevector. */
+void op_byte_vector_string(vm_internal_type *vm) {
+    object_type *vector = 0;
+    
+    vm->reg1 = vector = vm_pop(vm);
+
+    if (vector->type != BYTE_VECTOR) {
+        throw(vm, "u8->str requires a bytevector argument.", 1, vector);
+        return;
+    }
+
+    vm->reg2 = vm_make_string(
+        vm, (char *)vector->value.byte_vector.vector, vector->value.byte_vector.length);
+
+    vm_push(vm, vm->reg2);
+
+}

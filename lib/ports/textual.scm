@@ -12,7 +12,7 @@
     (begin
         (define (text-write str num fd)
             (write-bytevector
-                (string->utf8 string 0 num)))
+                (slice (string->u8 str) 0 num) fd))
 
         (define (text-read num fd) 
            "")

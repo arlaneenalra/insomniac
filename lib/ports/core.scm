@@ -110,8 +110,8 @@
 (define write-bytevector
     (writer-factory bytevector-length slice))
 
-;(define write-string
-;    (writer-factory string-length (lambda (str) str)))
+(define write-string
+    (writer-factory string-length substring))
 
 (define (read-bytevector k . args)
     (define port

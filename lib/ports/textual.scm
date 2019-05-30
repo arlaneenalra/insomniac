@@ -11,8 +11,13 @@
 (define <textual-file-port>
     (begin
         (define (text-write str num fd)
-            (write-bytevector
-                (string->u8 str) fd 0 num))
+            (let*
+                ((type (port-type fd))
+                 (writer (port-type-writer type))
+                 (real-fd (port-fd fd))
+                 (u8 (string->u8 str)))
+
+            (writer u8 num real-fd)))
 
         (define (text-read num fd) 
            "")

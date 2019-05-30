@@ -46,7 +46,6 @@ object_type *vm_make_byte_vector(vm_type *vm_void, vm_int length) {
 
     obj = vm_alloc(vm, BYTE_VECTOR);
     obj->value.byte_vector.length = length;
-    obj->value.byte_vector.slice = false;
 
     /* allocate an array of pointers */
     gc_alloc(vm->gc, 0, length, (void **)&(obj->value.byte_vector.vector));
@@ -65,7 +64,6 @@ object_type *vm_make_vector(vm_type *vm_void, vm_int length) {
 
     obj = vm_alloc(vm, VECTOR);
     obj->value.vector.length = length;
-    obj->value.byte_vector.slice = false;
 
     /* allocate an array of pointers */
     gc_alloc_pointer_array(vm->gc, 0, length, (void **)&(obj->value.vector.vector));

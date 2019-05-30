@@ -46,41 +46,8 @@
                 (walk-vector (cdr args) result (+ 1 idx)))))
     (walk-vector args (make-bytevector (length args)) 0))
 
-;; The guts of the copy operation.
-(define bytevector-copier
-    (begin
-        (define (add x) (+ x 1))
-        (define (sub x) (- x 1))
-
-        (lambda (to-factory at from args)
-            (define start 0)
-            (define end (bytevector-length from))
-
-            (define (process-args sym args)
-                (if (or (null? args) (null? sym))
-                    #t
-                    (begin
-                        (set! (car sym) (car args))
-                        (process-args (cdr sym) (cdr args)))))
-            (process-args '(start end) args)
-
-            (define to-copy (- end start))
-
-            (define to (to-factory to-copy))
-
-            (define (inner at start dir num)
-                (if (> 0 num )
-                    to
-                    (begin
-                        (bytevector-u8-set! to at
-                            (bytevector-u8-ref from start))
-                        (inner (dir at) (dir start) dir (- num 1 )))))
-
-            (if (> start at)
-                (inner at start add (- to-copy 1))
-                (begin
-                    (set! to-copy (- to-copy 1))
-                    (inner (+ at to-copy) (+ start to-copy) sub to-copy))))))
+(define (bytevector-copier to-factory at from args)
+    (core-vector-copier to-factory bytevector-u8-set! bytevector-u8-ref bytevector-length at from args))
 
 ;; Copy from one byte vector to another.
 (define (bytevector-copy! to at from . args)

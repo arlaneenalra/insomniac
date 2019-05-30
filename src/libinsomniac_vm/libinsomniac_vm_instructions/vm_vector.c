@@ -134,6 +134,7 @@ void op_index_ref(vm_internal_type *vm) {
     }
 
     index = obj_index->value.integer;
+    
 
     /* Make sure we have a vector or equivalent. */
     if (!((vector->type == VECTOR ||
@@ -157,73 +158,22 @@ void op_index_ref(vm_internal_type *vm) {
     vm_push(vm, obj);
 }
 
-/* return a slice of a the passed in vector */
-void op_slice(vm_internal_type *vm) {
-    object_type *vector = 0;
-    object_type *start = 0;
-    object_type *end = 0;
-    vm_int length = 0;
-
-    vm->reg1 = vector = vm_pop(vm);
-    vm->reg2 = end = vm_pop(vm);
-    vm->reg3 = start = vm_pop(vm);
-
-    if (!((vector && (vector->type == VECTOR || vector->type == BYTE_VECTOR) &&
-        vector->value.vector.length >= end->value.integer))) {
-        
-        throw(vm, "Slice must be inside the bounds of a vector.",
-            3, vector, end, start);
-        return; 
-    } 
-
-    length = end->value.integer - start->value.integer;
-
-    if (length < 0) {
-        throw(vm, "A slice cannot have netative length.",
-            3, vector, end, start);
-        return; 
-    }
-
-    /* Vector and bytevector have the same internal structure, the only
-       difference are the final pointer types. We can use this to avoid
-       extraneous allocations and make accessing the members easier. */
-    vm->reg2 = vm_alloc(vm, SLICE);
-	vm->reg2->type = vector->type;
-
-    vm->reg2->value.byte_vector.length = MIN(
-        length, vector->value.byte_vector.length);
-
-	vm->reg2->value.byte_vector.slice = true;
-
-    /* We need to know the type to determine the size to offset by. */
-    if (vector->type == VECTOR) {
-        vm->reg2->value.vector.vector =
-            vector->value.vector.vector + start->value.integer;
-    } else {
-        vm->reg2->value.byte_vector.vector =
-            vector->value.byte_vector.vector + start->value.integer;
-    }
-
-    vm_push(vm, vm->reg2);
-}
-
 /* return a byte vector of a string. */
-void op_string_slice(vm_internal_type *vm) {
+void op_string_byte_vector(vm_internal_type *vm) {
     object_type *string = 0;
     object_type *slice = 0;
     
     vm->reg1 = string = vm_pop(vm);
 
     if (string->type != STRING) {
-        throw(vm, "String slice requires a string argument.", 1, string);
+        throw(vm, "str->u8 requires a string argument.", 1, string);
         return;
     }
 
-    vm->reg2 = slice = vm_alloc(vm, SLICE);
+    vm->reg2 = slice = vm_alloc(vm, BYTE_VECTOR);
     slice->type = BYTE_VECTOR;
 
     slice->value.byte_vector.length = string->value.string.length;
-    slice->value.byte_vector.slice = true;
     slice->value.byte_vector.vector = (uint8_t *)string->value.string.bytes;
 
     vm_push(vm, vm->reg2);

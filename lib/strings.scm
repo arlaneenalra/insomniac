@@ -4,7 +4,7 @@
 
 ;; Directly convert a string into a bytevector.
 (define (string->u8 str)
-    (asm (str) str->slice))
+    (asm (str) str->u8))
 
 ;; Directly convert a byte vector into a string.
 (define (u8->string u8)
@@ -17,7 +17,7 @@
 ;; Slice a string.
 (define (substring str start end)
     (u8->string
-        (slice (string->u8 str) start end)))
+        (bytevector-copy (string->u8 str) start end)))
 
 ;; Convert a String into a utf8 
 ;;(define (utf8->string bytevector . args)

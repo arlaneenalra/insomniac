@@ -108,7 +108,7 @@
     write-slice)
 
 (define write-bytevector
-    (writer-factory bytevector-length slice))
+    (writer-factory bytevector-length bytevector-copy))
 
 (define write-string
     (writer-factory string-length substring))

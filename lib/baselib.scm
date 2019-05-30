@@ -43,7 +43,6 @@
 
 (include "lists.scm")
 (include "vectors.scm")
-(include "byte-vectors.scm")
 (include "strings.scm")
 
 (include "records.scm")

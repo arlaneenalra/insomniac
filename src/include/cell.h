@@ -20,7 +20,6 @@ typedef enum cell {
 
     VECTOR,
     BYTE_VECTOR,
-	SLICE,
     RECORD,
 
     PAIR,
@@ -48,14 +47,12 @@ typedef struct string {
 typedef struct byte_vector {
     vm_int length;
     uint8_t *vector;
-	bool slice;
 } byte_vector_type;
 
 /* type to store a vector */
 typedef struct vector {
     vm_int length;
     object_type **vector;
-	bool slice;
 } vector_type;
 
 /* holds a portion of the vm's execution state */

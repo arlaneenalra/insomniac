@@ -69,15 +69,6 @@ gc_type_def register_vector(gc_type *gc) {
     return vector;
 }
 
-/* register a slice type */
-gc_type_def register_slice(gc_type *gc) {
-    gc_type_def slice = 0;
-
-    slice = gc_register_type(gc, sizeof(object_type));
-
-    return slice;
-}
-
 /* type used to store the execution state */
 gc_type_def register_env(gc_type *gc) {
     gc_type_def env = 0;
@@ -103,7 +94,6 @@ void create_types(vm_internal_type *vm) {
 
     vm->types[STRING] = register_string(gc);
     vm->types[BYTE_VECTOR] = vm->types[RECORD] = vm->types[VECTOR] = register_vector(gc);
-    vm->types[SLICE] = register_slice(gc);
 
     vm->types[CLOSURE] = register_closure(gc);
     vm->types[LIBRARY] = register_library(gc);

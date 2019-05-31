@@ -14,8 +14,6 @@ void op_bind(vm_internal_type *vm) {
     /* make sure the key is a symbol */
     if (!key || key->type != SYMBOL) {
         throw(vm, "Attempt to bind with non-symbol", 2, key, value);
-    } else if (hash_get(vm->env->bindings, key->value.string.bytes, 0)) {
-        throw(vm, "Attempt to bind previously bound symbol", 2, key, value);
     } else {
         /* do the actual bind */
         hash_set(vm->env->bindings, key->value.string.bytes, value);

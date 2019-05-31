@@ -50,5 +50,6 @@
 (include "loop.scm")
 (include "call-cc.scm")
 (include "parameter.scm")
+(include "error.scm")
 (include "ports.scm")
 

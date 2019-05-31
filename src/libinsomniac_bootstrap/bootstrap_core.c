@@ -286,11 +286,12 @@ void compile_string(compiler_type *comp_void, char *str, bool include_baselib) {
 }
 
 /* Compile a file */
-void compile_file(compiler_type *comp_void, char *file_name, bool include_baselib) {
+int compile_file(compiler_type *comp_void, char *file_name, bool include_baselib) {
     compiler_core_type *compiler = (compiler_core_type *)comp_void;
     ins_stream_type *baselib = 0; /* TODO: should be gc root */
     FILE *in = 0;
     char path[PATH_MAX];
+    int ret_val = 0;
 
     /* Actually parse the input stream. */
     yylex_init_extra(compiler, &(compiler->scanner));
@@ -319,11 +320,13 @@ void compile_file(compiler_type *comp_void, char *file_name, bool include_baseli
         setup_include(compiler, baselib);
     }
 
-    parse_internal(compiler, compiler->scanner);
+    ret_val = parse_internal(compiler, compiler->scanner);
 
     gc_unprotect(compiler->gc);
 
     yylex_destroy(compiler->scanner);
+    
+    return ret_val;
 }
 
 /* Convert an instruction stream into assembly */

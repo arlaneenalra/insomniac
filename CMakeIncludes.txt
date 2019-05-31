@@ -15,18 +15,31 @@ file(GLOB_RECURSE INSC_LIB_TARGETS FOLLOW_SYMLINKS ${CMAKE_BINARY_DIR}/src/lib/*
 
 # Define an insomniac compile command.
 macro(INSC_TARGET Name Input Output)
-    set(INSC_TARGET_outputs "${CMAKE_CURRENT_BINARY_DIR}/${Output}")
+    set(INSC_TARGET_outputs "${CMAKE_CURRENT_BINARY_DIR}/${Input}.s")
 
-    set(INSC_TARGET_usage "INSC_TARGET(<Name> <Input> <Output>)")
-
-    add_custom_command(OUTPUT ${Output}
+    set(INSC_TARGET_usage "INSC_TARGET(<Name> <Input> <Output> ... <Extra link libraries>)")
+    
+    add_custom_command(OUTPUT ${INSC_TARGET_outputs}
         COMMAND ${CMAKE_BINARY_DIR}/src/insc-bootstrap ${Input} -o ${INSC_TARGET_outputs}
         VERBATIM
         DEPENDS ${Input} insc-bootstrap ${INSC_LIB_TARGETS}
         COMMENT "[INSC] Compiling Insomniac Scheme code to ${INSC_TARGET_outputs}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    
+    add_executable(${Output}
+        ${INSC_TARGET_outputs}
+        )
 
-    set(INSC_${Name}_OUTPUTS "${INSC_TARGET_outputs}")
+    set_target_properties(${Output}
+        PROPERTIES LINKER_LANGUAGE C
+        )
+
+    target_link_libraries(${Output}
+        insomniac_runtime
+        ${ARGN}
+        )
+
+    set(INSC_${Name}_OUTPUT "${CMAKE_CURRENT_BIN_DIR}/${Output}")
 endmacro()
 
 # Define a

@@ -290,6 +290,7 @@ int main(int argc, char **argv) {
     buffer_type *asm_buf = 0;
     char realpath_buf[PATH_MAX];
     char compiler_home[PATH_MAX];
+    int ret_val = 0;
 
     /* needed to setup locale aware printf . . .
        I need to do a great deal more research here */
@@ -308,26 +309,28 @@ int main(int argc, char **argv) {
     compiler_create(gc, &compiler, compiler_home);
 
     /* load and compiler */
-    compile_file(compiler, opts.filename, opts.include_baselib);
+    ret_val = compile_file(compiler, opts.filename, opts.include_baselib);
 
-    /* Generate code */
-    buffer_create(gc, &asm_buf);
+    if (!ret_val) {
+        /* Generate code */
+        buffer_create(gc, &asm_buf);
 
-    compiler_code_gen(compiler, asm_buf, opts.pre_post_amble);
+        compiler_code_gen(compiler, asm_buf, opts.pre_post_amble);
 
-    /* Convert generated code to string */
-    length = buffer_size(asm_buf);
-    gc_alloc(gc, 0, length, (void **)&asm_str);
-    length = buffer_read(asm_buf, (uint8_t *)asm_str, length);
+        /* Convert generated code to string */
+        length = buffer_size(asm_buf);
+        gc_alloc(gc, 0, length, (void **)&asm_str);
+        length = buffer_read(asm_buf, (uint8_t *)asm_str, length);
 
-    /* Assemble byte code. */
-    if (opts.assemble) {
-        length = buildAttachment(gc, asm_str, &asm_str);
+        /* Assemble byte code. */
+        if (opts.assemble) {
+            length = buildAttachment(gc, asm_str, &asm_str);
+        }
+
+        /* Write the assembled code out to a file *without the null* at the end of
+         * the string. */
+        writeToFile(&opts, asm_str, length - 1);
     }
-
-    /* Write the assembled code out to a file *without the null* at the end of
-     * the string. */
-    writeToFile(&opts, asm_str, length - 1);
 
     /* Clean up the garabge collector */
     gc_unregister_root(gc, (void **)&compiler);
@@ -335,5 +338,5 @@ int main(int argc, char **argv) {
     gc_unregister_root(gc, (void **)&asm_str);
     gc_destroy(gc);
 
-    return 0;
+    return ret_val;
 }

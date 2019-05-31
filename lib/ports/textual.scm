@@ -71,6 +71,7 @@
         (make-port
             (make-binary-port 0 #f)
             #f
+            #t
             <textual-file-port>)))
 
 (define current-output-port

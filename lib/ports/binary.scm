@@ -38,7 +38,6 @@
 (define (make-binary-port fd writable)
 	(make-port fd writable #t <binary-file-port>))
 
-
 ;;
 ;; Binary port openers 
 ;;
@@ -48,4 +47,16 @@
 
 (define (open-binary-input-file file)
     (make-binary-port (raw-open file #f) #f))
+
+
+;;
+;; Standard IO operations
+;;
+(define write-bytevector
+    (writer-factory bytevector-length bytevector-copy))
+
+(define read-bytevector
+    (reader-factory bytevector-length))
+
+
 

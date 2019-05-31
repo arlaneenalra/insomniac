@@ -79,6 +79,22 @@
 (define close-output-port close-port)
 
 ;;
+;; Flush an output port
+;;
+
+(define (flush-output-port . args)
+    (let*
+        ((port
+            (if (null? args)
+                (current-output-port)
+                (car args)))
+         (type (port-type port))
+         (flusher (port-type-flushertype))
+         (fd (port-fd port)))
+         
+        (flusher fd)))
+
+;;
 ;; Standard port operations
 ;;
 (define (writer-factory len-func slicer)
@@ -107,29 +123,22 @@
             (writer u8-slice (len-func u8-slice) fd)))
     write-slice)
 
-(define write-bytevector
-    (writer-factory bytevector-length bytevector-copy))
+(define (reader-factory len-func)
+    (lambda (k . args)
+        (define port
+            (if (> (length args) 0)
+                (car args)
+                (current-input-port)))
 
-(define write-string
-    (writer-factory string-length substring))
+        (define value-read 
+            (let*
+                ((type (port-type port))
+                 (reader (port-type-reader type))
+                 (fd (port-fd port)))
+                
+                (reader k fd)))
 
-(define (read-bytevector k . args)
-    (define port
-        (if (> (length args) 0)
-            (car args)
-            (current-input-port)))
-
-    (define u8-read 
-        (let*
-            ((type (port-type port))
-             (reader (port-type-reader type))
-             (fd (port-fd port)))
-            
-            (reader k fd)))
-
-    (if (> (bytevector-length u8-read) 0)
-        u8-read
-        (eof-object)))
-
-
+        (if (> (len-func value-read) 0)
+            value-read
+            (eof-object))))
 

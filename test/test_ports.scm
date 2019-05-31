@@ -67,8 +67,45 @@
         (textual-port? out-text-port))
     #t) 
 
-(expect "Write data to the text file."
+(expect "Write data to the text file"
     (lambda ()
         (write-string "Testing" out-text-port))
     7)
+
+(expect "Verify close port returns appropriately with a text port"
+    (lambda () (close-port out-text-port))
+    '())
+
+(expect "Verify that the text port is closed"
+	(lambda () (output-port-open? out-text-port))
+	#f)
+
+(define in-text-port (open-input-file test-text-file))
+
+(expect "Verify that the text port is open"
+	(lambda () (input-port-open? in-text-port))
+	#t)
+
+(expect "Check that data can be read from the data file"
+    (lambda ()
+        (read-string 5 in-text-port))
+    "Testi")
+
+(expect "Check that the rest of the data can be read from the data file"
+    (lambda ()
+        (read-string 5 in-text-port))
+    "ng")
+
+(expect "Check that an of is returned when nothing is left to return"
+    (lambda ()
+        (read-string 5 in-text-port))
+    (eof-object))
+
+(expect "Verify close port returns appropriately with a text input port"
+    (lambda () (close-port in-text-port))
+    '())
+
+(expect "Verify that the text port is closed"
+	(lambda () (input-port-open? in-port))
+	#f)
 

@@ -10,6 +10,10 @@
 ;; Setup type for text file ports
 (define <textual-file-port>
     (begin
+
+        ;; We assume a binary port here and 
+        ;; call writer directly to avoid 
+        ;; doubling up on the slice logic
         (define (text-write str num fd)
             (let*
                 ((type (port-type fd))
@@ -19,14 +23,23 @@
 
             (writer u8 num real-fd)))
 
-        (define (text-read num fd) 
-           "")
+        ;; We assume a binary port here and 
+        ;; call reader directly to avoid
+        ;; doubling the read logic
+        (define (text-read num fd)
+            (let*
+                ((type (port-type fd))
+                 (reader (port-type-reader type))
+                 (real-fd (port-fd fd)))
+            
+                (u8->string (reader num real-fd))))
 
         ;; fd is a binary port
         (define (text-close fd)
             (close-port fd))
 
-        (define (text-flush fd) #t)
+        (define (text-flush fd)
+            (flush-output-port fd))
 
         (make-port-ops
             '<textual>
@@ -75,4 +88,14 @@
             #t
             #t
             <textual-file-port>)))
+
+;;
+;; Standard IO operations
+;;
+(define write-string
+    (writer-factory string-length substring))
+
+(define read-string
+    (reader-factory string-length))
+
 

@@ -171,7 +171,6 @@ void output_object(FILE *fout, object_type *obj) {
                     fout, "<CLOSURE %p:%p(%p) -> %p\n", (void *)obj, (void *)env,
                     (void *)env->bindings, (void *)env->parent);
                 find_source_location(fout, env);                     
-                hash_info(env->bindings);
                 fprintf(fout, ">\n");
                 env = env->parent;
             }

@@ -52,7 +52,7 @@
     (if (or (null? val-list) (null? (car val-list)))
 	'()
 	(begin
-	  (apply proc (car val-list))
+	  (apply proc (list (car val-list)))
 	  (inner (cdr val-list)))))
 
   (inner (prep-args val-list)))
@@ -66,7 +66,7 @@
 	(reverse result)
 	(inner (cdr val-list)
 	       (cons
-		(apply proc (car val-list))
+		(apply proc (list (car val-list)))
 		result))))
 	
   (inner (prep-args val-list) '()))

@@ -30,7 +30,8 @@ typedef enum op {
     OP_INDEX_SET,        /* set a column in a given vector */
     OP_INDEX_REF,        /* read the index into a vector an put it on the stack */
     OP_VECTOR_LENGTH,    /* return the length of a vector */
-    OP_SLICE,            /* returns a slice of a vector */
+    OP_STRING_BYTE_VECTOR,  /* returns a bytevector from a string */
+    OP_BYTE_VECTOR_STRING, /* returns a string from a bytevector */
 
     /* jump operations Jumps are relative */
     OP_CALL,         /* call the given target and leave return on stack */
@@ -93,7 +94,6 @@ typedef enum op {
     OP_IS_SYMBOL,
     OP_IS_VECTOR,
     OP_IS_BYTE_VECTOR,
-    OP_IS_SLICE,
     OP_IS_RECORD,
     OP_IS_PAIR,
     OP_IS_EMPTY,

@@ -3,6 +3,100 @@
 
 #include <assert.h>
 
+/* Add an element in the debug chain if one is needed. */
+void push_debug(gc_type *gc, debug_info_type *debug, char *file, vm_int line, vm_int column, vm_int addr) {
+    debug_state_type *new = 0; 
+    debug_state_type *tail = debug->tail;
+
+    /* check if an update is needed. */ 
+    if (tail && tail->file && strcmp(tail->file, file) == 0 && tail->line == line && tail->column == column) {
+        return;
+    }
+ 
+    gc_register_root(gc, (void **)&new);
+
+    /* Allocate a new record. */
+    gc_alloc_type(gc, 0, get_debug_state_def(gc), (void **)&new);
+
+    new->file = file;
+    new->line = line;
+    new->column = column;
+    new->start_addr = addr;
+
+    new->next = 0;
+
+    /* no record */
+    if (!tail) {
+        debug->tail = debug->head = new;
+    } else {
+        debug->tail->next = new;
+        debug->tail = new;
+    }
+
+    gc_unregister_root(gc, (void **)&new);
+}
+
+/* parse the current line or column number. */
+int get_debug_num(gc_type *gc, yyscan_t *scanner) {
+    int token = 0;
+
+    token = yyasmlex(scanner);
+    if (token != OP_LIT_FIXNUM) {
+        printf(".ln requires a number.\n");
+        assert(0);
+    }
+
+    return strtoq(get_text(scanner), 0, 0);
+}
+
+/* parse a string out of the token stream for debugging info */
+void add_debug_file(gc_type *gc, yyscan_t *scanner, debug_info_type *debug, vm_int addr) {
+    int token = 0;
+
+    char *filename = 0;
+    int line = 0;
+    int column = 0;
+
+    char *value = 0;
+
+    hashtable_type *files = debug->files;
+
+    gc_register_root(gc, (void **)&value);
+
+    /* get the next token */
+    token = yyasmlex(scanner);
+
+    if (token != STRING_START_TOKEN) {
+        assert(0);
+    }
+
+    token = yyasmlex(scanner);
+
+    /* do we have a string body? */
+    if (token == OP_LIT_STRING) {
+       
+        /* Copy the file name into a gc allocated string. */
+        filename = get_text(scanner);
+    
+        /* grab the next token */
+        token = yyasmlex(scanner);
+    }
+    if (token != STRING_END_TOKEN) {
+        assert(0);
+    }
+    
+    if (!hash_get(files, filename, (void **)&value)) {
+        gc_make_substring(gc, filename, &value, strlen(filename) - 1);
+        hash_set(files, value, value);
+    } 
+  
+    line = get_debug_num(gc, scanner);
+    column = get_debug_num(gc, scanner);
+
+    push_debug(gc, debug, value, line, column, addr);
+    gc_unregister_root(gc, (void **)&value);
+}
+
 /* assmble a litteral fix num */
 void asm_lit_fixnum(buffer_type *buf, yyscan_t *scanner) {
     vm_int i = 0;
@@ -171,12 +265,15 @@ void rewrite_jumps(uint8_t *code_ref, jump_type *jump_list, hashtable_type *labe
 
 /* Entry point for the assembler. code_ref is assumed to be attached
    to the gc. */
-size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
+size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref, debug_info_type **debug) {
     yyscan_t scanner = 0;
     op_type token = 0;
     buffer_type *buf = 0;
+
     hashtable_type *labels = 0;
+
     jump_type *jump_list = 0;
+
     size_t length = 0;
 
     gc_register_root(gc, &buf);
@@ -185,10 +282,17 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
 
     /* create an output buffer */
     buffer_create(gc, &buf);
+
     hash_create_string(gc, &labels);
 
+    /* Check for a debug pointer. */
+    if (debug) {
+        gc_alloc_type(gc, 0, get_debug_info_def(gc), (void **)debug);
+
+        hash_create_string(gc, &((*debug)->files));
+    }
+
     yyasmlex_init(&scanner);
-    /* yyset_debug(1, scanner); */
 
     /* set the scanners input */
     yyasm_scan_string(str, scanner);
@@ -229,6 +333,13 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
                 asm_label(gc, buf, labels, get_text(scanner));
                 break;
 
+            case DIRECTIVE_FILE:
+                /* Update the current file. */
+                if (debug) {
+                    add_debug_file(gc, scanner, *debug, buffer_size(buf));
+                }                    
+                break;
+
             default:
                 /* All instructions not defined otherwise, are their token.
                    But there are things that can be returned as a token, that
@@ -251,9 +362,9 @@ size_t asm_string(gc_type *gc, char *str, uint8_t **code_ref) {
     /* replace jump address fields */
     rewrite_jumps(*code_ref, jump_list, labels);
 
-    gc_unregister_root(gc, &buf);
-    gc_unregister_root(gc, &labels);
     gc_unregister_root(gc, (void **)&jump_list);
+    gc_unregister_root(gc, &labels);
+    gc_unregister_root(gc, &buf);
 
     return length;
 }

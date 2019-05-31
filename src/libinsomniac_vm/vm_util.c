@@ -1,5 +1,4 @@
 #include "vm_internal.h"
-#include <stdarg.h>
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -62,8 +61,8 @@ void parse_string(vm_internal_type *vm, object_type **obj) {
     vm->env->ip += length;
 }
 
-/* either make the given object into a symbol or replace
-   it with the symbol version */
+/* Either make the given object into a symbol or replace
+   it with the symbol version. */
 void make_symbol(vm_internal_type *vm, object_type **obj) {
     if (!hash_get(vm->symbol_table, (*obj)->value.string.bytes, (void **)obj)) {
 
@@ -73,90 +72,7 @@ void make_symbol(vm_internal_type *vm, object_type **obj) {
     }
 }
 
-/* throw an exception */
-void throw(vm_internal_type * vm, char *msg, int num, ...) {
-    va_list ap;
-    object_type *exception = 0;
-    object_type *cons_temp = 0;
-    object_type *obj = 0;
-
-    /* make the exception */
-    gc_register_root(vm->gc, (void **)&exception);
-    gc_register_root(vm->gc, (void **)&obj);
-    gc_register_root(vm->gc, (void **)&cons_temp);
-
-    exception = vm->empty;
-
-    /* save off any given objects */
-    va_start(ap, num);
-
-    for (int i = 0; i < num; i++) {
-        obj = va_arg(ap, object_type *);
-        cons(vm, obj, exception, &cons_temp);
-        exception = cons_temp;
-    }
-
-    va_end(ap);
-
-    /* save the current point in the execution */
-    obj = vm_alloc(vm, CLOSURE);
-    clone_env(vm, (env_type **)&(obj->value.closure), vm->env, false);
-
-    cons(vm, obj, exception, &cons_temp);
-    exception = cons_temp;
-
-    /* /\* save the stack *\/ */
-    /* exception = cons(vm, vm->stack_root, exception); */
-
-    /* make a string object for the message */
-    obj = vm_make_string(vm, msg, strlen(msg));
-
-    /* put everything in a pair */
-    cons(vm, obj, exception, &cons_temp);
-    exception = cons_temp;
-
-    /* put the exception itself on the stack */
-    vm_push(vm, exception);
-
-    gc_unregister_root(vm->gc, (void **)&cons_temp);
-    gc_unregister_root(vm->gc, (void **)&obj);
-    gc_unregister_root(vm->gc, (void **)&exception);
-
-    /* we did not find a handler ! */
-    /* go hunting for the exception handler routine */
-    while (vm->env && !vm->env->handler) {
-        vm->env = vm->env->parent;
-    }
-
-    /* did we find a handler ? */
-    if (vm->env) {
-        clone_env(vm, (env_type **)&(vm->env), vm->env, false);
-        /* disable exception handler while
-           handling exceptions */
-        vm->env->handler = 0;
-
-        /* we can assume that if vm is a valid pointer,
-           handler is a valid pointer */
-        vm->env->ip = vm->env->handler_addr;
-
-        return;
-    }
-
-    /* we did not find a handler ! */
-    vm_pop(vm);
-    printf("Unhandled Exception: '%s'\n", msg);
-
-    printf("Exception:\n");
-    output_object(stdout, exception);
-
-    printf("\nCurrent Stack:\n");
-    output_object(stdout, vm->stack_root);
-    printf("\n");
-
-    assert(0);
-}
-
-/* load a file into a string */
+/* Load a file into a string. */
 void vm_load_buf(vm_internal_type *vm, char *file, object_type **obj) {
     size_t count = 0;
 

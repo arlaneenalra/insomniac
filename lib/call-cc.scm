@@ -23,7 +23,7 @@
     (if (null? wrappers)
         #f
         (begin
-            (apply (car wrappers))
+            (apply (car wrappers) '())
             (dynamic-wind-enter (cdr wrappers)))))
 
  (define (call/cc proc)

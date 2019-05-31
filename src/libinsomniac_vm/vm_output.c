@@ -50,6 +50,22 @@ void output_char(FILE *fout, object_type *character) {
     /* fprintf(fout, "<%x>", character->value.character); */
 }
 
+void output_record(FILE *fout, object_type *vector) {
+    vm_int index = 0;
+
+    /* walk all the objects in this vector and
+       output them */
+    fprintf(fout, "<RECORD ");
+
+    for (index = 0; index < vector->value.vector.length; index++) {
+        if (index > 0) {
+            fprintf(fout, " ");
+        }
+        output_object(fout, vector->value.vector.vector[index]);
+    }
+
+    fprintf(fout, ">");
+}
 void output_vector(FILE *fout, object_type *vector) {
     vm_int index = 0;
 
@@ -134,6 +150,10 @@ void output_object(FILE *fout, object_type *obj) {
             output_byte_vector(fout, obj);
             break;
 
+		case RECORD:
+			output_record(fout, obj);
+			break;
+
         case BOOL:
             if (obj->value.boolean) {
                 fprintf(fout, "#t");
@@ -148,9 +168,9 @@ void output_object(FILE *fout, object_type *obj) {
             fprintf(fout, "{");
             while (env) {
                 fprintf(
-                    fout, "<CLOSURE %p:%p(%p) -> %p ", (void *)obj, (void *)env,
+                    fout, "<CLOSURE %p:%p(%p) -> %p\n", (void *)obj, (void *)env,
                     (void *)env->bindings, (void *)env->parent);
-                hash_info(env->bindings);
+                find_source_location(fout, env);                     
                 fprintf(fout, ">\n");
                 env = env->parent;
             }

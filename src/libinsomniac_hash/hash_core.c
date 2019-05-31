@@ -4,6 +4,7 @@
 
 static gc_type_def hashtable_type_def = 0;
 static gc_type_def key_value_type_def = 0;
+static gc_type_def hash_iterator_def = 0; 
 
 /* create a hashtable using the given function and
    comparator */
@@ -15,6 +16,7 @@ void hash_create(gc_type *gc, hash_fn fn, hash_cmp cmp, hashtable_type **ret) {
     if (!hashtable_type_def) {
         hashtable_type_def = register_hashtable(gc);
         key_value_type_def = register_key_value(gc);
+        hash_iterator_def = register_hash_iterator(gc);
     }
 
     gc_register_root(gc, (void **)&table);
@@ -195,6 +197,47 @@ void hash_resize(hash_internal_type *table, size_t size) {
 /* calculate the load factor for a given table */
 float hash_load(hash_internal_type *table) {
     return (table->entries * 1.0) / table->size;
+}
+
+/* return the size of the hash table */
+int hash_size(hashtable_type *table) {
+    return ((hash_internal_type *)table)->entries;
+}
+
+/* Iterate throught the hash table retrieving values and keys */
+hash_entry_type *hash_next(hashtable_type *void_table, hash_iterator_type **iterator) {
+    hash_internal_type *table = (hash_internal_type *)void_table;
+    hash_internal_iterator_type *it = 0; 
+    key_value_type *entry = 0;
+
+    /* if the iterator is null, allocate a new one */
+    if (!*iterator) {
+        gc_alloc_type(table->gc, 0, hash_iterator_def, iterator);
+    }
+
+    it = *(hash_internal_iterator_type **)iterator; 
+
+    /* iterate through the list */
+    do {
+        
+        /* because we're iterating between calls, entry may not be null here. */
+        if (!it->entry) {
+            it->entry = table->table[it->idx];
+            it->idx++;
+        }
+
+        /* walk the chain */
+        if (it->entry) {
+            entry = it->entry;
+            it->entry = it->entry->next;
+            
+            /* if we're at the end of the chain, find the next one. */
+            return (hash_entry_type *)entry;
+        }
+
+    } while(it->idx < table->size);
+
+    return 0;
 }
 
 /* output some useful stats about a hash table */

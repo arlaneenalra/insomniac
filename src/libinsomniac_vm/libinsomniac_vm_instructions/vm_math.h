@@ -15,11 +15,8 @@
         /* TODO: replace this with sane exception                                        \
            handler */                                                                    \
         if (!num1 || num1->type != FIXNUM || !num2 || num2->type != FIXNUM) {            \
-            printf("Attempt to calculate with non-number\n");                            \
-            output_object(stdout, num1);                                                 \
-            printf("\n");                                                                \
-            output_object(stdout, num2);                                                 \
-            assert(0);                                                                   \
+            throw(vm, "Attempt to calculate with non-number\n", 2, num1, num2);          \
+            return;                                                                      \
         }                                                                                \
                                                                                          \
         vm->reg3 = result = vm_alloc(vm, FIXNUM);                                        \
@@ -41,13 +38,8 @@
         /* TODO: replace this with sane exception                                        \
            handler */                                                                    \
         if (!num1 || num1->type != FIXNUM || !num2 || num2->type != FIXNUM) {            \
-            printf("Attempt to compare with non-number\n");                              \
-            printf("\"");                                                                \
-            output_object(stdout, num1);                                                 \
-            printf("\"\n\"");                                                            \
-            output_object(stdout, num2);                                                 \
-            printf("\"\n");                                                              \
-            assert(0);                                                                   \
+            throw(vm, "Attempt to compare with non-number\n", 2, num1, num2);            \
+            return;                                                                      \
         }                                                                                \
                                                                                          \
         if (num1->value.integer op num2->value.integer) {                                \

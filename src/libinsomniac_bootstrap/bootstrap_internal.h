@@ -72,6 +72,10 @@ struct ins_node {
        back tracking in the optimizer */
     ins_node_type *next;
     ins_node_type *prev;
+
+    int column;
+    int line;
+    char *file;
 };
 
 /* A stream of instructions */
@@ -135,6 +139,7 @@ void emit_bool(
     bool allow_tail_call, bool and_or);
 
 void emit_newline(buffer_type *buf);
+void emit_debug(buffer_type *buf, ins_node_type *node);
 void emit_indent(buffer_type *buf);
 void emit_comment(buffer_type *buf, char *str);
 void emit_label(buffer_type *buf, buffer_type *label);
@@ -217,6 +222,7 @@ int parse_internal(compiler_core_type *compiler, void *scanner);
 void parse_error(compiler_core_type *compiler, void *scanner, char *s);
 
 void parse_push_state(compiler_core_type *compiler, FILE *file);
+void tag_node(void * scanner, ins_node_type *node);
 
 void pop_include_path(compiler_core_type *compiler);
 

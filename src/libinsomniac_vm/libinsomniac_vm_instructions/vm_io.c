@@ -73,7 +73,7 @@ void op_close(vm_internal_type *vm) {
     vm->reg1 = fd_obj = vm_pop(vm);
 
     if (!fd_obj || fd_obj->type != FIXNUM) {
-        throw(vm, "Close expects and integer file descriptor!", 1, fd_obj);
+        throw(vm, "Close expects an integer file descriptor!", 1, fd_obj);
         return;
     }
 

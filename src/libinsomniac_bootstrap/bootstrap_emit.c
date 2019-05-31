@@ -564,6 +564,9 @@ bool emit_node(
     bool allow_tail_call) {
     bool pushed = false;
 
+    /* Write debugging info to the output stream. */
+    emit_debug(buf, head);
+
     /* Process each instruction in the stream */
     switch (head->type) {
         case STREAM_LITERAL:

@@ -14,8 +14,6 @@ void op_bind(vm_internal_type *vm) {
     /* make sure the key is a symbol */
     if (!key || key->type != SYMBOL) {
         throw(vm, "Attempt to bind with non-symbol", 2, key, value);
-    } else if (hash_get(vm->env->bindings, key->value.string.bytes, 0)) {
-        throw(vm, "Attempt to bind previously bound symbol", 2, key, value);
     } else {
         /* do the actual bind */
         hash_set(vm->env->bindings, key->value.string.bytes, value);
@@ -29,6 +27,7 @@ void op_read(vm_internal_type *vm) {
     object_type *key = 0;
     object_type *value = 0;
     env_type *env = 0;
+    bool found = false;
 
     gc_register_root(vm->gc, (void **)&key);
     gc_register_root(vm->gc, (void **)&value);
@@ -48,16 +47,14 @@ void op_read(vm_internal_type *vm) {
     /* search all environments and parents for
        key */
     env = vm->env;
-    while (env && !hash_get(env->bindings, key->value.string.bytes, (void **)&value)) {
+    while (env && !(found = hash_get(env->bindings, key->value.string.bytes, (void **)&value))) {
         env = env->parent;
     }
 
     /* we didn't find anything */
-    if (!value) {
+    if (!found) {
         throw(vm, "Attempt to read undefined symbol", 1, key);
-
     } else {
-
         vm_push(vm, value);
     }
 
@@ -105,8 +102,8 @@ void op_set(vm_internal_type *vm) {
         throw(vm, "Attempt to set undefined symbol", 2, key, value);
     }
 
-    gc_unregister_root(vm->gc, (void **)&value);
     gc_unregister_root(vm->gc, (void **)&key);
+    gc_unregister_root(vm->gc, (void **)&value);
 }
 
 void op_set_exit(vm_internal_type *vm) {

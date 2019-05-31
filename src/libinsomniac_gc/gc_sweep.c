@@ -42,7 +42,7 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
         /* Load the definition for this type of object */
         root_list = gc->type_defs[meta->type_def].root_list;
 
-        /* walk the list of poitners internal to
+        /* walk the list of pointers internal to
            this object */
         while (root_list) {
             obj = obj_from_meta(meta);

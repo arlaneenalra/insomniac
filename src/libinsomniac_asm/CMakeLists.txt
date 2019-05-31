@@ -14,5 +14,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_library(insomniac_asm
   asm_core.c
+  asm_types.c
   ${FLEX_LEXER_OUTPUTS}
   )

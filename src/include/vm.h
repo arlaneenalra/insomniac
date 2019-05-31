@@ -4,6 +4,7 @@
 #include "gc.h"
 
 typedef void vm_type;
+typedef struct debug_range debug_range_type; 
 
 void vm_create(gc_type *gc, vm_type **vm);
 void vm_destroy(vm_type *vm);
@@ -14,7 +15,8 @@ object_type *vm_alloc(vm_type *vm, cell_type type);
 void vm_push(vm_type *vm_void, object_type *obj);
 object_type *vm_pop(vm_type *vm_void);
 
-int vm_eval(vm_type *vm_void, size_t size, uint8_t *code_ref);
+int vm_eval(vm_type *vm_void, size_t size, uint8_t *code_ref,
+    debug_range_type *debug, uint64_t debug_count);
 void vm_reset(vm_type *vm_void);
 
 void vm_output_object(FILE *fout, object_type *obj);
@@ -34,11 +36,21 @@ typedef struct binding {
     ext_call_type func;
 } binding_type;
 
+/* Represents how debug data is written into the executable. */
+struct debug_range {
+    char *file;
+
+    uint64_t line;
+    uint64_t column;
+    uint64_t start_addr;
+};
+
 /* This is a nightmarish hack to allow an unmanaged pointer to be passed
    scheme code. */
 #define UNSTUFF_POINTER(pointer, type) *(type *)(pointer->value.byte_vector.vector)
 
 #define STUFF_POINTER(vm, pointer, type)                                                 \
+    __extension__                                                                        \
     ({                                                                                   \
         object_type *obj = vm_make_byte_vector(vm, sizeof(type));                        \
         type *f = (type *)(obj->value.byte_vector.vector);                               \

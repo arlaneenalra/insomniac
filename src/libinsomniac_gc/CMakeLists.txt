@@ -9,5 +9,6 @@ add_library(insomniac_gc
   gc_sweep.c
   gc_offset.c
   gc_types.c
+  gc_util.c
   )
 

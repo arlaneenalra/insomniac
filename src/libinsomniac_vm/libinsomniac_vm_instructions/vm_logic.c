@@ -1,6 +1,6 @@
 #include "vm_instructions_internal.h"
 
-/* does a simple object equivalence check */
+/* Does a simple object equivalence check. */
 void op_eq(vm_internal_type *vm) {
     object_type *obj1 = 0;
     object_type *obj2 = 0;
@@ -9,11 +9,11 @@ void op_eq(vm_internal_type *vm) {
     vm->reg1 = obj1 = vm_pop(vm);
     vm->reg2 = obj2 = vm_pop(vm);
 
-    /* make sure we have actual objects */
+    /* Make sure we have actual objects. */
     if ((!obj1 || !obj2) && (obj1->type != obj2->type)) {
         vm_push(vm, vm->vm_false);
     } else {
-        /* Do comparisons for special types */
+        /* Do comparisons for special types. */
 
         switch (obj1->type) {
             case FIXNUM:
@@ -33,23 +33,18 @@ void op_eq(vm_internal_type *vm) {
                 break;
         }
 
-        /* push the result onto the stack */
+        /* Push the result onto the stack. */
         vm_push(vm, result ? vm->vm_true : vm->vm_false);
     }
 }
 
-/* return the boolean inverse of the given object */
+/* Return the boolean inverse of the given object. */
 void op_not(vm_internal_type *vm) {
     object_type *obj = 0;
 
     vm->reg1 = obj = vm_pop(vm);
 
-    if (!obj) {
-        printf("Stack Underrun!");
-        assert(0);
-    }
-
-    /* only #f is false */
+    /* Only #f is false. */
     if (obj->type == BOOL && !obj->value.boolean) {
         vm_push(vm, vm->vm_true);
     } else {

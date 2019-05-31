@@ -3,6 +3,8 @@
 
 #define BLOCK_SIZE 4096
 
+#include <stdio.h>
+
 /* Basic data types and functions for an elastic buffer */
 typedef void buffer_type;
 
@@ -30,5 +32,8 @@ size_t buffer_load(buffer_type *buf, char *file);
 
 /* slurp a file into a string */
 size_t buffer_load_string(gc_type *gc, char *file, char **str);
+
+/* creates a FILE handle for a buffer */
+FILE *buffer_open(buffer_type *buf);
 
 #endif

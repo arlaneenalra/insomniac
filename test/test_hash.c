@@ -138,13 +138,35 @@ int test_erase() {
     return 0;
 }
 
+/* Test that we can read the key 'type' from a hash. */
+int test_read_key() {
+    char c[] = "type";
+    char *value = 0;
+    
+    /* create a hash table */
+    hash_create(gc,
+               &hash_string,
+               &hash_string_cmp,
+               &hash);
 
+    hash_set(hash, (void*)c, (void*)c);
+
+    /* The key should no longer be found */
+    if(hash_get(hash, (void*)c, (void**)&value)) {
+        printf("Found: '%s'\n", value);
+
+        return 0;
+    }
+
+    return 1;
+}
 
 /* define the test cases */
 test_case_type cases[] = {
     {&test_read, "Testing Set/Read Hash"},
     {&test_bad_read, "Testing Read for non-existent value Hash"},
     {&test_erase, "Testing Erase Hash"},
+    {&test_read_key, "Test Reading A Single Key"},
     {&test_gc, "Testing GC of Hash Stored objects"},
     /* {&test_bad_read, "Testing Read for non-existent value Hash"},*/
     {0,0} /* end of list token */

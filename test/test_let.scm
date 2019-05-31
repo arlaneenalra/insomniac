@@ -12,7 +12,15 @@
 
         (let* ((x 7)
                (z (+ x y)))
-              
+
               (* z x)))
     70)
+
+(expect "Test Let* with un-bound params"
+    (lambda ()
+        (let*
+            ((a 1)
+             (b (+ a a)))
+             b))
+    2) 
 

@@ -3,13 +3,15 @@ if(${CMAKE_C_COMPILER_ID} MATCHES "Clang")
   set(CMAKE_C_FLAGS "-Wall -g -std=c99 -pedantic -DDEBUG -Wno-gnu-statement-expression")
   set(CMAKE_SHARED_LINKER_FLAGS " -undefined dynamic_lookup -flat_namespace")
 else()
-  set(CMAKE_C_FLAGS "-Wall -g -O3 -std=gnu99 -pedantic -DDEBUG -lm")
+  set(CMAKE_C_FLAGS "-Wall -gdwarf-2 -O3 -std=gnu99 -pedantic -DDEBUG -lm -D_GNU_SOURCE")
 endif()
 
 include_directories(${PROJECT_SOURCE_DIR}/src/include)
 
 # turn on shared libraries
 set(BUILD_SHARED_LIBS 1)
+
+file(GLOB_RECURSE INSC_LIB_TARGETS FOLLOW_SYMLINKS ${CMAKE_BINARY_DIR}/src/lib/*.scm)
 
 # Define an insomniac compile command.
 macro(INSC_TARGET Name Input Output)
@@ -20,7 +22,7 @@ macro(INSC_TARGET Name Input Output)
     add_custom_command(OUTPUT ${Output}
         COMMAND ${CMAKE_BINARY_DIR}/src/insc-bootstrap ${Input} -o ${INSC_TARGET_outputs}
         VERBATIM
-        DEPENDS ${Input} insc-bootstrap
+        DEPENDS ${Input} insc-bootstrap ${INSC_LIB_TARGETS}
         COMMENT "[INSC] Compiling Insomniac Scheme code to ${INSC_TARGET_outputs}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 

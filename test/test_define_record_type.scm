@@ -1,5 +1,5 @@
 ;;;
-;;; Tests for define-record-type 
+;;; Tests for define-record-type
 ;;;
 
 (include "expect.scm")

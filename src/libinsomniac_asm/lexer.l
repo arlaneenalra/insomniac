@@ -35,7 +35,7 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 
 {SIGNS}?{DIGITS}        { return OP_LIT_FIXNUM; }
 "#t"                    { return OP_LIT_TRUE; }
-"#f"                    { return OP_LIT_FALSE;} 
+"#f"                    { return OP_LIT_FALSE;}
 "()"                    { return OP_LIT_EMPTY; }
 
 "fixnum?"               { return OP_IS_FIXNUM; }
@@ -45,7 +45,6 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "symbol?"               { return OP_IS_SYMBOL; }
 "vector?"               { return OP_IS_VECTOR; }
 "vector-u8?"            { return OP_IS_BYTE_VECTOR; }
-"slice?"                { return OP_IS_SLICE; }
 "record?"               { return OP_IS_RECORD; }
 "pair?"                 { return OP_IS_PAIR; }
 "null?"                 { return OP_IS_EMPTY; }
@@ -58,7 +57,8 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "idx@"                  { return OP_INDEX_REF; }
 "idx!"                  { return OP_INDEX_SET; }
 "vec-len"               { return OP_VECTOR_LENGTH; }
-"slice"                 { return OP_SLICE; }
+"str->u8"               { return OP_STRING_BYTE_VECTOR; }
+"u8->str"               { return OP_BYTE_VECTOR_STRING; }
 
 "out"                   { return OP_OUTPUT; }
 "read"                  { return OP_FD_READ; }
@@ -118,6 +118,8 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 
 "gc-stats"              { return OP_GC_STATS; }
 
+".file"                 { return DIRECTIVE_FILE; }
+
 <EXPECT_TARGET>{
 
      {LABEL}            { BEGIN(INITIAL);
@@ -157,7 +159,7 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 <EXPECT_STRING>{
 
 	([^\"]|\\\")*     { return OP_LIT_STRING; }
-        \"                { BEGIN(INITIAL); 
+        \"                { BEGIN(INITIAL);
                             return STRING_END_TOKEN; }
 }
 

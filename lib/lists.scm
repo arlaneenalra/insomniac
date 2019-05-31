@@ -9,10 +9,9 @@
 
 (define list (lambda x x))
 
-
 ;; find the length of a list
 (define (length list)
-  (define (inner list len) 
+  (define (inner list len)
     (if (null? list)
       len
       (inner (cdr list) (+ 1 len))))
@@ -27,8 +26,50 @@
              (cons (car list) rev-list))))
   (inner list '()))
 
+;; Makes a newly allocated copy of a list
+(define (list-copy list)
+  (define (inner list accum)
+    (if (null? list)
+      '()
+      (let*
+        ((next (cons (car list) '())))
 
-;; Find a sub list 
+        (set-cdr! accum next)
+        (inner (cdr list) next)))) 
+        
+  (if (null? list)
+    '()
+    (let*
+      ((accum '(() . ())))
+
+      (inner list accum)
+      (cdr accum))))
+
+        
+;; append items to a list
+(define (append list . args)
+  (define (inner list args accum)
+    (cond
+      ((and (null? list) (null? args))
+        '())
+      ((null? list)
+        (inner (car args) (cdr args) accum))
+      ((pair? list)
+        (begin
+          (set-cdr! accum (cons (car list) '()))
+          (inner (cdr list) args (cdr accum))))
+      (else
+        (begin
+          (set-cdr! accum list)
+          (inner '() args (cdr accum))))))
+
+  (let*
+    ((accum '(() . ())))
+
+    (inner list args accum)
+    (cdr accum)))
+
+;; Find a sub list
 (define (member obj list . pred)
 
   (set! pred
@@ -53,7 +94,7 @@
 
 ;; Functions for dealing with an associative list
 (define (assoc obj alist . compare)
-  (set! compare 
+  (set! compare
     (if (null? compare) equal? (car compare)))
 
   (define entry

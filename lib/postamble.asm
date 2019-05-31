@@ -7,7 +7,7 @@
         #\newline out
         "-----------------------------------" out
         #\newline out
-        
+
         "Returned: " out
         out
         #\newline out
@@ -28,7 +28,7 @@ panic:
 
         ;; Output everything in the stack but the
         ;; return address
-stack_dump:     
+stack_dump:
         "Dumping Stack"
         out
         #\newline
@@ -44,7 +44,7 @@ stack_dump_loop:
 
         swap                    ; Save return context
 
-        ; save stack 
+        ; save stack
         dup s"stack-save" @ swap cons s"stack-save" !
 
         out
@@ -71,7 +71,7 @@ stack_dump_restore:
         dup car ;; push the next stack value back onto the stack
 
         rot ;; push the restored value to blow the list and return
-        
+
         cdr ;; move to the next saved stack entry
 
         jmp stack_dump_restore
@@ -82,4 +82,4 @@ stack_dump_done:
         ret
 
 exit:
-        
+

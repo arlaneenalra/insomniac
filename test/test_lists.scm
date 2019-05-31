@@ -4,7 +4,6 @@
 
 (include "expect.scm")
 
-
 ;; Testing pair?
 (next-suite "pair? tests")
 
@@ -88,5 +87,44 @@
         (lambda () (assv 5 '((2 3) (5 7) (11 13))))
         '(5 7))
 
+;; Test list-copy
+(next-suite "list-copy tests")
 
+(expect "list-copy should create a different list"
+    (lambda ()
+        (let*
+            ((a '(1 8 2 8))
+             (b (list-copy a)))
+            
+            (set-car! b 3)
+            (list a b)))
+    '((1 8 2 8) (3 8 2 8)))
+
+;; Test append
+(next-suite "append tests")
+
+(expect "append should combind 2 lists"
+    (lambda ()
+        (append '(x) '(y)))
+    '(x y))
+
+(expect "append should combind 2 lists of different sizes"
+    (lambda ()
+        (append '(a) '(b c d)))
+    '(a b c d))
+
+(expect "append allow lists of lists"
+    (lambda ()
+        (append '(a (b)) '((c))))
+    '(a (b) (c)))
+
+(expect "append should allow things that are not true lists"
+    (lambda ()
+        (append '(a b) '(c . d)))
+    '(a b c . d))
+
+(expect "append should take '() 'a and return a"
+    (lambda ()
+        (append '() 'a))
+    'a)
 

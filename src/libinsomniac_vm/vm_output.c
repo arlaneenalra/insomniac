@@ -6,43 +6,41 @@ void output_pair(FILE *fout, object_type *pair) {
     int length = 0;
 
     fprintf(fout, "(");
-    
+
     do {
-        /* print a space only if we are not on 
+        /* print a space only if we are not on
            the first pair */
-        if(flag) {
+        if (flag) {
             fprintf(fout, " ");
         }
 
         /* extract the car and cdr */
         car = pair->value.pair.car;
         pair = pair->value.pair.cdr;
-        
+
         /* output the car */
         output_object(fout, car);
 
         flag = 1;
-        length ++;
+        length++;
 
-    } while(pair && pair->type == PAIR && length < OUTPUT_MAX_LENGTH);
-
+    } while (pair && pair->type == PAIR && length < OUTPUT_MAX_LENGTH);
 
     /* print a . if need one */
-    if(!pair || pair->type != EMPTY) {
+    if (!pair || pair->type != EMPTY) {
         fprintf(fout, " . ");
         output_object(fout, pair);
-    } 
+    }
 
-        
-    fprintf(fout,")");
+    fprintf(fout, ")");
 }
 
 /* characters are stored in UTF-32 internally while
    strings and io should be in UTF-8 */
 void output_char(FILE *fout, object_type *character) {
     /* 7 byte output buffer (UTF-8 maxes out at 6 */
-    char char_buf[] = {0,0,0, 0,0,0, 0};
-    
+    char char_buf[] = {0, 0, 0, 0, 0, 0, 0};
+
     /* encode the string in utf8 */
     utf8_encode_char(char_buf, character->value.character);
 
@@ -52,6 +50,22 @@ void output_char(FILE *fout, object_type *character) {
     /* fprintf(fout, "<%x>", character->value.character); */
 }
 
+void output_record(FILE *fout, object_type *vector) {
+    vm_int index = 0;
+
+    /* walk all the objects in this vector and
+       output them */
+    fprintf(fout, "<RECORD ");
+
+    for (index = 0; index < vector->value.vector.length; index++) {
+        if (index > 0) {
+            fprintf(fout, " ");
+        }
+        output_object(fout, vector->value.vector.vector[index]);
+    }
+
+    fprintf(fout, ">");
+}
 void output_vector(FILE *fout, object_type *vector) {
     vm_int index = 0;
 
@@ -59,12 +73,11 @@ void output_vector(FILE *fout, object_type *vector) {
        output them */
     fprintf(fout, "#(");
 
-    for(index = 0; index < vector->value.vector.length; index++) {
-        if(index > 0) {
+    for (index = 0; index < vector->value.vector.length; index++) {
+        if (index > 0) {
             fprintf(fout, " ");
         }
-        output_object(fout, 
-                      vector->value.vector.vector[index]);
+        output_object(fout, vector->value.vector.vector[index]);
     }
 
     fprintf(fout, ")");
@@ -77,8 +90,8 @@ void output_byte_vector(FILE *fout, object_type *vector) {
        output them */
     fprintf(fout, "#u8(");
 
-    for(index = 0; index < vector->value.vector.length; index++) {
-        if(index > 0) {
+    for (index = 0; index < vector->value.vector.length; index++) {
+        if (index > 0) {
             fprintf(fout, " ");
         }
         fprintf(fout, "%u", vector->value.byte_vector.vector[index]);
@@ -95,81 +108,85 @@ void output_object(FILE *fout, object_type *obj) {
     depth++;
 
     if (depth >= OUTPUT_MAX_DEPTH) {
-      fprintf(fout, " ...");
-      depth--;
-      return;
+        fprintf(fout, " ...");
+        depth--;
+        return;
     }
 
     /* make sure we have an object */
-    if(!obj) {
+    if (!obj) {
         fprintf(fout, "<nil>");
         return;
     }
 
-    switch(obj->type) {
+    switch (obj->type) {
 
-    case FIXNUM: /* deal with a standard fixnum */
-        fprintf(fout, "%" PRIi64, obj->value.integer);
-        break;
+        case FIXNUM: /* deal with a standard fixnum */
+            fprintf(fout, "%" PRIi64, obj->value.integer);
+            break;
 
-    case EMPTY: /* The object is an empty pair */
-        fprintf(fout, "()"); 
-        break;
-        
-    case PAIR:
-        output_pair(fout, obj);
-        break;
+        case EMPTY: /* The object is an empty pair */
+            fprintf(fout, "()");
+            break;
 
-    case CHAR:
-        output_char(fout, obj);
-        break;
+        case PAIR:
+            output_pair(fout, obj);
+            break;
 
-    case STRING:
-    case SYMBOL:
-        fprintf(fout, "%s", obj->value.string.bytes);
-        break;
-        
-    case VECTOR:
-        output_vector(fout, obj);
-        break;
+        case CHAR:
+            output_char(fout, obj);
+            break;
 
-    case BYTE_VECTOR:
-        output_byte_vector(fout, obj);
-        break;
+        case STRING:
+        case SYMBOL:
+            fprintf(fout, "%s", obj->value.string.bytes);
+            break;
 
-    case BOOL:
-        if(obj->value.boolean) {
-            fprintf(fout, "#t");
-        } else {
-            fprintf(fout, "#f");
-        }
-        break;
+        case VECTOR:
+            output_vector(fout, obj);
+            break;
 
-    case CLOSURE:
-        env = (env_type *)obj->value.closure;
+        case BYTE_VECTOR:
+            output_byte_vector(fout, obj);
+            break;
 
-        fprintf(fout, "{");
-        while (env) {
-          fprintf(fout, "<CLOSURE %p:%p(%p) -> %p ", (void *)obj,
-                  (void *)env,
-                  (void *)env->bindings,
-                  (void *)env->parent);
-          hash_info(env->bindings);
-          fprintf(fout, ">\n");
-          env = env->parent;
-        }
-        fprintf(fout, "}");
+		case RECORD:
+			output_record(fout, obj);
+			break;
 
-        break;
+        case BOOL:
+            if (obj->value.boolean) {
+                fprintf(fout, "#t");
+            } else {
+                fprintf(fout, "#f");
+            }
+            break;
 
-    case LIBRARY:
-        fprintf(fout, "<LIBRARY %p:%p #%"PRIi64">", (void *)obj,
+        case CLOSURE:
+            env = (env_type *)obj->value.closure;
+
+            fprintf(fout, "{");
+            while (env) {
+                fprintf(
+                    fout, "<CLOSURE %p:%p(%p) -> %p\n", (void *)obj, (void *)env,
+                    (void *)env->bindings, (void *)env->parent);
+                find_source_location(fout, env);                     
+                fprintf(fout, ">\n");
+                env = env->parent;
+            }
+            fprintf(fout, "}");
+
+            break;
+
+        case LIBRARY:
+            fprintf(
+                fout, "<LIBRARY %p:%p #%" PRIi64 ">", (void *)obj,
                 (void *)obj->value.library.handle, obj->value.library.func_count);
-        break;
-        
-    default:
-        fprintf(fout, "<Unkown Object %p>", (void *)obj);
-        break;
+            break;
+
+        default:
+            fprintf(fout, "<Unkown Object %p>", (void *)obj);
+            break;
     }
 
     depth--;

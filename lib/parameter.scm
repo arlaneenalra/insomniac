@@ -26,9 +26,9 @@
 (define (param-wrap param value thunk)
     (define old (param))
     (define new ((param '<param-convert>) value))
-   
+
     (dynamic-wind
-        (lambda () 
+        (lambda ()
             (param '<param-set!> value))
         thunk
         (lambda ()

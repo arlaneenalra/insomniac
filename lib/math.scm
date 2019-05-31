@@ -15,7 +15,7 @@
     (= x y)))
 
 (define (<= x y)
-  (or 
+  (or
     (< x y)
     (= x y)))
 

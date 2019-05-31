@@ -1,10 +1,10 @@
 ;;;
 ;;; Basic procedures used in the definition of records.
-;;; 
+;;;
 
-;; This code is horrible, I'll need to revisit it later 
+;; This code is horrible, I'll need to revisit it later
 
-;; Id value for next record type 
+;; Id value for next record type
 (define *record-id* 0)
 
 ;; returns a record id unique in the system
@@ -41,7 +41,7 @@
         (record-set! rec idx (car field-list))
         (set-values rec (+ 1 idx) (cdr field-list)))))
 
-  
+
   ;; the actual constructor method
   (lambda fields
     (define rec (make-record size))
@@ -61,7 +61,7 @@
 (define (record-setter-factory idx)
   (lambda (obj value) (record-set! obj idx value)))
 
-;; setup getter/setters 
+;; setup getter/setters
 (define (record-field-factory bindings idx accessor)
   (cons
     (cons (car accessor) (record-getter-factory idx))
@@ -73,7 +73,7 @@
 
 ;; Walk list of fields and build accessors as needed
 (define (record-accessor-factory bindings idx fields access)
-  (if (null? fields) 
+  (if (null? fields)
     bindings
     (begin
       ;; retrieve access for this field
@@ -89,7 +89,7 @@
 ;; Note: This binding/symbol is used internally by the compiler
 ;; The internals of define-record-type
 (define (record-type-factory . rec-def)
-  
+
   (define type-id (next-record-type))
 
   (define name-clause (car rec-def))
@@ -97,14 +97,14 @@
   (define pred-clause (car (cdr (cdr rec-def))))
   (define fields-clause (cdr (cdr (cdr rec-def))))
 
-  ;; setup the field count minus one for the name 
+  ;; setup the field count minus one for the name
   (define field-count (- (length const-clause) 1))
 
   ;; the record alist to bind
   ;;  (cons name-clause type-id)
   (define binding-list
     (list
-      (cons pred-clause (record-predicate-factory type-id)) 
+      (cons pred-clause (record-predicate-factory type-id))
       (cons (car const-clause) (record-constructor-factory type-id field-count))
     ))
 

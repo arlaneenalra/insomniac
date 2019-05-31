@@ -1,12 +1,12 @@
 #ifndef _RUNTIME_INTERNAL_
 #define _RUNTIME_INTERNAL_
 
-#include <stdio.h>
 #include <assert.h>
+#include <stdio.h>
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include <insomniac.h>

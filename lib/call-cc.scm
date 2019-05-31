@@ -23,14 +23,14 @@
     (if (null? wrappers)
         #f
         (begin
-            (apply (car wrappers))
+            (apply (car wrappers) '())
             (dynamic-wind-enter (cdr wrappers)))))
 
- (define (call/cc proc) 
+ (define (call/cc proc)
     (define capture (reverse dynamic-wind-before))
 
     (prim-call/cc
-        (lambda (exit) 
+        (lambda (exit)
             (proc (lambda (val)
                 (dynamic-wind-enter capture)
                 (exit val))))))

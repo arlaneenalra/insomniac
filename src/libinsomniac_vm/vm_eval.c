@@ -1,36 +1,37 @@
 #include "vm_internal.h"
 
+/* Evaluate the given object using the provided vm instance. */
+int vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref,
+    debug_range_type *debug, uint64_t debug_count) {
 
-/* Evaluate the given object using the provided vm instance */
-int vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
-    uint8_t op_code = 0; /* op code for instructions */
-    fn_type op_call = 0; /* function actually called */
+    uint8_t op_code = 0; /* Op code for instructions. */
+    fn_type op_call = 0; /* Function actually called. */
 
-    /* setup the ip */
+    /* Setup the ip. */
     vm->env->ip = 0;
     vm->env->code_ref = code_ref;
     vm->env->length = length;
+    vm->env->debug = debug;
+    vm->env->debug_count = debug_count;
 
-    /* iterate over instrcutions */
-    while(vm->env->ip < vm->env->length) {
-        /* load instrcutions */
+    /* Iterate over instrcutions. */
+    while (vm->env->ip < vm->env->length) {
+        /* Load instrcutions. */
         op_code = vm->env->code_ref[vm->env->ip];
         op_call = vm->ops[op_code];
 
-        
-        /* incerement ip so it points to 
-           any arguments or the next instructions */
+        /* Incerement ip so it points to any arguments or the next instructions. */
         vm->env->ip++;
 
-        /* call instruction */
-        if(op_call) {
+        /* Call instruction. */
+        if (op_call) {
             (*op_call)(vm);
-            /* Clean up after instructions */
+
+            /* Clean up after instructions. */
             vm->reg1 = vm->reg2 = vm->reg3 = 0;
         } else {
-            /* Found undefined instruction */
-            fprintf(stderr, "Undefined instruction! %zu:%i\n", vm->env->ip - 1, op_code);
+            throw_fatal(vm, "Found Undefined instrution.", 0);
         }
     }
 

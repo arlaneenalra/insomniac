@@ -23,15 +23,15 @@
    ((null? seen-x) #f)
    ((eq? x (car seen-x)) #t)
    (else (equal-seen x (cdr seen-x)))))
-      
+
 
 
 ;; walk each the tree of pairs
 ;; TODO: This will have to change to deal with cycles
 (define (equal-pair? x y)
-  
+
   (define (equal-inner x y seen-x seen-y)
-    (cond 
+    (cond
      ((and (equal-seen x seen-x)
        (equal-seen y seen-y)) #t) ;; We have a cyle
 
@@ -41,21 +41,21 @@
         (if (and (pair? (car x)) (pair? (car y)))
         (equal-inner (car x)
                  (car y)
-                 (cons x seen-x) 
+                 (cons x seen-x)
                  (cons y seen-y))
         (equal? (car x) (car y)))
 
         (if (and (pair? (cdr x)) (pair? (cdr y)))
         (equal-inner (cdr x)
                  (cdr y)
-                 (cons x seen-x) 
+                 (cons x seen-x)
                  (cons y seen-y))
         (equal? (cdr x) (cdr y)))))))
 
   (equal-inner x y '() '()))
-            
-            
-;; Check a pair of vectors for equality 
+
+
+;; Check a pair of vectors for equality
 (define (equal-vector? x y)
   (equal-pair? (vector->list x)
                (vector->list y)))
@@ -70,15 +70,15 @@
             ((eqv? idx len-x) #t)
             ((eqv? (bytevector-u8-ref x idx) (bytevector-u8-ref y idx))
                 (walk (+ 1 idx) x y))
-            (else #f))) 
-    
+            (else #f)))
+
     (cond
         ((not (eqv? len-x len-y)) #f)
         (else
             (walk 0 x y))))
 
 
-    
+
 ;; Deep equality checking
 (define (equal? x y)
   (cond
@@ -89,7 +89,7 @@
     ((and (bytevector? x) (bytevector? y)) (equal-bytevector? x y))
 
     ;; if we get here, things are not equal
-    (else 
+    (else
      (begin
        (eqv? x y)))))
 

@@ -49,7 +49,7 @@ scheme-call-cc-empty:
 
         drop
         jmp scheme-call-cc-empty
-        
+
         scheme-call-cc-empty-done:
 
         s"stack-save" @
@@ -58,7 +58,7 @@ scheme-call-cc-restore:
         jnf scheme-call-cc-restore-done
 
         dup car ;; push the next stack value back onto the stack
-        swap ;; push the next value below the list 
+        swap ;; push the next value below the list
         cdr ;; move to the next saved stack entry
 
         jmp scheme-call-cc-restore
@@ -67,14 +67,14 @@ scheme-call-cc-restore-done:
 
         s"ret-val" @
         s"return" @ ;; return to the called parent
-        ret 
+        ret
 
 scheme-call-cc-exit:
         drop ;; get rid of the old return address
         car s"ret-val" bind ;; get the return value
 
         jmp scheme-call-cc-return
-        
+
 scheme-call-cc:
         swap
         car s"proc" bind ;; setup the proc to call
@@ -87,24 +87,24 @@ scheme-call-cc-save:
         0 =
         jnf scheme-call-cc-stack-save-exit
 
-        s"stack-save" @             ; read the save list 
-        swap                        ; swap the top of the stack and the save list 
+        s"stack-save" @             ; read the save list
+        swap                        ; swap the top of the stack and the save list
         cons                        ; add the top of the stack to the list
         s"stack-save" !             ; save to stack-save
-        
+
         jmp scheme-call-cc-save
-         
+
 scheme-call-cc-stack-save-exit:
 
         ;; Setup the exit routine
         ()
-        proc scheme-call-cc-exit 
+        proc scheme-call-cc-exit
         cons
 
-        ;; Call the  
-        s"proc" @ 
+        ;; Call the
+        s"proc" @
         call_in
-        s"ret-val" bind 
+        s"ret-val" bind
 
         jmp scheme-call-cc-return
 

@@ -116,7 +116,7 @@
 (-)      rationalize
 (-)      read-bytevector!
 (-)      read-error?
-(-)      read-string
+(x)      read-string
 (-)      real?
 (x)      reverse
 (x)      set!
@@ -173,7 +173,7 @@
 (-)      quote
 (-)      raise
 (-)      rational?
-(-)      read-bytevector
+(x)      read-bytevector
 (-)      read-char
 (-)      read-line
 (-)      read-u8
@@ -232,6 +232,6 @@
 (-)      vector-map
 (x)      vector-set!
 (-)      when
-(-)      write-bytevector
-(-)      write-string
+(x)      write-bytevector
+(x)      write-string
 (-)      zero?

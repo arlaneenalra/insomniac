@@ -30,16 +30,13 @@
 
 ;; Record constructor factory
 (define (record-constructor-factory type-id size)
-  ;; account for the type id
-  (set! size (+ 1 size))
-
   ;; set all values in a record
   (define (set-values rec idx field-list)
     (if (null? field-list)
-      (if (= idx size)
-          rec
+      (if (< idx size)
           (error "Record constructor called with incorrect number of arguments."
-            idx size))
+            idx size)
+          rec)
       (begin
         (record-set! rec idx (car field-list))
         (set-values rec (+ 1 idx) (cdr field-list)))))

@@ -5,10 +5,24 @@
 ;;
 
 
-(define value (read-string 3))
+(define (repl-read)
+    (display ">")
 
-(write-string value)
+    (let*
+        ((value (read-string 10)))
 
+        (newline)
+        (display "< ")
+        (display value)
+        (newline)
+
+        (if (eof-object? value)
+            #t
+            (repl-read))))
+
+(display (current-output-port))
 (newline)
-(display "Done.")
-    
+
+(repl-read)
+
+

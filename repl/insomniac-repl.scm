@@ -20,9 +20,6 @@
             #t
             (repl-read))))
 
-(display (current-output-port))
-(newline)
-
 (repl-read)
 
 

@@ -25,8 +25,11 @@
 
 (define (raise obj)
     ((current-exception-handler) obj)
-    ;; Hack to force an abort
-    (asm (obj) throw))
+    (let*
+        ((message (error-object-message obj))
+         (irritants (error-object-irritants obj)))
+        
+        (asm (message) (irritants) throw)))
 
 (define (raise-continuable obj)
     ((current-exception-handler) obj))

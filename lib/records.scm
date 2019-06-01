@@ -33,9 +33,9 @@
   ;; set all values in a record
   (define (set-values rec idx field-list)
     (if (null? field-list)
-      (if (< idx size)
+      (if (< (- idx 1) size)
           (error "Record constructor called with incorrect number of arguments."
-            idx size)
+            (- idx 1) size)
           rec)
       (begin
         (record-set! rec idx (car field-list))

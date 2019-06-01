@@ -223,7 +223,12 @@ void op_restore(vm_internal_type *vm) {
 /* Throw an exception. */
 void op_throw(vm_internal_type *vm) {
     vm->reg1 = vm_pop(vm);
+    vm->reg2 = vm_pop(vm);
     
-    throw(vm, "Exception thrown", 1, vm->reg1);
+    if (vm->reg2->type != STRING) {
+        throw_fatal(vm, "Invalid exception message.", 2, vm->reg2, vm->reg1);
+    }
+
+    throw(vm, vm->reg2->value.string.bytes, 1, vm->reg1);
 }
 

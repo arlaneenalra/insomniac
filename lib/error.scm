@@ -26,8 +26,11 @@
 (define (raise obj)
     ((current-exception-handler) obj)
     ;; Hack to force an abort
-    (asm 0 ret))
+    (asm (obj) throw))
 
 (define (raise-continuable obj)
     ((current-exception-handler) obj))
-    
+   
+(define (with-exception-handler handler thunk)
+    (param-wrap current-exception-handler hanlder think))
+

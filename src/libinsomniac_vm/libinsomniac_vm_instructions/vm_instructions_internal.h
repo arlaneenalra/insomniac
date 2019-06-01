@@ -65,6 +65,7 @@ void op_tail_call_in(vm_internal_type *vm);
 /* exception handling instructions, in with jump code */
 void op_continue(vm_internal_type *vm);
 void op_restore(vm_internal_type *vm);
+void op_throw(vm_internal_type *vm);
 
 /* some simple io instructions, these will need to be rethought */
 void op_output(vm_internal_type *vm);

@@ -101,6 +101,7 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "eq"                    { return OP_EQ; }
 "not"                   { return OP_NOT; }
 
+"throw"                 { return OP_THROW; }
 "restore"               { return OP_RESTORE; }
 "set-exit"              { return OP_SET_EXIT; }
 

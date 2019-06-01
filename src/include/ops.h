@@ -47,6 +47,7 @@ typedef enum op {
     OP_CONTINUE, /* an exception handling routine for the current environment */
     OP_RESTORE,  /* restore the current exception handler when done handling
                     exceptions */
+    OP_THROW,    /* throw an exception */ 
 
     OP_BIND, /* bind a value to a symbol */
     OP_SET,  /* set the value of a symbol */

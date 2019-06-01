@@ -112,6 +112,7 @@ void setup_instructions(vm_internal_type *vm) {
     /* Exception Handline */
     vm->ops[OP_CONTINUE] = &op_continue;
     vm->ops[OP_RESTORE] = &op_restore;
+    vm->ops[OP_THROW] = &op_throw;
 
     vm->ops[OP_SET_EXIT] = &op_set_exit;
 

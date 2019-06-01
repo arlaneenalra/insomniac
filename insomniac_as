@@ -58,6 +58,8 @@ slice ( start end vector -- slice ) Given a vector or bytevector, return a vecto
 jmp  ( -label- ) Jumps to given label
 jnf  ( obj -label- ) Jumps to the given label if obj is not false
 
+throw ( obj -- ) Throw an exception.
+
 continue ( -label- ) Sets the location of an exception handling routine
 
 restore ( -- )  Turn exception handling on from within an exception 

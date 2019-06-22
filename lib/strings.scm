@@ -26,3 +26,14 @@
 ;;(define (string->utf8 string . args)
 ;;    (bytevector 0))
 
+
+;;
+;; Some basic Character maninuplation functions
+;;
+
+(define (integer->char num)
+    (asm (num) int->char))
+
+(define (char->integer char)
+    (asm (char) char->int))
+

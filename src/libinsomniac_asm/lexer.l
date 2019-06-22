@@ -59,6 +59,8 @@ CHAR_VAL  (newline|space|eof|[^{WS}])
 "vec-len"               { return OP_VECTOR_LENGTH; }
 "str->u8"               { return OP_STRING_BYTE_VECTOR; }
 "u8->str"               { return OP_BYTE_VECTOR_STRING; }
+"int->char"             { return OP_INT_TO_CHAR; }
+"char->int"             { return OP_CHAR_TO_INT; }
 
 "out"                   { return OP_OUTPUT; }
 "read"                  { return OP_FD_READ; }

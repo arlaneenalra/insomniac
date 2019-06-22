@@ -32,6 +32,8 @@ typedef enum op {
     OP_VECTOR_LENGTH,    /* return the length of a vector */
     OP_STRING_BYTE_VECTOR,  /* returns a bytevector from a string */
     OP_BYTE_VECTOR_STRING, /* returns a string from a bytevector */
+    OP_INT_TO_CHAR, /* returns a char from a number */
+    OP_CHAR_TO_INT, /* returns a number from a char */
 
     /* jump operations Jumps are relative */
     OP_CALL,         /* call the given target and leave return on stack */

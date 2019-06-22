@@ -16,4 +16,13 @@
        
     (bytevector 65 66 67 68 69 70))
 
+(expect "Converting a number into a character works"
+    (lambda ()
+        (integer->char 65))
+    #\A)
 
+(expect "Converting a character into a number works"
+    (lambda ()
+        (char->integer #\a))
+    97)
+        

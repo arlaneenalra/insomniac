@@ -51,6 +51,8 @@ void setup_instructions(vm_internal_type *vm) {
     vm->ops[OP_VECTOR_LENGTH] = &op_vector_length;
     vm->ops[OP_STRING_BYTE_VECTOR] = &op_string_byte_vector;
     vm->ops[OP_BYTE_VECTOR_STRING] = &op_byte_vector_string;
+    vm->ops[OP_INT_TO_CHAR] = &op_int_to_char;
+    vm->ops[OP_CHAR_TO_INT] = &op_char_to_int;
 
     vm->ops[OP_CONS] = &op_cons;
     vm->ops[OP_CAR] = &op_car;

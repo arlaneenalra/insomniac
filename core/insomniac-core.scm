@@ -6,7 +6,6 @@
 
 
 (define (repl-read)
-    (display (command-line)) (newline)
     (display ">")
 
     (let*
@@ -20,6 +19,8 @@
         (if (eof-object? value)
             #t
             (repl-read))))
+
+(display (command-line)) (newline)
 
 (repl-read)
 

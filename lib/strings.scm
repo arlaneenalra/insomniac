@@ -26,7 +26,16 @@
 ;;(define (string->utf8 string . args)
 ;;    (bytevector 0))
 
+(define (string->list str)
+    (let*
+        ((u8-list (u8->list (string->u8 str))))
+        
+        (map integer->char u8-list)))
 
+(define (list->string list)
+    (u8->string
+        (list->u8 
+            (map char->integer list))))
 ;;
 ;; Some basic Character maninuplation functions
 ;;

@@ -25,4 +25,14 @@
     (lambda ()
         (char->integer #\a))
     97)
-        
+
+(expect "string->list should return a list of characters"
+    (lambda ()
+        (string->list "Hello"))
+    (list #\H #\e #\l #\l #\o)) 
+
+(expect "list->string should return a string from a list of characters"
+    (lambda ()
+        (list->string (list #\B #\y #\e)))
+    "Bye")
+

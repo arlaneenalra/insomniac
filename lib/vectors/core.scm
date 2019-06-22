@@ -38,4 +38,26 @@
                     (set! to-copy (- to-copy 1))
                     (inner (+ at to-copy) (+ start to-copy) sub to-copy))))))
 
+(define (core-vec->list length-func ref-func)
+    (lambda (vec)
+      (define (inner list index)
+        (if (>= index (length-func vec))
+    	(reverse list)
+    	(inner (cons (ref-func vec index) list) (+ 1 index))))
+      (inner '() 0)))
+
+(define (core-list->vec make-func set-func!)
+    (lambda (list)
+      (define vec
+        (make-func (length list)))
+
+      (define (inner list index)
+        (if (null? list)
+        vec
+        (begin
+          (set-func! vec index (car list))
+          (inner (cdr list) (+ 1 index)))))
+      (inner list 0)))
+
+
 

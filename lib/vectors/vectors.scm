@@ -40,20 +40,21 @@
                   '())))
 
 ;; Convert the given list into a vector
-(define (list->vector list)
-  (define vec
-    (make-vector (length list)))
-
-  (define (inner list index)
-    (if (null? list)
-	vec
-	(begin
-	  (vector-set! vec index (car list))
-	  (inner (cdr list) (+ 1 index)))))
-  (inner list 0))
+(define list->vector
+  (core-list->vec make-vector vector-set!))
+;  (define vec
+;    (make-vector (length list)))
+;
+;  (define (inner list index)
+;    (if (null? list)
+;	vec
+;	(begin
+;	  (vector-set! vec index (car list))
+;	  (inner (cdr list) (+ 1 index)))))
+;  (inner list 0))
 
 (define (vector-copier to-factory at from args)
-    (core-vector-copier to-factory vector-set! vector-ref vector-length at from args))
+  (core-vector-copier to-factory vector-set! vector-ref vector-length at from args))
 
 ;; Copy from one byte vector to another.
 (define (vector-copy! to at from . args)
@@ -64,12 +65,7 @@
     (vector-copier make-vector 0 from args))
 
 ;; Convert a vector to a list
-(define (vector->list vec)
-  (define (inner list index)
-    (if (>= index (vector-length vec))
-	(reverse list)
-	(inner (cons (vector-ref vec index) list) (+ 1 index))))
-  (inner '() 0))
+(define vector->list (core-vec->list vector-length vector-ref))
 
 ;; Create a vector containing the passed in arguments
 (define (vector . list)

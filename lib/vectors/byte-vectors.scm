@@ -76,3 +76,6 @@
 
     (inner dest 0 args))
 
+(define list->u8 (core-list->vec make-bytevector bytevector-u8-set!))
+(define u8->list (core-vec->list bytevector-length bytevector-u8-ref))
+

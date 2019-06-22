@@ -6,6 +6,7 @@
 
 
 (define (repl-read)
+    (display (command-line)) (newline)
     (display ">")
 
     (let*

@@ -114,10 +114,30 @@ scheme-emergency-exit:
 
         jmp panic ;; panic
 
+scheme-command-line:
+        swap drop
+
+        s"command-line" @
+
+        swap ret
+
+make-command-line-proc:
+        swap
+
+        s"command-line" bind 
+
+        proc scheme-command-line
+
+        swap ret
+
 user-entry:
         drop ;; drop return address, we won't need it
 
         s"null-environment" bind ;; bind the initial environment
+
+        ;; The command line should be on the stack after the null-environment
+        call make-command-line-proc s"command-line" bind
+
         proc env s"bootstrap-environment" bind ;; the current env
 
         proc scheme-depth s"depth" bind

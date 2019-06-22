@@ -1,6 +1,6 @@
 #include "vm_internal.h"
 
-void vm_create(gc_type *gc, vm_type **vm_ret) {
+void vm_create(gc_type *gc, int argc, char **argv, vm_type **vm_ret) {
     gc_type_def vm_type_def = 0;
     vm_internal_type *vm = 0;
 
@@ -44,6 +44,15 @@ void vm_create(gc_type *gc, vm_type **vm_ret) {
 
     /* Create the initial environment. */
     push_env(vm);
+
+    /* Setup any command line arguments. */
+    vm->reg1 = vm->empty;
+    for (int i = argc - 1; i >= 0; i--) {
+        vm->reg2 = vm_make_string(vm, argv[i], strlen(argv[i]));
+        cons(vm, vm->reg2, vm->reg1, &(vm->reg1));
+    }
+
+    vm_push(vm, vm->reg1);
 
     /* Save off the vm pointer to our external pointer. */
     *vm_ret = vm;

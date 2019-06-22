@@ -18,7 +18,7 @@ add_subdirectory(src)
 
 add_subdirectory(test)
 
-add_subdirectory(repl)
+add_subdirectory(core)
 
 ENABLE_TESTING()
 

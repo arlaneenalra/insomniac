@@ -1,5 +1,7 @@
 #include "runtime_internal.h"
 
+#include <string.h>
+
 extern uint64_t scheme_code_size;
 extern uint8_t scheme_code[];
 
@@ -9,21 +11,19 @@ extern uint64_t debug_files_count;
 extern debug_range_type debug_ranges[];
 extern uint64_t debug_ranges_count;
 
-
-
 int run_scheme(int argc, char **argv) {
     gc_type *gc = gc_create(sizeof(object_type));
     vm_type *vm = 0;
     int ret_value = 0;
 
-    /* needed to setup locale aware printf . . .
+    /* Needed to setup locale aware printf . . .
        I need to do a great deal more research here */
     setlocale(LC_ALL, "");
 
-    /* make this a root to the garbage collector */
+    /* Make this a root to the garbage collector */
     gc_register_root(gc, &vm);
 
-    vm_create(gc, &vm);
+    vm_create(gc, argc, argv, &vm);
 
     ret_value = vm_eval(vm, scheme_code_size, scheme_code, debug_ranges,
         debug_ranges_count);

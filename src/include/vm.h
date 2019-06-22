@@ -6,7 +6,7 @@
 typedef void vm_type;
 typedef struct debug_range debug_range_type; 
 
-void vm_create(gc_type *gc, vm_type **vm);
+void vm_create(gc_type *gc, int argc, char **argv, vm_type **vm);
 void vm_destroy(vm_type *vm);
 
 object_type *vm_alloc(vm_type *vm, cell_type type);

@@ -51,7 +51,11 @@ int main(int argc, char **argv) {
     gc_register_root(gc, &vm);
     gc_register_root(gc, (void **)&code_str);
 
-    vm_create(gc, &vm);
+    /* Adjust arguments to strip interp name. */
+    argc = argc - 1;
+    argv = argv + 1;
+
+    vm_create(gc, argc, argv, &vm);
 
     /* load and eval */
     eval_string(vm, gc, " \"Insomniac VM\" out #\\newline out");

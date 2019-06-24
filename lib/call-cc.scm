@@ -26,7 +26,7 @@
             (apply (car wrappers) '())
             (dynamic-wind-enter (cdr wrappers)))))
 
- (define (call/cc proc)
+(define (call/cc proc)
     (define capture (reverse dynamic-wind-before))
 
     (prim-call/cc

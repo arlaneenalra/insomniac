@@ -142,3 +142,9 @@
             value-read
             (eof-object))))
 
+(define (call-with-port port proc)
+    (dynamic-wind
+        (lambda ())
+        (lambda () (proc port))
+        (lambda () (close-port port))))
+

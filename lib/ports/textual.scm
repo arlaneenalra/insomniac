@@ -99,4 +99,19 @@
 (define read-string
     (reader-factory string-length))
 
+(define (call-with-input-file str proc)
+    (call-with-port (open-input-file str) proc))
+
+(define (call-with-output-file str proc)
+    (call-with-port (open-output-file str) proc))
+
+(define (with-input-from-file str thunk)
+    (call-with-input-file str
+        (lambda (port)
+            (param-wrap current-input-port port thunk))))
+
+(define (with-output-to-file str thunk)
+    (call-with-output-file str
+        (lambda (port)
+            (param-wrap current-output-port port thunk))))
 

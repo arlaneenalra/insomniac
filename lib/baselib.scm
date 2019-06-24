@@ -33,6 +33,8 @@
             (asm (args) (l) cons (append) call_in))) 
     (asm (new-args) (proc) tail_call_in))
 
+(define exit emergency-exit)
+
 (include "dynamic.scm")
 
 (include "math.scm")

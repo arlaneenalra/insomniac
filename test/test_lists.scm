@@ -2,7 +2,7 @@
 ;;; Test basic list and pair functions
 ;;;
 
-(include "../lib/test/expect.scm")
+(include "../src/lib/test/expect.scm")
 
 ;; Testing pair?
 (next-suite "pair? tests")

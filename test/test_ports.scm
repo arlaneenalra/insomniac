@@ -2,7 +2,7 @@
 ;;; Some very crude port tests
 ;;;
 
-(include "../lib/test/expect.scm")
+(include "../src/lib/test/expect.scm")
 
 (define test-file "test.file")
 

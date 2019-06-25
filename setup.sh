@@ -15,7 +15,7 @@ cd $TARGET
 # setup some needed directories
 if [[ ! -x "src/lib" ]] ; then
   mkdir src    
-  ln -s ../../lib src/lib
+  ln -s ../../src/lib src/lib
 fi
 
 # check for homebrewed bison packaged with braindead xcode

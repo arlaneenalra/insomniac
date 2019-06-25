@@ -148,3 +148,13 @@
         (lambda () (proc port))
         (lambda () (close-port port))))
 
+(define (with-input-port port thunk)
+    (call-with-port port
+        (lambda (port)
+            (param-wrap current-input-port port thunk))))
+
+(define (with-output-port port thunk)
+    (call-with-port port
+        (lambda (port)
+            (param-wrap current-output-port port thunk))))
+

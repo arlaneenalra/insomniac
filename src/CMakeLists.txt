@@ -9,6 +9,7 @@ add_subdirectory(libinsomniac_asm)
 add_subdirectory(libinsomniac_io)
 add_subdirectory(libinsomniac_bootstrap)
 add_subdirectory(libinsomniac_runtime)
+add_subdirectory(core)
 
 add_executable( insomniac
     main.c

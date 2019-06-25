@@ -3,12 +3,12 @@
 ;;;
 
 ;; Returns a generator for the current input stream.
-(define (char-stream)
+(define (char-stream blk-size)
     (define stream '())
 
     (define (read-block)
         (let*
-            ((str (read-string 4096)))
+            ((str (read-string blk-size)))
             (if (string? str)
                 (string->list str)
                 str)))
@@ -19,7 +19,8 @@
             ((null? stream)
                 (begin
                     (set! stream (read-block))
-                    (next-char)))
+                    (define c (next-char))
+                    c))
             (else
                 (begin
                     (define c (car stream))

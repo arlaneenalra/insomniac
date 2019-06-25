@@ -2,7 +2,7 @@
 ;;; Some simple call/cc tests.
 ;;;
 
-(include "../lib/test/expect.scm")
+(include "../src/lib/test/expect.scm")
 
 (expect "Check that the simplest call/cc works"
     (lambda ()

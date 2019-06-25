@@ -55,5 +55,5 @@
     (with-input-from-file
         (insc-config-source config)
         (lambda ()
-            (lexer (char-stream)))))
+            (lexer (char-stream 4096)))))
 

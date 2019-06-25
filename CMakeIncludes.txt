@@ -11,7 +11,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/include)
 # turn on shared libraries
 set(BUILD_SHARED_LIBS 1)
 
-file(GLOB_RECURSE INSC_LIB_TARGETS FOLLOW_SYMLINKS ${CMAKE_BINARY_DIR}/src/lib/*.scm)
+file(GLOB_RECURSE INSC_LIB_TARGETS FOLLOW_SYMLINKS ${CMAKE_SOURCE_DIR}/src/lib/*.scm)
 
 # Define an insomniac compile command.
 macro(INSC_TARGET Name Input Output)
@@ -22,7 +22,7 @@ macro(INSC_TARGET Name Input Output)
     add_custom_command(OUTPUT ${INSC_TARGET_outputs}
         COMMAND ${CMAKE_BINARY_DIR}/src/insc-bootstrap ${Input} -o ${INSC_TARGET_outputs}
         VERBATIM
-        DEPENDS ${Input} insc-bootstrap ${INSC_LIB_TARGETS}
+        DEPENDS ${Input} insc-bootstrap ${INSC_LIB_TARGETS} ${ARGN}
         COMMENT "[INSC] Compiling Insomniac Scheme code to ${INSC_TARGET_outputs}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     
@@ -36,7 +36,6 @@ macro(INSC_TARGET Name Input Output)
 
     target_link_libraries(${Output}
         insomniac_runtime
-        ${ARGN}
         )
 
     set(INSC_${Name}_OUTPUT "${CMAKE_CURRENT_BIN_DIR}/${Output}")

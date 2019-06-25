@@ -24,7 +24,7 @@ IDENT     [-!$%&*+\./:<=>?@^_~[:alnum:]]
 SIGNS     [-+]
 MATH      [-+*/%><=]
 
-CHAR_VAL      (newline|space|[^{WS}]|x[0-9A-F]+)
+CHAR_VAL      (newline|space|[^\n\r\t ]|x[0-9A-F]+)
 
 %x EXPECT_CHAR
 %x EXPECT_STRING

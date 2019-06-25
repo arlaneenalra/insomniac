@@ -2,7 +2,7 @@
 ;;; Test Apply
 ;;;
 
-(include "../lib/test/expect.scm")
+(include "../src/lib/test/expect.scm")
 
 (expect "Verify that apply appends to the list of args"
     (lambda ()

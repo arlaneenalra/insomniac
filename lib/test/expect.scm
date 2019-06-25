@@ -39,7 +39,7 @@
       (display " Expected: ")
       (display expected)
       (newline)
-      (display " Result: ")
+      (display " Result  : ")
       (display result)
       (newline)
       (fail))))

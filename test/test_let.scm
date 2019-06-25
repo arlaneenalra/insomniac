@@ -3,7 +3,7 @@
 ;;;
 
 
-(include "expect.scm")
+(include "../lib/test/expect.scm")
 
 (expect "Test Let*"
     (lambda ()

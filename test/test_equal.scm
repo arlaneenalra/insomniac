@@ -2,7 +2,7 @@
 ;;; Tests for the equivalence procedures
 ;;;
 
-(include "expect.scm")
+(include "../lib/test/expect.scm")
 
 (define a '(1 2 3 4))
 (define b '(1 2 3 4))

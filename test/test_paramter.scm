@@ -2,7 +2,7 @@
 ;;; Test parameters
 ;;;
 
-(include "expect.scm")
+(include "../lib/test/expect.scm")
 
 (define param (make-parameter 1))
 

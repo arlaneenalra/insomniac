@@ -2,7 +2,7 @@
 ;;; Byte Vector tests
 ;;;
 
-(include "expect.scm")
+(include "../lib/test/expect.scm")
 
 (define vec (make-bytevector 100 43))
 

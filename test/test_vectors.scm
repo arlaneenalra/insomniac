@@ -2,7 +2,7 @@
 ;;; Vector tests
 ;;;
 
-(include "expect.scm")
+(include "../lib/test/expect.scm")
 
 
 ;; Verify that make-vector actually creates a vector

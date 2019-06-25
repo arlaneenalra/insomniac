@@ -2,7 +2,7 @@
 ;;; Test strings
 ;;;
 
-(include "expect.scm")
+(include "../lib/test/expect.scm")
 
 (expect "Converting a bytevector into a string works"
     (lambda ()

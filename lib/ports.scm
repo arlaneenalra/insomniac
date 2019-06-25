@@ -8,3 +8,5 @@
 
 (include "ports/textual.scm")
 
+(include "ports/memory.scm")
+

@@ -42,16 +42,6 @@
 ;; Convert the given list into a vector
 (define list->vector
   (core-list->vec make-vector vector-set!))
-;  (define vec
-;    (make-vector (length list)))
-;
-;  (define (inner list index)
-;    (if (null? list)
-;	vec
-;	(begin
-;	  (vector-set! vec index (car list))
-;	  (inner (cdr list) (+ 1 index)))))
-;  (inner list 0))
 
 (define (vector-copier to-factory at from args)
   (core-vector-copier to-factory vector-set! vector-ref vector-length at from args))

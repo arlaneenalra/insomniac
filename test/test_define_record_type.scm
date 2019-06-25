@@ -2,7 +2,7 @@
 ;;; Tests for define-record-type
 ;;;
 
-(include "expect.scm")
+(include "../lib/test/expect.scm")
 
 (define-record-type <point-3d>
   (point-3d x y z)

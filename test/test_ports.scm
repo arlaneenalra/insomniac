@@ -2,7 +2,7 @@
 ;;; Some very crude port tests
 ;;;
 
-(include "expect.scm")
+(include "../lib/test/expect.scm")
 
 (define test-file "test.file")
 
@@ -108,4 +108,42 @@
 (expect "Verify that the text port is closed"
 	(lambda () (input-port-open? in-port))
 	#f)
+
+;; Binary memory ports
+(define memory-input-port
+    (open-input-bytevector (bytevector 0 1 2 3 4 5)))
+
+(expect "Verify that the bytevector input port is binary"
+    (lambda ()
+        (binary-port? memory-input-port))
+    #t)
+
+(expect "Read from the input port"
+    (lambda ()
+        (list
+            (read-bytevector 2 memory-input-port)
+            (read-bytevector 2 memory-input-port)
+            (read-bytevector 2 memory-input-port)
+            (read-bytevector 2 memory-input-port)))
+    (list
+        (eof-object)
+        (bytevector 4 5)
+        (bytevector 2 3)
+        (bytevector 0 1)))
+
+(expect "Write to an output port"
+    (lambda ()
+        (define out-port (open-output-bytevector))
+       
+        (list
+            (get-output-bytevector out-port)
+            (write-bytevector (bytevector 2 3) out-port)
+            (write-bytevector (bytevector 1 2 3) out-port)))
+    (list 
+        (bytevector 1 2 3 2 3)
+        2  
+        3)) 
+
+
+
 

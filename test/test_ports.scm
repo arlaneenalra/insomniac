@@ -118,7 +118,7 @@
         (binary-port? memory-input-port))
     #t)
 
-(expect "Read from the input port"
+(expect "Read from the bytevector input port"
     (lambda ()
         (list
             (read-bytevector 2 memory-input-port)
@@ -131,7 +131,7 @@
         (bytevector 2 3)
         (bytevector 0 1)))
 
-(expect "Write to an output port"
+(expect "Write to a bytevector output port"
     (lambda ()
         (define out-port (open-output-bytevector))
        
@@ -144,6 +144,35 @@
         2  
         3)) 
 
+(define string-input-port
+    (open-input-string "testing"))
 
+(expect "Verify that the string input port is textual"
+    (lambda ()
+        (textual-port? string-input-port))
+    #t)
 
+(expect "Read from the string input port"
+    (lambda ()
+        (list
+            (read-string 4 string-input-port)
+            (read-string 4 string-input-port)
+            (read-string 4 string-input-port)))
+    (list
+        (eof-object)
+        "ing"
+        "test"))
+
+(expect "Write to a string ouput port"
+    (lambda ()
+        (define string-output-port (open-output-string))
+
+        (list
+            (get-output-string string-output-port)
+            (write-string "ing" string-output-port)
+            (write-string "test" string-output-port)))
+    (list
+        "testing"
+        3
+        4))
 

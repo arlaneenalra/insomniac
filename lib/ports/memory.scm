@@ -41,4 +41,25 @@
     (apply bytevector-append
         (reverse (car (port-fd out-port)))))
 
+;;
+;; Textual memory ports
+;;
+
+(define (open-input-string str)
+    (make-port
+        (open-input-bytevector (string->u8 str))
+        #f
+        #t
+        <textual-file-port>))
+
+(define (open-output-string)
+    (make-port
+        (open-output-bytevector)
+        #t
+        #t
+        <textual-file-port>))
+
+(define (get-output-string port)
+    (u8->string
+        (get-output-bytevector (port-fd port))))
 

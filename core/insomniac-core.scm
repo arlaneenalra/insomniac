@@ -2,7 +2,6 @@
 ;;; Entry point for the Insomniac Compiler
 ;;;
 
-
 ;; Configuration Options for Compiler
 (define-record-type :insc-config
     (make-insc-config name source output)

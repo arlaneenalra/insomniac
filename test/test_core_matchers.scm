@@ -133,3 +133,17 @@
                 (range-BCD stream))))
     (list #\E #f #\D #\C #\B #\A #f))
 
+(define many-A (*-rule match-A))
+
+(expect "Verify that a * rule can match no characters"
+    (call-with-stream "" many-A)
+    '())
+
+(expect "Verify that a * rule can match a character"
+    (call-with-stream "A" many-A)
+    (list #\A))
+
+(expect "Verify that a * rule only matches the correct character"
+    (call-with-stream "AAAABA" many-A)
+    (list #\A #\A #\A #\A))
+

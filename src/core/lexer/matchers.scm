@@ -65,6 +65,18 @@
                         (walker (cdr rule-list))))))
         (walker rule-list)))
 
+;; Given a rule attempt to match it and keep building a result
+;; until the rule does not match.
+(define (*-rule-walker result rule stream)
+    (define ch (rule stream))
+    (if ch
+        (*-rule-walker (cons ch result) rule stream)
+        (normalize-chain result)))
+    
+;; Wraps a rule allowing it to match list a none or more instances
+(define (*-rule rule)
+    (lambda (stream)
+        (*-rule-walker '() rule stream))) 
 
 ;;;
 ;;; Specific matching rules

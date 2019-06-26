@@ -46,3 +46,57 @@
 (define (char->integer char)
     (asm (char) char->int))
 
+;;
+;; Character predicates
+;;
+
+(define (char=? a . args)
+    (cond
+        ((null? args) #t)
+        ((not  
+            (= (char->integer a) 
+                (char->integer (car args))))
+                #f)
+        (else
+            (apply char=? args))))
+
+(define (char<? a . args)
+    (cond
+        ((null? args) #t)
+        ((not  
+            (< (char->integer a) 
+                (char->integer (car args))))
+                #f)
+        (else
+            (apply char<? args))))
+
+(define (char<=? a . args)
+    (cond
+        ((null? args) #t)
+        ((not  
+            (<= (char->integer a) 
+                (char->integer (car args))))
+                #f)
+        (else
+            (apply char<=? args))))
+
+(define (char>? a . args)
+    (cond
+        ((null? args) #t)
+        ((not  
+            (> (char->integer a) 
+                (char->integer (car args))))
+                #f)
+        (else
+            (apply char>? args))))
+
+(define (char>=? a . args)
+    (cond
+        ((null? args) #t)
+        ((not  
+            (>= (char->integer a) 
+                (char->integer (car args))))
+                #f)
+        (else
+            (apply char>=? args))))
+     

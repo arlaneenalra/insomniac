@@ -10,10 +10,14 @@
 
 (define (mem-binary-read num port)
     (define offset (car port))
-    (define new-offset (+ offset num))
     (define u8 (cdr port))
+    (define max-offset (bytevector-length u8))
+    (define new-offset (+ offset num))
 
-    (if (>= offset (bytevector-length u8))
+    (if (> new-offset max-offset)
+        (set! new-offset max-offset))
+
+    (if (>= offset max-offset)
         (bytevector)
         (begin
             (set-car! port new-offset)

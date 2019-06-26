@@ -176,3 +176,10 @@
         3
         4))
 
+(expect "Verify that input strings actually return the correct value when read."
+    (call-with-input "A"
+        (lambda ()
+            (define res (read-string 4))
+            (string->u8 res)))
+    (bytevector 65))
+

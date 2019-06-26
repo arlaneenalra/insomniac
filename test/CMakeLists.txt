@@ -16,7 +16,10 @@ target_link_libraries(test_hash
 
 add_test(TestHash ${CMAKE_CURRENT_BIN_DIR}/test_hash)
 
-set(test_core_stream_EXTRA "${PROJECT_SOURCE_DIR}/src/core/lexer/core.scm")
+file(GLOB TEST_LEXER_SOURCES ${PROJECT_SOURCE_DIR}/src/core/lexer/*.scm)
+
+set(test_core_matchers_EXTRA ${TEST_LEXER_SOURCES})
+set(test_core_stream_EXTRA ${TEST_LEXER_SOURCES})
 
 # Setup and build scheme tests.
 file(GLOB SCM_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test_*.scm)

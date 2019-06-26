@@ -44,3 +44,10 @@
       (newline)
       (fail))))
 
+;; Utility function to simplify using an input string.
+(define (call-with-input str thunk)
+    (lambda ()
+        (with-input-port
+            (open-input-string str)
+            thunk)))
+

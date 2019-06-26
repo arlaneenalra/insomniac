@@ -21,7 +21,7 @@
         (lambda (stream-ch)
             (eq? stream-ch ch))))
 
-;; Actually walks a list of rules
+;; Actually walks a chain of rules
 (define (chain-rule-walker result rule-list stream)
     (if (null? rule-list)
         ;; We've matched all the rules
@@ -50,5 +50,19 @@
 (define (chain-rule . rule-list)
     (lambda (stream)
         (chain-rule-walker '() rule-list stream)))
+
+;; Given a list of rules, match only one rule and return it's result.
+(define (or-rule . rule-list)
+    (lambda (stream)
+        (define (walker rule-list)
+            (if (null? rule-list)
+                #f
+                (begin
+                    (define rule (car rule-list))
+                    (define ch (rule stream))
+                    (if ch
+                        ch
+                        (walker (cdr rule-list))))))
+        (walker rule-list)))
 
 

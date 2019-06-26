@@ -60,3 +60,31 @@
         #\B #\B #\A
         #f))
 
+(define match-OR-ABC
+    (or-rule
+        (char-rule #\A)
+        (char-rule #\B)
+        (char-rule #\C)))
+
+(expect "Verify than an or-rule will only match once"
+    (call-with-stream "B"
+        (lambda (stream)
+            (list
+                (stream)
+                (match-OR-ABC stream))))
+    (list
+        (eof-object)
+        #\B))
+
+(expect "Verify than an or-rule will only match its child rules"
+    (call-with-stream "D"
+        (lambda (stream)
+            (list
+                (stream)
+                (stream)
+                (match-OR-ABC stream))))
+    (list
+        (eof-object)
+        #\D
+        #f))
+

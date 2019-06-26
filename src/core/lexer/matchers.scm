@@ -76,6 +76,12 @@
         (lambda (stream-ch)
             (eq? stream-ch ch))))
 
+;; Rule that matches a range of characters
+(define (range-rule start end)
+    (rule
+        (lambda (stream-ch)
+            (and (char>=? stream-ch start)
+                (char<=? stream-ch end)))))
 
 ;; Rule to mathc end of file
 (define eof-rule

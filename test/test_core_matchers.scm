@@ -117,4 +117,19 @@
         (list #\A #\B #\C)
         (list #\A #\B #\C)
         #f))
-        
+
+(define range-BCD (range-rule #\B #\D))
+
+(expect "Verify that a range rule can match characters in a range"
+    (call-with-stream "ABCDE"
+        (lambda (stream)
+            (list
+                (stream)
+                (range-BCD stream)
+                (range-BCD stream)
+                (range-BCD stream)
+                (range-BCD stream)
+                (stream)
+                (range-BCD stream))))
+    (list #\E #f #\D #\C #\B #\A #f))
+

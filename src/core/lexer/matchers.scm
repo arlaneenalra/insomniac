@@ -14,12 +14,6 @@
                 (stream ch)
                 #f))))
 
-;; Rule to match a specific character
-(define (char-rule ch)
-    (rule
-        (lambda (stream-ch)
-            (eq? stream-ch ch))))
-
 ;; Put the result back into the correct order
 (define (normalize-chain result)
     (flatten (reverse result)))
@@ -70,5 +64,16 @@
                         ch
                         (walker (cdr rule-list))))))
         (walker rule-list)))
+
+
+;;;
+;;; Specific matching rules
+;;;
+
+;; Rule to match a specific character
+(define (char-rule ch)
+    (rule
+        (lambda (stream-ch)
+            (eq? stream-ch ch))))
 
 

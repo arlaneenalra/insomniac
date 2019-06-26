@@ -16,7 +16,6 @@
 ;; Returns true if obj is a record
 (define (record? obj) (asm(obj) record?))
 
-
 ;; creates an a record primitive with the given size
 (define (make-record size)
   (asm (size) record))
@@ -27,6 +26,12 @@
 
 (define (record-set! rec idx obj)
   (asm (idx) (obj) (rec) idx! ()))
+
+(define (record-length rec)
+  (asm (rec) vec-len)) 
+
+;; Convert a vector to a list
+(define record->list (core-vec->list record-length record-ref))
 
 ;; Record constructor factory
 (define (record-constructor-factory type-id size)
@@ -110,6 +115,4 @@
 
   ;; Setup field accessors
   (record-accessor-factory binding-list 1 (cdr const-clause) fields-clause))
-
-
 

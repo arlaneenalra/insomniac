@@ -138,3 +138,8 @@
                 12 13 14)))
     (list 1 2 3 4 5 6 7 8 9 10 11 12 13 14)) 
 
+(expect "Verify that flatten returns a list when given a non-list"
+    (lambda ()
+        (flatten #\A))
+    (list #\A))
+

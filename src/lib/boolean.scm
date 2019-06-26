@@ -60,6 +60,11 @@
   (equal-pair? (vector->list x)
                (vector->list y)))
 
+;; Check a pair of records or equality
+(define (equal-record? x y)
+  (equal-pair? (record->list x)
+               (record->list y)))
+
 ;; Check bytevectors for equality
 (define (equal-bytevector? x y)
     (define len-x (bytevector-length x))
@@ -77,8 +82,6 @@
         (else
             (walk 0 x y))))
 
-
-
 ;; Deep equality checking
 (define (equal? x y)
   (cond
@@ -87,6 +90,7 @@
     ((and (pair? x) (pair? y)) (equal-pair? x y))
     ((and (vector? x) (vector? y)) (equal-vector? x y))
     ((and (bytevector? x) (bytevector? y)) (equal-bytevector? x y))
+    ((and (record? x) (record? y)) (equal-record? x y))
 
     ;; if we get here, things are not equal
     (else

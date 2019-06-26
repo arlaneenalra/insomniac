@@ -67,7 +67,7 @@ void op_vector_length(vm_internal_type *vm) {
 
     vm->reg1 = obj = vm_pop(vm);
 
-    if (obj->type != VECTOR && obj->type != BYTE_VECTOR) {
+    if (obj->type != VECTOR && obj->type != BYTE_VECTOR && obj->type != RECORD) {
         throw(vm, "Attempt to read vector length of non-vector!", 1, obj);
         return;
     }

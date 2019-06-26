@@ -1,9 +1,8 @@
 ;;;
-;;; Tests fo 
+;;; Tests for matchers. 
 ;;;
 
 (include "../src/lib/test/expect.scm")
-
 (include "../src/core/lexer/core.scm")
 
 (define (call-with-stream str proc)

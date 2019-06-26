@@ -3,6 +3,7 @@
 ;;;
 
 (include "stream.scm")
-
 (include "matchers.scm")
+(include "token.scm")
+
 

@@ -10,7 +10,6 @@
     (call-with-input str
         (lambda () (proc (char-stream 2)))))
      
-
 (define match-A (char-rule #\A))
 
 (expect "Verify that a matcher can match a character"
@@ -88,3 +87,35 @@
         #\D
         #f))
 
+(define match-ABC-ABC-OR-ABC
+    (chain-rule
+        match-ABC
+        match-ABC
+        match-OR-ABC))
+
+(expect "Verify that a more complex rule can be matched"
+    (call-with-stream "ABCABCBD" 
+        (lambda (stream)
+            (list
+                (stream)
+                (match-ABC-ABC-OR-ABC stream))))
+    (list
+        #\D
+        (list #\A #\B #\C #\A #\B #\C #\B)))
+
+(expect "Verify that a more complex rule can reset" 
+    (call-with-stream "ABCABCDD" 
+        (lambda (stream)
+            (list
+                (stream)
+                (stream)
+                (match-ABC stream)
+                (match-ABC stream)
+                (match-ABC-ABC-OR-ABC stream))))
+    (list
+        #\D
+        #\D
+        (list #\A #\B #\C)
+        (list #\A #\B #\C)
+        #f))
+        

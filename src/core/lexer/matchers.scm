@@ -2,7 +2,6 @@
 ;;; Matching library used to match charater sequences.
 ;;;
 
-
 ;; Define a matcher that either returns the matched character or #f
 ;; based on the given rule. 
 (define (rule predicate)
@@ -21,11 +20,15 @@
         (lambda (stream-ch)
             (eq? stream-ch ch))))
 
+;; Put the result back into the correct order
+(define (normalize-chain result)
+    (flatten (reverse result)))
+
 ;; Actually walks a chain of rules
 (define (chain-rule-walker result rule-list stream)
     (if (null? rule-list)
         ;; We've matched all the rules
-        (reverse result)
+        (normalize-chain result)
 
         ;; We're not there yet, walk to the next rule.
         (begin
@@ -42,7 +45,10 @@
 
                 ;; Rest and return false
                 (begin
-                    (for-each stream result)
+                    ;; Put things in the correct order
+                    ;; to reset the stream
+                    (for-each stream 
+                        (reverse (normalize-chain result)))
                     #f)))))
 
 ;; Given a list of rules, match all or none and return a list of the matched

@@ -111,3 +111,24 @@
 
 (define (assv obj list)
   (assoc obj list eqv?))
+
+;; Flatten our list of chars 
+(define (flatten ls)
+    (define (stack-flatten result ls)
+        (cond
+            ;; Ignore nulls
+            ((null? ls) result)
+           
+            ;; Wall into child lists/pairs 
+            ((pair? ls) 
+                (stack-flatten
+                    (stack-flatten result (car ls))
+                    (cdr ls)))
+
+
+            ;; Anything else, just add to the list
+            (else 
+                (cons ls result))))
+    (reverse (stack-flatten '() ls)))
+
+

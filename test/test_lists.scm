@@ -128,3 +128,13 @@
         (append '() 'a))
     'a)
 
+(expect "Verify that flatten works right"
+    (lambda ()
+        (flatten
+            (list 1 2 3 
+                (list 4 5 6 
+                    (list 7 8 9)
+                    '(10 . 11))
+                12 13 14)))
+    (list 1 2 3 4 5 6 7 8 9 10 11 12 13 14)) 
+

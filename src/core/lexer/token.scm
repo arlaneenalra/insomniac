@@ -13,8 +13,11 @@
 (define (bind-token type rule)
     (lambda (stream)
         (define match (rule stream))
-   
+       
         (if match
-            (token type (list->string (flatten match)))
+            (token type
+                (if (eof-object? match)
+                    match
+                    (list->string (flatten match))))
             #f)))
 

@@ -76,4 +76,9 @@
         (lambda (stream-ch)
             (eq? stream-ch ch))))
 
+;; Rule to mathc end of file
+(define eof-rule
+    (rule
+        (lambda (obj)
+            (eof-object? obj))))
 

@@ -11,13 +11,13 @@
 
 (define token-matcher (bind-token 'TOK (char-rule #\A)))
 
-(expect "Verify that a bond token matcher returns a token"
+(expect "Verify that a bound token matcher returns a token"
     (call-with-stream "A"
         (lambda (stream)
             (token-matcher stream)))
     (token 'TOK "A"))
 
-(expect "Verify that a bond token matcher returns false on a non-match"
+(expect "Verify that a bound token matcher returns false on a non-match"
     (call-with-stream "B"
         (lambda (stream)
             (list
@@ -30,3 +30,29 @@
         #\B
         #f))
 
+(define lexer
+    (or-rule
+        (bind-token 'ABC
+            (chain-rule
+                (char-rule #\A)
+                (char-rule #\B)
+                (char-rule #\C)))
+        (bind-token 'WS (char-rule #\x20))
+        (bind-token '*EOF* eof-rule)))
+
+(expect "Verify that we can create a crude lexer"
+    (call-with-stream "ABC  ABC"
+        (lambda (stream)
+            (list
+                (lexer stream)
+                (lexer stream)
+                (lexer stream)
+                (lexer stream)
+                (lexer stream))))
+    (list
+        (token '*EOF* (eof-object))
+        (token 'ABC "ABC")
+        (token 'WS " ")
+        (token 'WS " ")
+        (token 'ABC "ABC")))
+                

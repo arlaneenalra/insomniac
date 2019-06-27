@@ -3,7 +3,6 @@
 ;;;
 
 (include "../src/lib/test/expect.scm")
-
 (include "../src/core/lexer/stream.scm")
 
 (expect "Verify that reading from a stream works"

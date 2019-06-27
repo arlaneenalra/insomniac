@@ -79,7 +79,13 @@
 ;; Wraps a rule allowing it to match list a none or more instances
 (define (*-rule rule)
     (lambda (stream)
-        (*-rule-walker '() rule stream))) 
+        (*-rule-walker '() rule stream)))
+
+;; Wraps a rule requiring at least one match
+(define (+-rule rule)
+    (chain-rule
+        rule
+        (*-rule rule)))
 
 ;; Wraps a rule and only matches a stream element
 ;; when the wrapped rule does not match.

@@ -2,6 +2,8 @@
 ;;; Entry point for the Insomniac Compiler
 ;;;
 
+(include "lexer/core.scm")
+
 ;; Configuration Options for Compiler
 (define-record-type :insc-config
     (make-insc-config name source output)
@@ -35,16 +37,14 @@
             (usage)
             (walker config args))))
 
-(define (lexer next-token)
-    (define token
-        (next-token))
+(define (token-walker lexer stream)
+    (define token (lexer stream))
 
-    (if (eof-object? c)
-        #t
-        (begin
-            (display c)
-            (walk next-token))))
+    (display token) (newline)
 
+    (if (not (eq? (token-type token) '*EOF*))
+        (token-walker lexer stream)))
+            
 
 (let*
     ((config (build-config (command-line))))
@@ -55,5 +55,6 @@
     (with-input-from-file
         (insc-config-source config)
         (lambda ()
-            (lexer (char-stream 4096)))))
+            (token-walker 
+                scheme-lexer (char-stream 4096)))))
 

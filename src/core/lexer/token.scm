@@ -21,3 +21,12 @@
                     (list->string (flatten match))))
             #f)))
 
+;; Creates a very simple lexer with default handling for EOF
+;; and unmatched tokens
+(define (make-lexer . rule-list)
+    (or-rule
+        (apply or-rule rule-list)
+
+        (bind-token '*EOF* eof-rule)
+        (bind-token '*UNMATCHED* any-rule)))
+

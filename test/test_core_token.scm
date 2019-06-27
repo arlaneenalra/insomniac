@@ -31,14 +31,13 @@
         #f))
 
 (define lexer
-    (or-rule
+    (make-lexer
         (bind-token 'ABC
             (chain-rule
                 (char-rule #\A)
                 (char-rule #\B)
                 (char-rule #\C)))
-        (bind-token 'WS (char-rule #\x20))
-        (bind-token '*EOF* eof-rule)))
+        (bind-token 'WS (char-rule #\x20))))
 
 (expect "Verify that we can create a crude lexer"
     (call-with-stream "ABC  ABC"

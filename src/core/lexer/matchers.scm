@@ -78,10 +78,32 @@
     (lambda (stream)
         (*-rule-walker '() rule stream))) 
 
+;; Wraps a rule and only matches a stream element
+;; when the wrapped rule does not match.
+(define (not-rule rule)
+    (lambda (stream)
+        (define ch (rule stream))
+        
+        (if ch
+            (begin
+                ;; Put things in the correct order
+                ;; to reset the stream
+                (for-each stream 
+                    (normalize-chain ch))
+                #f)
+            (stream)))) 
+
 ;;;
 ;;; Specific matching rules
 ;;;
 
+;; Rule that matches any character other than eof
+(define (any-rule stream)
+    (define ch (stream))
+    (if (eof-object? ch)
+        #f
+        ch))
+   
 ;; Rule to match a specific character
 (define (char-rule ch)
     (rule
@@ -94,6 +116,9 @@
         (lambda (stream-ch)
             (and (char>=? stream-ch start)
                 (char<=? stream-ch end)))))
+
+;; Match all remaining characters
+(define rest-rule (*-rule any-rule))
 
 ;; Rule to mathc end of file
 (define eof-rule

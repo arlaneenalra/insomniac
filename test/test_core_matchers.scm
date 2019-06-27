@@ -147,3 +147,25 @@
     (call-with-stream "AAAABA" many-A)
     (list #\A #\A #\A #\A))
 
+(define not-ABC (not-rule match-ABC))
+
+(expect "Verify that a not rule will match a short character"
+    (call-with-stream "D" not-ABC)
+    #\D)
+
+(expect "Verify that a not rule will not match a character matching the rule"
+    (call-with-stream "ABC" not-ABC)
+    #f)
+
+(expect "Verify that a not rule will match something that doesn't match its rule"
+    (call-with-stream "AAAABC"
+        (lambda (stream)
+            (list
+                (stream)
+                (rest-rule stream)
+                ((*-rule not-ABC) stream))))
+    (list
+        (eof-object)
+        (list #\A #\B #\C)
+        (list #\A #\A #\A)))
+

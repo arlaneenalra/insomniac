@@ -18,22 +18,32 @@
 (define <line-ending>
     (or-rule
         (chain-rule
-            (char-rule #\x10)
-            (char-rule #\x13))
+            (char-rule #\x0A)
+            (char-rule #\x0D))
         (chain-rule
-            (char-rule #\x13)
-            (char-rule #\x10))
-        (char-rule #\x10)
-        (char-rule #\x13)))
+            (char-rule #\x0D)
+            (char-rule #\x0A))
+        (char-rule #\x0A)
+        (char-rule #\x0D)))
 
 (define <whitespace>
     (or-rule
         <intraline-whitespace>
         <line-ending>))
 
+(define <comment>
+    (or-rule
+        (chain-rule
+            (char-rule #\;)
+            (*-rule
+                (not-rule <line-ending>)))
+
+                ))
+
 ;; Define the top level lexer
 (define scheme-lexer
     (make-lexer
+        (bind-token '*comment* <comment>)
         (bind-token '*white-space* <whitespace>)))
 
 

@@ -143,3 +143,7 @@
         (flatten #\A))
     (list #\A))
 
+(expect "Verify handling of empty lists"
+    (lambda ()
+        (flatten (list (list #\A '() #\B))))
+    (list #\A #\B))

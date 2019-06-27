@@ -16,7 +16,10 @@
 
 ;; Put the result back into the correct order
 (define (normalize-chain result)
-    (flatten (reverse result)))
+    (flatten (reverse 
+        (if (pair? result)
+            result
+            (list result)))))
 
 ;; Actually walks a chain of rules
 (define (chain-rule-walker result rule-list stream)
@@ -69,7 +72,7 @@
 ;; until the rule does not match.
 (define (*-rule-walker result rule stream)
     (define ch (rule stream))
-    (if ch
+    (if (and (not (eof-object? ch)) ch)
         (*-rule-walker (cons ch result) rule stream)
         (normalize-chain result)))
     

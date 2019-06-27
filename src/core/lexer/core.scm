@@ -122,7 +122,7 @@
 
 (define <inline-hex-escape>
     (chain-rule
-        (str-rule "\\x")
+        (str-rule "\x")
         <hex-scalar-value>))
 
 (define <mnemomic-escape>
@@ -135,7 +135,7 @@
         (not-rule (set-rule "\\|"))
         <inline-hex-escape>
         <mnemomic-escape>
-        (str-rule "\\|")))
+        (str-rule "\|")))
 
 (define <special-initial> (set-rule "!$%&*/:<=>?@^_~"))
 
@@ -160,6 +160,11 @@
     (or-rule
         (chain-rule
             <initial> (*-rule <subsequent>))
+
+        (chain-rule
+            <vertical-line>
+            (*-rule <symbol-element>)
+            <vertical-line>)
 ))
 
 ;; Define the top level lexer

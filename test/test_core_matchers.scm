@@ -169,3 +169,10 @@
         (list #\A #\B #\C)
         (list #\A #\A #\A)))
 
+(define str-ABC (str-rule "ABC"))
+
+(expect "Verify that a str-rule matches a string"
+    (call-with-stream "ABC"
+        str-ABC)
+    (string->list "ABC"))
+

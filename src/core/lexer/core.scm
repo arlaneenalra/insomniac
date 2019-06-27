@@ -30,18 +30,38 @@
     (or-rule
         <intraline-whitespace>
         <line-ending>))
+
+(define <vertical-line> (char-rule #\|))
+
+(define <delimiter>
+    (or-rule
+        <whitespace>
+        <vertical-line>
+        (char-rule #\()
+        (char-rule #\))
+        (char-rule #\")
+        (char-rule #\;)))
+
+(define <directive>
+    (or-rule
+        (str-rule "#!fold-case")
+        (str-rule "#!no-fold-case")))
+
+(define <atmosphere>
+    (or-rule
+        <whitespace>
+        (lambda (stream) (<comment> stream))
+        <directive>
+        ))
+
+(define <intertoken-space>
+    (*-rule <atmosphere>))
+
 ;;
 ;; Comment handling
 ;;
-(define <nested-comment-start>
-    (chain-rule
-        (char-rule #\#)
-        (char-rule #\|)))
-
-(define <nested-comment-end>
-    (chain-rule
-        (char-rule #\|)
-        (char-rule #\#)))
+(define <nested-comment-start> (str-rule "#|"))
+(define <nested-comment-end> (str-rule "|#"))
 
 (define <comment-text>
     (+-rule
@@ -70,13 +90,62 @@
             (char-rule #\;)
             (*-rule
                 (not-rule <line-ending>)))
-        <nested-comment>))
+        <nested-comment>
+
+        (chain-rule
+            (str-rule "#;")
+            <intertoken-space>
+            ;; MISSING <datum>
+            )
+        ))
+
+;;
+;; Identifiers
+;;
+
+(define <letter>
+    (or-rule
+        (range-rule #\A #\Z)
+        (range-rule #\a #\z)))
+
+(define <explicit-sign> (set-rule "+-"))
+
+(define <digit> (range-rule #\0 #\9))
+
+(define <hex-digit>
+    (or-rule
+        (range-rule #\a #\f)
+        <digit>))
+
+(define <special-initial> (set-rule "!$%&*/:<=>?@^_~"))
+
+(define <initial>
+    (or-rule
+        <letter>
+        <special-initial>))
         
+(define <special-subsequent>
+    (or-rule
+        (set-rule ".@")
+        <explicit-sign>))
+
+(define <subsequent>
+    (or-rule
+        <initial>
+        <digit>
+        <special-subsequent>))
+
+(define <identifier>
+    (or-rule
+        (chain-rule
+            <initial> (*-rule <subsequent>))
+))
 
 ;; Define the top level lexer
 (define scheme-lexer
     (make-lexer
         (bind-token '*comment* <comment>)
+        (bind-token '*identifier* <identifier>)
         (bind-token '*white-space* <whitespace>)))
 
 

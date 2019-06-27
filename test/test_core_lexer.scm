@@ -39,3 +39,8 @@
             <comment>)
     (string->list "#|ab#|asdf|# #|boo|#|#"))
 
+(expect "Verify that complex comments work" 
+    (call-with-stream "#|ab#|asdf|# #|boo|#|# 123"
+            <atmosphere>)
+    (string->list "#|ab#|asdf|# #|boo|#|#"))
+

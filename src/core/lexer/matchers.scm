@@ -119,6 +119,14 @@
         (lambda (stream-ch)
             (eq? stream-ch ch))))
 
+;; Rule that matches a string literal
+(define (str-rule str)
+    (apply chain-rule (map char-rule (string->list str))))
+
+;; Rule that matches any character in a string
+(define (set-rule str)
+    (apply or-rule (map char-rule (string->list str))))
+
 ;; Rule that matches a range of characters
 (define (range-rule start end)
     (rule

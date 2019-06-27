@@ -7,12 +7,17 @@
 (define (rule predicate)
     (lambda (stream)
         (define ch (stream))
+        (cond
+            ((eof-object? ch)
+                (begin
+                    (stream ch)
+                    #f))
+            ((predicate ch) ch)
 
-        (if (predicate ch)
-            ch
-            (begin
-                (stream ch)
-                #f))))
+            (else 
+                (begin
+                    (stream ch)
+                    #f)))))
 
 ;; Put the result back into the correct order
 (define (normalize-chain result)
@@ -138,8 +143,11 @@
 (define rest-rule (*-rule any-rule))
 
 ;; Rule to mathc end of file
-(define eof-rule
-    (rule
-        (lambda (obj)
-            (eof-object? obj))))
+(define (eof-rule stream)
+    (define ch (stream))
+    (if (eof-object? ch)
+        ch
+        (begin
+            (stream ch)
+            #f)))
 

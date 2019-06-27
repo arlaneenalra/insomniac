@@ -103,6 +103,7 @@
 ;; Identifiers
 ;;
 
+; NOTE: This may need to be adjusted for unicode handling.
 (define <letter>
     (or-rule
         (range-rule #\A #\Z)
@@ -116,6 +117,25 @@
     (or-rule
         (range-rule #\a #\f)
         <digit>))
+
+(define <hex-scalar-value> (+-rule <hex-digit>))
+
+(define <inline-hex-escape>
+    (chain-rule
+        (str-rule "\\x")
+        <hex-scalar-value>))
+
+(define <mnemomic-escape>
+    (chain-rule
+        (char-rule #\\)
+        (set-rule "abtnr")))
+
+(define <symbol-element>
+    (or-rule
+        (not-rule (set-rule "\\|"))
+        <inline-hex-escape>
+        <mnemomic-escape>
+        (str-rule "\\|")))
 
 (define <special-initial> (set-rule "!$%&*/:<=>?@^_~"))
 
@@ -134,6 +154,7 @@
         <initial>
         <digit>
         <special-subsequent>))
+
 
 (define <identifier>
     (or-rule

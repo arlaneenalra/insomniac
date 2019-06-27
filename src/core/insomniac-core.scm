@@ -51,10 +51,14 @@
     
     (display "Compiling: ")
     (display (insc-config-source config))
+    (newline)
 
     (with-input-from-file
         (insc-config-source config)
         (lambda ()
             (token-walker 
                 scheme-lexer (char-stream 4096)))))
+
+(gc-stats)
+(newline)
 

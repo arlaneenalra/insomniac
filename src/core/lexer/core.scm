@@ -243,6 +243,38 @@
 
             any-rule)))
 
+;;
+;; Strings 
+;;
+
+(define <string-element>
+    (or-rule
+        <inline-hex-escape>
+        <mnemomic-escape>
+
+        ;; string escapes
+        (chain-rule
+            (char-rule #\\)
+            (or-rule
+                (char-rule #\")
+                (char-rule #\\)
+                (char-rule #\|)
+                (chain-rule
+                    (*-rule <intraline-whitespace>)
+                    <line-ending>
+                    (*-rule <intraline-whitespace>))))
+
+        (not-rule
+            (or-rule
+                (char-rule #\")
+                (char-rule #\\)))))
+
+(define <string>
+    (chain-rule
+        (char-rule #\")
+        (*-rule <string-element>)
+        (char-rule #\")))
+
 ;; Define the top level lexer
 (define scheme-lexer
     (make-lexer
@@ -253,6 +285,7 @@
         (bind-token '*boolean-false* <boolean-false>)
 
         (bind-token '*character* <character>)
+        (bind-token '*string* <string>)
 
         (bind-token '*white-space* <whitespace>)))
 

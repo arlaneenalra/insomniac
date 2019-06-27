@@ -120,6 +120,9 @@
    
 ;; Rule to match a specific character
 (define (char-rule ch)
+    (if (not (char? ch))
+        (error "char-rule requires a char!" ch))
+
     (rule
         (lambda (stream-ch)
             (eq? stream-ch ch))))

@@ -9,8 +9,8 @@ void op_eq(vm_internal_type *vm) {
     vm->reg1 = obj1 = vm_pop(vm);
     vm->reg2 = obj2 = vm_pop(vm);
 
-    /* Make sure we have actual objects. */
-    if ((!obj1 || !obj2) && (obj1->type != obj2->type)) {
+    /* Make sure both objects have the same type. */
+    if (obj1->type != obj2->type) {
         vm_push(vm, vm->vm_false);
     } else {
         /* Do comparisons for special types. */

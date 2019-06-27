@@ -159,7 +159,7 @@
     (or-rule
         <initial>
         <explicit-sign>
-        (char-rule "#\@")))
+        (char-rule #\@)))
 
 (define <dot> (char-rule #\.))
 
@@ -200,11 +200,60 @@
 
         <peculiar-identifier>))
 
+;;
+;; Booleans
+;;
+
+(define <boolean-true>
+    (or-rule
+        (str-rule "#t")
+        (str-rule "#true")))
+
+(define <boolean-false>
+    (or-rule
+        (str-rule "#f")
+        (str-rule "#false")))
+
+;;
+;; Characters
+;;
+
+(define <character-name>
+    (or-rule
+        (str-rule "alarm")
+        (str-rule "backspace")
+        (str-rule "delete")
+        (str-rule "escape")
+        (str-rule "newline")
+        (str-rule "null")
+        (str-rule "return")
+        (str-rule "space")
+        (str-rule "tab")))
+
+(define <character>
+    (chain-rule
+        (char-rule #\#)
+        (char-rule #\\)
+        (or-rule
+            <character-name>
+
+            (chain-rule
+                (char-rule #\x)
+                <hex-scalar-value>)
+
+            any-rule)))
+
 ;; Define the top level lexer
 (define scheme-lexer
     (make-lexer
         (bind-token '*comment* <comment>)
         (bind-token '*identifier* <identifier>)
+
+        (bind-token '*boolean-true* <boolean-true>)
+        (bind-token '*boolean-false* <boolean-false>)
+
+        (bind-token '*character* <character>)
+
         (bind-token '*white-space* <whitespace>)))
 
 

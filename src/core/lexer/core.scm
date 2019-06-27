@@ -155,6 +155,38 @@
         <digit>
         <special-subsequent>))
 
+(define <sign-subsequent>
+    (or-rule
+        <initial>
+        <explicit-sign>
+        (char-rule "#\@")))
+
+(define <dot> (char-rule #\.))
+
+(define <dot-subsequent>
+    (or-rule
+        <sign-subsequent>
+        <dot>))
+
+(define <peculiar-identifier>
+    (or-rule
+        <explicit-sign>
+
+        (chain-rule
+            <explicit-sign>
+            <sign-subsequent>
+            (*-rule <subsequent>))
+        
+        (chain-rule
+            <explicit-sign>
+            <dot>
+            <dot-subsequent>
+            (*-rule <subsequent>))
+        
+        (chain-rule
+            <dot>
+            <dot-subsequent>
+            (*-rule <subsequent>))))
 
 (define <identifier>
     (or-rule
@@ -165,7 +197,8 @@
             <vertical-line>
             (*-rule <symbol-element>)
             <vertical-line>)
-))
+
+        <peculiar-identifier>))
 
 ;; Define the top level lexer
 (define scheme-lexer

@@ -20,6 +20,8 @@ struct key_value {
     void *value;
 
     key_value_type *next;
+    
+    hash_type hash;
 };
 
 typedef struct hash_internal_iterator {
@@ -49,6 +51,8 @@ gc_type_def register_hash_iterator(gc_type *gc);
 /* resize/allocate hashtable array */
 void hash_resize(hash_internal_type *table, size_t size);
 key_value_type *hash_find(hash_internal_type *table, void *key, hash_action_type create);
+key_value_type *hash_find_kv(hash_internal_type *table, key_value_type* kv_in, hash_action_type action);
+
 
 float hash_load(hash_internal_type *table);
 

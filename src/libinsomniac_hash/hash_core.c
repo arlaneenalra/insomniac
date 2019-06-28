@@ -96,9 +96,19 @@ uint8_t hash_get(hashtable_type *void_table, void *key, void **value) {
 }
 
 /* locate or create a key_value_object the given key */
-key_value_type *hash_find(hash_internal_type *table, void *key, hash_action_type action) {
-    hash_type hash = (*table->calc_hash)(key);
-    hash_type index = hash % table->size; /* calculate the search table index */
+inline key_value_type *hash_find(hash_internal_type *table, void *key, hash_action_type action) {
+    key_value_type kv;
+
+    kv.key = key;
+    kv.hash = (*table->calc_hash)(key);
+
+    return hash_find_kv(table, &kv, action);
+}
+
+/* locate or create a key_value_object the given key_value */
+inline key_value_type *hash_find_kv(hash_internal_type *table, key_value_type* kv_in, hash_action_type action) {
+    void *key = kv_in->key;
+    hash_type index = kv_in->hash % table->size;
     key_value_type *kv = 0;
     key_value_type *prev_kv = 0;
 
@@ -143,6 +153,7 @@ key_value_type *hash_find(hash_internal_type *table, void *key, hash_action_type
         gc_alloc_type(table->gc, 0, table->key_value, (void **)&kv);
 
         kv->key = key;
+        kv->hash = kv_in->hash;
 
         /* attach kv to table */
         kv->next = table->table[index];
@@ -184,7 +195,7 @@ void hash_resize(hash_internal_type *table, size_t size) {
             while (kv) {
                 /* save the previous value in the new
                    table */
-                hash_find(table, kv->key, CREATE)->value = kv->value;
+                hash_find_kv(table, kv, CREATE)->value = kv->value;
 
                 kv = kv->next;
             }

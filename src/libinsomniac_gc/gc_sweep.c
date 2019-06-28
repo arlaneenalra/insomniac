@@ -106,12 +106,6 @@ void sweep_list(gc_ms_type *gc, mark_type mark) {
     meta_obj_type *new_active = 0;
     meta_obj_type *dead = gc->dead_list;
 
-    /* don't sweep if protection is active  */
-    if (gc->protect_count) {
-        return;
-    }
-
-    gc->sweeps++;
 
     while (active) {
         meta_obj_type *next = active->next;
@@ -151,35 +145,34 @@ void sweep_list(gc_ms_type *gc, mark_type mark) {
 }
 
 /* the guts of sweep */
-void sweep(gc_ms_type *gc) {
+inline void sweep(gc_ms_type *gc) {
     mark_type mark;
 
     assert(gc);
 
     /* Check protection status before sweeping */
-    if (gc->protect_count) {
+    if (gc->protect_count || gc->free > 0) {
         return;
     }
+    
+    gc->sweeps++;
 
     mark = set_next_mark(gc);
 
-    /* mark all reachable objects */
+    /* Mark all reachable objects */
     mark_list(gc, gc->perm_list, mark);
 
-    /* mark all objects reachable from our defined root
+    /* Mark all objects reachable from our defined root
        pointers */
     if (gc->root_list) {
         mark_root(gc, gc->root_list, mark);
     }
 
-    /* iterate through the list of active nodes and
+    /* Iterate through the list of active nodes and
        move the unmarked ones to dead */
-
     sweep_list(gc, mark);
 
-    /* allocate some cell sized objects to make
-       things easier */
-    if (!gc->dead_list) {
-        pre_alloc(gc);
+    if (gc->free <= GC_GROW_THRESHOLD) {
+        gc->free += GC_INITIAL_FREE;
     }
 }

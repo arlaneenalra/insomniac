@@ -28,6 +28,8 @@ gc_type *gc_create(size_t cell_size) {
 
 /* deallocate a GC instance */
 void gc_destroy(gc_type *gc_void) {
+    meta_root_type *root = 0;
+
     if (gc_void) {
         /* cast back to our internal type */
         gc_ms_type *gc = (gc_ms_type *)gc_void;
@@ -37,6 +39,22 @@ void gc_destroy(gc_type *gc_void) {
         destroy_list(gc, &(gc->perm_list));
 
         destroy_types(gc, gc->type_defs, gc->num_types);
+
+        /* Destroy roots */
+        root = gc->pruned_root_list;
+        while(root) {
+            meta_root_type *next = root->next;
+            FREE(root);
+            root = next;
+        }
+
+        root = gc->root_list;
+        while(root) {
+            meta_root_type *next = root->next;
+            FREE(root);
+            root = next;
+        }
+
 
         FREE(gc);
     }
@@ -56,15 +74,20 @@ void gc_unprotect(gc_type *gc_void) {
     /* make sure we have paired protects */
     assert(gc->protect_count >= 0);
 
-    if (!gc->protect_count && !gc->dead_list) {
-        sweep(gc);
-    }
+    sweep(gc);
 }
 
 /* register a root pointer */
 void gc_register_root(gc_type *gc_void, void **root) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
-    meta_root_type *meta = MALLOC_TYPE(meta_root_type);
+    meta_root_type *meta = 0;
+
+    if (gc->pruned_root_list) {
+        meta = gc->pruned_root_list;
+        gc->pruned_root_list = meta->next;
+    } else {
+        meta = MALLOC_TYPE(meta_root_type);
+    }
 
     meta->root = root;
     meta->next = gc->root_list;
@@ -95,8 +118,9 @@ void gc_unregister_root(gc_type *gc_void, void **root) {
         gc->root_list = meta->next;
     }
 
-    /* this is really inefficient */
-    FREE(meta);
+    /* Save the meta object for later reuse. */
+    meta->next = gc->pruned_root_list;
+    gc->pruned_root_list = meta;
 }
 
 /* allocate a blob and attach it to the gc */

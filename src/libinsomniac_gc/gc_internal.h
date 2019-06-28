@@ -11,7 +11,7 @@
 #include <gc.h>
 
 /* Tuning parameters for the GC */
-#define GC_INITIAL_FREE 0x100000000
+#define GC_INITIAL_FREE 0x100000
 #define GC_GROW_THRESHOLD (GC_INITIAL_FREE / 4)
 
 /* An internal GC structure to represent an allocated object */
@@ -73,6 +73,7 @@ typedef struct gc_ms {
     meta_obj_type *perm_list; /* list of objects we treat as permenant */
 
     meta_root_type *root_list; /* list of root pointers */
+    meta_root_type *pruned_root_list; /* list of previous pointers */
 
     meta_obj_def_type *type_defs; /* definitions of various types */
     uint32_t num_types;           /* number of types */
@@ -118,14 +119,12 @@ void sweep(gc_ms_type *gc);
 void *gc_malloc(gc_ms_type *gc, size_t size);
 void gc_free(gc_ms_type *gc, void *obj);
 
-/* offeset into a meta object for the actual object */
+/* Offeset into a meta object for the actual object */
 #define OBJECT_OFFSET offsetof(meta_obj_type, obj)
 
-/* deal with these as a macro incase I need to change them latter */
-/* #define MALLOC(size) calloc(1, size) */
+/* Deal with these as a macro in case I need to change them latter. */
 #define MALLOC(size) gc_malloc(gc, size)
 #define MALLOC_TYPE(type) (type *)MALLOC(sizeof(type))
-/* #define FREE(ptr) free(ptr) */
 #define FREE(ptr) gc_free(gc, ptr);
 
 #endif

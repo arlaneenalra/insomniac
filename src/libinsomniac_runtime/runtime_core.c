@@ -31,10 +31,10 @@ int run_scheme(int argc, char **argv) {
     vm_reset(vm);
 
     /* Shut everything down */
-    vm_destroy(vm);
+    /*vm_destroy(vm);
     gc_unregister_root(gc, &vm);
 
-    gc_destroy(gc);
+    gc_destroy(gc); */
 
     return ret_value;
 }

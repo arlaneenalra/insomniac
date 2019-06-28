@@ -14,7 +14,7 @@ vm_int count_list(meta_obj_type **list) {
 }
 
 /* walk a list and free every element in it */
-void destroy_list(gc_ms_type *gc, meta_obj_type **list) {
+inline void destroy_list(gc_ms_type *gc, meta_obj_type **list) {
     meta_obj_type *meta = 0;
 
     /* retrieve the first list value */
@@ -44,22 +44,14 @@ meta_obj_type *internal_alloc(gc_ms_type *gc, uint8_t perm, size_t size) {
     real_size = sizeof(meta_obj_type) + size;
         
     gc->free -= real_size;
-    if (gc->free <= 0) {
-        sweep(gc);
-
-        if (gc->free <= GC_GROW_THRESHOLD) {
-            gc->free += GC_INITIAL_FREE;
-        }
-    }
 
     /* only attempt reuse on cell sized objects */
     if (size == gc->cell_size) {
 
         /* if there are no available objects, sweep */
-        /*if (!gc->dead_list) {
+        if (!gc->dead_list) {
             sweep(gc);
-        }*/
-
+        }
 
         /* only attempt reallocation for cell sized things */
         if (gc->dead_list) {

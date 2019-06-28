@@ -27,9 +27,10 @@
         (char-rule #\x0D)))
 
 (define <whitespace>
-    (or-rule
-        <intraline-whitespace>
-        <line-ending>))
+    (+-rule 
+        (or-rule
+            <intraline-whitespace>
+            <line-ending>)))
 
 (define <vertical-line> (char-rule #\|))
 

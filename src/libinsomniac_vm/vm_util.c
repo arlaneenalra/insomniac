@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 /* return the instruction/byte at the given address */
-uint8_t vm_peek(vm_internal_type *vm, vm_int offset) {
+inline uint8_t vm_peek(vm_internal_type *vm, vm_int offset) {
     vm_int addr = vm->env->ip + offset;
 
     if (addr > vm->env->length) {
@@ -18,7 +18,7 @@ uint8_t vm_peek(vm_internal_type *vm, vm_int offset) {
 }
 
 /* create a list of pairs */
-void cons(vm_type *vm_void, object_type *car, object_type *cdr, object_type **pair_out) {
+inline void cons(vm_type *vm_void, object_type *car, object_type *cdr, object_type **pair_out) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
 
     *pair_out = vm_alloc(vm, PAIR);
@@ -28,25 +28,34 @@ void cons(vm_type *vm_void, object_type *car, object_type *cdr, object_type **pa
 }
 
 /* parse an integer in byte code form */
-vm_int parse_int(vm_internal_type *vm) {
+inline vm_int parse_int(vm_internal_type *vm) {
     vm_int num = 0;
-    uint8_t byte = 0;
+    uint8_t *byte = &(vm->env->code_ref[vm->env->ip + 7]);
 
-    /* ip should be pointed at the instructions argument */
-    for (int i = 7; i >= 0; i--) {
-        byte = vm->env->code_ref[vm->env->ip + i];
-
-        num = num << 8;
-        num = num | byte;
-    }
+    num = (num << 8 ) | *byte;
+    byte--;
+    num = (num << 8 ) | *byte;
+    byte--;
+    num = (num << 8 ) | *byte;
+    byte--;
+    num = (num << 8 ) | *byte;
+    byte--;
+    num = (num << 8 ) | *byte;
+    byte--;
+    num = (num << 8 ) | *byte;
+    byte--;
+    num = (num << 8 ) | *byte;
+    byte--;
+    num = (num << 8 ) | *byte;
 
     /* increment the ip field */
     vm->env->ip += 8;
+
     return num;
 }
 
 /* parse a string */
-void parse_string(vm_internal_type *vm, object_type **obj) {
+inline void parse_string(vm_internal_type *vm, object_type **obj) {
     vm_int length = 0;
     char *str_start = 0;
 
@@ -63,7 +72,7 @@ void parse_string(vm_internal_type *vm, object_type **obj) {
 
 /* Either make the given object into a symbol or replace
    it with the symbol version. */
-void make_symbol(vm_internal_type *vm, object_type **obj) {
+inline void make_symbol(vm_internal_type *vm, object_type **obj) {
     object_type *obj_target = *obj;
 
     if (!hash_get_stateful(

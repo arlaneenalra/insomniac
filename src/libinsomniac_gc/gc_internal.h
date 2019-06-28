@@ -11,8 +11,8 @@
 #include <gc.h>
 
 /* Tuning parameters for the GC */
-#define GC_INITIAL_FREE 0x10000000
-#define GC_GROW_THRESHOLD (GC_INITIAL_FREE / 2)
+#define GC_INITIAL_FREE 0x100000000
+#define GC_GROW_THRESHOLD (GC_INITIAL_FREE / 4)
 
 /* An internal GC structure to represent an allocated object */
 typedef struct meta_obj meta_obj_type;

@@ -340,6 +340,12 @@
 
 (define <i> (set-rule "iI"))
 
+(define <plus-minus-i>
+    (chain-rule <plus-minus> <i>))
+
+(define <complex-infnan>
+    (chain-rule <infnan> <i>))
+
 ;; Numbers are complex on their own.
 (define (make-numbers has-decimal digit> <radix>)
     (define <radix-exactness>
@@ -371,16 +377,29 @@
             (chain-rule <sign> <ureal>)
             <infnan>))
 
+    (define <complex-suffix>
+        (or-rule
+            (chain-rule <plus-minus> <ureal> <i>)
+            <plus-minus-i>
+            <complex-infnan>))
+  
     (define <complex>
         (or-rule
-            <real>
-            (chain-rule <real> (char-rule #\@) <real>)
-            (chain-rule <real> <plus-minus> <ureal> <i>)
-            (chain-rule <real> <plus-minus> <i>)
-            (chain-rule <real> <infnan> <i>) 
-            (chain-rule <plus-minus> <ureal> <i>)
-            (chain-rule <infnan> <i>)
-            (chain-rule <plus-minus> <i>)))
+            (chain-rule <real>
+                (?-rule
+                    (or-rule
+                        (chain-rule (char-rule #\@) <real>)
+                        <complex-suffix>)))
+            <complex-suffix>))
+       
+;            <real>
+;            (chain-rule <real> (char-rule #\@) <real>)
+;            (chain-rule <real> <plus-minus> <ureal> <i>)
+;            (chain-rule <real> <plus-minus> <i>)
+;            (chain-rule <real> <infnan> <i>) 
+;            (chain-rule <plus-minus> <ureal> <i>)
+;            (chain-rule <infnan> <i>)
+;            (chain-rule <plus-minus> <i>)))
 
     (define <num>
         (chain-rule <prefix> <complex>))

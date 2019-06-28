@@ -101,3 +101,7 @@
     (call-with-stream "12345/67890" <num-10>) 
     (string->list "12345/67890"))
 
+(expect "Verify a complex number"
+    (call-with-stream "-10+50i" <num-10>) 
+    (string->list "-10+50i"))
+

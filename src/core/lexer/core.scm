@@ -391,15 +391,6 @@
                         (chain-rule (char-rule #\@) <real>)
                         <complex-suffix>)))
             <complex-suffix>))
-       
-;            <real>
-;            (chain-rule <real> (char-rule #\@) <real>)
-;            (chain-rule <real> <plus-minus> <ureal> <i>)
-;            (chain-rule <real> <plus-minus> <i>)
-;            (chain-rule <real> <infnan> <i>) 
-;            (chain-rule <plus-minus> <ureal> <i>)
-;            (chain-rule <infnan> <i>)
-;            (chain-rule <plus-minus> <i>)))
 
     (define <num>
         (chain-rule <prefix> <complex>))
@@ -412,7 +403,7 @@
 (define <num-16> (make-numbers #f <digit-16> <radix-16>))
 
 (define <number>
-    (or-rule <num-2> <num-8> <num-10> <num-16>))
+    (or-rule <num-10> <num-2> <num-8> <num-16>))
 
 ;; Define the top level lexer
 (define scheme-lexer

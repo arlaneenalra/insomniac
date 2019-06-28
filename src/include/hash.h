@@ -39,6 +39,12 @@ void hash_cow(gc_type *gc, hashtable_type *src, hashtable_type **ret);
 /* macro to make string hash tables easier to deal with */
 #define hash_create_string(gc, ret) hash_create(gc, &hash_string, &hash_string_cmp, ret)
 
+#define hash_prehash_string(str, state) \
+{                                       \
+    (state)->hash = hash_string(str);   \
+    (state)->set = true;                \
+}
+
 /* macro to make string hash tables easier to deal with */
 #define hash_create_pointer(gc, ret)                                                     \
     hash_create(gc, &hash_pointer, &hash_pointer_cmp, ret)

@@ -16,7 +16,12 @@ void op_bind(vm_internal_type *vm) {
         throw(vm, "Attempt to bind with non-symbol", 2, key, value);
     } else {
         /* do the actual bind */
-        hash_set(vm->env->bindings, key->value.string.bytes, value);
+        hash_set_stateful(
+            vm->env->bindings,
+            key->value.string.bytes,
+            value, 
+            &(key->value.string.state)
+        );
     }
 
     gc_unregister_root(vm->gc, (void **)&value);
@@ -47,7 +52,7 @@ void op_read(vm_internal_type *vm) {
     /* search all environments and parents for
        key */
     env = vm->env;
-    while (env && !(found = hash_get(env->bindings, key->value.string.bytes, (void **)&value))) {
+    while (env && !(found = hash_get_stateful(env->bindings, key->value.string.bytes, (void **)&value, &(key->value.string.state)))) {
         env = env->parent;
     }
 
@@ -88,11 +93,11 @@ void op_set(vm_internal_type *vm) {
     env = vm->env;
     while (env && !done) {
         /* did we find a binding for the symbol? */
-        if (hash_get(env->bindings, key->value.string.bytes, 0)) {
+        if (hash_get_stateful(env->bindings, key->value.string.bytes, 0, &(key->value.string.state))) {
             done = 1;
 
             /* save the value */
-            hash_set(env->bindings, key->value.string.bytes, value);
+            hash_set_stateful(env->bindings, key->value.string.bytes, value, &(key->value.string.state));
         }
         env = env->parent;
     }

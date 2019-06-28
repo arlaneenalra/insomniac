@@ -1,11 +1,7 @@
 #ifndef _CELL_
 #define _CELL_
 
-#include <inttypes.h>
-#include <stdbool.h>
-
-typedef int64_t vm_int;
-typedef uint32_t vm_char;
+#include "types.h"
 
 typedef struct object object_type;
 
@@ -41,6 +37,7 @@ typedef struct pair {
 typedef struct string {
     vm_int length;
     char *bytes;
+    hash_state_type state;
 } string_type;
 
 /* type to store a byte vector */

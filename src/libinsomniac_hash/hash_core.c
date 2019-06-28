@@ -52,13 +52,27 @@ void hash_cow(gc_type *gc, hashtable_type *src, hashtable_type **ret) {
 }
 
 /* add a value to the hash */
-void hash_set(hashtable_type *void_table, void *key, void *value) {
+void hash_set_stateful(hashtable_type *void_table, void *key, void *value, hash_state_type *hash) {
+    key_value_type kv_in = {0, 0};
     key_value_type *kv = 0;
 
     hash_internal_type *table = (hash_internal_type *)void_table;
     size_t new_size = 0;
 
-    kv = hash_find(table, key, CREATE);
+    kv_in.key = key;
+
+    /* Allow external caching of the hash value for faster lookups. */
+    if (hash && hash->set) {
+        kv_in.hash = hash->hash;
+    } else {
+        kv_in.hash = (*table->calc_hash)(key);
+        if (hash) {
+            hash->hash = kv_in.hash;
+            hash->set = true;
+        }
+    }
+
+    kv = hash_find_kv(table, &kv_in, CREATE);
     kv->value = value;
 
     /* check to see if we need to resize hash */
@@ -76,11 +90,25 @@ void hash_erase(hashtable_type *void_table, void *key) {
 }
 
 /* retrieve the value bound to a key in the table */
-uint8_t hash_get(hashtable_type *void_table, void *key, void **value) {
+uint8_t hash_get_stateful(hashtable_type *void_table, void *key, void **value, hash_state_type *hash) {
+    key_value_type kv_in;
     key_value_type *kv = 0;
     hash_internal_type *table = (hash_internal_type *)void_table;
 
-    kv = hash_find(table, key, READ);
+    kv_in.key = key;
+
+    /* Allow external caching of the hash value for faster lookups. */
+    if (hash && hash->set) {
+        kv_in.hash = hash->hash;
+    } else {
+        kv_in.hash = (*table->calc_hash)(key);
+        if (hash) {
+            hash->hash = kv_in.hash;
+            hash->set = true;
+        }
+    }
+
+    kv = hash_find_kv(table, &kv_in, READ);
 
     /* does the given key exist in the table ?*/
     if (!kv) {

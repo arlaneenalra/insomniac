@@ -2,6 +2,7 @@
 #define _VM_
 
 #include "gc.h"
+#include "cell.h"
 
 typedef void vm_type;
 typedef struct debug_range debug_range_type; 

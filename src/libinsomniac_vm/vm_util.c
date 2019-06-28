@@ -64,11 +64,21 @@ void parse_string(vm_internal_type *vm, object_type **obj) {
 /* Either make the given object into a symbol or replace
    it with the symbol version. */
 void make_symbol(vm_internal_type *vm, object_type **obj) {
-    if (!hash_get(vm->symbol_table, (*obj)->value.string.bytes, (void **)obj)) {
+    object_type *obj_target = *obj;
 
-        (*obj)->type = SYMBOL;
+    if (!hash_get_stateful(
+        vm->symbol_table,
+        obj_target->value.string.bytes,
+        (void **)obj,
+        &(obj_target->value.string.state))) {
 
-        hash_set(vm->symbol_table, (*obj)->value.string.bytes, (*obj));
+        obj_target->type = SYMBOL;
+
+        hash_set_stateful(
+            vm->symbol_table,
+            obj_target->value.string.bytes, 
+            obj_target,
+            &(obj_target->value.string.state));
     }
 }
 

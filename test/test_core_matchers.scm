@@ -176,3 +176,20 @@
         str-ABC)
     (string->list "ABC"))
 
+(define opt-A-B
+    (chain-rule
+        (?-rule (char-rule #\A))
+        (char-rule #\B)))
+
+(expect "verify that ?-rule can match"
+    (call-with-stream "ABC" opt-A-B)
+    (string->list "AB"))
+
+(expect "verify that ?-rule can match"
+    (call-with-stream "BC" opt-A-B)
+    (string->list "B"))
+
+(expect "verify that ?-rule can not match"
+    (call-with-stream "AABC" opt-A-B)
+    #f) 
+

@@ -116,6 +116,7 @@
 (define <hex-digit>
     (or-rule
         (range-rule #\a #\f)
+        (range-rule #\A #\F)
         <digit>))
 
 (define <hex-scalar-value> (+-rule <hex-digit>))
@@ -275,6 +276,125 @@
         (*-rule <string-element>)
         (char-rule #\")))
 
+
+;;
+;; Numbers
+;;
+
+(define <plus-minus> (set-rule "+-"))
+(define <sign> (?-rule <plus-minus>))
+
+(define <exponent-marker> (set-rule "eE"))
+(define <exactness>
+    (?-rule
+        (chain-rule
+            (char-rule #\#)
+            (set-rule "iIeE"))))
+
+(define <radix-2>
+    (chain-rule
+        (char-rule #\#)
+        (set-rule "bB")))
+        
+(define <radix-8>
+    (chain-rule
+        (char-rule #\#)
+        (set-rule "oO")))
+
+(define <radix-10>
+    (?-rule
+        (chain-rule
+            (char-rule #\#)
+            (set-rule "dD"))))
+
+(define <radix-16>
+    (chain-rule
+        (char-rule #\#)
+        (set-rule "xX")))
+
+(define <digit-2> (set-rule "01"))
+(define <digit-8> (range-rule #\0 #\7))
+(define <digit-10> <digit>)
+(define <digit-16> <hex-digit>)
+
+(define <suffix>
+    (?-rule
+        (chain-rule
+            <exponent-marker>
+            <sign>
+            (+-rule <digit-10>))))
+
+(define <infnan>
+    (chain-rule
+        <sign>
+        (or-rule
+            (chain-rule
+                (set-rule "iI")
+                (set-rule "nN")
+                (set-rule "fF"))
+            (chain-rule
+                (set-rule "nN")
+                (set-rule "aA")
+                (set-rule "nN")))
+        (str-rule ".0")))
+
+(define <i> (set-rule "iI"))
+
+;; Numbers are complex on their own.
+(define (make-numbers has-decimal digit> <radix>)
+    (define <radix-exactness>
+        (or-rule <radix> <exactness>))
+
+    (define <prefix>
+        (chain-rule <radix-exactness> <radix-exactness>))
+
+    (define <uinteger> (+-rule <digit>))
+   
+    (define <decimal>
+        (if has-decimal
+            (or-rule
+                (chain-rule <uinteger> <suffix>)
+                (chain-rule <dot> (+-rule <digit>) <suffix>)
+                (chain-rule (+-rule <digit>) <dot> (*-rule <digit>) <suffix>))
+
+            ;; This radix does not have decimals 
+            (lambda (stream) #f))) 
+
+    (define <ureal>
+        (or-rule
+            (chain-rule <uinteger> (char-rule #\/) <uinteger>)
+            <uinteger>
+            <decimal>))
+
+    (define <real>
+        (or-rule
+            (chain-rule <sign> <ureal>)
+            <infnan>))
+
+    (define <complex>
+        (or-rule
+            <real>
+            (chain-rule <real> (char-rule #\@) <real>)
+            (chain-rule <real> <plus-minus> <ureal> <i>)
+            (chain-rule <real> <plus-minus> <i>)
+            (chain-rule <real> <infnan> <i>) 
+            (chain-rule <plus-minus> <ureal> <i>)
+            (chain-rule <infnan> <i>)
+            (chain-rule <plus-minus> <i>)))
+
+    (define <num>
+        (chain-rule <prefix> <complex>))
+
+    <num>)
+
+(define <num-2> (make-numbers #f <digit-2> <radix-2>))
+(define <num-8> (make-numbers #f <digit-8> <radix-8>))
+(define <num-10> (make-numbers #t <digit-10> <radix-10>))
+(define <num-16> (make-numbers #f <digit-16> <radix-16>))
+
+(define <number>
+    (or-rule <num-2> <num-8> <num-10> <num-16>))
+
 ;; Define the top level lexer
 (define scheme-lexer
     (make-lexer
@@ -283,6 +403,8 @@
 
         (bind-token '*boolean-true* <boolean-true>)
         (bind-token '*boolean-false* <boolean-false>)
+        
+        (bind-token '*number* <number>)
 
         (bind-token '*character* <character>)
         (bind-token '*string* <string>)

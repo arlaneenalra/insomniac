@@ -69,3 +69,35 @@
         <identifier>)
     (string->list "|a\x0ac|"))
 
+(expect "Verify that a base 2 raidx is matchable"
+    (call-with-stream "#b100" <radix-2>)
+    (string->list "#b"))
+
+(expect "Verify that a base 10 raidx is matchable"
+    (call-with-stream "100" <radix-10>)
+    '())
+
+(expect "Verify that an explicit base 10 raidx is matchable"
+    (call-with-stream "#d100" <radix-10>)
+    (string->list "#d"))
+
+(expect "Verify that an explicit base 10 raidx is matchable"
+    (call-with-stream "100" (or-rule <radix-10> <exactness>))
+    '())
+
+(expect "Verify that a base ten number matches"
+    (call-with-stream "1234567890" <num-10>) 
+    (string->list "1234567890"))
+
+(expect "Verify that a base ten number matches"
+    (call-with-stream "#i#d1234567890" <num-10>) 
+    (string->list "#i#d1234567890"))
+
+(expect "Verify that a base ten number matches"
+    (call-with-stream "#d#i1234567890" <num-10>) 
+    (string->list "#d#i1234567890"))
+
+(expect "Verify that a base ten fraction matches"
+    (call-with-stream "12345/67890" <num-10>) 
+    (string->list "12345/67890"))
+

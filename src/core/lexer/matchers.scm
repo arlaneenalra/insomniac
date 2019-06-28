@@ -68,9 +68,20 @@
                 (begin
                     (define rule (car rule-list))
                     (define ch (rule stream))
-                    (if ch
-                        ch
-                        (walker (cdr rule-list))))))
+                    
+                    (cond
+                        ;; The or rule should see if there are real matches
+                        ;; if it finds an empty match.
+                        ((null? ch)
+                            (let*
+                                ((try (walker (cdr rule-list))))
+                                (if (eq? try #f)
+                                    ch
+                                    try)))
+                        (ch ch)
+                        (else
+                            (walker (cdr rule-list)))))))
+
         (walker rule-list)))
 
 ;; Given a rule attempt to match it and keep building a result
@@ -91,6 +102,14 @@
     (chain-rule
         rule
         (*-rule rule)))
+
+;; Wraps a rule allowing it to optionally match
+(define (?-rule rule)
+    (lambda (stream)
+        (define ch (rule stream))
+        (if ch 
+            ch
+            '())))
 
 ;; Wraps a rule and only matches a stream element
 ;; when the wrapped rule does not match.

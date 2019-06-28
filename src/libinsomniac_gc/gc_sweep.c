@@ -111,6 +111,8 @@ void sweep_list(gc_ms_type *gc, mark_type mark) {
         return;
     }
 
+    gc->sweeps++;
+
     while (active) {
         meta_obj_type *next = active->next;
 
@@ -132,6 +134,8 @@ void sweep_list(gc_ms_type *gc, mark_type mark) {
                 active->mark = DEAD; /* mark as dead */
                 dead = active;
             } else {
+                /* Add ram back. */
+                gc->free += active->size;
 
                 /* Free things that are not cell sized */
                 FREE(active);

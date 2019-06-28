@@ -16,6 +16,9 @@ gc_type *gc_create(size_t cell_size) {
     gc->type_defs = 0;
     gc->num_types = 0;
 
+    /* Setup sweeping rules */
+    gc->free = GC_INITIAL_FREE;
+
     /* register the ARRAY type as type 0 */
     gc->array_type = gc_register_type(gc, sizeof(void *));
     gc_register_array(gc, gc->array_type, 0);
@@ -183,8 +186,8 @@ void gc_stats(gc_type *gc_void) {
 
     printf(
         "GC statistics active:%" PRIi64 " dead:%" PRIi64 " perm:%" PRIi64
-        " Allocations : %" PRIi64 "\n",
-        active, dead, perm, gc->allocations);
+        " Allocations : %" PRIi64 " Sweeps: %" PRIi64 " Free: %" PRIi64 "\n",
+        active, dead, perm, gc->allocations, gc->sweeps, gc->free);
 }
 
 /* initiate a sweep of objects in the active list */

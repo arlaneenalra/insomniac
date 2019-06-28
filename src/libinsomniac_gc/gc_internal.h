@@ -10,6 +10,10 @@
 
 #include <gc.h>
 
+/* Tuning parameters for the GC */
+#define GC_INITIAL_FREE 0x10000000
+#define GC_GROW_THRESHOLD (GC_INITIAL_FREE / 2)
+
 /* An internal GC structure to represent an allocated object */
 typedef struct meta_obj meta_obj_type;
 typedef struct meta_root meta_root_type;
@@ -79,6 +83,8 @@ typedef struct gc_ms {
     vm_int protect_count;
 
     vm_int allocations; /* Total number of active allocations */
+    vm_int free; /* Tracking when to do a GC run */
+    vm_int sweeps; /* Count of the number of sweeps since app start. */
 
     mark_type current_mark;
 

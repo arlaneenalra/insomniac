@@ -112,8 +112,8 @@ void sweep_list(gc_ms_type *gc, mark_type mark);
 void sweep(gc_ms_type *gc);
 
 /* used to convert between objects and meta objects */
-meta_obj_type *meta_from_obj(void *obj);
-void *obj_from_meta(meta_obj_type *meta);
+#define meta_from_obj(obj_ptr) (!obj_ptr ? 0 : (meta_obj_type *)(((uint8_t *)obj_ptr) - offsetof(meta_obj_type, obj)))
+#define obj_from_meta(meta) (!meta ? 0 : &(meta->obj));
 
 void *gc_malloc(gc_ms_type *gc, size_t size);
 void gc_free(gc_ms_type *gc, void *obj);

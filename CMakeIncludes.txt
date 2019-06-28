@@ -1,7 +1,7 @@
 
 if(${CMAKE_C_COMPILER_ID} MATCHES "Clang")
-  set(CMAKE_C_FLAGS "-Wall -g -std=c99 -pedantic -DDEBUG -Wno-gnu-statement-expression")
-  set(CMAKE_SHARED_LINKER_FLAGS " -undefined dynamic_lookup -flat_namespace")
+  set(CMAKE_C_FLAGS "-Wall -g -std=c99 -pedantic -DDEBUG -Wno-gnu-statement-expression -fprofile-instr-generate -fcoverage-mapping")
+  set(CMAKE_SHARED_LINKER_FLAGS " -undefined dynamic_lookup -flat_namespace -fprofile-instr-generate")
 else()
   set(CMAKE_C_FLAGS "-Wall -gdwarf-2 -O3 -std=gnu99 -pedantic -DDEBUG -lm -D_GNU_SOURCE")
 endif()

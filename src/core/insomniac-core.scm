@@ -41,6 +41,7 @@
     (define token (lexer stream))
 
     (display token) (newline)
+;;    (gc-stats)
 
     (if (not (eq? (token-type token) '*EOF*))
         (token-walker lexer stream)))

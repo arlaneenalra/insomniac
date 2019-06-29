@@ -10,6 +10,9 @@
 ;; Define scheme matching rules
 ;;
 
+(define <open-paren> (char-rule #\())
+(define <close-paren> (char-rule #\)))
+
 (define <intraline-whitespace>
     (or-rule
         (char-rule #\x20)
@@ -406,20 +409,41 @@
 (define <number>
     (or-rule <num-10> <num-2> <num-8> <num-16>))
 
+;;
+;; Byvectors
+;; 
+(define <bytevector-start> (str-rule "#u8("))
+
+;(define <bytevector>
+;    (chain-rule <whitespace>
+;        <bytevector-start>
+;        (*-rule <byte>)
+;        <close-paren>)) 
+  
 ;; Define the top level lexer
 (define scheme-lexer
-    (make-lexer
-        (bind-token '*comment* <comment>)
-        (bind-token '*identifier* <identifier>)
+    (filter-token-stream
+        (make-lexer
+            (bind-token '*comment* <comment>)
+            (bind-token '*identifier* <identifier>)
 
-        (bind-token '*boolean-true* <boolean-true>)
-        (bind-token '*boolean-false* <boolean-false>)
-        
-        (bind-token '*number* <number>)
+            (bind-token '*boolean-true* <boolean-true>)
+            (bind-token '*boolean-false* <boolean-false>)
+            
+            (bind-token '*number* <number>)
 
-        (bind-token '*character* <character>)
-        (bind-token '*string* <string>)
+            (bind-token '*open-paren* <open-paren>)
+            (bind-token '*close-paren* <close-paren>)
 
-        (bind-token '*white-space* <whitespace>)))
+            (bind-token '*bytevector-start* <bytevector-start>)
+
+            (bind-token '*character* <character>)
+            (bind-token '*string* <string>)
+
+            (bind-token '*white-space* <whitespace>))
+
+        (lambda (token)
+            (eq? (token-type token) '*white-space*))))
+                
 
 

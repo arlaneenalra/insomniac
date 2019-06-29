@@ -21,6 +21,7 @@
                     (list->string (flatten match))))
             #f)))
 
+
 ;; Creates a very simple lexer with default handling for EOF
 ;; and unmatched tokens
 (define (make-lexer . rule-list)
@@ -30,3 +31,13 @@
         (bind-token '*EOF* eof-rule)
         (bind-token '*UNMATCHED* any-rule)))
 
+;; A simple filtering wrapper arond a token stream.
+;; if the rule returns true, the token is dropped.
+(define (filter-token-stream lexer rule)
+    (define (filter stream)
+        (define token (lexer stream))
+
+        (if (rule token)
+            (filter stream)
+            token))
+    filter)

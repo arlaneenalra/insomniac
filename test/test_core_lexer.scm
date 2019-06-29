@@ -105,3 +105,20 @@
     (call-with-stream "-10+50i" <num-10>) 
     (string->list "-10+50i"))
 
+(expect "Verify a bytevector"
+    (call-with-stream "#u8( 1 30 45)" 
+        (lambda (stream)
+            (reverse 
+                (list 
+                    (scheme-lexer stream)
+                    (scheme-lexer stream)
+                    (scheme-lexer stream)
+                    (scheme-lexer stream)
+                    (scheme-lexer stream)))))
+    (list
+        (token '*bytevector-start* "#u8(")
+        (token '*number* "1")
+        (token '*number* "30")
+        (token '*number* "45")
+        (token '*close-paren* ")"))) 
+

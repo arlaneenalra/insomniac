@@ -39,4 +39,11 @@
                     c))))
     next-char) 
 
+(define (stream-all stream)
+    (define (walker ls)
+        (define ch (stream))
+        (if (eof-object? ch)
+            ls
+            (walker (cons ch ls))))
+    (walker '() stream))
 

@@ -55,7 +55,7 @@ void output_record(FILE *fout, object_type *vector) {
 
     /* walk all the objects in this vector and
        output them */
-    fprintf(fout, "<RECORD ");
+    fprintf(fout, "<RECORD (%" PRIi64 ") ", vector->value.vector.length);
 
     for (index = 0; index < vector->value.vector.length; index++) {
         if (index > 0) {

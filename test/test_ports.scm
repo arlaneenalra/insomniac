@@ -2,7 +2,7 @@
 ;;; Some very crude port tests
 ;;;
 
-(include "expect.scm")
+(include "../src/lib/test/expect.scm")
 
 (define test-file "test.file")
 
@@ -108,4 +108,78 @@
 (expect "Verify that the text port is closed"
 	(lambda () (input-port-open? in-port))
 	#f)
+
+;; Binary memory ports
+(define memory-input-port
+    (open-input-bytevector (bytevector 0 1 2 3 4 5)))
+
+(expect "Verify that the bytevector input port is binary"
+    (lambda ()
+        (binary-port? memory-input-port))
+    #t)
+
+(expect "Read from the bytevector input port"
+    (lambda ()
+        (list
+            (read-bytevector 2 memory-input-port)
+            (read-bytevector 2 memory-input-port)
+            (read-bytevector 2 memory-input-port)
+            (read-bytevector 2 memory-input-port)))
+    (list
+        (eof-object)
+        (bytevector 4 5)
+        (bytevector 2 3)
+        (bytevector 0 1)))
+
+(expect "Write to a bytevector output port"
+    (lambda ()
+        (define out-port (open-output-bytevector))
+       
+        (list
+            (get-output-bytevector out-port)
+            (write-bytevector (bytevector 2 3) out-port)
+            (write-bytevector (bytevector 1 2 3) out-port)))
+    (list 
+        (bytevector 1 2 3 2 3)
+        2  
+        3)) 
+
+(define string-input-port
+    (open-input-string "testing"))
+
+(expect "Verify that the string input port is textual"
+    (lambda ()
+        (textual-port? string-input-port))
+    #t)
+
+(expect "Read from the string input port"
+    (lambda ()
+        (list
+            (read-string 4 string-input-port)
+            (read-string 4 string-input-port)
+            (read-string 4 string-input-port)))
+    (list
+        (eof-object)
+        "ing"
+        "test"))
+
+(expect "Write to a string ouput port"
+    (lambda ()
+        (define string-output-port (open-output-string))
+
+        (list
+            (get-output-string string-output-port)
+            (write-string "ing" string-output-port)
+            (write-string "test" string-output-port)))
+    (list
+        "testing"
+        3
+        4))
+
+(expect "Verify that input strings actually return the correct value when read."
+    (call-with-input "A"
+        (lambda ()
+            (define res (read-string 4))
+            (string->u8 res)))
+    (bytevector 65))
 

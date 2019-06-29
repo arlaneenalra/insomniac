@@ -2,7 +2,7 @@
 ;;; Tests for basic boolean operations
 ;;;
 
-(include "expect.scm")
+(include "../src/lib/test/expect.scm")
 
 (display "Testing not:")
 (newline)

@@ -42,6 +42,8 @@ meta_obj_type *internal_alloc(gc_ms_type *gc, uint8_t perm, size_t size) {
     /* adjust the requested size with
        the size of our meta object */
     real_size = sizeof(meta_obj_type) + size;
+        
+    gc->free -= real_size;
 
     /* only attempt reuse on cell sized objects */
     if (size == gc->cell_size) {
@@ -100,6 +102,7 @@ void *gc_malloc(gc_ms_type *gc, size_t size) {
     /* if we have a gc, use size_granularity */
     if (gc) {
         real_size += gc->size_granularity - (real_size % gc->size_granularity);
+        
         gc->allocations++;
     }
 
@@ -111,6 +114,7 @@ void gc_free(gc_ms_type *gc, void *obj) {
     if (gc) {
         gc->allocations--;
     }
+
     free(obj);
 }
 
@@ -128,7 +132,7 @@ void pre_alloc(gc_ms_type *gc) {
 
     gc_protect(gc);
 
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 30000; i++) {
         gc_alloc(gc, 0, gc->cell_size, (void **)&obj);
     }
 

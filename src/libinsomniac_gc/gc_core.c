@@ -16,6 +16,9 @@ gc_type *gc_create(size_t cell_size) {
     gc->type_defs = 0;
     gc->num_types = 0;
 
+    /* Setup sweeping rules */
+    gc->free = GC_INITIAL_FREE;
+
     /* register the ARRAY type as type 0 */
     gc->array_type = gc_register_type(gc, sizeof(void *));
     gc_register_array(gc, gc->array_type, 0);
@@ -25,6 +28,8 @@ gc_type *gc_create(size_t cell_size) {
 
 /* deallocate a GC instance */
 void gc_destroy(gc_type *gc_void) {
+    meta_root_type *root = 0;
+
     if (gc_void) {
         /* cast back to our internal type */
         gc_ms_type *gc = (gc_ms_type *)gc_void;
@@ -34,6 +39,22 @@ void gc_destroy(gc_type *gc_void) {
         destroy_list(gc, &(gc->perm_list));
 
         destroy_types(gc, gc->type_defs, gc->num_types);
+
+        /* Destroy roots */
+        root = gc->pruned_root_list;
+        while(root) {
+            meta_root_type *next = root->next;
+            FREE(root);
+            root = next;
+        }
+
+        root = gc->root_list;
+        while(root) {
+            meta_root_type *next = root->next;
+            FREE(root);
+            root = next;
+        }
+
 
         FREE(gc);
     }
@@ -53,15 +74,20 @@ void gc_unprotect(gc_type *gc_void) {
     /* make sure we have paired protects */
     assert(gc->protect_count >= 0);
 
-    if (!gc->protect_count && !gc->dead_list) {
-        sweep(gc);
-    }
+    sweep(gc);
 }
 
 /* register a root pointer */
 void gc_register_root(gc_type *gc_void, void **root) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
-    meta_root_type *meta = MALLOC_TYPE(meta_root_type);
+    meta_root_type *meta = 0;
+
+    if (gc->pruned_root_list) {
+        meta = gc->pruned_root_list;
+        gc->pruned_root_list = meta->next;
+    } else {
+        meta = MALLOC_TYPE(meta_root_type);
+    }
 
     meta->root = root;
     meta->next = gc->root_list;
@@ -92,8 +118,9 @@ void gc_unregister_root(gc_type *gc_void, void **root) {
         gc->root_list = meta->next;
     }
 
-    /* this is really inefficient */
-    FREE(meta);
+    /* Save the meta object for later reuse. */
+    meta->next = gc->pruned_root_list;
+    gc->pruned_root_list = meta;
 }
 
 /* allocate a blob and attach it to the gc */
@@ -183,8 +210,8 @@ void gc_stats(gc_type *gc_void) {
 
     printf(
         "GC statistics active:%" PRIi64 " dead:%" PRIi64 " perm:%" PRIi64
-        " Allocations : %" PRIi64 "\n",
-        active, dead, perm, gc->allocations);
+        " Allocations : %" PRIi64 " Sweeps: %" PRIi64 " Free: %" PRIi64 "\n",
+        active, dead, perm, gc->allocations, gc->sweeps, gc->free);
 }
 
 /* initiate a sweep of objects in the active list */

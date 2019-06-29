@@ -78,7 +78,7 @@
 (-)      floor-remainder
 (-)      flush-output-port
 (-)      gcd
-(-)      get-output-string
+(x)      get-output-string
 (x)      if
 (-)      include-ci
 (-)      inexact?
@@ -137,7 +137,7 @@
 (-)      floor-quotient
 (-)      floor/
 (-)      for-each
-(-)      get-output-bytevector
+(x)      get-output-bytevector
 (-)      guard
 (x)      include
 (-)      inexact
@@ -163,8 +163,8 @@
 (x)      null?
 (-)      number?
 (-)      odd?
-(-)      open-input-string
-(-)      open-output-string
+(x)      open-input-string
+(x)      open-output-string
 (x)      output-port-open?
 (x)      pair?
 (-)      peek-char

@@ -36,6 +36,9 @@ void op_vector_length(vm_internal_type *vm);
 void op_slice(vm_internal_type *vm);
 void op_string_byte_vector(vm_internal_type *vm);
 void op_byte_vector_string(vm_internal_type *vm);
+void op_int_to_char(vm_internal_type *vm);
+void op_char_to_int(vm_internal_type *vm);
+
 
 /* list operations */
 void op_cons(vm_internal_type *vm);
@@ -65,6 +68,7 @@ void op_tail_call_in(vm_internal_type *vm);
 /* exception handling instructions, in with jump code */
 void op_continue(vm_internal_type *vm);
 void op_restore(vm_internal_type *vm);
+void op_throw(vm_internal_type *vm);
 
 /* some simple io instructions, these will need to be rethought */
 void op_output(vm_internal_type *vm);

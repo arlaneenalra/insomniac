@@ -2,7 +2,7 @@
 ;;; Tests for the equivalence procedures
 ;;;
 
-(include "expect.scm")
+(include "../src/lib/test/expect.scm")
 
 ;; Test Cases
 (define (equal-suite name predicate)

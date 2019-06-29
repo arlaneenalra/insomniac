@@ -2,7 +2,7 @@
 ;;; Some simple call/cc tests.
 ;;;
 
-(include "expect.scm")
+(include "../src/lib/test/expect.scm")
 
 (expect "Check that the simplest call/cc works"
     (lambda ()
@@ -96,4 +96,5 @@
 
         '(conn2 connect talk1 disconnect disconn2
             conn2 connect talk2 disconnect disconn2))
+
 

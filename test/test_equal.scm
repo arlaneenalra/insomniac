@@ -2,7 +2,7 @@
 ;;; Tests for the equivalence procedures
 ;;;
 
-(include "expect.scm")
+(include "../src/lib/test/expect.scm")
 
 (define a '(1 2 3 4))
 (define b '(1 2 3 4))
@@ -20,6 +20,15 @@
 (define ABC (cons a (cons b (cons c '()))))
 (define acb (cons a (cons c (cons b '()))))
 
+(define-record-type <rec>
+    (record f1)
+    rec?
+    (f1 ref-f1))
+
+(define rec-a (record #\A))
+(define rec-b (record #\A))
+(define rec-c (record #\B))
+
 ;; Construct a cycle
 (define (make-cycle-cdr)
   (define cycle (cons 1 (cons 2 (cons 3 (cons 4 (cons 5 '()))))))
@@ -32,7 +41,6 @@
   (define cycle-tail (car (car (car (car cycle)))))
   (set-car! cycle-tail cycle)
   cycle)
-
 
 (define cycle-a (make-cycle-cdr))
 (define cycle-b (make-cycle-cdr))
@@ -139,4 +147,19 @@
 
 (expect-false "Different Vectors, transitive"
               (lambda () (equal? vec-a vec-c)))
+
+(expect-true "Same Records"
+             (lambda () (equal? rec-a rec-a)))
+
+(expect-true "Equivalent Records"
+             (lambda () (equal? rec-a rec-b)))
+
+(expect-true "Equivalent Records, transitive"
+             (lambda () (equal? rec-b rec-a)))
+
+(expect-false "Different Records"
+              (lambda () (equal? rec-c rec-a)))
+
+(expect-false "Different Records, transitive"
+              (lambda () (equal? rec-a rec-c)))
 

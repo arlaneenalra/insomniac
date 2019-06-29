@@ -30,18 +30,27 @@ void cons(vm_type *vm_void, object_type *car, object_type *cdr, object_type **pa
 /* parse an integer in byte code form */
 vm_int parse_int(vm_internal_type *vm) {
     vm_int num = 0;
-    uint8_t byte = 0;
+    uint8_t *byte = &(vm->env->code_ref[vm->env->ip + 7]);
 
-    /* ip should be pointed at the instructions argument */
-    for (int i = 7; i >= 0; i--) {
-        byte = vm->env->code_ref[vm->env->ip + i];
-
-        num = num << 8;
-        num = num | byte;
-    }
+    num = (num << 8 ) | *byte;
+    byte--;
+    num = (num << 8 ) | *byte;
+    byte--;
+    num = (num << 8 ) | *byte;
+    byte--;
+    num = (num << 8 ) | *byte;
+    byte--;
+    num = (num << 8 ) | *byte;
+    byte--;
+    num = (num << 8 ) | *byte;
+    byte--;
+    num = (num << 8 ) | *byte;
+    byte--;
+    num = (num << 8 ) | *byte;
 
     /* increment the ip field */
     vm->env->ip += 8;
+
     return num;
 }
 
@@ -64,11 +73,21 @@ void parse_string(vm_internal_type *vm, object_type **obj) {
 /* Either make the given object into a symbol or replace
    it with the symbol version. */
 void make_symbol(vm_internal_type *vm, object_type **obj) {
-    if (!hash_get(vm->symbol_table, (*obj)->value.string.bytes, (void **)obj)) {
+    object_type *obj_target = *obj;
 
-        (*obj)->type = SYMBOL;
+    if (!hash_get_stateful(
+        vm->symbol_table,
+        obj_target->value.string.bytes,
+        (void **)obj,
+        &(obj_target->value.string.state))) {
 
-        hash_set(vm->symbol_table, (*obj)->value.string.bytes, (*obj));
+        obj_target->type = SYMBOL;
+
+        hash_set_stateful(
+            vm->symbol_table,
+            obj_target->value.string.bytes, 
+            obj_target,
+            &(obj_target->value.string.state));
     }
 }
 

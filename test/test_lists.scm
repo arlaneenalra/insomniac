@@ -2,7 +2,7 @@
 ;;; Test basic list and pair functions
 ;;;
 
-(include "expect.scm")
+(include "../src/lib/test/expect.scm")
 
 ;; Testing pair?
 (next-suite "pair? tests")
@@ -128,3 +128,22 @@
         (append '() 'a))
     'a)
 
+(expect "Verify that flatten works right"
+    (lambda ()
+        (flatten
+            (list 1 2 3 
+                (list 4 5 6 
+                    (list 7 8 9)
+                    '(10 . 11))
+                12 13 14)))
+    (list 1 2 3 4 5 6 7 8 9 10 11 12 13 14)) 
+
+(expect "Verify that flatten returns a list when given a non-list"
+    (lambda ()
+        (flatten #\A))
+    (list #\A))
+
+(expect "Verify handling of empty lists"
+    (lambda ()
+        (flatten (list (list #\A '() #\B))))
+    (list #\A #\B))

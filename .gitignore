@@ -24,3 +24,4 @@ runme
 scheme.o
 scheme.s
 c-boot
+*.profraw

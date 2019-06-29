@@ -1,6 +1,6 @@
 #include "vm_instructions_internal.h"
 
-/* jump if the top of stack is not false */
+/* Jump if the top of stack is not false. */
 void op_jnf(vm_internal_type *vm) {
     object_type *obj = 0;
     vm_int target = parse_int(vm);
@@ -12,34 +12,34 @@ void op_jnf(vm_internal_type *vm) {
     }
 }
 
-/* straight jump */
+/* Straight jump. */
 void op_jmp(vm_internal_type *vm) {
     vm_int target = parse_int(vm);
 
     vm->env->ip += target;
 }
 
-/* create a procedure reference based on the current address
- and jump to target */
+/* Create a procedure reference based on the current address
+ and jump to target. */
 void op_call(vm_internal_type *vm) {
     object_type *closure = 0;
     vm_int target = parse_int(vm); /* get target address */
 
-    /* allocate a new closure */
+    /* Allocate a new closure. */
     vm->reg1 = closure = vm_alloc(vm, CLOSURE);
 
-    /* save our current environment */
+    /* Save our current environment. */
     closure->value.closure = vm->env;
     vm_push(vm, closure);
 
-    push_env(vm); /* create a child of the current env */
+    push_env(vm); /* Create a child of the current env. */
 
-    /* Do the jump */
+    /* Do the jump. */
     vm->env->ip += target;
 }
 
 /* Rebind the parent of a proc to change the symbol look up
- environment */
+ environment. */
 void op_adopt(vm_internal_type *vm) {
     object_type *child = 0;
     object_type *parent = 0;
@@ -75,22 +75,22 @@ void op_adopt(vm_internal_type *vm) {
     gc_unregister_root(vm->gc, (void **)&env);
 }
 
-/* create a procedure reference based on target and leave it
- on the stack*/
+/* Create a procedure reference based on target and leave it
+ on the stack. */
 void op_proc(vm_internal_type *vm) {
     object_type *closure = 0;
-    vm_int target = parse_int(vm); /* get target address */
+    vm_int target = parse_int(vm); /* Get target address. */
     env_type *env = 0;
 
     gc_register_root(vm->gc, (void **)&env);
 
-    /* allocate a new closure */
+    /* Allocate a new closure. */
     vm->reg1 = closure = vm_alloc(vm, CLOSURE);
 
-    /* save our current environment */
+    /* Save our current environment. */
     clone_env(vm, &env, vm->env, false);
 
-    /* update the ip */
+    /* Update the ip. */
     env->ip += target;
 
     closure->value.closure = env;
@@ -100,7 +100,7 @@ void op_proc(vm_internal_type *vm) {
     gc_unregister_root(vm->gc, (void **)&env);
 }
 
-/* jump indirect operation */
+/* Jump indirect operation. */
 void op_jin(vm_internal_type *vm) {
     object_type *closure = 0;
     env_type *env = 0;
@@ -114,13 +114,13 @@ void op_jin(vm_internal_type *vm) {
 
     } else {
 
-        /* save the current environment */
+        /* Save the current environment. */
         env = vm->env;
 
-        /* clone the closures environment */
+        /* Clone the closures environment. */
         clone_env(vm, &(vm->env), closure->value.closure, false);
 
-        /* preserve the old bindings and parent so
+        /* Preserve the old bindings and parent so
            we have a jump equivalent. */
         /* WARNING: This does break/lose the current
            exception handler . . .*/
@@ -131,7 +131,7 @@ void op_jin(vm_internal_type *vm) {
     gc_unregister_root(vm->gc, (void **)&env);
 }
 
-/* return operation */
+/* Return operation. */
 void op_ret(vm_internal_type *vm) {
     object_type *closure = 0;
 
@@ -142,12 +142,12 @@ void op_ret(vm_internal_type *vm) {
 
     } else {
 
-        /* clone the closures environment */
+        /* Clone the closures environment. */
         clone_env(vm, &(vm->env), closure->value.closure, false);
     }
 }
 
-/* call indirect operation */
+/* Call indirect operation. */
 void op_call_in(vm_internal_type *vm) {
     object_type *closure = 0;
     object_type *ret = 0;
@@ -158,22 +158,22 @@ void op_call_in(vm_internal_type *vm) {
         throw(vm, "Attempt to jump to non-closure", 1, closure);
 
     } else {
-        /* allocate a new closure */
+        /* Allocate a new closure. */
         vm->reg2 = ret = vm_alloc(vm, CLOSURE);
 
-        /* save our current environment */
+        /* Save our current environment. */
         ret->value.closure = vm->env;
         vm_push(vm, ret);
 
-        /* clone the closures environment */
+        /* Clone the closures environment. */
         clone_env(vm, &(vm->env), closure->value.closure, false);
 
-        /* create a child environment */
+        /* Create a child environment. */
         push_env(vm);
     }
 }
 
-/* tail call indirect operation */
+/* Tail call indirect operation. */
 void op_tail_call_in(vm_internal_type *vm) {
     object_type *closure = 0;
 
@@ -191,31 +191,44 @@ void op_tail_call_in(vm_internal_type *vm) {
         vm_push(vm, vm->reg2);
         vm_push(vm, vm->reg3);
 
-        /* clone the closures environment */
+        /* Clone the closures environment. */
         clone_env(vm, &(vm->env), closure->value.closure, false);
 
-        /* create a child environment */
+        /* Create a child environment. */
         push_env(vm);
     }
 }
 /* Exception Handling code */
 
-/* set the exception handler for the current
-   environment */
+/* Set the exception handler for the current
+   environment. */
 void op_continue(vm_internal_type *vm) {
     vm_int target = parse_int(vm);
 
-    /* we need an absolute address for the
+    /* We need an absolute address for the
        exception handler as we don't know
-       where it will be called from */
+       where it will be called from. */
 
     vm->env->handler = 1;
     vm->env->handler_addr = vm->env->ip + target;
 }
 
-/* set the exception handler for the current
-   environment */
+/* Set the exception handler for the current
+   environment. */
 void op_restore(vm_internal_type *vm) {
-    /* restore the current exception handler */
+    /* Restore the current exception handler. */
     vm->env->handler = 1;
 }
+
+/* Throw an exception. */
+void op_throw(vm_internal_type *vm) {
+    vm->reg1 = vm_pop(vm);
+    vm->reg2 = vm_pop(vm);
+    
+    if (vm->reg2->type != STRING) {
+        throw_fatal(vm, "Invalid exception message.", 2, vm->reg2, vm->reg1);
+    }
+
+    throw(vm, vm->reg2->value.string.bytes, 1, vm->reg1);
+}
+

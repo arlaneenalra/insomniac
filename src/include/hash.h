@@ -3,6 +3,8 @@
 
 #include "gc.h"
 
+#include <stdbool.h>
+
 typedef uint32_t hash_type;
 
 /* comparison type */
@@ -11,6 +13,11 @@ typedef enum { GT = 1, EQ = 0, LT = -1 } cmp_type;
 /* definition of a simple hash table api */
 typedef void hashtable_type;
 typedef void hash_iterator_type;
+
+typedef struct hash_state {
+    hash_type hash;
+    bool set;
+} hash_state_type;
 
 /* hash table entry */
 typedef struct hash_entry {
@@ -32,19 +39,27 @@ void hash_cow(gc_type *gc, hashtable_type *src, hashtable_type **ret);
 /* macro to make string hash tables easier to deal with */
 #define hash_create_string(gc, ret) hash_create(gc, &hash_string, &hash_string_cmp, ret)
 
+#define hash_prehash_string(str, state) \
+{                                       \
+    (state)->hash = hash_string(str);   \
+    (state)->set = true;                \
+}
+
 /* macro to make string hash tables easier to deal with */
 #define hash_create_pointer(gc, ret)                                                     \
     hash_create(gc, &hash_pointer, &hash_pointer_cmp, ret)
 
 /* bind a key and value in the given table */
-void hash_set(hashtable_type *hash, void *key, void *value);
+void hash_set_stateful(hashtable_type *hash, void *key, void *value, hash_state_type *hash_state);
+#define hash_set(hash, key, value) hash_set_stateful(hash, key, value, 0)
 
 /* remove a given key from the table */
 void hash_erase(hashtable_type *hash, void *key);
 
 /* returns true on the key being found in the given
    hash table */
-uint8_t hash_get(hashtable_type *hash, void *key, void **value);
+uint8_t hash_get_stateful(hashtable_type *hash, void *key, void **value, hash_state_type *hash_state);
+#define hash_get(hash, key, value) hash_get_stateful(hash, key, value, 0)
 
 void hash_info(hashtable_type *hash);
 

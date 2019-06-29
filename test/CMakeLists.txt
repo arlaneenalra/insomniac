@@ -16,10 +16,12 @@ target_link_libraries(test_hash
 
 add_test(TestHash ${CMAKE_CURRENT_BIN_DIR}/test_hash)
 
-# Add scheme sources as dependencies.
-include_directories(
-    ${PROJECT_SOURCE_DIR}/lib
-    ${PROJECT_SOURCE_DIR}/lib/ports)
+file(GLOB TEST_LEXER_SOURCES ${PROJECT_SOURCE_DIR}/src/core/lexer/*.scm)
+
+set(test_core_matchers_EXTRA ${TEST_LEXER_SOURCES})
+set(test_core_stream_EXTRA ${TEST_LEXER_SOURCES})
+set(test_core_token_EXTRA ${TEST_LEXER_SOURCES})
+set(test_core_lexer_EXTRA ${TEST_LEXER_SOURCES})
 
 # Setup and build scheme tests.
 file(GLOB SCM_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test_*.scm)
@@ -27,20 +29,9 @@ file(GLOB SCM_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test_*.scm)
 foreach(SCM_FILE ${SCM_SOURCES})
     string(REPLACE ".scm" "" testname ${SCM_FILE})
 
-    INSC_TARGET(TEST_SCM ${SCM_FILE} ${SCM_FILE}.s)
+    INSC_TARGET(TEST_SCM ${SCM_FILE} ${testname} ${${testname}_EXTRA})
 
-    add_executable(${testname}
-        ${INSC_TEST_SCM_OUTPUTS}
-        )
-
-    set_target_properties(${testname}
-        PROPERTIES LINKER_LANGUAGE C
-        )
-
-    target_link_libraries(${testname}
-        insomniac_runtime
-        )
-
-    add_test(Test_${testname} ${CMAKE_CURRENT_BIN_DIR}/${testname})
+    
+    add_test(Test_${testname} ${INSC_TEST_SCM_OUTPUT})
 endforeach()
 

@@ -124,7 +124,7 @@ uint8_t hash_get_stateful(hashtable_type *void_table, void *key, void **value, h
 }
 
 /* locate or create a key_value_object the given key */
-inline key_value_type *hash_find(hash_internal_type *table, void *key, hash_action_type action) {
+key_value_type *hash_find(hash_internal_type *table, void *key, hash_action_type action) {
     key_value_type kv;
 
     kv.key = key;
@@ -134,7 +134,7 @@ inline key_value_type *hash_find(hash_internal_type *table, void *key, hash_acti
 }
 
 /* locate or create a key_value_object the given key_value */
-inline key_value_type *hash_find_kv(hash_internal_type *table, key_value_type* kv_in, hash_action_type action) {
+key_value_type *hash_find_kv(hash_internal_type *table, key_value_type* kv_in, hash_action_type action) {
     void *key = kv_in->key;
     hash_type index = kv_in->hash % table->size;
     key_value_type *kv = 0;

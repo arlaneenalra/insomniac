@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 /* return the instruction/byte at the given address */
-inline uint8_t vm_peek(vm_internal_type *vm, vm_int offset) {
+uint8_t vm_peek(vm_internal_type *vm, vm_int offset) {
     vm_int addr = vm->env->ip + offset;
 
     if (addr > vm->env->length) {
@@ -18,7 +18,7 @@ inline uint8_t vm_peek(vm_internal_type *vm, vm_int offset) {
 }
 
 /* create a list of pairs */
-inline void cons(vm_type *vm_void, object_type *car, object_type *cdr, object_type **pair_out) {
+void cons(vm_type *vm_void, object_type *car, object_type *cdr, object_type **pair_out) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
 
     *pair_out = vm_alloc(vm, PAIR);
@@ -28,7 +28,7 @@ inline void cons(vm_type *vm_void, object_type *car, object_type *cdr, object_ty
 }
 
 /* parse an integer in byte code form */
-inline vm_int parse_int(vm_internal_type *vm) {
+vm_int parse_int(vm_internal_type *vm) {
     vm_int num = 0;
     uint8_t *byte = &(vm->env->code_ref[vm->env->ip + 7]);
 
@@ -55,7 +55,7 @@ inline vm_int parse_int(vm_internal_type *vm) {
 }
 
 /* parse a string */
-inline void parse_string(vm_internal_type *vm, object_type **obj) {
+void parse_string(vm_internal_type *vm, object_type **obj) {
     vm_int length = 0;
     char *str_start = 0;
 
@@ -72,7 +72,7 @@ inline void parse_string(vm_internal_type *vm, object_type **obj) {
 
 /* Either make the given object into a symbol or replace
    it with the symbol version. */
-inline void make_symbol(vm_internal_type *vm, object_type **obj) {
+void make_symbol(vm_internal_type *vm, object_type **obj) {
     object_type *obj_target = *obj;
 
     if (!hash_get_stateful(

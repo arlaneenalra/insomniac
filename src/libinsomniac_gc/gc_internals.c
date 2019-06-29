@@ -14,7 +14,7 @@ vm_int count_list(meta_obj_type **list) {
 }
 
 /* walk a list and free every element in it */
-inline void destroy_list(gc_ms_type *gc, meta_obj_type **list) {
+void destroy_list(gc_ms_type *gc, meta_obj_type **list) {
     meta_obj_type *meta = 0;
 
     /* retrieve the first list value */

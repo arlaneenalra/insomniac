@@ -145,7 +145,7 @@ void sweep_list(gc_ms_type *gc, mark_type mark) {
 }
 
 /* the guts of sweep */
-inline void sweep(gc_ms_type *gc) {
+void sweep(gc_ms_type *gc) {
     mark_type mark;
 
     assert(gc);

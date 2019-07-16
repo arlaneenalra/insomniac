@@ -41,3 +41,13 @@
             (filter stream)
             token))
     filter)
+
+
+;; Define a couple of token rules
+(define (token-rule token)
+    (rule
+        (lambda (in-token)
+            (eq?
+                (token-type in-token)
+                (token-type token)))))
+

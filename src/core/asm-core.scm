@@ -1,10 +1,10 @@
 ;;;
-;;; Entry point for the Insomniac Compiler
+;;; An assmbler for the internal assembly.
 ;;;
 
-(include "scheme/lexer.scm")
+(include "asm/lexer.scm")
 
-;; Configuration Options for Compiler
+;; Configuration options for the Assembler.
 (define-record-type :insc-config
     (make-insc-config name source output)
     insc-config?
@@ -12,13 +12,12 @@
     (source insc-config-source insc-config-source-set!)
     (output insc-config-output insc-config-output-set!))
 
-
-;; Very crude command line argument processor
+;; Very crude command line argument processor.
 (define (build-config cmd-line)
     (let*
         ((name (car cmd-line))
          (args (cdr cmd-line))
-         (config (make-insc-config name "" "a.out"))
+         (config (make-insc-config name "" "a.out.s"))
          (usage (lambda ()
             (display name)
             (display " <source>")
@@ -37,6 +36,7 @@
             (usage)
             (walker config args))))
 
+
 (define (token-walker lexer stream)
     (define token (lexer stream))
 
@@ -49,7 +49,7 @@
 (let*
     ((config (build-config (command-line))))
     
-    (display "Compiling: ")
+    (display "Assembling: ")
     (display (insc-config-source config))
     (newline)
 
@@ -57,7 +57,7 @@
         (insc-config-source config)
         (lambda ()
             (token-walker 
-                scheme-lexer (char-stream 4096)))))
+                asm-lexer (char-stream 4096)))))
 
 (gc-stats)
 (newline)

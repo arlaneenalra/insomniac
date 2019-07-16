@@ -2,34 +2,14 @@
 ;;; Lexer for the core scheme language
 ;;;
 
+(include "../lexer/core.scm")
+
 ;;
 ;; Define scheme matching rules
 ;;
 
 (define <open-paren> (char-rule #\())
 (define <close-paren> (char-rule #\)))
-
-(define <intraline-whitespace>
-    (or-rule
-        (char-rule #\x20)
-        (char-rule #\x09)))
-
-(define <line-ending>
-    (or-rule
-        (chain-rule
-            (char-rule #\x0A)
-            (char-rule #\x0D))
-        (chain-rule
-            (char-rule #\x0D)
-            (char-rule #\x0A))
-        (char-rule #\x0A)
-        (char-rule #\x0D)))
-
-(define <whitespace>
-    (+-rule 
-        (or-rule
-            <intraline-whitespace>
-            <line-ending>)))
 
 (define <vertical-line> (char-rule #\|))
 

@@ -1,4 +1,4 @@
-f;;; A simple test for car, cdr, set-car, and set-cdr
+;;; A simple test for car, cdr, set-car, and set-cdr
         100
         0
         cons                    ; setup working pair

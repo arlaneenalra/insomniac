@@ -3,7 +3,8 @@
 ;;;
 
 (include "../src/lib/test/expect.scm")
-(include "../src/core/lexer/core.scm")
+(include "../src/core/scheme/lexer.scm")
+
 
 (define (call-with-stream str proc)
     (call-with-input str

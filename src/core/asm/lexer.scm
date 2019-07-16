@@ -180,6 +180,9 @@
 
          
         (lambda (token)
-            (eq? (token-type token) '*white-space*))))
+            (define type (token-type token))
+            (or 
+                (eq? type '*white-space*)
+                (eq? type '*comment*)))))
 
 

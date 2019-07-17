@@ -28,7 +28,7 @@
         <letter>
         <digits>))
 
-(define <target> (+-rule <ident>))
+(define <target> (bind-token '*label* (+-rule <ident>)))
 
 (define <label>
     (chain-rule
@@ -40,34 +40,37 @@
         (char-rule #\#)
         (char-rule #\\)
         (or-rule
-            (str-rule "newline")
-            (str-rule "space")
-            (str-rule "eof")
-            (not-rule <whitespace>))))
+            (bind-token '*newline* (str-rule "newline"))
+            (bind-token '*space* (str-rule "space"))
+            (bind-token '*eof-char* (str-rule "eof"))
+            (bind-token '*char* (not-rule <whitespace>)))))
 
 (define <string-body>
-    (*-rule
-        (or-rule
-            ;; escapes
-            (chain-rule 
-                (char-rule #\\)
-                (or-rule
-                    (char-rule #\")
-                    (char-rule #\\)))
-            (not-rule
-                (or-rule
-                    (char-rule #\")
-                    (char-rule #\\))))))
+    (bind-token '*string-body*
+        (*-rule
+            (or-rule
+                ;; escapes
+                (chain-rule 
+                    (char-rule #\\)
+                    (or-rule
+                        (char-rule #\")
+                        (char-rule #\\)))
+                (not-rule
+                    (or-rule
+                        (char-rule #\")
+                        (char-rule #\\)))))))
 
 (define <string>
     (chain-rule
         (char-rule #\")
-        (bind-token '*string-body* <string-body>)
+        <string-body>
         (char-rule #\")))
 
 (define <symbol>
     (chain-rule
-        (char-rule #\s)
+        (or-rule
+            (char-rule #\s)
+            (char-rule #\S))
         <string>))
 
 ;; Matcher for instructions that require a target
@@ -75,7 +78,7 @@
     (chain-rule
         (bind-token '*op* (str-rule op))
         <whitespace>
-        (bind-token '*label* <target>)))
+        <target>))
         
         
 

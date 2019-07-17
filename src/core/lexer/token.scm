@@ -2,12 +2,38 @@
 ;;; Define a simple tokenizer and token stream.
 ;;;
 
-;; Defines a token type that can be returned by the lexer 
-(define-record-type <token>
-    (token type text)
-    token?
-    (type token-type)
-    (text token-text))
+;; Combinds any list of characters that can be into a String
+(define (merge-strings match)
+    (define (make-str result next-str)
+        (if (null? next-str)
+            result
+            (cons (list->string (reverse next-str)) result)))
+
+    (define (walker result next-str match)
+        (cond
+            ((null? match)
+                (begin
+                    (define output (make-str result next-str)))
+                    (if (= 1 (length output))
+                        (car output)
+                        (reverse output)))
+            ((char? (car match))
+                (walker
+                    result
+                    (cons (car match) next-str)
+                    (cdr match)))
+            ((token? (car match))
+                (begin
+                    (walker
+                        (cons
+                            (car match)
+                            (make-str result next-str))
+                        '()
+                        (cdr match))))
+            (else
+                (raise "Unexpected item in match!" match))))
+    (walker '() '() match))
+                    
 
 ;; Binds a matcher rule to an action
 (define (bind-token type rule)
@@ -18,7 +44,8 @@
             (token type
                 (if (eof-object? match)
                     match
-                    (list->string (flatten match))))
+                    (merge-strings (flatten match))))
+;                    (list->string (flatten match))))
             #f)))
 
 

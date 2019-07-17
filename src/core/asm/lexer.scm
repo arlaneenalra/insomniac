@@ -45,21 +45,24 @@
             (str-rule "eof")
             (not-rule <whitespace>))))
 
+(define <string-body>
+    (*-rule
+        (or-rule
+            ;; escapes
+            (chain-rule 
+                (char-rule #\\)
+                (or-rule
+                    (char-rule #\")
+                    (char-rule #\\)))
+            (not-rule
+                (or-rule
+                    (char-rule #\")
+                    (char-rule #\\))))))
+
 (define <string>
     (chain-rule
         (char-rule #\")
-        (*-rule
-            (or-rule
-                ;; escapes
-                (chain-rule 
-                    (char-rule #\\)
-                    (or-rule
-                        (char-rule #\")
-                        (char-rule #\\)))
-                (not-rule
-                    (or-rule
-                        (char-rule #\")
-                        (char-rule #\\)))))
+        (bind-token '*string-body* <string-body>)
         (char-rule #\")))
 
 (define <symbol>
@@ -70,9 +73,9 @@
 ;; Matcher for instructions that require a target
 (define (target-op op)
     (chain-rule
-        (str-rule op)
+        (bind-token '*op* (str-rule op))
         <whitespace>
-        <target>))
+        (bind-token '*label* <target>)))
         
         
 

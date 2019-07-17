@@ -54,4 +54,28 @@
         (token 'WS " ")
         (token 'WS " ")
         (token 'ABC "ABC")))
-                
+         
+
+(define nested-token-lexer
+    (bind-token 'A
+        (chain-rule
+            (bind-token 'A (str-rule "Aa"))
+            (bind-token 'B (str-rule "123"))
+            (char-rule #\C))))
+
+(expect "Verify that a nested token lexer can find a nested token"
+    (call-with-stream "Aa123C" nested-token-lexer)
+    (token 'A (list (token 'A "Aa") (token 'B "123") "C"))) 
+       
+(expect "Verify that a nested token lexer can reset a nested token"
+    (call-with-stream "Aa123D" 
+        (lambda (stream)
+            (list
+                (rest-rule stream)
+                (nested-token-lexer stream))))
+    (list
+        '(#\A #\a #\1 #\2 #\3 #\D)
+        #f))
+
+
+

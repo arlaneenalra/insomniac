@@ -21,10 +21,27 @@
 
 ;; Put the result back into the correct order
 (define (normalize-chain result)
-    (flatten (reverse 
-        (if (pair? result)
-            result
-            (list result)))))
+    (flatten
+        (cond
+            ((pair? result)
+                (reverse result))
+            ((string? result)
+                (string->list result))
+            (else
+                (list result)))))
+
+;; Handle tokens in a reset stream.
+(define (chain-reset stream result)
+    (for-each
+        (lambda (item)
+            (cond
+                ((token? item)
+                    (chain-reset
+                        stream
+                        (reverse (normalize-chain (token-text item)))))
+                (else
+                    (stream item))))
+        (reverse (normalize-chain result))))
 
 ;; Actually walks a chain of rules
 (define (chain-rule-walker result rule-list stream)
@@ -49,8 +66,7 @@
                 (begin
                     ;; Put things in the correct order
                     ;; to reset the stream
-                    (for-each stream 
-                        (reverse (normalize-chain result)))
+                    (chain-reset stream result)
                     #f)))))
 
 ;; Given a list of rules, match all or none and return a list of the matched

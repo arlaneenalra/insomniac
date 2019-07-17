@@ -147,3 +147,8 @@
     (lambda ()
         (flatten (list (list #\A '() #\B))))
     (list #\A #\B))
+
+(expect "Verify that reversing a single element list does nothing"
+    (lambda ()
+        (reverse (list #\A)))
+    (list #\A))

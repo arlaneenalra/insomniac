@@ -2,6 +2,13 @@
 ;;; The core of a simple lexical analyzer.
 ;;;
 
+;; Defines a token type that can be returned by the lexer 
+(define-record-type <token>
+    (token type text)
+    token?
+    (type token-type)
+    (text token-text))
+
 (include "stream.scm")
 (include "matchers.scm")
 (include "token.scm")

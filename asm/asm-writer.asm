@@ -4,7 +4,7 @@
     write
     drop
 
-    #\newline
-    drop
+;    #\newline
+;    #\A
 
     0

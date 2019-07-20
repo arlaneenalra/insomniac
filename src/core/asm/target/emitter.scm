@@ -2,23 +2,6 @@
 ;;; Some basic emitter functions to help output formatted code.
 ;;;
 
-;; Some code for handling labeled constants
-(define (write-labeled-list directive *list*)
-    (define (walker list)
-        (if (null? list)
-            #t
-            (let*
-                ((entry (car list))
-                 (label (cdr entry))
-                 (str (car entry)))
-               
-                (write-string label)
-                (write-string ": ")
-
-                (write-directive directive str)
-                (walker (cdr list)))))
-    (walker *list*))
-
 (define *newline* (list->string '(#\newline)))
 
 (define (emit-indent) (write-string "    "))
@@ -94,68 +77,70 @@
 
 
 ;; Handler code for strings
-(define *string-list* '())
+(define *string-builder*
+    (literal-constant-builders "string"))
 
 ;; Emit a string-literal
 (define (emit-string target token)
     (define scratch (target-scratch-register target))
     (define str 
-        (string-append "\"" (token-text (car (cdr (token-text token)))) "\""))
-    (define label (assq str *string-list*))
-
-    (define found-label
-        (if (not label)
-            (begin
-                (set! label ((target-labeler target)))
-                (set! *string-list*
-                    (cons
-                        (cons str label)
-                        *string-list*))
-                label)
-            (cdr label)))
+        (string-append
+            "\"" (token-text (car (cdr (token-text token)))) "\""))
+    (define label ((car *string-builder*) target str))
 
     (write-comment "-- string literal - start")
 
     (write-op "leaq"
-        (string-append found-label "(%rip)")
+        (string-append label "(%rip)")
         (scratch 0))
     (write-op "pushq" (scratch 0))
-    
+
     (write-comment "-- string literal - end"))
 
 
-;; Emit all strings
-(define (emit-string-list)
-    (write-labeled-list "string" *string-list*))
+(define emit-string-list (cdr *string-builder*))
 
 ;; Handler code for fixnums
-(define *fixnum-list* '())
+(define *fixnum-builder*
+    (literal-constant-builders "quad"))
 
 (define (emit-fixnum target token)
     (define fixnum (token-text token))
-    (define label (assq fixnum *fixnum-list*))
+    (define label ((car *fixnum-builder*) target fixnum))
 
-    (define found-label
-        (if (not label)
-            (begin
-                (set! label ((target-labeler target)))
-                (set! *fixnum-list*
-                    (cons
-                        (cons fixnum label)
-                        *fixnum-list*))
-                label)
-            (cdr label)))
+    (write-op "pushq" (string-append label "(%rip)")))
 
-    (write-op "pushq" (string-append found-label "(%rip)")))
+(define emit-fixnum-list (cdr *fixnum-builder*))
 
-(define (emit-fixnum-list) 
-    (write-labeled-list "quad" *fixnum-list*))
+;; Handler code for characters
+(define *character-builder*
+    (literal-constant-builders "quad"))
 
+(define (emit-char target token)
+    (define literal (car (cdr (token-text token))))
+    (define literal-type (token-type literal))
+    (define character 
+        (cond
+            ((eq? literal-type '*newline*) 13)
+            ((eq? literal-type '*space*) 32)
+            ((eq? literal-type '*eof*) 4)
+            ((eq? literal-type '*char*)
+                (char->integer
+                    (car (string->list (token-text literal)))))
+            ((eq? literal-type '*hex-char*)
+                (raise "Not implemented yet!" literal))))
+
+    (define label ((car *character-builder*) target (number->string character)))
+
+    (write-op "pushq" (string-append label "(%rip)")))
+
+(define emit-char-list (cdr *character-builder*))
 
 ;;
 ;; Basic IO operations
 ;;
 
+;; This will need to be handled by the target
 (define (emit-write target token)
     (define abi-reg (target-abi-register target))
 

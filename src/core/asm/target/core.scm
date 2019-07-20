@@ -2,12 +2,49 @@
 ;;; Code generation primitives.
 ;;;
 
+;; A convenience function to handle looking up from an indexed list of registers
 (define (abi-register-builder ret abi-registers)
     (lambda (idx)
         (if (eq? idx '*ret*)
             ret
             (vector-ref abi-registers idx))))
+
+
+;; Returns a pair of lambdas that help managing list of literal constants
+(define (literal-constant-builders directive)
+    (define *list* '())
+
+    (define (write-labeled-list)
+        (define (walker list)
+            (if (null? list)
+                #t
+                (let*
+                    ((entry (car list))
+                     (label (cdr entry))
+                     (str (car entry)))
+                   
+                    (write-string label)
+                    (write-string ": ")
+
+                    (write-directive directive str)
+                    (walker (cdr list)))))
+        (walker *list*))
+
+    (define (label-finder target str)
+       (define label (assq str *list*))
+
+        (if (not label)
+            (begin
+                (set! label ((target-labeler target)))
+                (set! *list*
+                    (cons
+                        (cons str label)
+                        *list*))
+                label)
+            (cdr label)))
  
+
+    (cons label-finder  write-labeled-list))
 
 ;; Record to store configuration info about a target
 (define-record-type <target>
@@ -41,6 +78,8 @@
                         (emit-fixnum target token))
                     ((eq? type '*string-literal*)
                         (emit-string target token))
+                    ((eq? type '*char-literal*)
+                        (emit-char target token)) 
 
                     ((eq? type '*drop*)
                         (emit-drop target token))

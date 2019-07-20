@@ -35,6 +35,15 @@
         <target>
         (char-rule #\:)))
 
+(define <hex-char>
+    (chain-rule 
+        (char-rule #\x)
+        (+-rule
+            (or-rule
+                <digits>
+                (range-rule #\A #\F)
+                (range-rule #\a #\f)))))
+
 (define <character>
     (chain-rule
         (char-rule #\#)
@@ -43,6 +52,7 @@
             (bind-token '*newline* (str-rule "newline"))
             (bind-token '*space* (str-rule "space"))
             (bind-token '*eof-char* (str-rule "eof"))
+            (bind-token '*hex-char* <hex-char>)
             (bind-token '*char* (not-rule <whitespace>)))))
 
 (define <string-body>

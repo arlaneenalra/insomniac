@@ -36,6 +36,43 @@
     (u8->string
         (list->u8 
             (map char->integer list))))
+
+(define (string-append . str-list)
+    (define (appender str str-list)
+        (if (null? str-list)
+            str
+            (appender
+                (append str (string->list (car str-list)))
+                (cdr str-list))))
+    (list->string
+        (appender '() str-list)))
+
+;; Convert a number into a string
+(define (number->string num)
+    (define zero (char->integer #\0))
+    (define negative (if (> 0 num) #t #f))
+
+    (if negative
+        (set! num (* -1 num)))
+
+    (define (walker digit-list num)
+        (define digit (+ zero (% num 10)))
+
+        (if (> num 0)
+            (walker
+                (cons digit digit-list)
+                (/ num 10))
+            (let*
+                ((char-list (map integer->char digit-list)))
+                (list->string 
+                    (if negative
+                        (cons #\- char-list)
+                        char-list)))))
+
+    (if (eq? num 0)
+        "0"
+        (walker '() num)))
+
 ;;
 ;; Some basic Character maninuplation functions
 ;;

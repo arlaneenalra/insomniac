@@ -3,6 +3,7 @@
 ;;;
 
 (include "asm/lexer.scm")
+(include "asm/target/core.scm")
 
 ;; Configuration options for the Assembler.
 (define-record-type :insc-config
@@ -37,14 +38,16 @@
             (walker config args))))
 
 
-(define (token-walker lexer stream)
-    (define token (lexer stream))
+;; Write out
+(define (assemble-to-file outfile)
+    (with-output-to-file
+        outfile
+        (lambda ()
+            (define stream (char-stream 4096))
+            (define (token-stream)
+                (asm-lexer stream))
 
-    (display token) (newline)
-
-    (if (not (eq? (token-type token) '*EOF*))
-        (token-walker lexer stream)))
-            
+            (assemble *MAC-x86-64* token-stream))))
 
 (let*
     ((config (build-config (command-line))))
@@ -56,9 +59,7 @@
     (with-input-from-file
         (insc-config-source config)
         (lambda ()
-            (token-walker 
-                asm-lexer (char-stream 4096)))))
-
-(gc-stats)
+            (assemble-to-file
+                (insc-config-output config)))))
 (newline)
 

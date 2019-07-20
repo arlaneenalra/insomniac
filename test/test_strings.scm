@@ -155,3 +155,21 @@
     (lambda ()
         (char>=? #\D #\C #\B #\A #\A #\D 'NON-CHAR)))
 
+;;
+;; number->string
+;;
+(expect "number->string should convert numbers to strings"
+    (lambda ()
+        (list
+            (number->string 0)
+            (number->string 1)
+            (number->string 9) 
+            (number->string 1234567890)
+            (number->string -33)))
+    (list
+        "0"
+        "1"
+        "9"
+        "1234567890"
+        "-33"))
+

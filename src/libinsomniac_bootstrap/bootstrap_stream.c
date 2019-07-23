@@ -6,7 +6,7 @@
 void stream_alloc_node(
     compiler_core_type *compiler, node_type type, ins_node_type **node) {
 
-    gc_alloc_type(compiler->gc, 0, compiler->node_types[type], (void **)node);
+    gc_alloc_type(compiler->gc, compiler->node_types[type], (void **)node);
     (*node)->type = type;
 
     tag_node(compiler->scanner, *node);
@@ -51,5 +51,5 @@ void stream_append(ins_stream_type *stream, ins_node_type *node) {
 
 /* Create a stream instance */
 void stream_create(compiler_core_type *compiler, ins_stream_type **stream) {
-    gc_alloc_type(compiler->gc, 0, compiler->stream_gc_type, (void **)stream);
+    gc_alloc_type(compiler->gc, compiler->stream_gc_type, (void **)stream);
 }

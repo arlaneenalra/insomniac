@@ -48,7 +48,7 @@ size_t buffer_load_string(gc_type *gc, char *file, char **str) {
         exit(-2);
     }
 
-    gc_alloc(gc, 0, count + 1, (void **)str);
+    gc_alloc(gc, count + 1, (void **)str);
 
     buffer_read(buf, (uint8_t *)*str, count);
 

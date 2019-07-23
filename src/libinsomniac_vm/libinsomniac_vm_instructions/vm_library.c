@@ -28,7 +28,7 @@ void op_import(vm_internal_type *vm) {
 
         /* allocate a string long enough to include the either .so or .dylib */
         length = obj->value.string.length + LIB_EXT_LEN + 1;
-        gc_alloc(vm->gc, 0, length, (void **)&path);
+        gc_alloc(vm->gc, length, (void **)&path);
 
         strncpy(path, obj->value.string.bytes, length);
         strncat(path, LIB_EXT, length);

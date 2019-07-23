@@ -271,7 +271,7 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
 
     /* Convert the buffer to a string */
     length = buffer_size(target_buf) + 1;
-    gc_alloc(gc, 0, length, (void **)target);
+    gc_alloc(gc, length, (void **)target);
     length = buffer_read(target_buf, *(uint8_t **)target, length);
     
     gc_unregister_root(gc, (void **)&debug);
@@ -319,7 +319,7 @@ int main(int argc, char **argv) {
 
         /* Convert generated code to string */
         length = buffer_size(asm_buf);
-        gc_alloc(gc, 0, length, (void **)&asm_str);
+        gc_alloc(gc, length, (void **)&asm_str);
         length = buffer_read(asm_buf, (uint8_t *)asm_str, length);
 
         /* Assemble byte code. */

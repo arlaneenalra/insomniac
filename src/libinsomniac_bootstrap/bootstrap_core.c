@@ -17,7 +17,7 @@ void push_include_path(compiler_core_type *compiler, char *file_name) {
     compiler->include_depth++;
 
     gc_alloc(
-        compiler->gc, 0, strlen(file_name) + 1,
+        compiler->gc, strlen(file_name) + 1,
         (void **)&(compiler->include_stack[compiler->include_depth]));
 
     strcpy(compiler->include_stack[compiler->include_depth], file_name);
@@ -206,7 +206,7 @@ void compiler_create(gc_type *gc, compiler_type **comp_void, char *compiler_home
     gc_register_root(gc, (void **)&compiler);
 
     /* create a compiler instance */
-    gc_alloc_type(gc, 0, compiler_gc_type, (void **)&compiler);
+    gc_alloc_type(gc, compiler_gc_type, (void **)&compiler);
 
     compiler->gc = gc;
     compiler->label_index = 0;
@@ -251,7 +251,7 @@ void compiler_create(gc_type *gc, compiler_type **comp_void, char *compiler_home
     /* Add the include stack array */
     /* TODO: Look at statically allocating this */
     compiler->include_depth = -1;
-    gc_alloc_pointer_array(gc, 0, MAX_INCLUDE_DEPTH, (void **)&(compiler->include_stack));
+    gc_alloc_pointer_array(gc, MAX_INCLUDE_DEPTH, (void **)&(compiler->include_stack));
 
     gc_unregister_root(gc, (void **)&compiler);
 }

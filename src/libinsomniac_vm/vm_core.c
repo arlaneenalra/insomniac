@@ -9,7 +9,7 @@ void vm_create(gc_type *gc, int argc, char **argv, vm_type **vm_ret) {
     vm_type_def = create_vm_type(gc);
 
     /* Create a permanent vm object. */
-    gc_alloc_type(gc, 0, vm_type_def, (void **)&vm);
+    gc_alloc_type(gc, vm_type_def, (void **)&vm);
 
     vm->gc = gc;
 

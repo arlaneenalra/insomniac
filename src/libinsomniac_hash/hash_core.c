@@ -21,7 +21,7 @@ void hash_create(gc_type *gc, hash_fn fn, hash_cmp cmp, hashtable_type **ret) {
 
     gc_register_root(gc, (void **)&table);
 
-    gc_alloc_type(gc, 0, hashtable_type_def, (void **)&table);
+    gc_alloc_type(gc, hashtable_type_def, (void **)&table);
 
     table->gc = gc;
     table->calc_hash = fn;
@@ -43,7 +43,7 @@ void hash_cow(gc_type *gc, hashtable_type *src, hashtable_type **ret) {
     hash_internal_type **table = (hash_internal_type **)ret;
 
     /* allocate the new hashtable instance */
-    gc_alloc_type(gc, 0, hashtable_type_def, (void **)table);
+    gc_alloc_type(gc, hashtable_type_def, (void **)table);
 
     /* copy the entire contents of the hashtable into the new one */
     memcpy(*table, src, sizeof(hash_internal_type));
@@ -178,7 +178,7 @@ key_value_type *hash_find_kv(hash_internal_type *table, key_value_type* kv_in, h
     if (action == CREATE) {
         gc_register_root(table->gc, (void **)&kv);
 
-        gc_alloc_type(table->gc, 0, table->key_value, (void **)&kv);
+        gc_alloc_type(table->gc, table->key_value, (void **)&kv);
 
         kv->key = key;
         kv->hash = kv_in->hash;
@@ -208,7 +208,7 @@ void hash_resize(hash_internal_type *table, size_t size) {
     old_table = table->table;
     old_size = table->size;
 
-    gc_alloc_pointer_array(table->gc, 0, size, (void **)&(table->table));
+    gc_alloc_pointer_array(table->gc, size, (void **)&(table->table));
     table->size = size;
     table->entries = 0;
 
@@ -251,7 +251,7 @@ hash_entry_type *hash_next(hashtable_type *void_table, hash_iterator_type **iter
 
     /* if the iterator is null, allocate a new one */
     if (!*iterator) {
-        gc_alloc_type(table->gc, 0, hash_iterator_def, iterator);
+        gc_alloc_type(table->gc, hash_iterator_def, iterator);
     }
 
     it = *(hash_internal_iterator_type **)iterator; 

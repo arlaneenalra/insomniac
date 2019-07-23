@@ -78,7 +78,7 @@ void stream_bare(
 
     /* generate the literal string */
     length = strlen(lit) + 1;
-    gc_alloc(compiler->gc, 0, length, (void **)&(ins_node->value.literal));
+    gc_alloc(compiler->gc, length, (void **)&(ins_node->value.literal));
 
     strncpy(ins_node->value.literal, lit, length);
 
@@ -104,7 +104,7 @@ void stream_boolean(compiler_core_type *compiler, ins_stream_type *stream, int b
     stream_alloc_node(compiler, STREAM_LITERAL, &ins_node);
 
     /* generate the literal string */
-    gc_alloc(compiler->gc, 0, 4, (void **)&(ins_node->value.literal));
+    gc_alloc(compiler->gc, 4, (void **)&(ins_node->value.literal));
     snprintf(ins_node->value.literal, 4, "#%c", c);
 
     /* add the boolean to our instruction stream */
@@ -125,7 +125,7 @@ void stream_char(compiler_core_type *compiler, ins_stream_type *stream, char *st
 
     /* generate the literal string */
     length = strlen(str) + 3;
-    gc_alloc(compiler->gc, 0, length, (void **)&(ins_node->value.literal));
+    gc_alloc(compiler->gc, length, (void **)&(ins_node->value.literal));
 
     snprintf(ins_node->value.literal, length, "#\\%s", str);
 
@@ -147,7 +147,7 @@ void stream_symbol(compiler_core_type *compiler, ins_stream_type *stream, char *
 
     /* generate the literal string */
     length = strlen(str) + 4;
-    gc_alloc(compiler->gc, 0, length, (void **)&(ins_node->value.literal));
+    gc_alloc(compiler->gc, length, (void **)&(ins_node->value.literal));
 
     snprintf(ins_node->value.literal, length, "s\"%s\"", str);
 

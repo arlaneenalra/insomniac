@@ -10,7 +10,7 @@ object_type *vm_alloc(vm_type *vm_void, cell_type type) {
     }
 
     /* Allocate an object using the GC type system */
-    gc_alloc_type(vm->gc, 0, vm->types[type], (void **)&obj);
+    gc_alloc_type(vm->gc, vm->types[type], (void **)&obj);
     obj->type = type;
 
     return obj;
@@ -28,7 +28,7 @@ object_type *vm_make_string(vm_type *vm_void, char *buf, vm_int length) {
     obj = vm_alloc(vm, STRING);
     obj->value.string.length = length;
 
-    gc_alloc(vm->gc, 0, length + 1, (void **)&(obj->value.string.bytes));
+    gc_alloc(vm->gc, length + 1, (void **)&(obj->value.string.bytes));
 
     strncpy(obj->value.string.bytes, buf, length);
 
@@ -48,7 +48,7 @@ object_type *vm_make_byte_vector(vm_type *vm_void, vm_int length) {
     obj->value.byte_vector.length = length;
 
     /* allocate an array of pointers */
-    gc_alloc(vm->gc, 0, length, (void **)&(obj->value.byte_vector.vector));
+    gc_alloc(vm->gc, length, (void **)&(obj->value.byte_vector.vector));
 
     gc_unregister_root(vm->gc, (void **)&obj);
 
@@ -66,7 +66,7 @@ object_type *vm_make_vector(vm_type *vm_void, vm_int length) {
     obj->value.vector.length = length;
 
     /* allocate an array of pointers */
-    gc_alloc_pointer_array(vm->gc, 0, length, (void **)&(obj->value.vector.vector));
+    gc_alloc_pointer_array(vm->gc, length, (void **)&(obj->value.vector.vector));
 
     gc_unregister_root(vm->gc, (void **)&obj);
 

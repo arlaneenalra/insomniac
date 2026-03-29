@@ -65,40 +65,62 @@ void op_lit_false(vm_internal_type *vm) {
 
 /* load a string litteral and push it onto the stack*/
 void op_lit_symbol(vm_internal_type *vm) {
+    #define obj vm->reg1
+    object_type *tmp = 0;
+
     BEGIN_OP;
+    gc_register_root(vm->gc, (void **)&tmp);
 
-    parse_string(vm, &vm->reg1);
-    make_symbol(vm, &vm->reg1);
+    parse_string(vm, &tmp);
+    obj = tmp;
+    make_symbol(vm, &tmp);
+    obj = tmp;
 
-    vm_push(vm, vm->reg1);
+    vm_push(vm, obj);
 
+    gc_unregister_root(vm->gc, (void **)&tmp);
     END_OP;
+    #undef obj
 }
 
 /* load a string litteral and push it onto the stack*/
 void op_lit_string(vm_internal_type *vm) {
+    #define obj vm->reg1
+    object_type *tmp = 0;
+
     BEGIN_OP;
+    gc_register_root(vm->gc, (void **)&tmp);
 
-    parse_string(vm, &vm->reg1);
+    parse_string(vm, &tmp);
+    obj = tmp;
 
-    vm_push(vm, vm->reg1);
+    vm_push(vm, obj);
 
+    gc_unregister_root(vm->gc, (void **)&tmp);
     END_OP;
+    #undef obj
 }
 
 /* Given a string, convert it into a symbol */
 void op_make_symbol(vm_internal_type *vm) {
+    #define obj vm->reg1
+    object_type *tmp = 0;
+
     BEGIN_OP;
+    gc_register_root(vm->gc, (void **)&tmp);
 
-    vm->reg1 = vm_pop(vm);
+    obj = tmp = vm_pop(vm);
 
-    if (vm->reg1->type != STRING) {
-        throw(vm, "Only string can be converted into a symbol.", 1, vm->reg1);
+    if (tmp->type != STRING) {
+        throw(vm, "Only string can be converted into a symbol.", 1, tmp);
     }
 
-    make_symbol(vm, &vm->reg1);
+    make_symbol(vm, &tmp);
+    obj = tmp;
 
-    vm_push(vm, vm->reg1);
+    vm_push(vm, obj);
 
+    gc_unregister_root(vm->gc, (void **)&tmp);
     END_OP;
+    #undef obj
 }

@@ -84,6 +84,7 @@ void make_symbol(vm_internal_type *vm, object_type **obj) {
     object_type *obj_target = *obj;
 
     gc_register_root(vm->gc, (void **)&vm);
+    gc_register_root(vm->gc, (void **)&obj_target);
 
     if (!hash_get_stateful(
         vm->symbol_table,
@@ -100,6 +101,7 @@ void make_symbol(vm_internal_type *vm, object_type **obj) {
             &(obj_target->value.string.state));
     }
 
+    gc_unregister_root(vm->gc, (void **)&obj_target);
     gc_unregister_root(vm->gc, (void **)&vm);
 }
 

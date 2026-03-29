@@ -59,6 +59,10 @@ void hash_set_stateful(hashtable_type *void_table, void *key, void *value, hash_
     hash_internal_type *table = (hash_internal_type *)void_table;
     size_t new_size = 0;
 
+    gc_register_root(table->gc, (void **)&table);
+    gc_register_root(table->gc, (void **)&key);
+    gc_register_root(table->gc, (void **)&value);
+
     kv_in.key = key;
 
     /* Allow external caching of the hash value for faster lookups. */
@@ -81,6 +85,10 @@ void hash_set_stateful(hashtable_type *void_table, void *key, void *value, hash_
         new_size = floor(table->entries / TARGET_LOAD) + 1;
         hash_resize(table, new_size);
     }
+
+    gc_unregister_root(table->gc, (void **)&value);
+    gc_unregister_root(table->gc, (void **)&key);
+    gc_unregister_root(table->gc, (void **)&table);
 }
 
 /* remove a key from the tables */
@@ -140,6 +148,9 @@ key_value_type *hash_find_kv(hash_internal_type *table, key_value_type* kv_in, h
     key_value_type *kv = 0;
     key_value_type *prev_kv = 0;
 
+    gc_register_root(table->gc, (void **)&table);
+    gc_register_root(table->gc, (void **)&key);
+
     /* Check for "write" operations and a COW hash */
     if (table->copy_on_write && (action == CREATE || action == DELETE)) {
         /* resize implicitly copies everything */
@@ -167,6 +178,8 @@ key_value_type *hash_find_kv(hash_internal_type *table, key_value_type* kv_in, h
                         table->table[index] = kv->next;
                     }
                 }
+                gc_unregister_root(table->gc, (void **)&key);
+                gc_unregister_root(table->gc, (void **)&table);
                 return kv;
             }
             prev_kv = kv;
@@ -191,9 +204,13 @@ key_value_type *hash_find_kv(hash_internal_type *table, key_value_type* kv_in, h
 
         gc_unregister_root(table->gc, (void **)&kv);
 
+        gc_unregister_root(table->gc, (void **)&key);
+        gc_unregister_root(table->gc, (void **)&table);
         return kv;
     }
 
+    gc_unregister_root(table->gc, (void **)&key);
+    gc_unregister_root(table->gc, (void **)&table);
     return 0;
 }
 
@@ -203,6 +220,7 @@ void hash_resize(hash_internal_type *table, size_t size) {
     key_value_type *kv = 0;
     size_t old_size = 0;
 
+    gc_register_root(table->gc, (void **)&table);
     gc_register_root(table->gc, (void **)&old_table);
 
     old_table = table->table;
@@ -237,6 +255,7 @@ void hash_resize(hash_internal_type *table, size_t size) {
     }
 
     gc_unregister_root(table->gc, (void **)&old_table);
+    gc_unregister_root(table->gc, (void **)&table);
 }
 
 /* calculate the load factor for a given table */
@@ -257,7 +276,9 @@ hash_entry_type *hash_next(hashtable_type *void_table, hash_iterator_type **iter
 
     /* if the iterator is null, allocate a new one */
     if (!*iterator) {
+        gc_register_root(table->gc, (void **)&table);
         gc_alloc_type(table->gc, hash_iterator_def, iterator);
+        gc_unregister_root(table->gc, (void **)&table);
     }
 
     it = *(hash_internal_iterator_type **)iterator; 

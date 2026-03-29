@@ -2,32 +2,34 @@
 
 /* cons the top two objects on the stack */
 void op_cons(vm_internal_type *vm) {
-    object_type *car = 0;
-    object_type *cdr = 0;
+    #define car vm->reg1
+    #define cdr vm->reg2
 
-    gc_register_root(vm->gc, (void **)&vm);
+    BEGIN_OP;
 
-    vm->reg1 = car = vm_pop(vm);
-    vm->reg2 = cdr = vm_pop(vm);
+    car = vm_pop(vm);
+    cdr = vm_pop(vm);
 
     cons(vm, car, cdr, &vm->reg3);
 
     vm_push(vm, vm->reg3);
 
-    gc_unregister_root(vm->gc, (void **)&vm);
+    END_OP;
+    #undef car
+    #undef cdr
 }
 
 /* extract the car from a given pair */
 void op_car(vm_internal_type *vm) {
-    object_type *obj = 0;
+    #define obj vm->reg1
 
-    gc_register_root(vm->gc, (void **)&vm);
+    BEGIN_OP;
 
-    vm->reg1 = obj = vm_pop(vm);
+    obj = vm_pop(vm);
 
     if (obj && obj->type == PAIR) {
 
-        vm->reg1 = obj = obj->value.pair.car;
+        obj = obj->value.pair.car;
         vm_push(vm, obj);
 
     } else {
@@ -35,20 +37,21 @@ void op_car(vm_internal_type *vm) {
         throw(vm, "Attempt to read the car of a non-pair", 1, obj);
     }
 
-    gc_unregister_root(vm->gc, (void **)&vm);
+    END_OP;
+    #undef obj
 }
 
 /* extract the car from a given pair */
 void op_cdr(vm_internal_type *vm) {
-    object_type *obj = 0;
+    #define obj vm->reg1
 
-    gc_register_root(vm->gc, (void **)&vm);
+    BEGIN_OP;
 
-    vm->reg1 = obj = vm_pop(vm);
+    obj = vm_pop(vm);
 
     if (obj && obj->type == PAIR) {
 
-        vm->reg1 = obj = obj->value.pair.cdr;
+        obj = obj->value.pair.cdr;
         vm_push(vm, obj);
 
     } else {
@@ -56,55 +59,60 @@ void op_cdr(vm_internal_type *vm) {
         throw(vm, "Attempt to read the cdr of a non-pair", 1, obj);
     }
 
-    gc_unregister_root(vm->gc, (void **)&vm);
+    END_OP;
+    #undef obj
 }
 
 /* extract the car from a given pair */
 void op_set_car(vm_internal_type *vm) {
-    object_type *pair = 0;
-    object_type *obj = 0;
+    #define obj vm->reg1
+    #define p vm->reg2
 
-    gc_register_root(vm->gc, (void **)&vm);
+    BEGIN_OP;
 
-    vm->reg1 = obj = vm_pop(vm);
-    vm->reg2 = pair = vm_pop(vm);
+    obj = vm_pop(vm);
+    p = vm_pop(vm);
 
-    if (obj && pair && pair->type == PAIR) {
+    if (obj && p && p->type == PAIR) {
 
-        pair->value.pair.car = obj;
+        p->value.pair.car = obj;
 
-        vm_push(vm, pair);
+        vm_push(vm, p);
 
     } else {
         throw(
             vm, "Attempt to set the car of a non-pair or set car to non-object", 2, obj,
-            pair);
+            p);
     }
 
-    gc_unregister_root(vm->gc, (void **)&vm);
+    END_OP;
+    #undef obj
+    #undef p
 }
 
 /* extract the car from a given pair */
 void op_set_cdr(vm_internal_type *vm) {
-    object_type *pair = 0;
-    object_type *obj = 0;
+    #define obj vm->reg1
+    #define p vm->reg2
 
-    gc_register_root(vm->gc, (void **)&vm);
+    BEGIN_OP;
 
-    vm->reg1 = obj = vm_pop(vm);
-    vm->reg2 = pair = vm_pop(vm);
+    obj = vm_pop(vm);
+    p = vm_pop(vm);
 
-    if (obj && pair && pair->type == PAIR) {
+    if (obj && p && p->type == PAIR) {
 
-        pair->value.pair.cdr = obj;
-        vm_push(vm, pair);
+        p->value.pair.cdr = obj;
+        vm_push(vm, p);
 
     } else {
 
         throw(
             vm, "Attempt to set the cdr of a non-pair or set cdr to non-object", 2, obj,
-            pair);
+            p);
     }
 
-    gc_unregister_root(vm->gc, (void **)&vm);
+    END_OP;
+    #undef obj
+    #undef p
 }

@@ -12,6 +12,11 @@
 #define MIN(a, b) (a > b ? b : a)
 #define MAX(a, b) (a > b ? a : b)
 
+/* Begin/end an instruction handler -- manages the vm GC root.
+   Use #define name vm->regN / #undef name pairs to alias registers. */
+#define BEGIN_OP gc_register_root(vm->gc, (void **)&vm)
+#define END_OP   gc_unregister_root(vm->gc, (void **)&vm)
+
 /* literals with the exception of make_symbol */
 void op_lit_64bit(vm_internal_type *vm);
 void op_lit_char(vm_internal_type *vm);

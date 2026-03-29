@@ -2,14 +2,14 @@
 
 /* Does a simple object equivalence check. */
 void op_eq(vm_internal_type *vm) {
-    object_type *obj1 = 0;
-    object_type *obj2 = 0;
+    #define obj1 vm->reg1
+    #define obj2 vm->reg2
     int result = 0;
 
-    gc_register_root(vm->gc, (void **)&vm);
+    BEGIN_OP;
 
-    vm->reg1 = obj1 = vm_pop(vm);
-    vm->reg2 = obj2 = vm_pop(vm);
+    obj1 = vm_pop(vm);
+    obj2 = vm_pop(vm);
 
     /* Make sure both objects have the same type. */
     if (obj1->type != obj2->type) {
@@ -39,16 +39,18 @@ void op_eq(vm_internal_type *vm) {
         vm_push(vm, result ? vm->vm_true : vm->vm_false);
     }
 
-    gc_unregister_root(vm->gc, (void **)&vm);
+    END_OP;
+    #undef obj1
+    #undef obj2
 }
 
 /* Return the boolean inverse of the given object. */
 void op_not(vm_internal_type *vm) {
-    object_type *obj = 0;
+    #define obj vm->reg1
 
-    gc_register_root(vm->gc, (void **)&vm);
+    BEGIN_OP;
 
-    vm->reg1 = obj = vm_pop(vm);
+    obj = vm_pop(vm);
 
     /* Only #f is false. */
     if (obj->type == BOOL && !obj->value.boolean) {
@@ -57,5 +59,6 @@ void op_not(vm_internal_type *vm) {
         vm_push(vm, vm->vm_false);
     }
 
-    gc_unregister_root(vm->gc, (void **)&vm);
+    END_OP;
+    #undef obj
 }

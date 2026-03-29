@@ -183,7 +183,9 @@ void gc_sweep(gc_type *gc_void) {
 /* check if a pointer is in the old (stale) pool */
 bool gc_is_stale(gc_type *gc_void, void *ptr) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
-    if (!gc->validate || !ptr || !gc->old_pool) return false;
+    if (!gc->validate || !ptr || !gc->old_pool) {
+        return false;
+    }
     uint8_t *p = (uint8_t *)ptr;
     return p >= gc->old_pool && p < gc->old_pool + gc->pool_size;
 }

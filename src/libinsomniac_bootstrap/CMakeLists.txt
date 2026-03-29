@@ -15,6 +15,13 @@ FLEX_TARGET(LEXER lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.c
 
 ADD_FLEX_BISON_DEPENDENCY(LEXER PARSER)
 
+# Don't lint generated Bison/Flex output
+set_source_files_properties(
+  ${BISON_PARSER_OUTPUTS}
+  ${FLEX_LEXER_OUTPUTS}
+  PROPERTIES SKIP_LINTING ON
+)
+
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_library(insomniac_bootstrap

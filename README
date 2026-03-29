@@ -1,5 +1,18 @@
 To setup an build environment, run setup.sh.  If all goes well, you will find a build tree configured in the directory build.
 
+* Requirements
+
+The following tools must be on PATH before configuring with CMake:
+
+  - Homebrew bison  (brew install bison)   -- system bison 2.3 is too old
+  - clang-tidy                             (brew install llvm)
+  - clang-format                           (brew install llvm)
+
+clang-tidy runs automatically during compilation and will fail the build if any
+control structure is missing its braces.  clang-format does not run
+automatically; use `make format` to apply formatting and `make format-check` to
+validate it (useful in CI).
+
 * Preamble/Postamble
 
 These two files contain a very basic bootstrap for core scheme.  The goal is to

@@ -16,7 +16,7 @@ char *expected = 0;
 
 
 /* Global Setup and Tear Down hooks */
-void setup_hook() {
+void setup_hook(void) {
     gc = gc_create(sizeof(object_type));
 
     /* make this a root to the garbage collector */
@@ -27,7 +27,7 @@ void setup_hook() {
 
 }
 
-void tear_down_hook() {
+void tear_down_hook(void) {
     gc_unregister_root(gc, (void **)&value);
     gc_unregister_root(gc, (void **)&key1);
     gc_unregister_root(gc, &hash);
@@ -36,7 +36,7 @@ void tear_down_hook() {
     gc_destroy(gc);
 }
 
-int build_hash() {
+int build_hash(void) {
     char key2[255];
     char exp_value[255]; 
 
@@ -75,7 +75,7 @@ int build_hash() {
     return 0;
 }
 
-int test_gc() {
+int test_gc(void) {
     
     return build_hash();
 
@@ -83,7 +83,7 @@ int test_gc() {
 
 
 /* Test to see if we can retrieve data written to the hash */
-int test_read() {
+int test_read(void) {
 
     build_hash();
 
@@ -114,7 +114,7 @@ int test_read() {
 }
 
 /* Test for a bad read */
-int test_bad_read() {
+int test_bad_read(void) {
 
     build_hash();
 
@@ -127,7 +127,7 @@ int test_bad_read() {
 }
 
 /* Test that we can erase a key from the table */
-int test_erase() {
+int test_erase(void) {
 
     build_hash();
 
@@ -153,7 +153,7 @@ int test_erase() {
 }
 
 /* Test that we can read the key 'type' from a hash. */
-int test_read_key() {
+int test_read_key(void) {
     char c[] = "type";
     char *value = 0;
     

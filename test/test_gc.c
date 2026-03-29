@@ -75,11 +75,11 @@ int test_pair_survives_gc(void) {
     gc_sweep(gc);
 
     /* Validate */
-    if (pair->type != PAIR) return 1;
-    if (pair->value.pair.car->type != FIXNUM) return 1;
-    if (pair->value.pair.car->value.integer != 42) return 1;
-    if (pair->value.pair.cdr->type != FIXNUM) return 1;
-    if (pair->value.pair.cdr->value.integer != 99) return 1;
+    if (pair->type != PAIR) { return 1; }
+    if (pair->value.pair.car->type != FIXNUM) { return 1; }
+    if (pair->value.pair.car->value.integer != 42) { return 1; }
+    if (pair->value.pair.cdr->type != FIXNUM) { return 1; }
+    if (pair->value.pair.cdr->value.integer != 99) { return 1; }
 
     gc_unregister_root(gc, (void **)&b);
     gc_unregister_root(gc, (void **)&a);
@@ -122,7 +122,7 @@ int test_list_survives_gc(void) {
         }
         cursor = cursor->value.pair.cdr;
     }
-    if (cursor->type != EMPTY) return 1;
+    if (cursor->type != EMPTY) { return 1; }
 
     gc_unregister_root(gc, (void **)&elem);
     gc_unregister_root(gc, (void **)&list);
@@ -141,9 +141,9 @@ int test_string_survives_gc(void) {
 
     gc_sweep(gc);
 
-    if (str->type != STRING) return 1;
-    if (str->value.string.length != 11) return 1;
-    if (strcmp(str->value.string.bytes, "hello world") != 0) return 1;
+    if (str->type != STRING) { return 1; }
+    if (str->value.string.length != 11) { return 1; }
+    if (strcmp(str->value.string.bytes, "hello world") != 0) { return 1; }
 
     gc_unregister_root(gc, (void **)&str);
     return 0;
@@ -179,9 +179,9 @@ int test_vector_of_pairs_survives_gc(void) {
     /* Validate each pair */
     for (int i = 0; i < 50; i++) {
         object_type *p = vec->value.vector.vector[i];
-        if (!p || p->type != PAIR) return 1;
-        if (p->value.pair.car->value.integer != i) return 1;
-        if (p->value.pair.cdr->value.integer != i * 10) return 1;
+        if (!p || p->type != PAIR) { return 1; }
+        if (p->value.pair.car->value.integer != i) { return 1; }
+        if (p->value.pair.cdr->value.integer != i * 10) { return 1; }
     }
 
     gc_unregister_root(gc, (void **)&b);
@@ -217,11 +217,11 @@ int test_two_gc_cycles(void) {
     /* Verify the list */
     object_type *cursor = list;
     for (int i = 0; i < 50; i++) {
-        if (cursor->type != PAIR) return 1;
-        if (cursor->value.pair.car->value.integer != i) return 1;
+        if (cursor->type != PAIR) { return 1; }
+        if (cursor->value.pair.car->value.integer != i) { return 1; }
         cursor = cursor->value.pair.cdr;
     }
-    if (cursor->type != EMPTY) return 1;
+    if (cursor->type != EMPTY) { return 1; }
 
     gc_unregister_root(gc, (void **)&elem);
     gc_unregister_root(gc, (void **)&list);
@@ -263,11 +263,11 @@ int test_graph_across_gc_boundary(void) {
     /* Verify 0..99 */
     object_type *cursor = list;
     for (int i = 0; i < 100; i++) {
-        if (cursor->type != PAIR) return 1;
-        if (cursor->value.pair.car->value.integer != i) return 1;
+        if (cursor->type != PAIR) { return 1; }
+        if (cursor->value.pair.car->value.integer != i) { return 1; }
         cursor = cursor->value.pair.cdr;
     }
-    if (cursor->type != EMPTY) return 1;
+    if (cursor->type != EMPTY) { return 1; }
 
     gc_unregister_root(gc, (void **)&elem);
     gc_unregister_root(gc, (void **)&list);
@@ -301,11 +301,11 @@ int test_gc_under_pressure(void) {
     /* Verify the list is still intact */
     object_type *cursor = list;
     for (int i = 0; i < 100; i++) {
-        if (cursor->type != PAIR) return 1;
-        if (cursor->value.pair.car->value.integer != i) return 1;
+        if (cursor->type != PAIR) { return 1; }
+        if (cursor->value.pair.car->value.integer != i) { return 1; }
         cursor = cursor->value.pair.cdr;
     }
-    if (cursor->type != EMPTY) return 1;
+    if (cursor->type != EMPTY) { return 1; }
 
     gc_unregister_root(gc, (void **)&elem);
     gc_unregister_root(gc, (void **)&list);
@@ -342,12 +342,12 @@ int test_nested_vectors_survive_gc(void) {
     /* Validate the 10x5 matrix */
     for (int i = 0; i < 10; i++) {
         object_type *row = outer->value.vector.vector[i];
-        if (!row || row->type != VECTOR) return 1;
-        if (row->value.vector.length != 5) return 1;
+        if (!row || row->type != VECTOR) { return 1; }
+        if (row->value.vector.length != 5) { return 1; }
         for (int j = 0; j < 5; j++) {
             object_type *v = row->value.vector.vector[j];
-            if (!v || v->type != FIXNUM) return 1;
-            if (v->value.integer != i * 100 + j) return 1;
+            if (!v || v->type != FIXNUM) { return 1; }
+            if (v->value.integer != i * 100 + j) { return 1; }
         }
     }
 
@@ -389,13 +389,13 @@ int test_mixed_type_graph(void) {
     /* Verify */
     object_type *cursor = list;
     for (int i = 0; i < 20; i++) {
-        if (cursor->type != PAIR) return 1;
+        if (cursor->type != PAIR) { return 1; }
         object_type *p = cursor->value.pair.car;
-        if (p->type != PAIR) return 1;
+        if (p->type != PAIR) { return 1; }
 
         /* Check string */
         snprintf(buf, sizeof(buf), "item-%d", i);
-        if (p->value.pair.car->type != STRING) return 1;
+        if (p->value.pair.car->type != STRING) { return 1; }
         if (strcmp(p->value.pair.car->value.string.bytes, buf) != 0) {
             printf("Expected '%s', got '%s'\n", buf,
                    p->value.pair.car->value.string.bytes);
@@ -403,11 +403,11 @@ int test_mixed_type_graph(void) {
         }
 
         /* Check fixnum */
-        if (p->value.pair.cdr->value.integer != i) return 1;
+        if (p->value.pair.cdr->value.integer != i) { return 1; }
 
         cursor = cursor->value.pair.cdr;
     }
-    if (cursor->type != EMPTY) return 1;
+    if (cursor->type != EMPTY) { return 1; }
 
     gc_unregister_root(gc, (void **)&num);
     gc_unregister_root(gc, (void **)&str);

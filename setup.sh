@@ -24,6 +24,11 @@ if [[ "$(uname -s)" == "Darwin" ]]; then
   if [[ -x "$HOMEBREW_BISON/bison" ]] ; then
     PATH=$HOMEBREW_BISON:$PATH
   fi
+
+  HOMEBREW_LLVM=$(brew --prefix llvm)/bin
+  if [[ -x "$HOMEBREW_LLVM/clang-tidy" ]] ; then
+    PATH=$HOMEBREW_LLVM:$PATH
+  fi
 fi
 echo "	Running cmake"
 cmake ..

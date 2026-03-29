@@ -16,7 +16,8 @@ void find_source_location(FILE* fout, env_type *env) {
     }
 
     /* Find where the exception occured. */ 
-    for (i = 0; i < env->debug_count && env->debug[i].start_addr < env->ip; i ++);
+    for (i = 0; i < env->debug_count && env->debug[i].start_addr < env->ip; i++) {
+    }
 
     /* If i is less than the cound, we found a debug record. */ 
     if (i < env->debug_count) {

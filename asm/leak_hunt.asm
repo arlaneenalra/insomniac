@@ -1,5 +1,5 @@
 ;;; Let's go hunting a leak
-        5000000
+        50000000
 loop:
         dup
         call output

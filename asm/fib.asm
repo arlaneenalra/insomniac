@@ -6,7 +6,7 @@
         1 dup "b" sym bind out
         #\space out
 
-        40                      ; Number to generate
+        90                      ; Number to generate
 fib:
         "b" sym @
         dup

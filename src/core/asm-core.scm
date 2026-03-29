@@ -21,13 +21,19 @@
          (config (make-insc-config name "" "a.out.s"))
          (usage (lambda ()
             (display name)
-            (display " <source>")
+            (display " <source> [-o <output>]")
             (exit 1)))
 
          (walker (lambda (config cmd-line)
                     (cond
                         ((null? cmd-line) config)
-                        ((not (eq? "" (car cmd-line)))
+                        ((equal? (car cmd-line) "-o")
+                            (if (null? (cdr cmd-line))
+                                (usage)
+                                (begin
+                                    (insc-config-output-set! config (car (cdr cmd-line)))
+                                    (walker config (cdr (cdr cmd-line))))))
+                        ((not (equal? "" (car cmd-line)))
                             (insc-config-source-set! config (car cmd-line))
                             (walker config (cdr cmd-line)))
                         (else (usage))))))
@@ -47,7 +53,7 @@
             (define (token-stream)
                 (asm-lexer stream))
 
-            (assemble *MAC-x86-64* token-stream))))
+            (assemble *MAC-ARM64* token-stream))))
 
 (let*
     ((config (build-config (command-line))))

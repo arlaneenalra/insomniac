@@ -38,7 +38,7 @@ set(test_core_stream_EXTRA ${TEST_LEXER_SOURCES})
 set(test_core_token_EXTRA ${TEST_LEXER_SOURCES})
 set(test_core_lexer_EXTRA ${TEST_LEXER_SOURCES})
 
-# Setup and build scheme tests.
+# Setup and build scheme tests via the bootstrap assembler.
 file(GLOB SCM_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test_*.scm)
 
 foreach(SCM_FILE ${SCM_SOURCES})
@@ -46,7 +46,15 @@ foreach(SCM_FILE ${SCM_SOURCES})
 
     INSC_TARGET(TEST_SCM ${SCM_FILE} ${testname} ${${testname}_EXTRA})
 
-    
     add_test(Test_${testname} ${INSC_TEST_SCM_OUTPUT})
+endforeach()
+
+# Build the same tests via insc-as (the self-hosted assembler).
+foreach(SCM_FILE ${SCM_SOURCES})
+    string(REPLACE ".scm" "" testname ${SCM_FILE})
+
+    INSC_AS_TARGET(TEST_SCM_AS ${SCM_FILE} ${testname}_as ${${testname}_EXTRA})
+
+    add_test(Test_${testname}_as ${INSC_AS_TEST_SCM_AS_OUTPUT})
 endforeach()
 

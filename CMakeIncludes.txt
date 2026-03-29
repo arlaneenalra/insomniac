@@ -60,4 +60,36 @@ macro(INSC_TARGET Name Input Output)
     set(INSC_${Name}_OUTPUT "${CMAKE_CURRENT_BIN_DIR}/${Output}")
 endmacro()
 
+# Compile a .scm file to a native binary via the self-hosted assembler (insc-as).
+# Pipeline: insc-bootstrap --no-assemble -> .asm -> insc-as -> .s -> native binary.
+macro(INSC_AS_TARGET Name Input Output)
+    set(INSC_AS_TARGET_asm "${CMAKE_CURRENT_BINARY_DIR}/${Input}.asm")
+    set(INSC_AS_TARGET_s   "${CMAKE_CURRENT_BINARY_DIR}/${Input}.as.s")
+
+    add_custom_command(OUTPUT ${INSC_AS_TARGET_asm}
+        COMMAND ${CMAKE_BINARY_DIR}/src/insc-bootstrap --no-assemble ${Input} --home ${CMAKE_SOURCE_DIR}/src -o ${INSC_AS_TARGET_asm}
+        VERBATIM
+        DEPENDS ${Input} insc-bootstrap ${INSC_LIB_TARGETS} ${ARGN}
+        COMMENT "[INSC-AS] Compiling ${Input} to Insomniac assembly"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+    add_custom_command(OUTPUT ${INSC_AS_TARGET_s}
+        COMMAND ${CMAKE_BINARY_DIR}/src/core/insc-as ${INSC_AS_TARGET_asm} -o ${INSC_AS_TARGET_s}
+        VERBATIM
+        DEPENDS ${INSC_AS_TARGET_asm} insc-as
+        COMMENT "[INSC-AS] Assembling ${Input}.asm to native assembly"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+    add_executable(${Output}
+        ${INSC_AS_TARGET_s})
+
+    set_target_properties(${Output}
+        PROPERTIES LINKER_LANGUAGE C)
+
+    target_link_libraries(${Output}
+        insomniac_runtime)
+
+    set(INSC_AS_${Name}_OUTPUT "${CMAKE_CURRENT_BIN_DIR}/${Output}")
+endmacro()
+
 # Define a

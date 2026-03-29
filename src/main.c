@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
 
     /* load and eval */
     eval_string(vm, gc, " \"Insomniac VM\" out #\\newline out");
-    (void)buffer_load_string(gc, argv[1], &code_str);
+    (void)buffer_load_string(gc, argv[0], &code_str);
     ret_value = eval_string(vm, gc, code_str);
 
     vm_reset(vm);

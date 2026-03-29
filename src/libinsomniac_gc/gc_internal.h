@@ -11,7 +11,8 @@
 #include <gc.h>
 
 /* Tuning parameters for the GC */
-#define GC_INITIAL_FREE 0x1000000
+//#define GC_INITIAL_FREE 0x1000000
+#define GC_INITIAL_FREE 0x100000000
 
 /* An internal GC structure to represent an allocated object */
 typedef struct meta_obj meta_obj_type;

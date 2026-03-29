@@ -1,4 +1,4 @@
-    "Hello World!"
+    "Hello World!" str->u8
     12
     1 
     write
@@ -7,4 +7,4 @@
 ;    #\newline
 ;    #\A
 
-    0
+    () 

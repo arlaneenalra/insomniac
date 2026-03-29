@@ -8,6 +8,8 @@
     void fn_name(vm_internal_type *vm) {                                                 \
         object_type *obj = 0;                                                            \
                                                                                          \
+        gc_register_root(vm->gc, (void **)&vm);                                          \
+                                                                                         \
         vm->reg1 = obj = vm_pop(vm);                                                     \
                                                                                          \
         if (obj && type_test) {                                                          \
@@ -15,6 +17,8 @@
         } else {                                                                         \
             vm_push(vm, vm->vm_false);                                                   \
         }                                                                                \
+                                                                                         \
+        gc_unregister_root(vm->gc, (void **)&vm);                                        \
     }
 
 #endif

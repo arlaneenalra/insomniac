@@ -20,6 +20,27 @@
 #include <locale.h>
 
 #ifdef __APPLE__
+
+#ifdef __aarch64__
+char *target_preamble = "    .section __TEXT,__text\n"
+                        "    .global _main\n"
+                        "    .p2align 2\n"
+                        "_main:\n"
+                        "    .cfi_startproc\n"
+                        "    stp    x29, x30, [sp, #-16]!\n"
+                        "    .cfi_def_cfa_offset 16\n"
+                        "    .cfi_offset w29, -16\n"
+                        "    .cfi_offset w30, -8\n"
+                        "    mov    x29, sp\n"
+                        "    .cfi_def_cfa_register w29\n"
+                        "    bl     _run_scheme\n"
+                        "    ldp    x29, x30, [sp], #16\n"
+                        "    ret\n"
+                        "    .cfi_endproc\n"
+                        ".section __DATA,_data\n"
+                        "   .p2align 3\n";
+
+#else /* __APPLE__ x86-64 */
 char *target_preamble = "    .section __TEXT,__text\n"
                         "    .global _main\n"
                         "    .p2align 4, 0x90\n"
@@ -36,12 +57,8 @@ char *target_preamble = "    .section __TEXT,__text\n"
                         "    retq\n"
                         "   .cfi_endproc\n"
                         ".section __DATA,_data\n"
-                        "meta:\n"
-                        "   .quad 0 # meta_obj.next\n"
-                        "   .long 0 # meta_obj.mark\n"
-                        "   .long 0 # meta_obj.size\n"
-                        "   .long 0 # meta_obj.type_def\n"
-                        "str:\n";
+                        "   .p2align 3\n";
+#endif /* __aarch64__ */
 
 char *target_postamble = "\n";
 
@@ -59,12 +76,7 @@ char *target_preamble = "   .text\n"
                         "   popq %rbp\n"
                         "   ret\n"
                         "   .data\n"
-                        "meta:\n"
-                        "   .quad 0 # meta_obj.next\n"
-                        "   .long 0 # meta_obj.mark\n"
-                        "   .long 0 # meta_obj.size\n"
-                        "   .long 0 # meta_obj.type_def\n"
-                        "str:\n";
+                        "   .p2align 3\n";
 
 char *target_postamble = "\n";
 
@@ -79,6 +91,7 @@ struct options {
     char *exe;
     char *filename;
     char *outfile;
+    char *home;
     bool pre_post_amble;
     bool include_baselib;
     bool assemble;
@@ -88,7 +101,7 @@ struct options {
 void usage(options_type *opts) {
     fprintf(
         stderr,
-        "Usage: %s [--no-pre] [--no-baselib] [--no-assemble] [--debug] <file.scm> "
+        "Usage: %s [--home <dir>] [--no-pre] [--no-baselib] [--no-assemble] [--debug] <file.scm> "
         "<out.asm>\n",
         opts->exe);
     exit(-1);
@@ -101,15 +114,19 @@ void parse_options(int argc, char **argv, options_type *opts) {
 
     opts->exe = argv[0];
 
+    opts->home = 0;
+
     /* check for file argument */
-    if (argc < 2 || argc > 5) {
+    if (argc < 2 || argc > 7) {
         usage(opts);
     }
 
     while (i < argc) {
         arg = argv[i];
 
-        if (strcmp(arg, "--no-pre") == 0) {
+        if (strcmp(arg, "--home") == 0) {
+            opts->home = argv[++i];
+        } else if (strcmp(arg, "--no-pre") == 0) {
             opts->pre_post_amble = false;
         } else if (strcmp(arg, "--no-baselib") == 0) {
             opts->include_baselib = false;
@@ -157,6 +174,7 @@ void writeDebugInfo(gc_type *gc, FILE *out, debug_info_type *debug) {
         (void)fprintf(out, "%s: .asciz \"%s\"\n", label_buf, (char *)entry->key);
     }
 
+    (void)fprintf(out, "   .p2align 3\n");
     writeGlobalSymbol(out, "debug_files");
     for (int i = count - 1; i >=0 ; i--) {
         (void)fprintf(out, "    .quad %s%i\n", target_local, i);
@@ -239,7 +257,14 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
     out_buffer = buffer_open(target_buf);
     
     (void)fputs(target_preamble, out_buffer);
-    
+
+    /* Emit meta_obj_type header for scheme_code (mark=FIXED).
+       Layout: mark(4) pad(4) size(8) type_def(4) = 20 bytes before obj[]. */
+    (void)fprintf(out_buffer, "    .long 2\n");              /* mark = FIXED */
+    (void)fprintf(out_buffer, "    .long 0\n");              /* padding */
+    (void)fprintf(out_buffer, "    .quad %zu\n", length);    /* size */
+    (void)fprintf(out_buffer, "    .long -1\n");             /* type_def = untyped */
+
     writeGlobalSymbol(out_buffer, "scheme_code");
     (void)fputs(line_prefix, out_buffer);
     for (size_t i = 0; i < length; i++) {
@@ -259,6 +284,7 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
     (void)fputs("\n\n", out_buffer);
 
     /* Output the size */
+    (void)fputs("   .p2align 3\n", out_buffer);
     writeGlobalSymbol(out_buffer, "scheme_code_size");
     (void)fprintf(out_buffer, "    .quad %zu\n\n", length - 1);
 
@@ -282,7 +308,7 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
 }
 
 int main(int argc, char **argv) {
-    options_type opts = {0, 0, 0, true, true, true, true};
+    options_type opts = {0, 0, 0, 0, true, true, true, true};
     gc_type *gc = gc_create(sizeof(object_type));
     size_t length = 0;
     char *asm_str = 0;
@@ -299,7 +325,11 @@ int main(int argc, char **argv) {
     parse_options(argc, argv, &opts);
 
     /* Attempt to get the default home of our compiler */
-    strcpy(compiler_home, dirname(realpath(opts.exe, realpath_buf)));
+    if (opts.home) {
+        strcpy(compiler_home, opts.home);
+    } else {
+        strcpy(compiler_home, dirname(realpath(opts.exe, realpath_buf)));
+    }
 
     /* make this a root to the garbage collector */
     gc_register_root(gc, (void **)&asm_str);

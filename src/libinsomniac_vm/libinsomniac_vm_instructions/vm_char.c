@@ -5,23 +5,29 @@ void op_int_to_char(vm_internal_type *vm) {
     object_type *obj = 0;
     object_type *ch = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = obj = vm_pop(vm);
 
     if (obj->type != FIXNUM) {
         throw(vm, "Attempt to convert non-number into char", 1, obj);
     } else {
         vm->reg2 = ch = vm_alloc(vm, CHAR);
-        
+
         ch->value.character = (vm_char)obj->value.integer;
 
         vm_push(vm, ch);
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* convert a character to an integer */
 void op_char_to_int(vm_internal_type *vm) {
     object_type *obj = 0;
     object_type *num = 0;
+
+    gc_register_root(vm->gc, (void **)&vm);
 
     vm->reg1 = obj = vm_pop(vm);
     if (obj->type != CHAR) {
@@ -33,4 +39,6 @@ void op_char_to_int(vm_internal_type *vm) {
 
         vm_push(vm, num);
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }

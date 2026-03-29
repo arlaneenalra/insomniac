@@ -23,8 +23,9 @@ typedef struct meta_obj_ptr_def meta_obj_ptr_def_type;
 
 /* used by the GC to mark cells */
 typedef enum mark {
-    LIVE, 
-    FORWARDING 
+    LIVE,
+    FORWARDING,
+    FIXED       /* Pinned object -- do not copy or forward */
 } mark_type;
 
 /* are we looking at a pointer or an array */
@@ -66,6 +67,8 @@ typedef struct gc_ms {
     uint8_t *memory_pool; /* pointer to the root of the available memory pool */
     uint8_t *memory_pool_head; /* pointer to the next available memory region */
     vm_int pool_size; /* size of the current memory pool */
+
+    uint8_t *old_pool; /* previous pool kept alive for stale C pointers */
 
     bool sweeping; /* detect re-entrant sweep. (i.e. no memory left) */
     

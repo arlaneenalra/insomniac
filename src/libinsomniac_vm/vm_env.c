@@ -4,13 +4,17 @@
    the current environement */
 void push_env(vm_internal_type *vm) {
     env_type *new_env = 0;
+    hashtable_type *bindings = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
     gc_register_root(vm->gc, (void **)&new_env);
+    gc_register_root(vm->gc, (void **)&bindings);
 
     gc_alloc_type(vm->gc, vm->env_type, (void **)&new_env);
 
-    /* create new hash table */
-    hash_create_string(vm->gc, &(new_env->bindings));
+    /* create new hash table into local root first */
+    hash_create_string(vm->gc, &bindings);
+    new_env->bindings = bindings;
 
     new_env->parent = vm->env;
     vm->env = new_env;
@@ -25,12 +29,16 @@ void push_env(vm_internal_type *vm) {
         vm->env->debug_count = vm->env->parent->debug_count;
     }
 
+    gc_unregister_root(vm->gc, (void **)&bindings);
     gc_unregister_root(vm->gc, (void **)&new_env);
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* create a copy of the environment in a new environment */
 void clone_env(vm_internal_type *vm, env_type **target, env_type *env, bool cow) {
 
+    gc_register_root(vm->gc, (void **)&vm);
+    gc_register_root(vm->gc, (void **)&env);
     gc_alloc_type(vm->gc, vm->env_type, (void **)target);
 
     /* copy env to vm->env */
@@ -39,6 +47,9 @@ void clone_env(vm_internal_type *vm, env_type **target, env_type *env, bool cow)
     if (cow) {
         hash_cow(vm->gc, env->bindings, &(*target)->bindings);
     }
+
+    gc_unregister_root(vm->gc, (void **)&env);
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* pop off the current environment */

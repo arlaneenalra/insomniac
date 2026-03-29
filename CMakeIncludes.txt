@@ -1,6 +1,25 @@
 
+# On macOS, prefer Homebrew bison over the ancient system bison (2.3).
+# The project requires bison 2.6+ for %define api.pure syntax.
+if(APPLE)
+  execute_process(
+    COMMAND brew --prefix bison
+    OUTPUT_VARIABLE HOMEBREW_BISON_PREFIX
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
+  if(HOMEBREW_BISON_PREFIX)
+    set(BISON_EXECUTABLE "${HOMEBREW_BISON_PREFIX}/bin/bison")
+  endif()
+endif()
+
 if(${CMAKE_C_COMPILER_ID} MATCHES "Clang")
-  set(CMAKE_C_FLAGS "-Wall -g -std=c99 -pedantic -DDEBUG -Wno-gnu-statement-expression -fprofile-instr-generate -fcoverage-mapping -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk")
+  execute_process(
+    COMMAND xcrun --show-sdk-path
+    OUTPUT_VARIABLE MACOS_SDK_PATH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  set(CMAKE_C_FLAGS "-Wall -g -std=c99 -pedantic -DDEBUG -Wno-gnu-statement-expression -fprofile-instr-generate -fcoverage-mapping -isysroot ${MACOS_SDK_PATH}")
   set(CMAKE_SHARED_LINKER_FLAGS " -undefined dynamic_lookup -flat_namespace -fprofile-instr-generate")
 else()
   set(CMAKE_C_FLAGS "-Wall -gdwarf-2 -O3 -std=gnu99 -pedantic -DDEBUG -lm -D_GNU_SOURCE")
@@ -20,7 +39,7 @@ macro(INSC_TARGET Name Input Output)
     set(INSC_TARGET_usage "INSC_TARGET(<Name> <Input> <Output> ... <Extra link libraries>)")
     
     add_custom_command(OUTPUT ${INSC_TARGET_outputs}
-        COMMAND ${CMAKE_BINARY_DIR}/src/insc-bootstrap ${Input} -o ${INSC_TARGET_outputs}
+        COMMAND ${CMAKE_BINARY_DIR}/src/insc-bootstrap ${Input} --home ${CMAKE_SOURCE_DIR}/src -o ${INSC_TARGET_outputs}
         VERBATIM
         DEPENDS ${Input} insc-bootstrap ${INSC_LIB_TARGETS} ${ARGN}
         COMMENT "[INSC] Compiling Insomniac Scheme code to ${INSC_TARGET_outputs}"

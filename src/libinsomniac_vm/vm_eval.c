@@ -8,6 +8,10 @@ int vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref,
     uint8_t op_code = 0; /* Op code for instructions. */
     fn_type op_call = 0; /* Function actually called. */
 
+    /* Register vm as a root so the copying GC can update our
+       pointer when the VM object is relocated during a sweep. */
+    gc_register_root(vm->gc, (void **)&vm);
+
     /* Setup the ip. */
     vm->env->ip = 0;
     vm->env->code_ref = code_ref;
@@ -34,6 +38,8 @@ int vm_eval(vm_type *vm_void, size_t length, uint8_t *code_ref,
             throw_fatal(vm, "Found Undefined instrution.", 0);
         }
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 
     return vm->exit_status;
 }

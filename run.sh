@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e 
 
 # see: http://stackoverflow.com/a/17076258
 function abs_path {
@@ -31,7 +32,7 @@ SRC=$(realpath $1)
   echo "Compiling ..."
   echo
 
-  build/src/insc-bootstrap --no-assemble $SRC $TMP
+  build/src/insc-bootstrap  --no-assemble $SRC $TMP
 
   EXIT=$?
 

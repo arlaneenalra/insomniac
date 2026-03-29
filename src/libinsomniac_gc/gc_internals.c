@@ -8,7 +8,7 @@ meta_obj_type *internal_alloc(gc_ms_type *gc, size_t size) {
 
     /* Adjust the a given allocation to the minimum size needed.
        i.e. we have to have enough room for a forwarding pointer later. */
-    size = MAX(size, sizeof(uint8_t));
+    size = MAX(size, sizeof(void *));
     real_size = sizeof(meta_obj_type) + size;
         
     assert(real_size > 0);
@@ -22,6 +22,7 @@ meta_obj_type *internal_alloc(gc_ms_type *gc, size_t size) {
     /* If there is no memory left, sweep. */
     if (gc->free < 0) {
         sweep(gc);
+        gc->free -= real_size;
     }
   
     /* Make sure we actually freed up some memory. */

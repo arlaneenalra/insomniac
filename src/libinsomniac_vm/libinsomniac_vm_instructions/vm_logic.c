@@ -6,6 +6,8 @@ void op_eq(vm_internal_type *vm) {
     object_type *obj2 = 0;
     int result = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = obj1 = vm_pop(vm);
     vm->reg2 = obj2 = vm_pop(vm);
 
@@ -36,11 +38,15 @@ void op_eq(vm_internal_type *vm) {
         /* Push the result onto the stack. */
         vm_push(vm, result ? vm->vm_true : vm->vm_false);
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Return the boolean inverse of the given object. */
 void op_not(vm_internal_type *vm) {
     object_type *obj = 0;
+
+    gc_register_root(vm->gc, (void **)&vm);
 
     vm->reg1 = obj = vm_pop(vm);
 
@@ -50,4 +56,6 @@ void op_not(vm_internal_type *vm) {
     } else {
         vm_push(vm, vm->vm_false);
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }

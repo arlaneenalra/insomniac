@@ -208,7 +208,13 @@ void hash_resize(hash_internal_type *table, size_t size) {
     old_table = table->table;
     old_size = table->size;
 
-    gc_alloc_pointer_array(table->gc, size, (void **)&(table->table));
+    {
+        key_value_type **new_table = 0;
+        gc_register_root(table->gc, (void **)&new_table);
+        gc_alloc_pointer_array(table->gc, size, (void **)&new_table);
+        table->table = new_table;
+        gc_unregister_root(table->gc, (void **)&new_table);
+    }
     table->size = size;
     table->entries = 0;
 

@@ -5,11 +5,14 @@ void op_make_byte_vector(vm_internal_type *vm) {
     object_type *obj = 0;
     vm_int length = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = obj = vm_pop(vm);
 
     /* Make sure we have a number. */
     if (obj->type != FIXNUM) {
         throw(vm, "Make byte vector requires a number argument.", 1, obj);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
     }
 
@@ -18,6 +21,8 @@ void op_make_byte_vector(vm_internal_type *vm) {
     vm->reg1 = obj = vm_make_byte_vector(vm, length);
 
     vm_push(vm, obj);
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Allocate a new vector. */
@@ -25,11 +30,14 @@ void op_make_vector(vm_internal_type *vm) {
     object_type *obj = 0;
     vm_int length = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = obj = vm_pop(vm);
 
     /* Make sure we have a number. */
     if (obj->type != FIXNUM) {
         throw(vm, "Make vector requires a number argument.", 1, obj);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
     }
 
@@ -38,6 +46,8 @@ void op_make_vector(vm_internal_type *vm) {
     vm->reg1 = obj = vm_make_vector(vm, length);
 
     vm_push(vm, obj);
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Allocate a new record. */
@@ -45,11 +55,14 @@ void op_make_record(vm_internal_type *vm) {
     object_type *obj = 0;
     vm_int length = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = obj = vm_pop(vm);
 
     /* Make sure we have a number. */
     if (obj->type != FIXNUM) {
         throw(vm, "Make record requires a number argument.", 1, obj);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
     }
 
@@ -58,6 +71,8 @@ void op_make_record(vm_internal_type *vm) {
     vm->reg1 = obj = vm_make_record(vm, length);
 
     vm_push(vm, obj);
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Return the length of a vector. */
@@ -65,10 +80,13 @@ void op_vector_length(vm_internal_type *vm) {
     object_type *obj = 0;
     object_type *length = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = obj = vm_pop(vm);
 
     if (obj->type != VECTOR && obj->type != BYTE_VECTOR && obj->type != RECORD) {
         throw(vm, "Attempt to read vector length of non-vector!", 1, obj);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
     }
 
@@ -76,6 +94,8 @@ void op_vector_length(vm_internal_type *vm) {
     length->value.integer = obj->value.vector.length;
 
     vm_push(vm, length);
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Set an element in a vector. */
@@ -85,12 +105,15 @@ void op_index_set(vm_internal_type *vm) {
     object_type *obj = 0;
     vm_int index = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = vector = vm_pop(vm);
     vm->reg2 = obj = vm_pop(vm);
     vm->reg3 = obj_index = vm_pop(vm);
 
     if (obj_index->type != FIXNUM) {
         throw(vm, "The index must be a number.", 1, obj_index);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
     }
 
@@ -101,10 +124,11 @@ void op_index_set(vm_internal_type *vm) {
         vector->type == RECORD ||
         vector->type == BYTE_VECTOR
         ) && vector->value.vector.length >= index)) {
-        
+
         throw(vm, "Set by index requires a vector.", 1, vector);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
-    } 
+    }
 
     /* Do the set. */
     if (vector->type == VECTOR || vector->type == RECORD) {
@@ -112,10 +136,13 @@ void op_index_set(vm_internal_type *vm) {
     } else {
         if (obj->type != FIXNUM) {
             throw(vm, "Byte vectors may only contain numbers.", 1, obj);
+            gc_unregister_root(vm->gc, (void **)&vm);
             return;
         }
         vector->value.byte_vector.vector[index] = obj->value.integer;
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Read an element from a vector. */
@@ -125,26 +152,30 @@ void op_index_ref(vm_internal_type *vm) {
     object_type *obj = 0;
     vm_int index = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = vector = vm_pop(vm);
     vm->reg2 = obj_index = vm_pop(vm);
 
     if (obj_index->type != FIXNUM) {
         throw(vm, "The index must be a number.", 1, obj_index);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
     }
 
     index = obj_index->value.integer;
-    
+
 
     /* Make sure we have a vector or equivalent. */
     if (!((vector->type == VECTOR ||
         vector->type == RECORD ||
         vector->type == BYTE_VECTOR
         ) && vector->value.vector.length >= index)) {
-        
+
         throw(vm, "Read by index requires a vector.", 1, vector);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
-    } 
+    }
 
     /* Do the read. */
     if (vector->type == VECTOR || vector->type == RECORD) {
@@ -156,17 +187,22 @@ void op_index_ref(vm_internal_type *vm) {
     }
 
     vm_push(vm, obj);
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* return a byte vector of a string. */
 void op_string_byte_vector(vm_internal_type *vm) {
     object_type *string = 0;
     object_type *slice = 0;
-    
+
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = string = vm_pop(vm);
 
     if (string->type != STRING) {
         throw(vm, "str->u8 requires a string argument.", 1, string);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
     }
 
@@ -177,16 +213,21 @@ void op_string_byte_vector(vm_internal_type *vm) {
     slice->value.byte_vector.vector = (uint8_t *)string->value.string.bytes;
 
     vm_push(vm, vm->reg2);
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Return a string from a bytevector. */
 void op_byte_vector_string(vm_internal_type *vm) {
     object_type *vector = 0;
-    
+
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = vector = vm_pop(vm);
 
     if (vector->type != BYTE_VECTOR) {
         throw(vm, "u8->str requires a bytevector argument.", 1, vector);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
     }
 
@@ -195,4 +236,5 @@ void op_byte_vector_string(vm_internal_type *vm) {
 
     vm_push(vm, vm->reg2);
 
+    gc_unregister_root(vm->gc, (void **)&vm);
 }

@@ -4,6 +4,8 @@
 void op_slurp(vm_internal_type *vm) {
     object_type *obj = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = obj = vm_pop(vm);
 
     if (!obj || obj->type != STRING) {
@@ -16,14 +18,20 @@ void op_slurp(vm_internal_type *vm) {
 
         vm_push(vm, vm->reg1);
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* a crude output operations */
 void op_output(vm_internal_type *vm) {
     object_type *obj = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = obj = vm_pop(vm);
     vm_output_object(stdout, obj);
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* open a file and leave the file descriptor on the stack */
@@ -32,6 +40,8 @@ void op_open(vm_internal_type *vm) {
     object_type *path = 0;
     int fd = 0;
     char *err = 0;
+
+    gc_register_root(vm->gc, (void **)&vm);
 
     vm->reg1 = write = vm_pop(vm);
     vm->reg2 = path = vm_pop(vm);
@@ -62,6 +72,8 @@ void op_open(vm_internal_type *vm) {
             vm_push(vm, vm->reg1);
         }
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* close a file */
@@ -70,10 +82,13 @@ void op_close(vm_internal_type *vm) {
     int res = 0;
     char *err = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = fd_obj = vm_pop(vm);
 
     if (!fd_obj || fd_obj->type != FIXNUM) {
         throw(vm, "Close expects an integer file descriptor!", 1, fd_obj);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
     }
 
@@ -89,6 +104,8 @@ void op_close(vm_internal_type *vm) {
 
         throw(vm, "There was an error closing the file", 2, vm->reg1, vm->reg2);
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* write to a file descriptor */
@@ -100,22 +117,27 @@ void op_fd_write(vm_internal_type *vm) {
     vm_int written = 0;
     char *err = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = fd = vm_pop(vm);
     vm->reg2 = num = vm_pop(vm);
     vm->reg3 = u8 = vm_pop(vm);
 
     if (!fd || fd->type != FIXNUM) {
         throw(vm, "Read expected file descriptor!", 1, fd);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
     }
 
     if (!num || num->type != FIXNUM) {
         throw(vm, "Read expected a number of bytes to read!", 1, num);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
     }
 
     if (!u8 || u8->type != BYTE_VECTOR) {
         throw(vm, "Read expected a byte vector!", 1, u8);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
     }
 
@@ -138,6 +160,8 @@ void op_fd_write(vm_internal_type *vm) {
     } else {
         vm_push(vm, vm->reg1);
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* read from a file desciptor */
@@ -149,16 +173,20 @@ void op_fd_read(vm_internal_type *vm) {
     vm_int bytes_read = 0;
     char *err = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = fd = vm_pop(vm);
     vm->reg2 = num = vm_pop(vm);
 
     if (!fd || fd->type != FIXNUM) {
         throw(vm, "Read expected a file descriptor!", 1, fd);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
     }
 
     if (!num || num->type != FIXNUM) {
         throw(vm, "Read expected a number of bytes to read!", 1, num);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
     }
 
@@ -182,4 +210,6 @@ void op_fd_read(vm_internal_type *vm) {
 
         vm_push(vm, vm->reg3);
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }

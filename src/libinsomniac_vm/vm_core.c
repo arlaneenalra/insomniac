@@ -73,22 +73,27 @@ void vm_destroy(vm_type *vm_raw) {
 /* push and item onto the vm stack */
 void vm_push(vm_type *vm_void, object_type *obj) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
-/*    object_type *pair = 0;*/
+    object_type *pair = 0;
 
-    /*gc_protect(vm->gc); */
+    gc_register_root(vm->gc, (void **)&vm);
+    gc_register_root(vm->gc, (void **)&obj);
 
-    /* push an item onto the stack */
-    cons(vm, obj, vm->stack_root, &(vm->stack_root));
-
-    /*vm->stack_root = pair;*/
+    /* Allocate into local, then assign to vm field.
+       Passing &(vm->stack_root) directly to cons would be
+       stale if GC relocates the VM during the allocation. */
+    cons(vm, obj, vm->stack_root, &pair);
+    vm->stack_root = pair;
     vm->depth++;
 
-    /*gc_unprotect(vm->gc);*/
+    gc_unregister_root(vm->gc, (void **)&obj);
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 object_type *vm_pop(vm_type *vm_void) {
     vm_internal_type *vm = (vm_internal_type *)vm_void;
     object_type *obj = 0;
+
+    gc_register_root(vm->gc, (void **)&vm);
 
     /* Return 0 if the stack is empty. */
     if (vm->stack_root->type == EMPTY) {
@@ -106,7 +111,8 @@ object_type *vm_pop(vm_type *vm_void) {
 
     vm->stack_root = vm->stack_root->value.pair.cdr;
     vm->depth--;
-   
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 
     return obj;
 }

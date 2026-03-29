@@ -1,6 +1,6 @@
         
 loop:
-        read
+        1 0 read
         dup     
         out
 
@@ -11,6 +11,6 @@ loop:
         jnf loop
 
         
-        
+        ()  
         
 

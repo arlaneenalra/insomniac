@@ -5,6 +5,7 @@ void op_bind(vm_internal_type *vm) {
     object_type *key = 0;
     object_type *value = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
     gc_register_root(vm->gc, (void **)&key);
     gc_register_root(vm->gc, (void **)&value);
 
@@ -26,6 +27,7 @@ void op_bind(vm_internal_type *vm) {
 
     gc_unregister_root(vm->gc, (void **)&value);
     gc_unregister_root(vm->gc, (void **)&key);
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 void op_read(vm_internal_type *vm) {
@@ -34,6 +36,7 @@ void op_read(vm_internal_type *vm) {
     env_type *env = 0;
     bool found = false;
 
+    gc_register_root(vm->gc, (void **)&vm);
     gc_register_root(vm->gc, (void **)&key);
     gc_register_root(vm->gc, (void **)&value);
 
@@ -46,6 +49,7 @@ void op_read(vm_internal_type *vm) {
         /* there has to be a better way to do this */
         gc_unregister_root(vm->gc, (void **)&value);
         gc_unregister_root(vm->gc, (void **)&key);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
     }
 
@@ -65,6 +69,7 @@ void op_read(vm_internal_type *vm) {
 
     gc_unregister_root(vm->gc, (void **)&value);
     gc_unregister_root(vm->gc, (void **)&key);
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 void op_set(vm_internal_type *vm) {
@@ -73,6 +78,7 @@ void op_set(vm_internal_type *vm) {
     int done = 0;
     env_type *env = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
     gc_register_root(vm->gc, (void **)&key);
     gc_register_root(vm->gc, (void **)&value);
 
@@ -85,6 +91,7 @@ void op_set(vm_internal_type *vm) {
 
         gc_unregister_root(vm->gc, (void **)&value);
         gc_unregister_root(vm->gc, (void **)&key);
+        gc_unregister_root(vm->gc, (void **)&vm);
         return;
     }
 
@@ -109,11 +116,13 @@ void op_set(vm_internal_type *vm) {
 
     gc_unregister_root(vm->gc, (void **)&key);
     gc_unregister_root(vm->gc, (void **)&value);
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 void op_set_exit(vm_internal_type *vm) {
     object_type *value = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
     gc_register_root(vm->gc, (void **)&value);
 
     value = vm_pop(vm);
@@ -127,4 +136,5 @@ void op_set_exit(vm_internal_type *vm) {
     }
 
     gc_unregister_root(vm->gc, (void **)&value);
+    gc_unregister_root(vm->gc, (void **)&vm);
 }

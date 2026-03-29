@@ -49,6 +49,7 @@ void gc_destroy(gc_type *gc_void) {
             root = next;
         }
 
+        FREE(gc->old_pool);
         FREE(gc->memory_pool);
         FREE(gc);
     }

@@ -14,6 +14,7 @@ void op_import(vm_internal_type *vm) {
     vm_int func_count = 0;
     char *msg = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
     gc_register_root(vm->gc, (void **)&obj);
     gc_register_root(vm->gc, (void **)&obj2);
     gc_register_root(vm->gc, (void **)&lib);
@@ -121,6 +122,7 @@ void op_import(vm_internal_type *vm) {
     gc_unregister_root(vm->gc, (void **)&lib);
     gc_unregister_root(vm->gc, (void **)&obj2);
     gc_unregister_root(vm->gc, (void **)&obj);
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* call a function off a given library */
@@ -132,6 +134,7 @@ void op_call_ext(vm_internal_type *vm) {
     vm_int func = 0;
     vm_int depth = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
     gc_register_root(vm->gc, (void **)&obj);
     gc_register_root(vm->gc, (void **)&lib);
 
@@ -163,6 +166,7 @@ void op_call_ext(vm_internal_type *vm) {
 
     gc_unregister_root(vm->gc, (void **)&lib);
     gc_unregister_root(vm->gc, (void **)&obj);
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* assemble a string on the stack into a proc */
@@ -174,6 +178,7 @@ void op_asm(vm_internal_type *vm) {
     uint8_t *code_ref = 0;
     size_t written = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
     gc_register_root(vm->gc, (void **)&obj);
     gc_register_root(vm->gc, (void **)&closure);
     gc_register_root(vm->gc, (void **)&code_ref);
@@ -209,4 +214,5 @@ void op_asm(vm_internal_type *vm) {
     gc_unregister_root(vm->gc, (void **)&code_ref);
     gc_unregister_root(vm->gc, (void **)&closure);
     gc_unregister_root(vm->gc, (void **)&obj);
+    gc_unregister_root(vm->gc, (void **)&vm);
 }

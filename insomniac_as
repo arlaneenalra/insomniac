@@ -24,6 +24,7 @@ close ( fd -- ) Close the fd on the top of the stack.
 
 nop ( -- ) Does nothing
 dup ( a -- a a)
+drop ( a -- ) Drops the top item on the stack
 swap ( a b -- b a)
 rot (c b a -- a c b)
 depth ( -- depth ) How deep is the stack?
@@ -48,7 +49,7 @@ idx! ( index obj vector -- ) Takes an index, object, and vector/record/byte vect
 vec-len ( vector -- size)    Takes a vector as an argument and returns
                                 the vectors length.
 
-str->slice ( string -- slice ) Convert a string into bytevector slice. 
+str->u8 ( string -- u8 ) Convert a string into a byte vector (shares the same underlying bytes).
 u8->str ( u8 -- string ) Convert a bytevector into a string.
 
 int->char ( num -- char ) Convert a number into a character.
@@ -62,6 +63,8 @@ jmp  ( -label- ) Jumps to given label
 jnf  ( obj -label- ) Jumps to the given label if obj is not false
 
 throw ( obj -- ) Throw an exception.
+
+set-exit ( num -- ) Set the process exit status code to num.
 
 continue ( -label- ) Sets the location of an exception handling routine
 
@@ -171,7 +174,11 @@ symbol?
 self? ( a -- bool ) returns true if a is something that can be self evaluated and
                     false in other cases.
 
-Internals 
+Directives
+
+.file "filename" line col  Attach source location debug info to the following instructions.
+
+Internals
 
 These calls are used to examine/dump internal vm state
 

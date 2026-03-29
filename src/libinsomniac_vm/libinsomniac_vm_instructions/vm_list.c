@@ -5,17 +5,23 @@ void op_cons(vm_internal_type *vm) {
     object_type *car = 0;
     object_type *cdr = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = car = vm_pop(vm);
     vm->reg2 = cdr = vm_pop(vm);
 
     cons(vm, car, cdr, &vm->reg3);
 
     vm_push(vm, vm->reg3);
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* extract the car from a given pair */
 void op_car(vm_internal_type *vm) {
     object_type *obj = 0;
+
+    gc_register_root(vm->gc, (void **)&vm);
 
     vm->reg1 = obj = vm_pop(vm);
 
@@ -28,11 +34,15 @@ void op_car(vm_internal_type *vm) {
 
         throw(vm, "Attempt to read the car of a non-pair", 1, obj);
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* extract the car from a given pair */
 void op_cdr(vm_internal_type *vm) {
     object_type *obj = 0;
+
+    gc_register_root(vm->gc, (void **)&vm);
 
     vm->reg1 = obj = vm_pop(vm);
 
@@ -45,12 +55,16 @@ void op_cdr(vm_internal_type *vm) {
 
         throw(vm, "Attempt to read the cdr of a non-pair", 1, obj);
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* extract the car from a given pair */
 void op_set_car(vm_internal_type *vm) {
     object_type *pair = 0;
     object_type *obj = 0;
+
+    gc_register_root(vm->gc, (void **)&vm);
 
     vm->reg1 = obj = vm_pop(vm);
     vm->reg2 = pair = vm_pop(vm);
@@ -66,12 +80,16 @@ void op_set_car(vm_internal_type *vm) {
             vm, "Attempt to set the car of a non-pair or set car to non-object", 2, obj,
             pair);
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* extract the car from a given pair */
 void op_set_cdr(vm_internal_type *vm) {
     object_type *pair = 0;
     object_type *obj = 0;
+
+    gc_register_root(vm->gc, (void **)&vm);
 
     vm->reg1 = obj = vm_pop(vm);
     vm->reg2 = pair = vm_pop(vm);
@@ -87,4 +105,6 @@ void op_set_cdr(vm_internal_type *vm) {
             vm, "Attempt to set the cdr of a non-pair or set cdr to non-object", 2, obj,
             pair);
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }

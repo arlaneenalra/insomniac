@@ -5,18 +5,26 @@ void op_jnf(vm_internal_type *vm) {
     object_type *obj = 0;
     vm_int target = parse_int(vm);
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = obj = vm_pop(vm);
 
     if (!(obj && obj->type == BOOL && !obj->value.boolean)) {
         vm->env->ip += target;
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Straight jump. */
 void op_jmp(vm_internal_type *vm) {
     vm_int target = parse_int(vm);
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->env->ip += target;
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Create a procedure reference based on the current address
@@ -24,6 +32,8 @@ void op_jmp(vm_internal_type *vm) {
 void op_call(vm_internal_type *vm) {
     object_type *closure = 0;
     vm_int target = parse_int(vm); /* get target address */
+
+    gc_register_root(vm->gc, (void **)&vm);
 
     /* Allocate a new closure. */
     vm->reg1 = closure = vm_alloc(vm, CLOSURE);
@@ -36,6 +46,8 @@ void op_call(vm_internal_type *vm) {
 
     /* Do the jump. */
     vm->env->ip += target;
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Rebind the parent of a proc to change the symbol look up
@@ -46,6 +58,7 @@ void op_adopt(vm_internal_type *vm) {
     object_type *adopted = 0;
     env_type *env = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
     gc_register_root(vm->gc, (void **)&env);
 
     vm->reg1 = parent = vm_pop(vm);
@@ -73,6 +86,7 @@ void op_adopt(vm_internal_type *vm) {
     }
 
     gc_unregister_root(vm->gc, (void **)&env);
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Create a procedure reference based on target and leave it
@@ -82,6 +96,7 @@ void op_proc(vm_internal_type *vm) {
     vm_int target = parse_int(vm); /* Get target address. */
     env_type *env = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
     gc_register_root(vm->gc, (void **)&env);
 
     /* Allocate a new closure. */
@@ -98,6 +113,7 @@ void op_proc(vm_internal_type *vm) {
     vm_push(vm, closure);
 
     gc_unregister_root(vm->gc, (void **)&env);
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Jump indirect operation. */
@@ -105,6 +121,7 @@ void op_jin(vm_internal_type *vm) {
     object_type *closure = 0;
     env_type *env = 0;
 
+    gc_register_root(vm->gc, (void **)&vm);
     gc_register_root(vm->gc, (void **)&env);
 
     vm->reg1 = closure = vm_pop(vm);
@@ -129,11 +146,14 @@ void op_jin(vm_internal_type *vm) {
     }
 
     gc_unregister_root(vm->gc, (void **)&env);
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Return operation. */
 void op_ret(vm_internal_type *vm) {
     object_type *closure = 0;
+
+    gc_register_root(vm->gc, (void **)&vm);
 
     vm->reg1 = closure = vm_pop(vm);
 
@@ -145,12 +165,16 @@ void op_ret(vm_internal_type *vm) {
         /* Clone the closures environment. */
         clone_env(vm, &(vm->env), closure->value.closure, false);
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Call indirect operation. */
 void op_call_in(vm_internal_type *vm) {
     object_type *closure = 0;
     object_type *ret = 0;
+
+    gc_register_root(vm->gc, (void **)&vm);
 
     vm->reg1 = closure = vm_pop(vm);
 
@@ -171,11 +195,15 @@ void op_call_in(vm_internal_type *vm) {
         /* Create a child environment. */
         push_env(vm);
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Tail call indirect operation. */
 void op_tail_call_in(vm_internal_type *vm) {
     object_type *closure = 0;
+
+    gc_register_root(vm->gc, (void **)&vm);
 
     vm->reg1 = closure = vm_pop(vm);
 
@@ -197,6 +225,8 @@ void op_tail_call_in(vm_internal_type *vm) {
         /* Create a child environment. */
         push_env(vm);
     }
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 /* Exception Handling code */
 
@@ -205,30 +235,42 @@ void op_tail_call_in(vm_internal_type *vm) {
 void op_continue(vm_internal_type *vm) {
     vm_int target = parse_int(vm);
 
+    gc_register_root(vm->gc, (void **)&vm);
+
     /* We need an absolute address for the
        exception handler as we don't know
        where it will be called from. */
 
     vm->env->handler = 1;
     vm->env->handler_addr = vm->env->ip + target;
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Set the exception handler for the current
    environment. */
 void op_restore(vm_internal_type *vm) {
+    gc_register_root(vm->gc, (void **)&vm);
+
     /* Restore the current exception handler. */
     vm->env->handler = 1;
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 
 /* Throw an exception. */
 void op_throw(vm_internal_type *vm) {
+    gc_register_root(vm->gc, (void **)&vm);
+
     vm->reg1 = vm_pop(vm);
     vm->reg2 = vm_pop(vm);
-    
+
     if (vm->reg2->type != STRING) {
         throw_fatal(vm, "Invalid exception message.", 2, vm->reg2, vm->reg1);
     }
 
     throw(vm, vm->reg2->value.string.bytes, 1, vm->reg1);
+
+    gc_unregister_root(vm->gc, (void **)&vm);
 }
 

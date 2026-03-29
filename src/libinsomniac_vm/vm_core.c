@@ -48,8 +48,14 @@ void vm_create(gc_type *gc, int argc, char **argv, vm_type **vm_ret) {
     /* Setup any command line arguments. */
     vm->reg1 = vm->empty;
     for (int i = argc - 1; i >= 0; i--) {
+        object_type *pair = 0;
+        gc_register_root(gc, (void **)&pair);
+
         vm->reg2 = vm_make_string(vm, argv[i], strlen(argv[i]));
-        cons(vm, vm->reg2, vm->reg1, &(vm->reg1));
+        cons(vm, vm->reg2, vm->reg1, &pair);
+        vm->reg1 = pair;
+
+        gc_unregister_root(gc, (void **)&pair);
     }
 
     vm_push(vm, vm->reg1);

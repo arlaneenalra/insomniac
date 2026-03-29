@@ -4,16 +4,19 @@
 void op_cons(vm_internal_type *vm) {
     #define car vm->reg1
     #define cdr vm->reg2
+    object_type *result = 0;
 
     BEGIN_OP;
+    gc_register_root(vm->gc, (void **)&result);
 
     car = vm_pop(vm);
     cdr = vm_pop(vm);
 
-    cons(vm, car, cdr, &vm->reg3);
+    cons(vm, car, cdr, &result);
 
-    vm_push(vm, vm->reg3);
+    vm_push(vm, result);
 
+    gc_unregister_root(vm->gc, (void **)&result);
     END_OP;
     #undef car
     #undef cdr

@@ -105,10 +105,16 @@ void op_import(vm_internal_type *vm) {
                 obj2 = vm_alloc(vm, FIXNUM);
                 obj2->value.integer = func_count;
 
-                cons(vm, obj, obj2, &(vm->reg1));
-                cons(vm, vm->reg1, binding_alist, &(vm->reg2));
+                {
+                    object_type *pair = 0;
+                    gc_register_root(vm->gc, (void **)&pair);
 
-                binding_alist = vm->reg2;
+                    cons(vm, obj, obj2, &pair);
+                    cons(vm, pair, binding_alist, &pair);
+                    binding_alist = pair;
+
+                    gc_unregister_root(vm->gc, (void **)&pair);
+                }
 
                 /* increment function count */
                 func_count++;

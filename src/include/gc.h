@@ -40,6 +40,16 @@ void gc_register_pointer(gc_type *gc_void, gc_type_def type, size_t offset);
  Size is assumed to be a 64bit integer. */
 void gc_register_array(gc_type *gc_void, gc_type_def type, size_t offset);
 
+/* Check if a pointer is in the old (stale) pool. For debugging. */
+bool gc_is_stale(gc_type *gc, void *ptr);
+
+/* Enable pointer validation during GC sweep.
+   When enabled, copy_graph verifies that every pointer it follows
+   resides in the expected memory pool (the from-space), and that
+   forwarding addresses land in the to-space. Crashes immediately
+   with diagnostic output on violation. */
+void gc_set_validate(gc_type *gc, bool enable);
+
 /* Some utility functions. */
 void gc_make_substring(gc_type *gc, const char *src, char **gc_str, int len);
 #define gc_make_string(gc, src, gc_str) \

@@ -36,18 +36,24 @@ void push_env(vm_internal_type *vm) {
 
 /* create a copy of the environment in a new environment */
 void clone_env(vm_internal_type *vm, env_type **target, env_type *env, bool cow) {
+    env_type *new_env = 0;
 
     gc_register_root(vm->gc, (void **)&vm);
     gc_register_root(vm->gc, (void **)&env);
-    gc_alloc_type(vm->gc, vm->env_type, (void **)target);
+    gc_register_root(vm->gc, (void **)&new_env);
 
-    /* copy env to vm->env */
-    memcpy(*target, env, sizeof(env_type));
+    gc_alloc_type(vm->gc, vm->env_type, (void **)&new_env);
+
+    /* copy env to new_env */
+    memcpy(new_env, env, sizeof(env_type));
 
     if (cow) {
-        hash_cow(vm->gc, env->bindings, &(*target)->bindings);
+        hash_cow(vm->gc, env->bindings, &new_env->bindings);
     }
 
+    *target = new_env;
+
+    gc_unregister_root(vm->gc, (void **)&new_env);
     gc_unregister_root(vm->gc, (void **)&env);
     gc_unregister_root(vm->gc, (void **)&vm);
 }

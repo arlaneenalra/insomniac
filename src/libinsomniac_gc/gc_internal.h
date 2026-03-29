@@ -85,6 +85,14 @@ typedef struct gc_ms {
     vm_int sweeps; /* Count of the number of sweeps since app start. */
 
     gc_type_def array_type; /* typedef for pointer arrays */
+
+    bool validate; /* when true, copy_graph validates pointer pool membership */
+
+    /* Set during sweep for validation: boundaries of the from-space and to-space */
+    uint8_t *from_space;
+    uint8_t *from_space_end;
+    uint8_t *to_space;
+    uint8_t *to_space_end;
 } gc_ms_type;
 
 /* do the actual object allocation */

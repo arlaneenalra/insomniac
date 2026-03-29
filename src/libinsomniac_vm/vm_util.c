@@ -22,12 +22,16 @@ void cons(vm_type *vm_void, object_type *car, object_type *cdr, object_type **pa
     vm_internal_type *vm = (vm_internal_type *)vm_void;
 
     gc_register_root(vm->gc, (void **)&vm);
+    gc_register_root(vm->gc, (void **)&car);
+    gc_register_root(vm->gc, (void **)&cdr);
 
     *pair_out = vm_alloc(vm, PAIR);
 
     (*pair_out)->value.pair.car = car;
     (*pair_out)->value.pair.cdr = cdr;
 
+    gc_unregister_root(vm->gc, (void **)&cdr);
+    gc_unregister_root(vm->gc, (void **)&car);
     gc_unregister_root(vm->gc, (void **)&vm);
 }
 

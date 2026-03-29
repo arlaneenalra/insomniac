@@ -58,7 +58,13 @@ void handle_exception(vm_internal_type * vm, char *msg, bool fatal, int num, ...
 
     /* Save the current point in the execution. */
     obj = vm_alloc(vm, CLOSURE);
-    clone_env(vm, (env_type **)&(obj->value.closure), vm->env, false);
+    {
+        env_type *saved_env = 0;
+        gc_register_root(vm->gc, (void **)&saved_env);
+        clone_env(vm, &saved_env, vm->env, false);
+        obj->value.closure = saved_env;
+        gc_unregister_root(vm->gc, (void **)&saved_env);
+    }
 
     cons(vm, obj, exception, &cons_temp);
     exception = cons_temp;
@@ -90,7 +96,13 @@ void handle_exception(vm_internal_type * vm, char *msg, bool fatal, int num, ...
             /* Set the env to the one we found. */
             vm->env = env;
 
-            clone_env(vm, (env_type **)&(vm->env), vm->env, false);
+            {
+                env_type *handler_env = 0;
+                gc_register_root(vm->gc, (void **)&handler_env);
+                clone_env(vm, &handler_env, vm->env, false);
+                vm->env = handler_env;
+                gc_unregister_root(vm->gc, (void **)&handler_env);
+            }
             /* Disable exception handler while handling exceptions. */
             vm->env->handler = 0;
 

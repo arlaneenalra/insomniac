@@ -222,6 +222,7 @@ void hash_resize(hash_internal_type *table, size_t size) {
 
     gc_register_root(table->gc, (void **)&table);
     gc_register_root(table->gc, (void **)&old_table);
+    gc_register_root(table->gc, (void **)&kv);
 
     old_table = table->table;
     old_size = table->size;
@@ -247,13 +248,17 @@ void hash_resize(hash_internal_type *table, size_t size) {
             while (kv) {
                 /* save the previous value in the new
                    table */
-                hash_find_kv(table, kv, CREATE)->value = kv->value;
+                {
+                    key_value_type *new_kv = hash_find_kv(table, kv, CREATE);
+                    new_kv->value = kv->value;
+                }
 
                 kv = kv->next;
             }
         }
     }
 
+    gc_unregister_root(table->gc, (void **)&kv);
     gc_unregister_root(table->gc, (void **)&old_table);
     gc_unregister_root(table->gc, (void **)&table);
 }

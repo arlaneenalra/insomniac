@@ -16,6 +16,19 @@ target_link_libraries(test_hash
 
 add_test(TestHash ${CMAKE_CURRENT_BIN_DIR}/test_hash)
 
+add_executable(test_gc
+  test_gc.c
+  )
+
+target_link_libraries(test_gc
+  insomniac_gc
+  insomniac_hash
+  insomniac_vm
+  tester
+  )
+
+add_test(TestGC ${CMAKE_CURRENT_BIN_DIR}/test_gc)
+
 file(GLOB TEST_LEXER_SOURCES
     ${PROJECT_SOURCE_DIR}/src/core/lexer/*.scm
     ${PROJECT_SOURCE_DIR}/src/core/scheme/*.scm)

@@ -14,6 +14,21 @@ void *copy_graph(gc_ms_type *gc, meta_obj_type *meta) {
         return 0;
     }
 
+    /* Validate that meta resides in the from-space (the pool being copied). */
+    if (gc->validate) {
+        uint8_t *addr = (uint8_t *)meta;
+        if (addr < gc->from_space || addr >= gc->from_space_end) {
+            fprintf(stderr,
+                "\n*** GC VALIDATION FAILURE ***\n"
+                "copy_graph received meta at %p which is OUTSIDE the from-space [%p, %p).\n"
+                "This is a stale pointer from a previous GC cycle.\n"
+                "meta->mark = %d, meta->type_def = %d\n",
+                (void *)meta, (void *)gc->from_space, (void *)gc->from_space_end,
+                meta->mark, meta->type_def);
+            assert(0 && "GC validation: pointer outside from-space");
+        }
+    }
+
     /* Fixed objects are pinned -- return as-is without copying. */
     if (meta->mark == FIXED) {
         return obj_from_meta(meta);
@@ -23,7 +38,24 @@ void *copy_graph(gc_ms_type *gc, meta_obj_type *meta) {
        The forwarding address is stored in the meta header (size field)
        so that the original object data remains readable by stale C pointers. */
     if (meta->mark == FORWARDING) {
-        return *((void **)&meta->size);
+        void *fwd = *((void **)&meta->size);
+
+        /* Validate that the forwarding address is in the to-space. */
+        if (gc->validate) {
+            uint8_t *fwd_addr = (uint8_t *)fwd;
+            if (fwd_addr < gc->to_space || fwd_addr >= gc->to_space_end) {
+                fprintf(stderr,
+                    "\n*** GC VALIDATION FAILURE ***\n"
+                    "FORWARDING pointer at meta %p -> %p is OUTSIDE the to-space [%p, %p).\n"
+                    "This forwarding address is from a previous GC cycle.\n"
+                    "meta->type_def = %d\n",
+                    (void *)meta, fwd, (void *)gc->to_space, (void *)gc->to_space_end,
+                    meta->type_def);
+                assert(0 && "GC validation: forwarding address outside to-space");
+            }
+        }
+
+        return fwd;
     }
 
     /* Allocate a new instance in the target space. */
@@ -127,6 +159,14 @@ void sweep(gc_ms_type *gc) {
     gc->allocations = 0;
     gc->free = gc->pool_size;
     gc->memory_pool = gc->memory_pool_head = MALLOC(gc->pool_size);
+
+    /* Set validation boundaries for copy_graph */
+    if (gc->validate) {
+        gc->from_space = old_pool;
+        gc->from_space_end = old_pool + gc->pool_size;
+        gc->to_space = gc->memory_pool;
+        gc->to_space_end = gc->memory_pool + gc->pool_size;
+    }
 
     /* Mark all objects reachable from our defined root
        pointers. */

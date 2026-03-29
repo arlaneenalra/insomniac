@@ -8,6 +8,7 @@ gc_type *gc_create(size_t cell_size) {
     gc = MALLOC_TYPE(gc_ms_type);
 
     gc->protect_count = 0;
+    gc->validate = false;
 
     /* Used to keep track of type definitions. */
     gc->type_defs = 0;
@@ -177,4 +178,18 @@ void gc_sweep(gc_type *gc_void) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
 
     sweep(gc);
+}
+
+/* check if a pointer is in the old (stale) pool */
+bool gc_is_stale(gc_type *gc_void, void *ptr) {
+    gc_ms_type *gc = (gc_ms_type *)gc_void;
+    if (!gc->validate || !ptr || !gc->old_pool) return false;
+    uint8_t *p = (uint8_t *)ptr;
+    return p >= gc->old_pool && p < gc->old_pool + gc->pool_size;
+}
+
+/* enable or disable pointer validation during GC */
+void gc_set_validate(gc_type *gc_void, bool enable) {
+    gc_ms_type *gc = (gc_ms_type *)gc_void;
+    gc->validate = enable;
 }

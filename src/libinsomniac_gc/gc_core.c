@@ -2,9 +2,53 @@
 
 #include "stdio.h"
 
-/* Construct a new instance of our GC. */
-gc_type *gc_create(size_t cell_size) {
+/* Query physical RAM and return 40% of it, capped at 1 GB.
+ * Falls back to GC_INITIAL_FREE if system memory detection fails. */
+size_t gc_default_pool_size(void) {
+    uint64_t phys_mem = 0;
+    size_t result = 0;
+    const size_t cap = 1024UL * 1024UL * 1024UL; /* 1 GB */
+
+#ifdef __APPLE__
+    size_t len = sizeof(phys_mem);
+    if (sysctlbyname("hw.memsize", &phys_mem, &len, NULL, 0) != 0) {
+        phys_mem = 0;
+    }
+#elif defined(__linux__)
+    {
+        long phys_pages = sysconf(_SC_PHYS_PAGES);
+        long page_size = sysconf(_SC_PAGE_SIZE);
+        if (phys_pages > 0 && page_size > 0) {
+            phys_mem = (uint64_t)phys_pages * (uint64_t)page_size;
+        } else {
+            phys_mem = 0;
+        }
+    }
+#endif
+
+    if (phys_mem == 0) {
+        return (size_t)GC_INITIAL_FREE;
+    }
+
+    result = (size_t)(phys_mem * 2 / 5); /* 40% via integer arithmetic */
+    if (result > cap) {
+        result = cap;
+    }
+    return result;
+}
+
+/* Construct a new instance of our GC.
+ * Pass pool_size == 0 to use the platform default (40% of RAM, capped at 1 GB). */
+gc_type *gc_create(size_t cell_size, size_t pool_size) {
     gc_ms_type *gc = 0;
+    size_t effective_pool_size = 0;
+
+    if (pool_size == 0) {
+        effective_pool_size = gc_default_pool_size();
+    } else {
+        effective_pool_size = pool_size;
+    }
+
     gc = MALLOC_TYPE(gc_ms_type);
 
     gc->protect_count = 0;
@@ -15,8 +59,8 @@ gc_type *gc_create(size_t cell_size) {
     gc->num_types = 0;
 
     /* Allocate the initial pool. */
-    gc->pool_size = gc->free = GC_INITIAL_FREE;
-    gc->memory_pool = gc->memory_pool_head = MALLOC(GC_INITIAL_FREE);
+    gc->pool_size = gc->free = (vm_int)effective_pool_size;
+    gc->memory_pool = gc->memory_pool_head = MALLOC(effective_pool_size);
 
     /* Register the ARRAY type as type 0. */
     gc->array_type = gc_register_type(gc, sizeof(void *));

@@ -1,5 +1,5 @@
 # When set, we also build the test suite using insc-as to test that the meta-cirular assembler works.
-set(USE_META_CIRCULAR_AS 0)
+set(USE_META_CIRCULAR_AS 1)
 
 # On macOS, prefer Homebrew bison over the ancient system bison (2.3).
 # The project requires bison 2.6+ for %define api.pure syntax.

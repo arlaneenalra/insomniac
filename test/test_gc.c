@@ -4,6 +4,13 @@
 #include <insomniac.h>
 #include <test.h>
 
+/* Pull in the internal GC struct so tests can inspect counters directly
+   without exposing them through the public API. */
+#include "gc_internal.h"
+
+/* Convenience macro: cast the opaque gc_type* to the internal struct. */
+#define GC_INTERNAL(gc_ptr) ((gc_ms_type *)(gc_ptr))
+
 /* cons is declared in vm_internal.h; redeclare here to avoid
    pulling in the full internal header. */
 extern void cons(vm_type *vm, object_type *car, object_type *cdr,
@@ -37,8 +44,13 @@ static void exhaust_pool(void) {
 /*  Setup / Teardown                                                   */
 /* ------------------------------------------------------------------ */
 
+/* Small pool so exhaust_pool() actually fills it (~18 K objects of 56 bytes
+ * each before a sweep fires).  The default (40% of RAM, capped at 1 GB)
+ * would never be exhausted by the 300 K iterations in exhaust_pool(). */
+#define GC_TEST_POOL_SIZE (1 * 1024 * 1024) /* 1 MB */
+
 void setup_hook(void) {
-    gc = gc_create(sizeof(object_type));
+    gc = gc_create(sizeof(object_type), GC_TEST_POOL_SIZE);
     gc_set_validate(gc, true);
 
     gc_register_root(gc, (void **)&vm);
@@ -278,12 +290,40 @@ int test_graph_across_gc_boundary(void) {
 /*  Test 7: GC triggered by memory pressure (not explicit sweep)       */
 /* ------------------------------------------------------------------ */
 int test_gc_under_pressure(void) {
+    gc_ms_type *igc = GC_INTERNAL(gc);
     object_type *list = 0;
     object_type *elem = 0;
+    int result = 0;
 
+    /* Per-object cost for every allocation in this test.
+     *
+     * This test is intentionally brittle about exact byte counts: all
+     * objects allocated here (FIXNUM and PAIR) are sizeof(object_type)
+     * each, so they share a single real_size in internal_alloc.  That lets
+     * us assert exact deltas rather than just thresholds.  If object_type
+     * or meta_obj_type ever changes size these assertions will fail and
+     * the constant below should be updated.  The brittleness is acceptable
+     * because catching unexpected size changes is part of the point.
+     *
+     * Note: vm_alloc(vm, EMPTY) returns vm->empty, a pre-allocated
+     * singleton -- it does NOT increment allocations. */
+    const vm_int obj_size =
+        (vm_int)(sizeof(meta_obj_type) + sizeof(object_type));
+
+    /* Register roots before the baseline sweep so any sweep that fires
+     * during list building updates these pointers correctly.  We use
+     * goto cleanup throughout to ensure they are always unregistered --
+     * leaving dangling stack roots in the list corrupts subsequent sweeps. */
     gc_register_root(gc, (void **)&list);
     gc_register_root(gc, (void **)&elem);
 
+    /* Establish a clean baseline so free is known relative to a sweep. */
+    gc_sweep(gc);
+    vm_int base_allocs = igc->allocations;
+    vm_int base_free   = igc->free;
+
+    /* Build (0 1 2 ... 99): 100 FIXNUM + 100 PAIR = 200 new objects.
+     * (EMPTY is a singleton; vm_alloc returns vm->empty without allocating.) */
     list = vm_alloc(vm, EMPTY);
     for (int i = 99; i >= 0; i--) {
         elem = vm_alloc(vm, FIXNUM);
@@ -291,25 +331,87 @@ int test_gc_under_pressure(void) {
         cons(vm, elem, list, &list);
     }
 
-    /* Exhaust pool to trigger GC implicitly on next alloc */
+    /* Verify exact allocation deltas before applying memory pressure. */
+    if (igc->allocations != base_allocs + 200) {
+        printf("after list build: expected allocations=%" PRIi64
+               ", got %" PRIi64 "\n",
+               base_allocs + 200, igc->allocations);
+        result = 1;
+        goto cleanup;
+    }
+    if (igc->free != base_free - 200 * obj_size) {
+        printf("after list build: expected free=%" PRIi64
+               ", got %" PRIi64 "\n",
+               base_free - 200 * obj_size, igc->free);
+        result = 1;
+        goto cleanup;
+    }
+
+    /* exhaust_pool triggers multiple implicit GC sweeps.  After each sweep
+     * the live set is (base + 200 list objects), so free resets to
+     * base_free - 200 * obj_size before the next fill begins.
+     * After the loop some iterations will have run since the last sweep,
+     * leaving free in an indeterminate state -- hence the explicit sweep
+     * below to normalise before measuring. */
     exhaust_pool();
 
-    /* This allocation should trigger a sweep internally */
+    /* Normalise: sweep out the garbage left by exhaust_pool so subsequent
+     * counter checks are against a clean state. */
+    gc_sweep(gc);
+
+    if (igc->allocations != base_allocs + 200) {
+        printf("after pressure sweep: expected allocations=%" PRIi64
+               ", got %" PRIi64 "\n",
+               base_allocs + 200, igc->allocations);
+        result = 1;
+        goto cleanup;
+    }
+    if (igc->free != base_free - 200 * obj_size) {
+        printf("after pressure sweep: expected free=%" PRIi64
+               ", got %" PRIi64 "\n",
+               base_free - 200 * obj_size, igc->free);
+        result = 1;
+        goto cleanup;
+    }
+
+    /* Allocate one more object (the -1 sentinel); verify the counters
+     * reflect exactly one additional allocation. */
     elem = vm_alloc(vm, FIXNUM);
     elem->value.integer = -1;
 
-    /* Verify the list is still intact */
-    object_type *cursor = list;
-    for (int i = 0; i < 100; i++) {
-        if (cursor->type != PAIR) { return 1; }
-        if (cursor->value.pair.car->value.integer != i) { return 1; }
-        cursor = cursor->value.pair.cdr;
+    if (igc->allocations != base_allocs + 201) {
+        printf("after final alloc: expected allocations=%" PRIi64
+               ", got %" PRIi64 "\n",
+               base_allocs + 201, igc->allocations);
+        result = 1;
+        goto cleanup;
     }
-    if (cursor->type != EMPTY) { return 1; }
+    if (igc->free != base_free - 201 * obj_size) {
+        printf("after final alloc: expected free=%" PRIi64
+               ", got %" PRIi64 "\n",
+               base_free - 201 * obj_size, igc->free);
+        result = 1;
+        goto cleanup;
+    }
 
+    /* Verify the list is still intact after all the GC activity. */
+    {
+        object_type *cursor = list;
+        for (int i = 0; i < 100; i++) {
+            if (cursor->type != PAIR) { result = 1; goto cleanup; }
+            if (cursor->value.pair.car->value.integer != i) {
+                result = 1;
+                goto cleanup;
+            }
+            cursor = cursor->value.pair.cdr;
+        }
+        if (cursor->type != EMPTY) { result = 1; goto cleanup; }
+    }
+
+cleanup:
     gc_unregister_root(gc, (void **)&elem);
     gc_unregister_root(gc, (void **)&list);
-    return 0;
+    return result;
 }
 
 /* ------------------------------------------------------------------ */
@@ -417,6 +519,189 @@ int test_mixed_type_graph(void) {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Test 10: sweeps counter increments with each collection cycle      */
+/* ------------------------------------------------------------------ */
+int test_sweeps_counter(void) {
+    gc_ms_type *igc = GC_INTERNAL(gc);
+    vm_int initial = igc->sweeps;
+
+    gc_sweep(gc);
+    if (igc->sweeps != initial + 1) {
+        printf("after sweep 1: expected sweeps=%" PRIi64 ", got %" PRIi64 "\n",
+               initial + 1, igc->sweeps);
+        return 1;
+    }
+
+    gc_sweep(gc);
+    if (igc->sweeps != initial + 2) {
+        printf("after sweep 2: expected sweeps=%" PRIi64 ", got %" PRIi64 "\n",
+               initial + 2, igc->sweeps);
+        return 1;
+    }
+
+    gc_sweep(gc);
+    if (igc->sweeps != initial + 3) {
+        printf("after sweep 3: expected sweeps=%" PRIi64 ", got %" PRIi64 "\n",
+               initial + 3, igc->sweeps);
+        return 1;
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Test 11: dead objects are collected; allocations and free recover  */
+/* ------------------------------------------------------------------ */
+int test_dead_objects_collected(void) {
+    gc_ms_type *igc = GC_INTERNAL(gc);
+
+    /* Establish a clean baseline after a sweep. */
+    gc_sweep(gc);
+    vm_int base_allocs = igc->allocations;
+    vm_int base_free   = igc->free;
+    vm_int base_sweeps = igc->sweeps;
+
+    /* Allocate 20 objects WITHOUT rooting them -- pure garbage. */
+    const int N = 20;
+    for (int i = 0; i < N; i++) {
+        object_type *tmp = vm_alloc(vm, FIXNUM);
+        tmp->value.integer = i;
+    }
+
+    /* Counters should reflect the new allocations. */
+    if (igc->allocations != base_allocs + N) {
+        printf("before sweep: expected allocations=%" PRIi64 ", got %" PRIi64 "\n",
+               base_allocs + N, igc->allocations);
+        return 1;
+    }
+    if (igc->free >= base_free) {
+        printf("before sweep: free should have decreased (was %" PRIi64 ", now %" PRIi64 ")\n",
+               base_free, igc->free);
+        return 1;
+    }
+
+    /* After a sweep, only the baseline live set should remain. */
+    gc_sweep(gc);
+
+    if (igc->sweeps != base_sweeps + 1) {
+        printf("sweeps should be %" PRIi64 ", got %" PRIi64 "\n",
+               base_sweeps + 1, igc->sweeps);
+        return 1;
+    }
+    if (igc->allocations != base_allocs) {
+        printf("after sweep: expected allocations=%" PRIi64 " (garbage collected), got %" PRIi64 "\n",
+               base_allocs, igc->allocations);
+        return 1;
+    }
+    if (igc->free != base_free) {
+        printf("after sweep: expected free=%" PRIi64 " (space recovered), got %" PRIi64 "\n",
+               base_free, igc->free);
+        return 1;
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Test 12: multi-cycle: root a set, collect garbage each cycle,      */
+/*           verify counters stay consistent across sweeps             */
+/* ------------------------------------------------------------------ */
+int test_multi_cycle_collection(void) {
+    gc_ms_type *igc = GC_INTERNAL(gc);
+    object_type *a = 0;
+    object_type *b = 0;
+    object_type *c = 0;
+
+    gc_register_root(gc, (void **)&a);
+    gc_register_root(gc, (void **)&b);
+    gc_register_root(gc, (void **)&c);
+
+    /* Baseline after a clean sweep. */
+    gc_sweep(gc);
+    vm_int base_allocs = igc->allocations;
+    vm_int base_free   = igc->free;
+    vm_int base_sweeps = igc->sweeps;
+
+    /* --- Cycle 1: root a and b, let 10 objects die --- */
+    a = vm_alloc(vm, FIXNUM);
+    a->value.integer = 1;
+    b = vm_alloc(vm, FIXNUM);
+    b->value.integer = 2;
+    for (int i = 0; i < 10; i++) {
+        vm_alloc(vm, FIXNUM); /* garbage */
+    }
+
+    gc_sweep(gc);
+
+    /* a and b survive; 10 unrooted are gone. */
+    if (igc->sweeps != base_sweeps + 1) { return 1; }
+    if (igc->allocations != base_allocs + 2) {
+        printf("cycle 1: expected allocations=%" PRIi64 ", got %" PRIi64 "\n",
+               base_allocs + 2, igc->allocations);
+        return 1;
+    }
+
+    vm_int after_cycle1_free = igc->free;
+    if (after_cycle1_free >= base_free) {
+        printf("cycle 1: free should be less than baseline (base=%" PRIi64 ", now=%" PRIi64 ")\n",
+               base_free, after_cycle1_free);
+        return 1;
+    }
+
+    /* --- Cycle 2: add c, let 15 objects die --- */
+    c = vm_alloc(vm, FIXNUM);
+    c->value.integer = 3;
+    for (int i = 0; i < 15; i++) {
+        vm_alloc(vm, FIXNUM); /* garbage */
+    }
+
+    gc_sweep(gc);
+
+    if (igc->sweeps != base_sweeps + 2) { return 1; }
+    if (igc->allocations != base_allocs + 3) {
+        printf("cycle 2: expected allocations=%" PRIi64 ", got %" PRIi64 "\n",
+               base_allocs + 3, igc->allocations);
+        return 1;
+    }
+
+    /* free should be less than after cycle 1 (we now carry a, b, c). */
+    if (igc->free >= after_cycle1_free) {
+        printf("cycle 2: free should be less than after cycle 1\n");
+        return 1;
+    }
+
+    /* --- Cycle 3: drop c (let it die), keep a and b --- */
+    c = 0;
+    for (int i = 0; i < 5; i++) {
+        vm_alloc(vm, FIXNUM); /* more garbage */
+    }
+
+    gc_sweep(gc);
+
+    if (igc->sweeps != base_sweeps + 3) { return 1; }
+    /* c is now garbage; should be back to base + 2. */
+    if (igc->allocations != base_allocs + 2) {
+        printf("cycle 3: expected allocations=%" PRIi64 " after dropping c, got %" PRIi64 "\n",
+               base_allocs + 2, igc->allocations);
+        return 1;
+    }
+    /* free should recover to what it was after cycle 1 (same live set: a, b). */
+    if (igc->free != after_cycle1_free) {
+        printf("cycle 3: expected free=%" PRIi64 " (c reclaimed), got %" PRIi64 "\n",
+               after_cycle1_free, igc->free);
+        return 1;
+    }
+
+    /* Verify a and b still hold their values. */
+    if (a->value.integer != 1 || b->value.integer != 2) { return 1; }
+
+    gc_unregister_root(gc, (void **)&c);
+    gc_unregister_root(gc, (void **)&b);
+    gc_unregister_root(gc, (void **)&a);
+    return 0;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Test case table                                                    */
 /* ------------------------------------------------------------------ */
 test_case_type cases[] = {
@@ -429,5 +714,8 @@ test_case_type cases[] = {
     {&test_gc_under_pressure,          "GC triggered by memory pressure"},
     {&test_nested_vectors_survive_gc,  "Nested vectors survive GC"},
     {&test_mixed_type_graph,           "Mixed-type graph survives GC"},
+    {&test_sweeps_counter,             "Sweeps counter increments correctly"},
+    {&test_dead_objects_collected,     "Dead objects collected; allocations and free recover"},
+    {&test_multi_cycle_collection,     "Multi-cycle: counters consistent across sweeps"},
     {0, 0}
 };

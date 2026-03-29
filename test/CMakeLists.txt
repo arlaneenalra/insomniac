@@ -20,6 +20,10 @@ add_executable(test_gc
   test_gc.c
   )
 
+target_include_directories(test_gc PRIVATE
+  ${PROJECT_SOURCE_DIR}/src/libinsomniac_gc
+  )
+
 target_link_libraries(test_gc
   insomniac_gc
   insomniac_hash

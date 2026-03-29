@@ -12,7 +12,7 @@ extern debug_range_type debug_ranges[];
 extern uint64_t debug_ranges_count;
 
 int run_scheme(int argc, char **argv) {
-    gc_type *gc = gc_create(sizeof(object_type));
+    gc_type *gc = gc_create(sizeof(object_type), 0);
     vm_type *vm = 0;
     int ret_value = 0;
 

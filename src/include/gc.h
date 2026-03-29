@@ -11,8 +11,14 @@ typedef void gc_type;
 typedef int32_t gc_type_def;
 
 /* Setup and destroy functions. */
-gc_type *gc_create(size_t cell_size);
+/* TODO: add a runtime CLI option (e.g. --pool-size=<bytes>) to pass a
+ * user-supplied value here instead of always using 0 (default). */
+gc_type *gc_create(size_t cell_size, size_t pool_size);
 void gc_destroy(gc_type *gc);
+
+/* Returns the default pool size: 40% of physical RAM, capped at 1 GB.
+ * Falls back to GC_INITIAL_FREE if system memory detection fails. */
+size_t gc_default_pool_size(void);
 
 /* Sweep active objects. */
 void gc_sweep(gc_type *gc);

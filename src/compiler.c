@@ -309,7 +309,7 @@ size_t buildAttachment(gc_type *gc, char *asm_str, char **target) {
 
 int main(int argc, char **argv) {
     options_type opts = {0, 0, 0, 0, true, true, true, true};
-    gc_type *gc = gc_create(sizeof(object_type));
+    gc_type *gc = gc_create(sizeof(object_type), 0);
     size_t length = 0;
     char *asm_str = 0;
     compiler_type *compiler = 0;

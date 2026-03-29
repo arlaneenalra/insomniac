@@ -17,7 +17,7 @@ char *expected = 0;
 
 /* Global Setup and Tear Down hooks */
 void setup_hook(void) {
-    gc = gc_create(sizeof(object_type));
+    gc = gc_create(sizeof(object_type), 0);
 
     /* make this a root to the garbage collector */
     gc_register_root(gc, &hash);

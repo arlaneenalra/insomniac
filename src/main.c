@@ -32,7 +32,7 @@ int eval_string(vm_type *vm, gc_type *gc, char *str) {
 }
 
 int main(int argc, char **argv) {
-    gc_type *gc = gc_create(sizeof(object_type));
+    gc_type *gc = gc_create(sizeof(object_type), 0);
     vm_type *vm = 0;
     char *code_str = 0;
     int ret_value = 0;

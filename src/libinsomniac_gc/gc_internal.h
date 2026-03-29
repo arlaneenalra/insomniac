@@ -8,10 +8,17 @@
 
 #include <stddef.h> /* for offsetof */
 
+#ifdef __APPLE__
+#include <sys/sysctl.h>
+#endif
+#ifdef __linux__
+#include <unistd.h>
+#endif
+
 #include <gc.h>
 
-/* Tuning parameters for the GC */
-//#define GC_INITIAL_FREE 0x1000000
+/* Fallback pool size used when system memory detection fails. */
+/* #define GC_INITIAL_FREE 0x1000000 */
 #define GC_INITIAL_FREE 0x100000000
 
 /* An internal GC structure to represent an allocated object */

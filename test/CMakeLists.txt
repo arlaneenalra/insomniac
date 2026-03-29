@@ -50,11 +50,12 @@ foreach(SCM_FILE ${SCM_SOURCES})
 endforeach()
 
 # Build the same tests via insc-as (the self-hosted assembler).
-foreach(SCM_FILE ${SCM_SOURCES})
-    string(REPLACE ".scm" "" testname ${SCM_FILE})
+if(USE_META_CIRCULAR_AS)
+    foreach(SCM_FILE ${SCM_SOURCES})
+        string(REPLACE ".scm" "" testname ${SCM_FILE})
 
-    INSC_AS_TARGET(TEST_SCM_AS ${SCM_FILE} ${testname}_as ${${testname}_EXTRA})
+        INSC_AS_TARGET(TEST_SCM_AS ${SCM_FILE} ${testname}_as ${${testname}_EXTRA})
 
-    add_test(Test_${testname}_as ${INSC_AS_TEST_SCM_AS_OUTPUT})
-endforeach()
-
+        add_test(Test_${testname}_as ${INSC_AS_TEST_SCM_AS_OUTPUT})
+    endforeach()
+endif()

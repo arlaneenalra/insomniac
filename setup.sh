@@ -19,11 +19,12 @@ if [[ ! -x "src/lib" ]] ; then
 fi
 
 # check for homebrewed bison packaged with braindead xcode
-HOMEBREW_BISON=/usr/local/opt/bison/bin/
-if [[ -x "$HOMEBREW_BISON/bison" ]] ; then
-  PATH=$HOMEBREW_BISON:$PATH
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  HOMEBREW_BISON=$(brew --prefix bison)/bin
+  if [[ -x "$HOMEBREW_BISON/bison" ]] ; then
+    PATH=$HOMEBREW_BISON:$PATH
+  fi
 fi
-
 echo "	Running cmake"
 cmake ..
 

@@ -18,7 +18,7 @@ void gc_destroy(gc_type *gc);
 void gc_sweep(gc_type *gc);
 
 /* Display statistics about GC. */
-void gc_stats(gc_type *gc);
+void gc_stats(gc_type *gc, bool start);
 
 void gc_protect(gc_type *gc);
 void gc_unprotect(gc_type *gc);

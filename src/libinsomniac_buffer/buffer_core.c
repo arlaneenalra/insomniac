@@ -25,7 +25,7 @@ void buffer_create(gc_type *gc, buffer_type **buf_ret) {
 
     buffer_internal_type *buf = 0;
 
-    gc_protect(gc);
+    gc_register_root(gc, (void **)&buf);
 
     /* make sure types are registered */
     if (!init) {
@@ -45,8 +45,8 @@ void buffer_create(gc_type *gc, buffer_type **buf_ret) {
 
     /* save our buffer in the passed in pointer */
     *buf_ret = buf;
-
-    gc_unprotect(gc);
+    
+    gc_unregister_root(gc, (void **)&buf);
 }
 
 /* Empty the given buffer and free space allocated to it. */
@@ -65,14 +65,14 @@ void buffer_reset(buffer_type *buf_void) {
 void buffer_push(buffer_internal_type *buf) {
     block_type *new_tail = 0;
 
-    gc_protect(buf->gc);
+    gc_register_root(buf->gc, (void **)&new_tail);
 
     gc_alloc_type(buf->gc, buf->block_gc_type, (void **)&new_tail);
 
     buf->tail->next = new_tail;
     buf->tail = new_tail;
-
-    gc_unprotect(buf->gc);
+    
+    gc_unregister_root(buf->gc, (void **)&new_tail);
 }
 
 /* write data into the given buffer */

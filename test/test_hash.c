@@ -5,6 +5,8 @@
 #include <insomniac.h>
 #include <test.h>
 
+#define NUM 50000
+
 gc_type *gc;
 hashtable_type *hash;
 
@@ -34,7 +36,9 @@ void tear_down_hook() {
     gc_destroy(gc);
 }
 
-void build_hash() {
+int build_hash() {
+    char key2[255];
+    char exp_value[255]; 
 
     /* create a hash table */
     hash_create(gc,
@@ -44,27 +48,37 @@ void build_hash() {
 
 
     /* push values into the hash */
-    for(int i=0; i <10; i++) {
+    for(int i=0; i < NUM; i++) {
         /* an ineffcient means of doing this */
-        gc_alloc(gc, 0, 40, (void **)&key1);
-        gc_alloc(gc, 0, 40, (void **)&value);
+        gc_alloc(gc, 40, (void **)&key1);
+        gc_alloc(gc, 40, (void **)&value);
 
         snprintf(key1, 40, "k%i", i);
         snprintf(value, 40, "v%i", i);
 
         hash_set(hash, (void*)key1, (void*)value);
     }
+    
+    gc_sweep(gc);
 
+    for(int i=0; i < NUM; i++) {
+        snprintf(key2, 40, "k%i", i);
+        snprintf(exp_value, 40, "v%i", i);
+   
+        hash_get(hash, (void*)key2, (void**)&value);
+
+        if (strcmp(value, exp_value) != 0) {
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 int test_gc() {
+    
+    return build_hash();
 
-    build_hash();
-    gc_sweep(gc);
-    build_hash();
-    gc_sweep(gc);
-
-    return 0;
 }
 
 
@@ -73,10 +87,10 @@ int test_read() {
 
     build_hash();
 
-    for(int i=0; i <10; i++) {
+    for(int i=0; i <NUM; i++) {
         /* an ineffcient means of doing this */
-        gc_alloc(gc, 0, 40, (void **)&key1);
-        gc_alloc(gc, 0, 40, (void **)&expected);
+        gc_alloc(gc, 40, (void **)&key1);
+        gc_alloc(gc, 40, (void **)&expected);
 
         snprintf(key1, 40, "k%i", i);
         snprintf(expected, 40, "v%i", i);
@@ -167,6 +181,10 @@ test_case_type cases[] = {
     {&test_bad_read, "Testing Read for non-existent value Hash"},
     {&test_erase, "Testing Erase Hash"},
     {&test_read_key, "Test Reading A Single Key"},
+    {&test_gc, "Testing GC of Hash Stored objects"},
+    {&test_gc, "Testing GC of Hash Stored objects"},
+    {&test_gc, "Testing GC of Hash Stored objects"},
+    {&test_gc, "Testing GC of Hash Stored objects"},
     {&test_gc, "Testing GC of Hash Stored objects"},
     /* {&test_bad_read, "Testing Read for non-existent value Hash"},*/
     {0,0} /* end of list token */

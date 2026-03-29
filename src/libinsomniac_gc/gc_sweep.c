@@ -1,67 +1,56 @@
 #include "gc_internal.h"
+#include <string.h>
 
-/* walk every object in an object graph and mark it */
-void mark_object(meta_obj_type *meta, mark_type mark) {
-
-    /* don't change the mark on perm objects */
-    if (meta->mark == PERM) {
-        return;
-    } else {
-        meta->mark = mark;
-    }
-}
-
-/* walk a graph of objects and mark them */
-void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
+/* Walk the graph of objects and copy them to the new space. */
+void *copy_graph(gc_ms_type *gc, meta_obj_type *meta) {
     meta_obj_ptr_def_type *root_list = 0;
-    int64_t size = 0;
     int64_t size_max = 0;
     void *obj = 0;
     void **next_obj = 0;
 
-    /* return if we don't have an object */
+    /* Return if we don't have an object. */
     if (!meta) {
-        return;
+        return 0;
     }
 
-    /* we have already marked this object */
-    if (meta->mark == mark) {
-        return;
+    /* If this object has already been copied, return the new pointer. */
+    if (meta->mark == FORWARDING) {
+        return *((void **)obj_from_meta(meta));
     }
 
-    if (meta->mark == DEAD) {
-        printf("Active object in dead list!\n");
-        assert(0);
-    }
+    /* Allocate a new instance in the target space and copy our data into it. */
+    obj = internal_alloc(gc, meta->size);
+    memcpy(obj, (void *)obj_from_meta(meta), meta->size);
 
-    /* mark this object */
-    mark_object(meta, mark);
+    /* Create the forwarding pointer. */
+    meta->mark = FORWARDING;
+    *((void **)obj_from_meta(meta)) = obj; 
 
-    /* make sure this is a typed object */
+    /* If this is a typed object, we have other pointers to update. */
     if (meta->type_def >= 0) {
-        /* Load the definition for this type of object */
+        /* Load the definition for this type of object. */
         root_list = gc->type_defs[meta->type_def].root_list;
 
-        /* walk the list of pointers internal to
-           this object */
+        /* Walk the list of pointers internal to
+           this object. */
         while (root_list) {
-            obj = obj_from_meta(meta);
+            /* Reference the new object pointer. */
             next_obj = (void **)((uint8_t *)obj + root_list->offset);
 
             switch (root_list->type) {
                 case PTR:
-                    /* mark any pointed to objects */
-                    mark_graph(gc, meta_from_obj(*next_obj), mark);
+                    /* Copy any child objects. */
+                    (*next_obj) = copy_graph(gc, meta_from_obj(*next_obj));
                     break;
 
                 case ARRAY:
-                    /* determine the size of the array based on size of the
-                     * allocation */
+                    /* Determine the size of the array based on size of the
+                       allocation. */
                     size_max = (meta->size / gc->type_defs[gc->array_type].size);
 
-                    /* mark all objects in array */
-                    for (size = 0; size < size_max; size++) {
-                        mark_graph(gc, meta_from_obj(next_obj[size]), mark);
+                    /* Copy all child objects. */
+                    for (int idx = 0; idx < size_max; idx++) {
+                        next_obj[idx] = copy_graph(gc, meta_from_obj(next_obj[idx]));
                     }
 
                     break;
@@ -74,105 +63,55 @@ void mark_graph(gc_ms_type *gc, meta_obj_type *meta, mark_type mark) {
             root_list = root_list->next;
         }
     }
+
+    return obj;
 }
 
-/* walk every object in a list and mark them */
-void mark_list(gc_ms_type *gc, meta_obj_type *list, mark_type mark) {
-    meta_obj_type *meta = 0;
-
-    meta = list;
-    while (meta) {
-        mark_graph(gc, meta, mark);
-
-        meta = meta->next;
-    }
-}
-
-/* walk every object in a list and mark them */
-void mark_root(gc_ms_type *gc, meta_root_type *list, mark_type mark) {
+/* Copy all objects associated to a root. */
+void copy_root(gc_ms_type *gc, meta_root_type *list) {
     meta_root_type *meta = 0;
 
     meta = list;
     while (meta) {
-        mark_graph(gc, meta_from_obj(*(meta->root)), mark);
+        *(meta->root) = copy_graph(gc, meta_from_obj(*(meta->root)));
 
         meta = meta->next;
     }
 }
 
-/* move, unmarked objects to dead list */
-void sweep_list(gc_ms_type *gc, mark_type mark) {
-    meta_obj_type *active = gc->active_list;
-    meta_obj_type *new_active = 0;
-    meta_obj_type *dead = gc->dead_list;
-
-
-    while (active) {
-        meta_obj_type *next = active->next;
-
-        /* do we have a dead object */
-        if (active->mark == mark) {
-            /* move our object to the head
-               of the active list */
-            active->next = new_active;
-            new_active = active;
-
-        } else {
-
-            /* Do we have a cell sized object or
-               something else? */
-            if (active->size == gc->cell_size) {
-                /* move our object to the head
-                   of the new dead list */
-                active->next = dead;
-                active->mark = DEAD; /* mark as dead */
-                dead = active;
-            } else {
-                /* Add ram back. */
-                gc->free += active->size;
-
-                /* Free things that are not cell sized */
-                FREE(active);
-            }
-        }
-
-        active = next;
-    }
-
-    /* replace existing lists */
-    gc->active_list = new_active;
-    gc->dead_list = dead;
-}
-
-/* the guts of sweep */
+/* The guts of sweep. */
 void sweep(gc_ms_type *gc) {
-    mark_type mark;
-
+    uint8_t *old_pool = gc->memory_pool;
+    
     assert(gc);
+    assert(!gc->sweeping);
 
     /* Check protection status before sweeping */
-    if (gc->protect_count || gc->free > 0) {
+    if (gc->protect_count) {
         return;
     }
     
+    gc_stats(gc, true);
+    
+    gc->sweeping = true;
+    
     gc->sweeps++;
 
-    mark = set_next_mark(gc);
-
-    /* Mark all reachable objects */
-    mark_list(gc, gc->perm_list, mark);
+    /* Allocate a new memory pool. */
+    gc->allocations = 0;
+    gc->free = gc->pool_size;
+    gc->memory_pool = gc->memory_pool_head = MALLOC(gc->pool_size);
 
     /* Mark all objects reachable from our defined root
-       pointers */
+       pointers. */
     if (gc->root_list) {
-        mark_root(gc, gc->root_list, mark);
+        copy_root(gc, gc->root_list);
     }
 
-    /* Iterate through the list of active nodes and
-       move the unmarked ones to dead */
-    sweep_list(gc, mark);
+    /* Clean up old pool. */
+    FREE(old_pool);
+    
+    gc_stats(gc, false);
 
-    if (gc->free <= GC_GROW_THRESHOLD) {
-        gc->free += GC_INITIAL_FREE;
-    }
+    gc->sweeping = false;
 }

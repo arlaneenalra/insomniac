@@ -1,25 +1,23 @@
 #include "gc_internal.h"
 
-#include "stdio.h" /* for gc_stats */
+#include "stdio.h"
 
-/* construct a new instance of our GC */
+/* Construct a new instance of our GC. */
 gc_type *gc_create(size_t cell_size) {
     gc_ms_type *gc = 0;
     gc = MALLOC_TYPE(gc_ms_type);
 
-    gc->current_mark = RED;
     gc->protect_count = 0;
-    gc->cell_size = cell_size;
-    gc->size_granularity = sizeof(meta_obj_type) + cell_size;
 
-    /* used to keep track of type definitions */
+    /* Used to keep track of type definitions. */
     gc->type_defs = 0;
     gc->num_types = 0;
 
-    /* Setup sweeping rules */
-    gc->free = GC_INITIAL_FREE;
+    /* Allocate the initial pool. */
+    gc->pool_size = gc->free = GC_INITIAL_FREE;
+    gc->memory_pool = gc->memory_pool_head = MALLOC(GC_INITIAL_FREE);
 
-    /* register the ARRAY type as type 0 */
+    /* Register the ARRAY type as type 0. */
     gc->array_type = gc_register_type(gc, sizeof(void *));
     gc_register_array(gc, gc->array_type, 0);
 
@@ -33,10 +31,6 @@ void gc_destroy(gc_type *gc_void) {
     if (gc_void) {
         /* cast back to our internal type */
         gc_ms_type *gc = (gc_ms_type *)gc_void;
-
-        destroy_list(gc, &(gc->active_list));
-        destroy_list(gc, &(gc->dead_list));
-        destroy_list(gc, &(gc->perm_list));
 
         destroy_types(gc, gc->type_defs, gc->num_types);
 
@@ -55,7 +49,7 @@ void gc_destroy(gc_type *gc_void) {
             root = next;
         }
 
-
+        FREE(gc->memory_pool);
         FREE(gc);
     }
 }
@@ -73,8 +67,6 @@ void gc_unprotect(gc_type *gc_void) {
 
     /* make sure we have paired protects */
     assert(gc->protect_count >= 0);
-
-    sweep(gc);
 }
 
 /* register a root pointer */
@@ -124,9 +116,9 @@ void gc_unregister_root(gc_type *gc_void, void **root) {
 }
 
 /* allocate a blob and attach it to the gc */
-void gc_alloc(gc_type *gc_void, uint8_t perm, size_t size, void **ret) {
+void gc_alloc(gc_type *gc_void, size_t size, void **ret) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
-    meta_obj_type *meta = internal_alloc(gc, perm, size);
+    meta_obj_type *meta = internal_alloc(gc, size);
 
     /* mark as being untyped */
     meta->type_def = -1;
@@ -136,10 +128,10 @@ void gc_alloc(gc_type *gc_void, uint8_t perm, size_t size, void **ret) {
 }
 
 /* allocate a type and attach it to the gc */
-void gc_alloc_type(gc_type *gc_void, uint8_t perm, gc_type_def type, void **ret) {
+void gc_alloc_type(gc_type *gc_void, gc_type_def type, void **ret) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
     meta_obj_def_type *type_ptr = &(gc->type_defs[type]);
-    meta_obj_type *meta = internal_alloc(gc, perm, type_ptr->size);
+    meta_obj_type *meta = internal_alloc(gc, type_ptr->size);
 
     meta->type_def = type;
 
@@ -148,12 +140,12 @@ void gc_alloc_type(gc_type *gc_void, uint8_t perm, gc_type_def type, void **ret)
 }
 
 /* allocate an array and attach it to the gc */
-void gc_alloc_pointer_array(gc_type *gc_void, uint8_t perm, size_t cells, void **ret) {
+void gc_alloc_pointer_array(gc_type *gc_void, size_t cells, void **ret) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
     meta_obj_def_type *type_ptr = &(gc->type_defs[gc->array_type]);
     meta_obj_type *meta = 0;
 
-    meta = internal_alloc(gc, perm, type_ptr->size * cells);
+    meta = internal_alloc(gc, type_ptr->size * cells);
 
     meta->type_def = gc->array_type;
 
@@ -161,57 +153,22 @@ void gc_alloc_pointer_array(gc_type *gc_void, uint8_t perm, size_t cells, void *
     *ret = obj_from_meta(meta);
 }
 
-/* remove permenant status from a given cell */
-void gc_de_perm(gc_type *gc_void, void *obj_in) {
-    gc_ms_type *gc = (gc_ms_type *)gc_void;
-    meta_obj_type *meta = gc->perm_list;
-    meta_obj_type *prev = 0;
-
-    meta_obj_type *obj = meta_from_obj(obj_in);
-
-    /* nothing to unmark */
-    if (obj->mark != PERM) {
-        return;
-    }
-
-    /* mark the object as though we just created it */
-    obj->mark = gc->current_mark;
-
-    /* search for our object in the perm list */
-    while (meta->next && meta != obj) {
-        prev = meta;
-        meta = meta->next;
-    }
-
-    /* we are not the first element in the list */
-    if (prev) {
-        prev->next = meta->next;
-    } else { /* it was the first item on the list */
-        gc->perm_list = meta->next;
-    }
-
-    /* attach our object to the top of the active list */
-    meta->next = gc->active_list;
-    gc->active_list = meta;
-}
-
 /* output some useful statistics about the GC */
-void gc_stats(gc_type *gc_void) {
+void gc_stats(gc_type *gc_void, bool start) {
     gc_ms_type *gc = (gc_ms_type *)gc_void;
-    vm_int active = 0;
-    vm_int dead = 0;
-    vm_int perm = 0;
 
     assert(gc);
 
-    active = count_list(&(gc->active_list));
-    dead = count_list(&(gc->dead_list));
-    perm = count_list(&(gc->perm_list));
+    if (start) {
+        printf("Before: ");
+    } else {
+        printf("After : ");
+    }
 
     printf(
-        "GC statistics active:%" PRIi64 " dead:%" PRIi64 " perm:%" PRIi64
-        " Allocations : %" PRIi64 " Sweeps: %" PRIi64 " Free: %" PRIi64 "\n",
-        active, dead, perm, gc->allocations, gc->sweeps, gc->free);
+        "GC statistics Allocations : %" PRIi64
+            " Sweeps: %" PRIi64 " Free: %" PRIi64 "\n",
+        gc->allocations, gc->sweeps, gc->free);
 }
 
 /* initiate a sweep of objects in the active list */

@@ -1,0 +1,1697 @@
+Counters:
+  op_slurp:
+    Hash: 0x000000a3da8124d1
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  yyasmrestart:
+    Hash: 0x000000029a35244d
+    Counters: 4
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0]
+    Indirect Target Results:
+  output_object:
+    Hash: 0x808ed06fb6a4b059
+    Counters: 19
+    Function count: 4857
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 4857, 969, 1, 0, 977, 1941, 0, 0, 0, 969, 0, 0, 0, 0, 0, 0]
+    Indirect Target Results:
+  utf8_head_count_bytes:
+    Hash: 0x008e81b44a7d2458
+    Counters: 4
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0]
+    Indirect Target Results:
+  make_symbol:
+    Hash: 0x000000000029a491
+    Counters: 2
+    Function count: 29524885
+    Indirect Call Site Count: 0
+    Block counts: [435]
+    Indirect Target Results:
+  op_is_empty:
+    Hash: 0x000000028e7d24d1
+    Counters: 3
+    Function count: 1902739
+    Indirect Call Site Count: 0
+    Block counts: [817211, 1902739]
+    Indirect Target Results:
+  gc_destroy:
+    Hash: 0x000000a482442451
+    Counters: 4
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0]
+    Indirect Target Results:
+  vm_load_buf:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  count_list:
+    Hash: 0x0000000000002458
+    Counters: 2
+    Function count: 3
+    Indirect Call Site Count: 0
+    Block counts: [39342]
+    Indirect Target Results:
+  yyasm_scan_buffer:
+    Hash: 0x180ff24283a97061
+    Counters: 5
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0]
+    Indirect Target Results:
+  get_debug_state_def:
+    Hash: 0x000000000a692458
+    Counters: 2
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  op_lit_64bit:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 281799
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  pre_alloc:
+    Hash: 0x00000000000046d1
+    Counters: 2
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  hash_string_cmp:
+    Hash: 0xc5fae4c181aef660
+    Counters: 6
+    Function count: 77367245
+    Indirect Call Site Count: 0
+    Block counts: [219982496, 219982496, 269676436, 49693940, 16710993]
+    Indirect Target Results:
+  find_source_location:
+    Hash: 0xa3da46d040fe9c21
+    Counters: 6
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0]
+    Indirect Target Results:
+  op_set_car:
+    Hash: 0x000000a38e7d24d1
+    Counters: 4
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0]
+    Indirect Target Results:
+  op_lit_char:
+    Hash: 0x0000000000004791
+    Counters: 2
+    Function count: 1030
+    Indirect Call Site Count: 0
+    Block counts: [5150]
+    Indirect Target Results:
+  op_rot:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  yyasmset_out:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_set_cdr:
+    Hash: 0x000000a38e7d24d1
+    Counters: 4
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0]
+    Indirect Target Results:
+  rewrite_jumps:
+    Hash: 0x2451768e06ad17f7
+    Counters: 5
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0]
+    Indirect Target Results:
+  op_jnf:
+    Hash: 0x000029a38e7da491
+    Counters: 4
+    Function count: 4002516
+    Indirect Call Site Count: 0
+    Block counts: [1996366, 3977024, 4002516]
+    Indirect Target Results:
+  asm_lit_fixnum:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  vm_destroy:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  yyasmget_column:
+    Hash: 0x000000a68d498458
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  op_sub:
+    Hash: 0xe6bad11cbccbad46
+    Counters: 5
+    Function count: 6706
+    Indirect Call Site Count: 0
+    Block counts: [0, 6706, 6706, 6706]
+    Indirect Target Results:
+  gc_stats:
+    Hash: 0x000000000000035a
+    Counters: 2
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  op_make_byte_vector:
+    Hash: 0x000000000a812611
+    Counters: 2
+    Function count: 967
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  gc_malloc:
+    Hash: 0x0000000000292458
+    Counters: 2
+    Function count: 60069257
+    Indirect Call Site Count: 0
+    Block counts: [60069256]
+    Indirect Target Results:
+  gc_unprotect:
+    Hash: 0x000000000000d69e
+    Counters: 2
+    Function count: 138728022
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  register_hash_iterator:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_numeric_gt:
+    Hash: 0x4f97810d091f0498
+    Counters: 6
+    Function count: 23500
+    Indirect Call Site Count: 0
+    Block counts: [0, 23500, 23500, 23500, 6398]
+    Indirect Target Results:
+  create_buffer_type:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_is_byte_vector:
+    Hash: 0x000000028e7d24d1
+    Counters: 3
+    Function count: 37
+    Indirect Call Site Count: 0
+    Block counts: [0, 37]
+    Indirect Target Results:
+  buffer_create:
+    Hash: 0x000000000029a491
+    Counters: 2
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  register_env:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  hash_find:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  output_vector:
+    Hash: 0x00000046ca712451
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  op_open:
+    Hash: 0x49130d92241a1083
+    Counters: 7
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: [0, 1, 0, 1, 0, 0]
+    Indirect Target Results:
+  op_numeric_equal:
+    Hash: 0x4f97810d091f0498
+    Counters: 6
+    Function count: 100082
+    Indirect Call Site Count: 0
+    Block counts: [0, 100082, 100082, 100082, 82848]
+    Indirect Target Results:
+  op_is_vector:
+    Hash: 0x000000028e7d24d1
+    Counters: 3
+    Function count: 37
+    Indirect Call Site Count: 0
+    Block counts: [0, 37]
+    Indirect Target Results:
+  yyasmset_debug:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  gc_protect:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 138728022
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  register_hashtable:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  create_block_type:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  yyasmlex_init_extra:
+    Hash: 0xe42b454d0d6b60b4
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  run_scheme:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_is_record:
+    Hash: 0x000000028e7d24d1
+    Counters: 3
+    Function count: 259979
+    Indirect Call Site Count: 0
+    Block counts: [149, 259979]
+    Indirect Target Results:
+  op_restore:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  hash_erase:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  get_debug_info_def:
+    Hash: 0x000000000a692458
+    Counters: 2
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  yyasmpop_buffer_state:
+    Hash: 0x6004e1d26ea8957b
+    Counters: 7
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0, 0]
+    Indirect Target Results:
+  push_debug:
+    Hash: 0xdcb4f2943a658a3d
+    Counters: 7
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0, 0]
+    Indirect Target Results:
+  op_continue:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_jin:
+    Hash: 0x000000a3da8124d1
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  op_tail_call_in:
+    Hash: 0x000000a3da8124d1
+    Counters: 3
+    Function count: 1531031
+    Indirect Call Site Count: 0
+    Block counts: [0, 1531031]
+    Indirect Target Results:
+  op_import:
+    Hash: 0x7401897541136b0e
+    Counters: 12
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    Indirect Target Results:
+  op_is_library:
+    Hash: 0x000000028e7d24d1
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  op_output:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 1952
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  yyasmalloc:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  hash_pointer_cmp:
+    Hash: 0x4062ab5fe6b9523d
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  gc_de_perm:
+    Hash: 0x46178a27a352a2be
+    Counters: 6
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0]
+    Indirect Target Results:
+  yyasmget_lineno:
+    Hash: 0x000000a68d498458
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  buffer_reset:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  asm_lit_char:
+    Hash: 0xb4484b1368981b51
+    Counters: 6
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0]
+    Indirect Target Results:
+  op_lit_false:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 429258
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  yyasmget_debug:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  yyasmlex:
+    Hash: 0x228972c4f3cb4731
+    Counters: 135
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    Indirect Target Results:
+  hash_find_kv:
+    Hash: 0xac8282d780815a73
+    Counters: 10
+    Function count: 74542827
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 56180591, 77367245, 49693940, 0, 0, 10419277]
+    Indirect Target Results:
+  output_char:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 977
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  lexer.c:yyasm_load_buffer_state:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_proc:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 837652
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  register_key_value:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_jmp:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 2083352
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  gc_register_type:
+    Hash: 0x000000029a493458
+    Counters: 2
+    Function count: 15
+    Indirect Call Site Count: 0
+    Block counts: [1]
+    Indirect Target Results:
+  op_not:
+    Hash: 0x000000a39f6924d1
+    Counters: 3
+    Function count: 1992688
+    Indirect Call Site Count: 0
+    Block counts: [1124703, 1982128]
+    Indirect Target Results:
+  mark_object:
+    Hash: 0x000000029f4984d1
+    Counters: 2
+    Function count: 153833501
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  register_string:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  vm_make_vector:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 981
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  set_next_mark:
+    Hash: 0x000000000000d7d8
+    Counters: 2
+    Function count: 14252
+    Indirect Call Site Count: 0
+    Block counts: [7126]
+    Indirect Target Results:
+  op_lit_string:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 49
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  yyasmset_lineno:
+    Hash: 0x000000000a68d491
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  vm_peek:
+    Hash: 0x000000029c498458
+    Counters: 2
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  lexer.c:yy_get_next_buffer:
+    Hash: 0x24046bd194f91baf
+    Counters: 26
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    Indirect Target Results:
+  op_make_record:
+    Hash: 0x000000000a812611
+    Counters: 2
+    Function count: 981
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  op_numeric_lt:
+    Hash: 0x4f97810d091f0498
+    Counters: 6
+    Function count: 3782
+    Indirect Call Site Count: 0
+    Block counts: [0, 3782, 3782, 3782, 1466]
+    Indirect Target Results:
+  yyasm_scan_bytes:
+    Hash: 0x414797ca1b05654f
+    Counters: 4
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0]
+    Indirect Target Results:
+  op_set:
+    Hash: 0xb08812774c87d47f
+    Counters: 7
+    Function count: 251117
+    Indirect Call Site Count: 0
+    Block counts: [0, 251117, 502179, 753296, 251117, 0]
+    Indirect Target Results:
+  gc_alloc_pointer_array:
+    Hash: 0x000000000000035a
+    Counters: 2
+    Function count: 7953120
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  op_car:
+    Hash: 0x000000028e7d24d1
+    Counters: 3
+    Function count: 9870159
+    Indirect Call Site Count: 0
+    Block counts: [9870159, 9870159]
+    Indirect Target Results:
+  lexer.c:yy_init_globals:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  create_types:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  get_text:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  buffer_open:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  vm_make_string:
+    Hash: 0x000000000000d718
+    Counters: 2
+    Function count: 29525906
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  push_env:
+    Hash: 0x000000000000a491
+    Counters: 2
+    Function count: 7749202
+    Indirect Call Site Count: 0
+    Block counts: [7749200]
+    Indirect Target Results:
+  op_mul:
+    Hash: 0xe6bad11cbccbad46
+    Counters: 5
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0]
+    Indirect Target Results:
+  gc_unregister_root:
+    Hash: 0x186d85c2dff5cecc
+    Counters: 5
+    Function count: 123283050
+    Indirect Call Site Count: 0
+    Block counts: [251117, 123534167, 0, 251117]
+    Indirect Target Results:
+  op_dup_ref:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 7840144
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  yyasmfree:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  yyasmget_extra:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  vm_alloc:
+    Hash: 0x000000a39f498458
+    Counters: 3
+    Function count: 185320308
+    Indirect Call Site Count: 0
+    Block counts: [0, 1]
+    Indirect Target Results:
+  yyasmget_text:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  yyasmpush_buffer_state:
+    Hash: 0x659ddd783e648fc6
+    Counters: 6
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0]
+    Indirect Target Results:
+  create_vm_type:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  hash_create:
+    Hash: 0x000000000029a491
+    Counters: 2
+    Function count: 7749204
+    Indirect Call Site Count: 0
+    Block counts: [1]
+    Indirect Target Results:
+  gc_free:
+    Hash: 0x000000000000a491
+    Counters: 2
+    Function count: 60029868
+    Indirect Call Site Count: 0
+    Block counts: [60029868]
+    Indirect Target Results:
+  yyasmset_in:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_make_symbol:
+    Hash: 0x00000000002a0491
+    Counters: 2
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  op_is_pair:
+    Hash: 0x000000028e7d24d1
+    Counters: 3
+    Function count: 198946
+    Indirect Call Site Count: 0
+    Block counts: [117303, 198946]
+    Indirect Target Results:
+  yyasm_delete_buffer:
+    Hash: 0xf0e42735876a302a
+    Counters: 5
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0]
+    Indirect Target Results:
+  buffer_append:
+    Hash: 0xac03cc945fe4b4e7
+    Counters: 5
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0]
+    Indirect Target Results:
+  op_is_symbol:
+    Hash: 0x000000028e7d24d1
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  op_is_bool:
+    Hash: 0x000000028e7d24d1
+    Counters: 3
+    Function count: 37
+    Indirect Call Site Count: 0
+    Block counts: [0, 37]
+    Indirect Target Results:
+  gc_register_pointer:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 23
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  yyasmget_out:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_read:
+    Hash: 0x22c488c5bb8ab8ef
+    Counters: 6
+    Function count: 19667256
+    Indirect Call Site Count: 0
+    Block counts: [0, 19667256, 14178113, 33845369, 0]
+    Indirect Target Results:
+  hash_load:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 9857038
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  vm_make_byte_vector:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 970
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  pop_env:
+    Hash: 0x000000000000a491
+    Counters: 2
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  op_bind:
+    Hash: 0x000000a3da8124d1
+    Counters: 3
+    Function count: 9605486
+    Indirect Call Site Count: 0
+    Block counts: [0, 9605486]
+    Indirect Target Results:
+  mark_list:
+    Hash: 0x0000000000000091
+    Counters: 2
+    Function count: 14252
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  op_ret:
+    Hash: 0x000000a3da8124d1
+    Counters: 3
+    Function count: 6218167
+    Indirect Call Site Count: 0
+    Block counts: [0, 6218167]
+    Indirect Target Results:
+  yyasmget_leng:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_add:
+    Hash: 0xe6bad11cbccbad46
+    Counters: 5
+    Function count: 99061
+    Indirect Call Site Count: 0
+    Block counts: [0, 99061, 99061, 99061]
+    Indirect Target Results:
+  op_lit_empty:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 8399905
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  hash_size:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_drop:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 6024161
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_lit_true:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 143947
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  lexer.c:yy_try_NUL_trans:
+    Hash: 0x0801bb0d3ba0dd8a
+    Counters: 5
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0]
+    Indirect Target Results:
+  gc_alloc_type:
+    Hash: 0x000000000000035a
+    Counters: 2
+    Function count: 226043004
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  register_pair:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  mark_graph:
+    Hash: 0xd421a794c633dcd8
+    Counters: 16
+    Function count: 286168370
+    Indirect Call Site Count: 0
+    Block counts: [54578736, 77756133, 0, 0, 147609313, 240953415, 0, 240953415, 230727231, 18679766, 10226184, 55424383, 35898927, 0, 0]
+    Indirect Target Results:
+  hash_resize:
+    Hash: 0x000029211b091451
+    Counters: 4
+    Function count: 7952139
+    Indirect Call Site Count: 0
+    Block counts: [202935, 813531, 813356]
+    Indirect Target Results:
+  clone_env:
+    Hash: 0x000000000000a491
+    Counters: 2
+    Function count: 14805012
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  vm_reset:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  output_byte_vector:
+    Hash: 0x00000046ca712451
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  yyasmget_in:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_char_to_int:
+    Hash: 0x000000000a8124d1
+    Counters: 2
+    Function count: 35993
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  handle_exception:
+    Hash: 0xf47d1b5469772b6c
+    Counters: 7
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0, 0]
+    Indirect Target Results:
+  gc_create:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_close:
+    Hash: 0x2c80552a39c25655
+    Counters: 4
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: [0, 1, 0]
+    Indirect Target Results:
+  gc_alloc:
+    Hash: 0x000000000000035a
+    Counters: 2
+    Function count: 29526876
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  vm_create:
+    Hash: 0x0000000000004791
+    Counters: 2
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: [2]
+    Indirect Target Results:
+  yyasm_create_buffer:
+    Hash: 0x000a69244a692458
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  yyasmset_extra:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  hash_info:
+    Hash: 0x6c9d59d249500fc7
+    Counters: 5
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0]
+    Indirect Target Results:
+  buffer_write:
+    Hash: 0xb53d7fb7344d059f
+    Counters: 6
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0]
+    Indirect Target Results:
+  vm_eval:
+    Hash: 0x000009b2924d1458
+    Counters: 3
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: [143588679, 143588679]
+    Indirect Target Results:
+  op_swap:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 13967392
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_throw:
+    Hash: 0x00000000002a0491
+    Counters: 2
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  yyasmset_column:
+    Hash: 0x000000000a68d491
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  asm_lit_string:
+    Hash: 0x78fc8d47fcedb12d
+    Counters: 5
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0]
+    Indirect Target Results:
+  vm_output_object:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 1952
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_byte_vector_string:
+    Hash: 0x000000000a812611
+    Counters: 2
+    Function count: 970
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  buffer_push:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_fd_write:
+    Hash: 0xd8b9cd097b05ead5
+    Counters: 9
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0, 0, 0, 0]
+    Indirect Target Results:
+  parse_string:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 29524934
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_fd_read:
+    Hash: 0xe1998c8a0331aeba
+    Counters: 6
+    Function count: 3
+    Indirect Call Site Count: 0
+    Block counts: [0, 3, 0, 3, 0]
+    Indirect Target Results:
+  get_debug_num:
+    Hash: 0x000000a81235a458
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  asm_string:
+    Hash: 0x7b780bd4d324fe0e
+    Counters: 18
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    Indirect Target Results:
+  gc_register_array:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  hash_get_stateful:
+    Hash: 0xc48198b98b1867af
+    Counters: 6
+    Function count: 63872433
+    Indirect Call Site Count: 0
+    Block counts: [34347548, 63872433, 29524885, 14429610, 49191706]
+    Indirect Target Results:
+  op_is_fixnum:
+    Hash: 0x000000028e7d24d1
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  buffer_load_string:
+    Hash: 0x000000000a7d2458
+    Counters: 2
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  output_pair:
+    Hash: 0x6ed440bb541d8fd1
+    Counters: 7
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0, 0]
+    Indirect Target Results:
+  destroy_list:
+    Hash: 0x0000000000000091
+    Counters: 2
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  asm_label:
+    Hash: 0x000000000000035c
+    Counters: 2
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  yyasmlex_destroy:
+    Hash: 0x000000000234d458
+    Counters: 4
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0]
+    Indirect Target Results:
+  setup_instructions:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  destroy_types:
+    Hash: 0x00000000046c2451
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  yyasm_switch_to_buffer:
+    Hash: 0x029f35261128d491
+    Counters: 5
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0]
+    Indirect Target Results:
+  utf8_encode_char:
+    Hash: 0x5639946a3c77817b
+    Counters: 7
+    Function count: 977
+    Indirect Call Site Count: 0
+    Block counts: [977, 0, 0, 0, 0, 0]
+    Indirect Target Results:
+  buffer_size:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_is_string:
+    Hash: 0x000000028e7d24d1
+    Counters: 3
+    Function count: 40
+    Indirect Call Site Count: 0
+    Block counts: [2, 40]
+    Indirect Target Results:
+  op_mod:
+    Hash: 0xe6bad11cbccbad46
+    Counters: 5
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0]
+    Indirect Target Results:
+  hash_set_stateful:
+    Hash: 0x0f0c4c90599db3c1
+    Counters: 5
+    Function count: 9857038
+    Indirect Call Site Count: 0
+    Block counts: [9857038, 9857038, 0, 202935]
+    Indirect Target Results:
+  add_debug_file:
+    Hash: 0x4cee4163731f6429
+    Counters: 7
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0, 0]
+    Indirect Target Results:
+  op_int_to_char:
+    Hash: 0x000000000a8124d1
+    Counters: 2
+    Function count: 4913
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  op_call_in:
+    Hash: 0x000000a3da8124d1
+    Counters: 3
+    Function count: 6218162
+    Indirect Call Site Count: 0
+    Block counts: [0, 6218162]
+    Indirect Target Results:
+  op_cdr:
+    Hash: 0x000000028e7d24d1
+    Counters: 3
+    Function count: 2342048
+    Indirect Call Site Count: 0
+    Block counts: [2342048, 2342048]
+    Indirect Target Results:
+  register_closure:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_set_exit:
+    Hash: 0x000000a3da8124d1
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  register_vector:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  lexer.c:yyasm_init_buffer:
+    Hash: 0x000000000a80d491
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  lexer.c:yy_get_previous_state:
+    Hash: 0xde89d0a55e2e7993
+    Counters: 6
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0]
+    Indirect Target Results:
+  vm_push:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 138728022
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  asm_jump:
+    Hash: 0x936471424c93a4ca
+    Counters: 5
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0]
+    Indirect Target Results:
+  yyasmlex_init:
+    Hash: 0xe42b454d0d6b60b4
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  mark_root:
+    Hash: 0x000000000008d691
+    Counters: 3
+    Function count: 14252
+    Indirect Call Site Count: 0
+    Block counts: [16756, 43]
+    Indirect Target Results:
+  register_basic:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 4
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_adopt:
+    Hash: 0x8975e5cd5a3b372c
+    Counters: 5
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0]
+    Indirect Target Results:
+  hash_cow:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_make_vector:
+    Hash: 0x000000000a812611
+    Counters: 2
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  buffer_load:
+    Hash: 0x000029f498442458
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  op_div:
+    Hash: 0xe6bad11cbccbad46
+    Counters: 5
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0]
+    Indirect Target Results:
+  internal_alloc:
+    Hash: 0x7c4c21437955178c
+    Counters: 7
+    Function count: 263523000
+    Indirect Call Site Count: 0
+    Block counts: [203488790, 35058, 203453788, 60069212, 0, 0]
+    Indirect Target Results:
+  register_library:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  lexer.c:yy_fatal_error:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  parse_int:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 36730260
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  vm_pop:
+    Hash: 0x000a7d244a692458
+    Counters: 3
+    Function count: 138728021
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  op_string_byte_vector:
+    Hash: 0x000000000a812611
+    Counters: 2
+    Function count: 46
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  op_call_ext:
+    Hash: 0x9d9e33bad9c5d2a6
+    Counters: 7
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0, 0]
+    Indirect Target Results:
+  hash_string:
+    Hash: 0x0000000000120458
+    Counters: 2
+    Function count: 29524885
+    Indirect Call Site Count: 0
+    Block counts: [126450163]
+    Indirect Target Results:
+  op_call:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 7
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_eq:
+    Hash: 0xe390876e587c5a24
+    Counters: 9
+    Function count: 122822
+    Indirect Call Site Count: 0
+    Block counts: [1502, 121320, 1117, 6002, 113191, 1, 1009, 9533]
+    Indirect Target Results:
+  hash_next:
+    Hash: 0x634cb692faef2df2
+    Counters: 5
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0]
+    Indirect Target Results:
+  yyasm_flush_buffer:
+    Hash: 0x029a49844a7cd491
+    Counters: 4
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0]
+    Indirect Target Results:
+  gc_sweep:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_vector_length:
+    Hash: 0x000a38e820812611
+    Counters: 4
+    Function count: 5926
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 5926]
+    Indirect Target Results:
+  sweep_list:
+    Hash: 0x70304c3496d643f5
+    Counters: 4
+    Function count: 14252
+    Indirect Call Site Count: 0
+    Block counts: [417328107, 153819249, 203479004]
+    Indirect Target Results:
+  yyasmrealloc:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_is_closure:
+    Hash: 0x000000028e7d24d1
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  gc_make_substring:
+    Hash: 0x000000000000035c
+    Counters: 2
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+  sweep:
+    Hash: 0x622b21ec0c6351d4
+    Counters: 6
+    Function count: 138763080
+    Indirect Call Site Count: 0
+    Block counts: [0, 138748828, 138740148, 14252, 14252]
+    Indirect Target Results:
+  output_record:
+    Hash: 0x00000046ca712451
+    Counters: 3
+    Function count: 969
+    Indirect Call Site Count: 0
+    Block counts: [2905, 1936]
+    Indirect Target Results:
+  vm_make_record:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 981
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_cons:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 9568214
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_is_self:
+    Hash: 0x6efc6603e225c1b7
+    Counters: 8
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0, 0, 0, 0]
+    Indirect Target Results:
+  utf8_read_char:
+    Hash: 0x0a0299d664b19b34
+    Counters: 4
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0]
+    Indirect Target Results:
+  buffer_write_wrapper:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  lexer.c:yyasmensure_buffer_stack:
+    Hash: 0x4230d19d88fcdfd8
+    Counters: 5
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0, 0]
+    Indirect Target Results:
+  gc_register_root:
+    Hash: 0x00000000002924d1
+    Counters: 2
+    Function count: 123283051
+    Indirect Call Site Count: 0
+    Block counts: [123283046]
+    Indirect Target Results:
+  op_depth:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  yyasm_scan_string:
+    Hash: 0x0000000000000018
+    Counters: 1
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_gc_stats:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 1
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_index_set:
+    Hash: 0x8c51c2fd45e84e04
+    Counters: 9
+    Function count: 12472
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 12472, 9502, 12472, 2970, 12472, 0]
+    Indirect Target Results:
+  op_lit_symbol:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 29524885
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  cons:
+    Hash: 0x0000000000000000
+    Counters: 1
+    Function count: 148296238
+    Indirect Call Site Count: 0
+    Block counts: []
+    Indirect Target Results:
+  op_asm:
+    Hash: 0x000000a3da8124d1
+    Counters: 3
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0]
+    Indirect Target Results:
+  op_index_ref:
+    Hash: 0x2771e4836da93ad8
+    Counters: 8
+    Function count: 6056
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 6056, 4913, 6056, 1143, 6056]
+    Indirect Target Results:
+  buffer_read:
+    Hash: 0x008e81b29e491458
+    Counters: 4
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0, 0, 0]
+    Indirect Target Results:
+  op_is_char:
+    Hash: 0x000000028e7d24d1
+    Counters: 3
+    Function count: 203
+    Indirect Call Site Count: 0
+    Block counts: [203, 203]
+    Indirect Target Results:
+  hash_pointer:
+    Hash: 0x000000000011b458
+    Counters: 2
+    Function count: 0
+    Indirect Call Site Count: 0
+    Block counts: [0]
+    Indirect Target Results:
+Instrumentation level: Front-end
+Functions shown: 234
+Total functions: 234
+Maximum function count: 286168370
+Maximum internal block count: 417328107
+Top 30 functions with the largest internal block counts: 
+  sweep_list, max count = 417328107
+  mark_graph, max count = 286168370
+  hash_string_cmp, max count = 269676436
+  internal_alloc, max count = 263523000
+  gc_alloc_type, max count = 226043004
+  vm_alloc, max count = 185320308
+  mark_object, max count = 153833501
+  cons, max count = 148296238
+  vm_eval, max count = 143588679
+  sweep, max count = 138763080
+  gc_protect, max count = 138728022
+  vm_push, max count = 138728022
+  gc_unprotect, max count = 138728022
+  vm_pop, max count = 138728021
+  hash_string, max count = 126450163
+  gc_unregister_root, max count = 123534167
+  gc_register_root, max count = 123283051
+  hash_find_kv, max count = 77367245
+  hash_get_stateful, max count = 63872433
+  gc_malloc, max count = 60069257
+  gc_free, max count = 60029868
+  parse_int, max count = 36730260
+  op_read, max count = 33845369
+  gc_alloc, max count = 29526876
+  vm_make_string, max count = 29525906
+  parse_string, max count = 29524934
+  op_lit_symbol, max count = 29524885
+  make_symbol, max count = 29524885
+  clone_env, max count = 14805012
+  op_swap, max count = 13967392
+Statistics for indirect call sites profile:
+  Total number of sites: 0
+  Total number of sites with values: 0
+  Total number of profiled values: 0
+  Value sites histogram:
+	NumTargets, SiteCount
+Statistics for memory intrinsic calls sizes profile:
+  Total number of sites: 0
+  Total number of sites with values: 0
+  Total number of profiled values: 0
+  Value sites histogram:
+	NumTargets, SiteCount
+Detailed summary:
+Total number of blocks: 877
+Total count: 7671893691
+36 blocks with count >= 74542827 account for 80 percentage of the total counts.
+49 blocks with count >= 49191706 account for 90 percentage of the total counts.
+60 blocks with count >= 29524885 account for 95 percentage of the total counts.
+87 blocks with count >= 7749200 account for 99 percentage of the total counts.
+110 blocks with count >= 813531 account for 99.9 percentage of the total counts.
+139 blocks with count >= 99061 account for 99.99 percentage of the total counts.
+173 blocks with count >= 5926 account for 99.999 percentage of the total counts.

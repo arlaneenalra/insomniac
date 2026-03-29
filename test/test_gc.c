@@ -1,7 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <insomniac.h>
+#include <buffer.h>
 #include <test.h>
 
 /* Pull in the internal GC struct so tests can inspect counters directly
@@ -702,6 +704,142 @@ int test_multi_cycle_collection(void) {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Test 13: Buffer survives GC -- tail pointer must be traced         */
+/* ------------------------------------------------------------------ */
+int test_buffer_survives_gc(void) {
+    buffer_type *buf = 0;
+    uint8_t write_data[128];
+    uint8_t read_data[128];
+
+    gc_register_root(gc, (void **)&buf);
+
+    buffer_create(gc, &buf);
+
+    /* Fill write_data with a known pattern */
+    for (int i = 0; i < 128; i++) {
+        write_data[i] = (uint8_t)(i & 0xFF);
+    }
+
+    /* Write some data before GC */
+    buffer_write(buf, write_data, 128);
+
+    if (buffer_size(buf) != 128) {
+        printf("before GC: buffer size = %zu, expected 128\n", buffer_size(buf));
+        gc_unregister_root(gc, (void **)&buf);
+        return 1;
+    }
+
+    /* Force GC */
+    gc_sweep(gc);
+
+    /* Verify data survived */
+    if (buffer_size(buf) != 128) {
+        printf("after GC: buffer size = %zu, expected 128\n", buffer_size(buf));
+        gc_unregister_root(gc, (void **)&buf);
+        return 1;
+    }
+
+    memset(read_data, 0, sizeof(read_data));
+    buffer_read(buf, read_data, 128);
+    for (int i = 0; i < 128; i++) {
+        if (read_data[i] != (uint8_t)(i & 0xFF)) {
+            printf("after GC: data mismatch at byte %d: got %d, expected %d\n",
+                   i, read_data[i], (uint8_t)(i & 0xFF));
+            gc_unregister_root(gc, (void **)&buf);
+            return 1;
+        }
+    }
+
+    /* Now write MORE data after GC -- this exercises the tail pointer */
+    for (int i = 0; i < 128; i++) {
+        write_data[i] = (uint8_t)((i + 100) & 0xFF);
+    }
+    buffer_write(buf, write_data, 128);
+
+    if (buffer_size(buf) != 256) {
+        printf("after post-GC write: buffer size = %zu, expected 256\n",
+               buffer_size(buf));
+        gc_unregister_root(gc, (void **)&buf);
+        return 1;
+    }
+
+    /* Force another GC and verify everything */
+    gc_sweep(gc);
+
+    if (buffer_size(buf) != 256) {
+        printf("after 2nd GC: buffer size = %zu, expected 256\n",
+               buffer_size(buf));
+        gc_unregister_root(gc, (void **)&buf);
+        return 1;
+    }
+
+    gc_unregister_root(gc, (void **)&buf);
+    return 0;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Test 14: Buffer write across GC boundary (triggers buffer_push)    */
+/* ------------------------------------------------------------------ */
+int test_buffer_write_across_gc(void) {
+    buffer_type *buf = 0;
+    uint8_t block[BLOCK_SIZE];
+
+    gc_register_root(gc, (void **)&buf);
+
+    buffer_create(gc, &buf);
+
+    /* Fill a full block with pattern */
+    for (int i = 0; i < BLOCK_SIZE; i++) {
+        block[i] = (uint8_t)(i & 0xFF);
+    }
+
+    /* Write enough to fill one block exactly, forcing buffer_push on next write */
+    buffer_write(buf, block, BLOCK_SIZE);
+
+    /* Force GC -- tail pointer must survive for the next write to work */
+    gc_sweep(gc);
+
+    /* Write another block -- this calls buffer_push which uses buf->tail */
+    for (int i = 0; i < BLOCK_SIZE; i++) {
+        block[i] = (uint8_t)((i + 50) & 0xFF);
+    }
+    buffer_write(buf, block, BLOCK_SIZE);
+
+    if (buffer_size(buf) != 2 * BLOCK_SIZE) {
+        printf("expected size=%d, got %zu\n", 2 * BLOCK_SIZE, buffer_size(buf));
+        gc_unregister_root(gc, (void **)&buf);
+        return 1;
+    }
+
+    /* Read back and verify both blocks */
+    uint8_t *result = malloc(2 * BLOCK_SIZE);
+    buffer_read(buf, result, 2 * BLOCK_SIZE);
+
+    for (int i = 0; i < BLOCK_SIZE; i++) {
+        if (result[i] != (uint8_t)(i & 0xFF)) {
+            printf("block 1 mismatch at %d: got %d expected %d\n",
+                   i, result[i], (uint8_t)(i & 0xFF));
+            free(result);
+            gc_unregister_root(gc, (void **)&buf);
+            return 1;
+        }
+    }
+    for (int i = 0; i < BLOCK_SIZE; i++) {
+        if (result[BLOCK_SIZE + i] != (uint8_t)((i + 50) & 0xFF)) {
+            printf("block 2 mismatch at %d: got %d expected %d\n",
+                   i, result[BLOCK_SIZE + i], (uint8_t)((i + 50) & 0xFF));
+            free(result);
+            gc_unregister_root(gc, (void **)&buf);
+            return 1;
+        }
+    }
+
+    free(result);
+    gc_unregister_root(gc, (void **)&buf);
+    return 0;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Test case table                                                    */
 /* ------------------------------------------------------------------ */
 test_case_type cases[] = {
@@ -717,5 +855,7 @@ test_case_type cases[] = {
     {&test_sweeps_counter,             "Sweeps counter increments correctly"},
     {&test_dead_objects_collected,     "Dead objects collected; allocations and free recover"},
     {&test_multi_cycle_collection,     "Multi-cycle: counters consistent across sweeps"},
+    {&test_buffer_survives_gc,         "Buffer survives GC"},
+    {&test_buffer_write_across_gc,     "Buffer write across GC boundary"},
     {0, 0}
 };

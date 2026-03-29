@@ -6,6 +6,7 @@ gc_type_def create_buffer_type(gc_type *gc) {
 
     type = gc_register_type(gc, sizeof(buffer_internal_type));
     gc_register_pointer(gc, type, offsetof(buffer_internal_type, head));
+    gc_register_pointer(gc, type, offsetof(buffer_internal_type, tail));
     return type;
 }
 

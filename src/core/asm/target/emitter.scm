@@ -109,8 +109,7 @@
 ;; Symbol token is a chain-rule: (s-char string-token).
 ;; String token is a chain-rule: (open-quote body-token close-quote).
 (define (emit-symbol target token)
-    (define string-token (car (cdr (token-text token))))
-    (define body (token-text (car (cdr (token-text string-token)))))
+    (define body (token-text (car (cdr (token-text token)))))
     (emit-op 7)
     (emit-quad-str (number->string (string-length body)))
     (emit-string-bytes body))

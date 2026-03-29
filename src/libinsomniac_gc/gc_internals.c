@@ -16,15 +16,15 @@ meta_obj_type *internal_alloc(gc_ms_type *gc, size_t size) {
     /* Add on to the number of allocations. */
     gc->allocations++;
 
-    /* Subtract allocated amout from available memory. */
-    gc->free -= real_size;
-
-    /* If there is no memory left, sweep. */
-    if (gc->free < 0) {
+    /* If there is not enough memory for this allocation plus at least
+       one byte of headroom, sweep. */
+    if (gc->free <= (vm_int)real_size) {
         sweep(gc);
-        gc->free -= real_size;
     }
-  
+
+    /* Subtract allocated amount from available memory. */
+    gc->free -= (vm_int)real_size;
+
     /* Make sure we actually freed up some memory. */
     assert(gc->free > 0);
  

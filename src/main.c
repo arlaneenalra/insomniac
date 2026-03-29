@@ -37,6 +37,9 @@ int main(int argc, char **argv) {
     char *code_str = 0;
     int ret_value = 0;
 
+    /* Enable GC validation for stale pointer detection. */
+    gc_set_validate(gc, true);
+
     /* needed to setup locale aware printf . . .
        I need to do a great deal more research here */
     setlocale(LC_ALL, "");

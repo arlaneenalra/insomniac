@@ -56,6 +56,11 @@ bool gc_is_stale(gc_type *gc, void *ptr);
    with diagnostic output on violation. */
 void gc_set_validate(gc_type *gc, bool enable);
 
+/* Enable or disable verbose GC reporting.
+   When enabled, gc_stats prints allocation counts, sweep counts, and
+   free memory before and after each sweep. */
+void gc_verbose_reporting(gc_type *gc, bool enable);
+
 /* Some utility functions. */
 void gc_make_substring(gc_type *gc, const char *src, char **gc_str, int len);
 #define gc_make_string(gc, src, gc_str) \

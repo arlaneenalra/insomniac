@@ -58,7 +58,6 @@ void op_cdr(vm_internal_type *vm) {
         vm_push(vm, obj);
 
     } else {
-
         throw(vm, "Attempt to read the cdr of a non-pair", 1, obj);
     }
 

@@ -95,6 +95,7 @@ typedef struct gc_ms {
     gc_type_def array_type; /* typedef for pointer arrays */
 
     bool validate; /* when true, copy_graph validates pointer pool membership */
+    bool verbose;  /* when true, gc_stats prints allocation info */
 
     /* Set during sweep for validation: boundaries of the from-space and to-space */
     uint8_t *from_space;

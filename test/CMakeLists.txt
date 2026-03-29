@@ -28,6 +28,7 @@ target_link_libraries(test_gc
   insomniac_gc
   insomniac_hash
   insomniac_vm
+  insomniac_buffer
   tester
   )
 

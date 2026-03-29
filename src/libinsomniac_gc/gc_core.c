@@ -53,6 +53,7 @@ gc_type *gc_create(size_t cell_size, size_t pool_size) {
 
     gc->protect_count = 0;
     gc->validate = false;
+    gc->verbose = false;
 
     /* Used to keep track of type definitions. */
     gc->type_defs = 0;
@@ -205,6 +206,10 @@ void gc_stats(gc_type *gc_void, bool start) {
 
     assert(gc);
 
+    if (!gc->verbose) {
+        return;
+    }
+
     if (start) {
         printf("Before: ");
     } else {
@@ -215,6 +220,12 @@ void gc_stats(gc_type *gc_void, bool start) {
         "GC statistics Allocations : %" PRIi64
             " Sweeps: %" PRIi64 " Free: %" PRIi64 "\n",
         gc->allocations, gc->sweeps, gc->free);
+}
+
+/* enable or disable verbose GC reporting */
+void gc_verbose_reporting(gc_type *gc_void, bool enable) {
+    gc_ms_type *gc = (gc_ms_type *)gc_void;
+    gc->verbose = enable;
 }
 
 /* initiate a sweep of objects in the active list */
